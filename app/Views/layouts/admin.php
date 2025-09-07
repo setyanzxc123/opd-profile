@@ -20,11 +20,26 @@
         <h3>Menu</h3>
         <ul class="nav side-menu">
           <li><a href="<?= site_url('admin') ?>"><i class="fa fa-home"></i> Dashboard</a></li>
-          <li><a><i class="fa fa-users"></i> Users <span class="fa fa-chevron-down"></span></a>
+          <li><a href="<?= site_url('admin/profile') ?>"><i class="fa fa-building"></i> Profil OPD</a></li>
+
+          <li><a><i class="fa fa-cogs"></i> Layanan <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
-              <li><a href="<?= site_url('admin/users') ?>">Daftar</a></li>
+              <li><a href="<?= site_url('admin/services') ?>">Daftar Layanan</a></li>
             </ul>
           </li>
+
+          <li><a><i class="fa fa-newspaper-o"></i> Berita <span class="fa fa-chevron-down"></span></a>
+            <ul class="nav child_menu">
+              <li><a href="<?= site_url('admin/news') ?>">Daftar Berita</a></li>
+            </ul>
+          </li>
+
+          <li><a href="<?= site_url('admin/galleries') ?>"><i class="fa fa-image"></i> Galeri</a></li>
+          <li><a href="<?= site_url('admin/documents') ?>"><i class="fa fa-file-text-o"></i> Dokumen</a></li>
+          <li><a href="<?= site_url('admin/contacts') ?>"><i class="fa fa-envelope"></i> Pesan Kontak</a></li>
+
+          <li><a href="<?= site_url('admin/users') ?>"><i class="fa fa-users"></i> Pengguna</a></li>
+          <li><a href="<?= site_url('admin/logs') ?>"><i class="fa fa-history"></i> Log Aktivitas</a></li>
         </ul>
       </div>
     </div>
