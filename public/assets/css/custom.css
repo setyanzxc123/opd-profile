@@ -1,0 +1,19 @@
+/* Custom menu hover highlight */
+/* Menggunakan warna biru saat hover agar sesuai demo template */
+
+/* Hover pada link menu yang tidak aktif/tidak terbuka */
+.menu-vertical .menu-item:not(.active):not(.open) > .menu-link:hover {
+  background-color: var(--bs-primary-bg-subtle, rgba(105, 108, 255, 0.12));
+  color: var(--bs-primary, #696cff);
+}
+
+/* Pastikan ikon ikut berubah warna */
+.menu-vertical .menu-item:not(.active):not(.open) > .menu-link:hover .menu-icon {
+  color: inherit;
+}
+
+/* Sedikit penegasan untuk teks saat hover */
+.menu-vertical .menu-item:not(.active):not(.open) > .menu-link:hover > div {
+  color: inherit;
+}
+

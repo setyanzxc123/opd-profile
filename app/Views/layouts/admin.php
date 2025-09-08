@@ -7,6 +7,7 @@
   <link href="<?= base_url('assets/vendor/fonts/iconify-icons.css') ?>" rel="stylesheet">
   <link href="<?= base_url('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') ?>" rel="stylesheet">
   <link href="<?= base_url('assets/css/demo.css') ?>" rel="stylesheet">
+  <link href="<?= base_url('assets/css/custom.css') ?>" rel="stylesheet">
  </head>
 <body>
   <div class="layout-wrapper layout-content-navbar">
