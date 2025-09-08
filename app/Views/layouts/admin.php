@@ -15,29 +15,30 @@
       <aside id="layout-menu" class="layout-menu menu-vertical bg-menu-theme">
         <div class="app-brand demo">
           <a href="<?= site_url('admin') ?>" class="app-brand-link">
+            <span class="app-brand-logo demo"><i class="tf-icons bx bx-building"></i></span>
             <span class="app-brand-text demo menu-text fw-bolder ms-2">Admin OPD</span>
           </a>
         </div>
         <ul class="menu-inner py-1">
-          <li class="menu-item"><a href="<?= site_url('admin') ?>" class="menu-link"><div>Dashboard</div></a></li>
-          <li class="menu-item"><a href="<?= site_url('admin/profile') ?>" class="menu-link"><div>Profil OPD</div></a></li>
+          <li class="menu-item"><a href="<?= site_url('admin') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-home me-2"></i><div>Dashboard</div></a></li>
+          <li class="menu-item"><a href="<?= site_url('admin/profile') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-building me-2"></i><div>Profil OPD</div></a></li>
           <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle"><div>Layanan</div></a>
+            <a href="javascript:void(0);" class="menu-link menu-toggle"><i class="menu-icon tf-icons bx bx-cog me-2"></i><div>Layanan</div></a>
             <ul class="menu-sub">
               <li class="menu-item"><a href="<?= site_url('admin/services') ?>" class="menu-link"><div>Daftar Layanan</div></a></li>
             </ul>
           </li>
           <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle"><div>Berita</div></a>
+            <a href="javascript:void(0);" class="menu-link menu-toggle"><i class="menu-icon tf-icons bx bx-news me-2"></i><div>Berita</div></a>
             <ul class="menu-sub">
               <li class="menu-item"><a href="<?= site_url('admin/news') ?>" class="menu-link"><div>Daftar Berita</div></a></li>
             </ul>
           </li>
-          <li class="menu-item"><a href="<?= site_url('admin/galleries') ?>" class="menu-link"><div>Galeri</div></a></li>
-          <li class="menu-item"><a href="<?= site_url('admin/documents') ?>" class="menu-link"><div>Dokumen</div></a></li>
-          <li class="menu-item"><a href="<?= site_url('admin/contacts') ?>" class="menu-link"><div>Pesan Kontak</div></a></li>
-          <li class="menu-item"><a href="<?= site_url('admin/users') ?>" class="menu-link"><div>Pengguna</div></a></li>
-          <li class="menu-item"><a href="<?= site_url('admin/logs') ?>" class="menu-link"><div>Log Aktivitas</div></a></li>
+          <li class="menu-item"><a href="<?= site_url('admin/galleries') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-image me-2"></i><div>Galeri</div></a></li>
+          <li class="menu-item"><a href="<?= site_url('admin/documents') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-file me-2"></i><div>Dokumen</div></a></li>
+          <li class="menu-item"><a href="<?= site_url('admin/contacts') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-envelope me-2"></i><div>Pesan Kontak</div></a></li>
+          <li class="menu-item"><a href="<?= site_url('admin/users') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-user me-2"></i><div>Pengguna</div></a></li>
+          <li class="menu-item"><a href="<?= site_url('admin/logs') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-history me-2"></i><div>Log Aktivitas</div></a></li>
         </ul>
       </aside>
       <!-- /Menu -->
@@ -49,7 +50,7 @@
           <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
             <ul class="navbar-nav flex-row align-items-center ms-auto">
               <li class="nav-item me-2">
-                <a href="<?= site_url('logout') ?>" class="btn btn-sm btn-outline-secondary">Keluar</a>
+                <a href="<?= site_url('logout') ?>" class="btn btn-sm btn-outline-secondary"><i class="tf-icons bx bx-log-out me-1"></i>Keluar</a>
               </li>
             </ul>
           </div>
