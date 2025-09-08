@@ -15,5 +15,8 @@ $routes->group('admin', [
     'filter'    => 'admin',
 ], function($routes) {
     $routes->get('/', 'Dashboard::index');
+    // OPD Profile CMS
+    $routes->get('profile', 'Profile::edit');
+    $routes->post('profile', 'Profile::update');
 });
 

@@ -1,0 +1,16 @@
+<?php
+namespace App\Models;
+
+use CodeIgniter\Model;
+
+class OpdProfileModel extends Model
+{
+    protected $table      = 'opd_profile';
+    protected $primaryKey = 'id';
+    protected $returnType = 'array';
+    protected $allowedFields = [
+        'name','description','vision','mission','address','phone','email'
+    ];
+    protected $useTimestamps = false; // schema has no created_at/updated_at
+}
+
