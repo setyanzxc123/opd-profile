@@ -4,13 +4,46 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Login Admin</title>
-  <link href="<?= base_url('assets/vendors/bootstrap/dist/css/bootstrap.min.css') ?>" rel="stylesheet">
-  <link href="<?= base_url('assets/vendors/font-awesome/css/font-awesome.min.css') ?>" rel="stylesheet">
-  <link href="<?= base_url('assets/vendors/nprogress/nprogress.css') ?>" rel="stylesheet">
-  <link href="<?= base_url('assets/vendors/animate.css/animate.min.css') ?>" rel="stylesheet">
-  <link href="<?= base_url('assets/build/css/custom.min.css') ?>" rel="stylesheet">
+  <link href="<?= base_url('assets/vendor/css/core.css') ?>" rel="stylesheet">
+  <link href="<?= base_url('assets/vendor/css/pages/page-auth.css') ?>" rel="stylesheet">
+  <link href="<?= base_url('assets/vendor/fonts/iconify-icons.css') ?>" rel="stylesheet">
+  <link href="<?= base_url('assets/css/demo.css') ?>" rel="stylesheet">
 </head>
-<body class="login">
+<body>
+  <div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+      <div class="authentication-inner">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="mb-2">Login Admin</h4>
+            <?php if (session()->getFlashdata('error')): ?>
+              <div class="alert alert-danger" role="alert"><?= esc(session('error')) ?></div>
+            <?php endif; ?>
+            <?php if (session()->getFlashdata('message')): ?>
+              <div class="alert alert-success" role="alert"><?= esc(session('message')) ?></div>
+            <?php endif; ?>
+            <form method="post" action="<?= site_url('login') ?>">
+              <?= csrf_field() ?>
+              <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input id="username" type="text" class="form-control" name="username" value="<?= old('username') ?>" required autofocus>
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input id="password" type="password" class="form-control" name="password" required>
+              </div>
+              <div class="mb-3">
+                <button type="submit" class="btn btn-primary d-grid w-100">Masuk</button>
+              </div>
+            </form>
+            <p class="text-center mt-2 mb-0">&copy; <?= date('Y') ?> OPD &bull; Admin Panel</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- Legacy login markup (disabled) -->
+<!--
 <div>
   <div class="login_wrapper">
     <div class="animate form login_form">
@@ -38,9 +71,12 @@
   </div>
 </div>
 
-<script src="<?= base_url('assets/vendors/jquery/dist/jquery.min.js') ?>"></script>
-<script src="<?= base_url('assets/vendors/bootstrap/dist/js/bootstrap.bundle.min.js') ?>"></script>
-<script src="<?= base_url('assets/vendors/nprogress/nprogress.js') ?>"></script>
-<script src="<?= base_url('assets/build/js/custom.min.js') ?>"></script>
+-->
+<script src="<?= base_url('assets/vendor/libs/jquery/jquery.js') ?>"></script>
+<script src="<?= base_url('assets/vendor/libs/popper/popper.js') ?>"></script>
+<script src="<?= base_url('assets/vendor/js/bootstrap.js') ?>"></script>
+<script src="<?= base_url('assets/vendor/js/helpers.js') ?>"></script>
+<script src="<?= base_url('assets/js/config.js') ?>"></script>
+<script src="<?= base_url('assets/js/main.js') ?>"></script>
 </body>
 </html>

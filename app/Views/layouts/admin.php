@@ -3,64 +3,85 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= esc($title ?? 'Admin') ?></title>
-  <link href="<?= base_url('assets/vendors/bootstrap/dist/css/bootstrap.min.css') ?>" rel="stylesheet">
-  <link href="<?= base_url('assets/vendors/font-awesome/css/font-awesome.min.css') ?>" rel="stylesheet">
-  <link href="<?= base_url('assets/vendors/nprogress/nprogress.css') ?>" rel="stylesheet">
-  <link href="<?= base_url('assets/build/css/custom.min.css') ?>" rel="stylesheet">
-</head>
-<body class="nav-md">
-<div class="container body"><div class="main_container">
-
-  <div class="col-md-3 left_col"><div class="left_col scroll-view">
-    <div class="navbar nav_title" style="border:0;">
-      <a href="<?= site_url('admin') ?>" class="site_title"><i class="fa fa-institution"></i> <span>Admin OPD</span></a>
-    </div>
-    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
-      <div class="menu_section">
-        <h3>Menu</h3>
-        <ul class="nav side-menu">
-          <li><a href="<?= site_url('admin') ?>"><i class="fa fa-home"></i> Dashboard</a></li>
-          <li><a href="<?= site_url('admin/profile') ?>"><i class="fa fa-building"></i> Profil OPD</a></li>
-
-          <li><a><i class="fa fa-cogs"></i> Layanan <span class="fa fa-chevron-down"></span></a>
-            <ul class="nav child_menu">
-              <li><a href="<?= site_url('admin/services') ?>">Daftar Layanan</a></li>
+  <link href="<?= base_url('assets/vendor/css/core.css') ?>" rel="stylesheet">
+  <link href="<?= base_url('assets/vendor/fonts/iconify-icons.css') ?>" rel="stylesheet">
+  <link href="<?= base_url('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') ?>" rel="stylesheet">
+  <link href="<?= base_url('assets/css/demo.css') ?>" rel="stylesheet">
+ </head>
+<body>
+  <div class="layout-wrapper layout-content-navbar">
+    <div class="layout-container">
+      <!-- Menu -->
+      <aside id="layout-menu" class="layout-menu menu-vertical bg-menu-theme">
+        <div class="app-brand demo">
+          <a href="<?= site_url('admin') ?>" class="app-brand-link">
+            <span class="app-brand-text demo menu-text fw-bolder ms-2">Admin OPD</span>
+          </a>
+        </div>
+        <ul class="menu-inner py-1">
+          <li class="menu-item"><a href="<?= site_url('admin') ?>" class="menu-link"><div>Dashboard</div></a></li>
+          <li class="menu-item"><a href="<?= site_url('admin/profile') ?>" class="menu-link"><div>Profil OPD</div></a></li>
+          <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle"><div>Layanan</div></a>
+            <ul class="menu-sub">
+              <li class="menu-item"><a href="<?= site_url('admin/services') ?>" class="menu-link"><div>Daftar Layanan</div></a></li>
             </ul>
           </li>
-
-          <li><a><i class="fa fa-newspaper-o"></i> Berita <span class="fa fa-chevron-down"></span></a>
-            <ul class="nav child_menu">
-              <li><a href="<?= site_url('admin/news') ?>">Daftar Berita</a></li>
+          <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle"><div>Berita</div></a>
+            <ul class="menu-sub">
+              <li class="menu-item"><a href="<?= site_url('admin/news') ?>" class="menu-link"><div>Daftar Berita</div></a></li>
             </ul>
           </li>
-
-          <li><a href="<?= site_url('admin/galleries') ?>"><i class="fa fa-image"></i> Galeri</a></li>
-          <li><a href="<?= site_url('admin/documents') ?>"><i class="fa fa-file-text-o"></i> Dokumen</a></li>
-          <li><a href="<?= site_url('admin/contacts') ?>"><i class="fa fa-envelope"></i> Pesan Kontak</a></li>
-
-          <li><a href="<?= site_url('admin/users') ?>"><i class="fa fa-users"></i> Pengguna</a></li>
-          <li><a href="<?= site_url('admin/logs') ?>"><i class="fa fa-history"></i> Log Aktivitas</a></li>
+          <li class="menu-item"><a href="<?= site_url('admin/galleries') ?>" class="menu-link"><div>Galeri</div></a></li>
+          <li class="menu-item"><a href="<?= site_url('admin/documents') ?>" class="menu-link"><div>Dokumen</div></a></li>
+          <li class="menu-item"><a href="<?= site_url('admin/contacts') ?>" class="menu-link"><div>Pesan Kontak</div></a></li>
+          <li class="menu-item"><a href="<?= site_url('admin/users') ?>" class="menu-link"><div>Pengguna</div></a></li>
+          <li class="menu-item"><a href="<?= site_url('admin/logs') ?>" class="menu-link"><div>Log Aktivitas</div></a></li>
         </ul>
+      </aside>
+      <!-- /Menu -->
+
+      <!-- Page -->
+      <div class="layout-page">
+        <!-- Navbar -->
+        <nav class="layout-navbar navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
+          <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+            <ul class="navbar-nav flex-row align-items-center ms-auto">
+              <li class="nav-item me-2">
+                <a href="<?= site_url('logout') ?>" class="btn btn-sm btn-outline-secondary">Keluar</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+        <!-- /Navbar -->
+
+        <!-- Content wrapper -->
+        <div class="content-wrapper">
+          <div class="container-xxl flex-grow-1 container-p-y">
+            <?= $this->renderSection('content') ?>
+          </div>
+          <footer class="content-footer footer bg-footer-theme">
+            <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
+              <div class="mb-2 mb-md-0">OPD Admin</div>
+            </div>
+          </footer>
+          <div class="content-backdrop fade"></div>
+        </div>
+        <!-- /Content wrapper -->
       </div>
+      <!-- /Page -->
+
+      <div class="layout-overlay layout-menu-toggle"></div>
+      <div class="drag-target"></div>
     </div>
-  </div></div>
-
-  <div class="top_nav"><div class="nav_menu"><nav>
-    <ul class="nav navbar-nav navbar-right">
-      <li><a href="<?= site_url('logout') ?>"><i class="fa fa-sign-out"></i> Keluar</a></li>
-    </ul>
-  </nav></div></div>
-
-  <div class="right_col" role="main">
-    <?= $this->renderSection('content') ?>
   </div>
-
-  <footer><div class="pull-right">OPD Admin</div><div class="clearfix"></div></footer>
-
-</div></div>
-<script src="<?= base_url('assets/vendors/jquery/dist/jquery.min.js') ?>"></script>
-<script src="<?= base_url('assets/vendors/bootstrap/dist/js/bootstrap.bundle.min.js') ?>"></script>
-<script src="<?= base_url('assets/vendors/fastclick/lib/fastclick.js') ?>"></script>
-<script src="<?= base_url('assets/vendors/nprogress/nprogress.js') ?>"></script>
-<script src="<?= base_url('assets/build/js/custom.min.js') ?>"></script>
+<script src="<?= base_url('assets/vendor/libs/jquery/jquery.js') ?>"></script>
+<script src="<?= base_url('assets/vendor/libs/popper/popper.js') ?>"></script>
+<script src="<?= base_url('assets/vendor/js/bootstrap.js') ?>"></script>
+<script src="<?= base_url('assets/vendor/js/helpers.js') ?>"></script>
+<script src="<?= base_url('assets/js/config.js') ?>"></script>
+<script src="<?= base_url('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') ?>"></script>
+<script src="<?= base_url('assets/vendor/js/menu.js') ?>"></script>
+<script src="<?= base_url('assets/js/main.js') ?>"></script>
 </body></html>
