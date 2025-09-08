@@ -12,13 +12,14 @@
   <div class="layout-wrapper layout-content-navbar">
     <div class="layout-container">
       <!-- Menu -->
-      <aside id="layout-menu" class="layout-menu menu-vertical bg-menu-theme">
+      <aside id="layout-menu" class="layout-menu menu menu-vertical bg-menu-theme">
         <div class="app-brand demo">
           <a href="<?= site_url('admin') ?>" class="app-brand-link">
             <span class="app-brand-logo demo"><i class="tf-icons bx bx-building"></i></span>
             <span class="app-brand-text demo menu-text fw-bolder ms-2">Admin OPD</span>
           </a>
         </div>
+        <div class="menu-inner-shadow"></div>
         <ul class="menu-inner py-1">
           <li class="menu-item"><a href="<?= site_url('admin') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-home me-2"></i><div>Dashboard</div></a></li>
           <li class="menu-item"><a href="<?= site_url('admin/profile') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-building me-2"></i><div>Profil OPD</div></a></li>
