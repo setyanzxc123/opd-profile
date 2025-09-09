@@ -62,6 +62,57 @@
         <!-- Content wrapper -->
         <div class="content-wrapper">
           <div class="container-xxl flex-grow-1 container-p-y">
+            <?php
+              // Build dynamic breadcrumbs from URI segments for Admin pages
+              $uri       = service('uri');
+              $segments  = $uri->getSegments();
+              $labelsMap = [
+                'admin'     => 'Beranda',
+                'profile'   => 'Profil OPD',
+                'news'      => 'News',
+                'services'  => 'Layanan',
+                'galleries' => 'Galeri',
+                'documents' => 'Dokumen',
+                'contacts'  => 'Pesan Kontak',
+                'users'     => 'Pengguna',
+                'logs'      => 'Log Aktivitas',
+                'create'    => 'Create',
+                'edit'      => 'Edit',
+              ];
+
+              // Only render when inside admin area
+              if (!empty($segments) && $segments[0] === 'admin'):
+                $crumbs = [];
+                $path   = 'admin';
+                // Start with home
+                $crumbs[] = [ 'label' => $labelsMap['admin'], 'url' => site_url('admin'), 'active' => false ];
+
+                for ($i = 1; $i < count($segments); $i++) {
+                  $seg = $segments[$i];
+                  // Skip numeric IDs or empty segments from route
+                  if (is_numeric($seg)) continue;
+                  $path .= '/' . $seg;
+                  $label = $labelsMap[$seg] ?? ucfirst(str_replace('-', ' ', $seg));
+                  $isLast = ($i === count($segments) - 1) || (isset($segments[$i+1]) && is_numeric($segments[$i+1]));
+                  $crumbs[] = [
+                    'label' => $label,
+                    'url'   => $isLast ? null : site_url($path),
+                    'active'=> $isLast,
+                  ];
+                }
+            ?>
+            <nav aria-label="breadcrumb" class="mb-3">
+              <ol class="breadcrumb">
+                <?php foreach ($crumbs as $c): ?>
+                  <?php if (!empty($c['active'])): ?>
+                    <li class="breadcrumb-item active" aria-current="page"><?= esc($c['label']) ?></li>
+                  <?php else: ?>
+                    <li class="breadcrumb-item"><a href="<?= $c['url'] ?>"><?= esc($c['label']) ?></a></li>
+                  <?php endif; ?>
+                <?php endforeach; ?>
+              </ol>
+            </nav>
+            <?php endif; ?>
             <?= $this->renderSection('content') ?>
           </div>
           <footer class="content-footer footer bg-footer-theme">
