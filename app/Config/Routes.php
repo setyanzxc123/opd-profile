@@ -25,5 +25,12 @@ $routes->group('admin', [
     $routes->get('news/edit/(:num)', 'News::edit/$1');
     $routes->post('news/update/(:num)', 'News::update/$1');
     $routes->post('news/delete/(:num)', 'News::delete/$1');
+    // Galleries CMS
+    $routes->get('galleries', 'Galleries::index');
+    $routes->get('galleries/create', 'Galleries::create');
+    $routes->post('galleries', 'Galleries::store');
+    $routes->get('galleries/edit/(:num)', 'Galleries::edit/$1');
+    $routes->post('galleries/update/(:num)', 'Galleries::update/$1');
+    $routes->post('galleries/delete/(:num)', 'Galleries::delete/$1');
 });
 
