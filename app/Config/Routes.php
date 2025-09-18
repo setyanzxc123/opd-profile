@@ -13,7 +13,7 @@ $routes->get('logout', 'Auth::logout');
 $routes->group('admin', [
     'namespace' => 'App\Controllers\Admin',
     'filter'    => 'admin',
-], function($routes) {
+], function ($routes) {
     $routes->get('/', 'Dashboard::index');
     // OPD Profile CMS
     $routes->get('profile', 'Profile::edit');
@@ -39,5 +39,12 @@ $routes->group('admin', [
     $routes->get('documents/edit/(:num)', 'Documents::edit/$1');
     $routes->post('documents/update/(:num)', 'Documents::update/$1');
     $routes->post('documents/delete/(:num)', 'Documents::delete/$1');
+    // Users management (admin only)
+    $routes->get('users', 'Users::index');
+    $routes->get('users/create', 'Users::create');
+    $routes->post('users', 'Users::store');
+    $routes->get('users/edit/(:num)', 'Users::edit/$1');
+    $routes->post('users/update/(:num)', 'Users::update/$1');
+    $routes->post('users/toggle/(:num)', 'Users::toggle/$1');
+    $routes->post('users/reset/(:num)', 'Users::resetPassword/$1');
 });
-

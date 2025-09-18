@@ -17,6 +17,11 @@ class AdminAuth implements FilterInterface
         if (!in_array($s->get('role'), ['admin', 'editor'])) {
             return redirect()->to('/')->with('error', 'Tidak berwenang.');
         }
+
+        $path = trim($request->getUri()->getPath(), '/');
+        if (str_starts_with($path, 'admin/users') && $s->get('role') !== 'admin') {
+            return redirect()->to(site_url('admin'))->with('error', 'Hanya admin yang boleh mengakses kelola pengguna.');
+        }
     }
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null) {}
 }

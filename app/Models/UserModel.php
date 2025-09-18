@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Models;
+
 use CodeIgniter\Model;
 
 class UserModel extends Model
@@ -8,5 +10,6 @@ class UserModel extends Model
     protected $primaryKey    = 'id';
     protected $returnType    = 'array';
     protected $useTimestamps = false;
-    protected $allowedFields = ['username','email','password_hash','role','created_at','name', 'is_active', 'last_login_at'];
+    protected $allowedFields = ['username', 'email', 'password_hash', 'role', 'created_at', 'name', 'is_active', 'last_login_at'];
+    public const ROLES = ['admin', 'editor'];
 }
