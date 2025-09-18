@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
@@ -50,7 +51,7 @@ class Profile extends BaseController
         ];
 
         if (! $this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error','Please correct the errors below.');
+            return redirect()->back()->withInput()->with('error', 'Please correct the errors below.');
         }
 
         $model = new OpdProfileModel();
@@ -75,4 +76,3 @@ class Profile extends BaseController
             ->with('message', 'Profile has been saved.');
     }
 }
-
