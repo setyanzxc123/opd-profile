@@ -32,5 +32,12 @@ $routes->group('admin', [
     $routes->get('galleries/edit/(:num)', 'Galleries::edit/$1');
     $routes->post('galleries/update/(:num)', 'Galleries::update/$1');
     $routes->post('galleries/delete/(:num)', 'Galleries::delete/$1');
+    // Documents CMS
+    $routes->get('documents', 'Documents::index');
+    $routes->get('documents/create', 'Documents::create');
+    $routes->post('documents', 'Documents::store');
+    $routes->get('documents/edit/(:num)', 'Documents::edit/$1');
+    $routes->post('documents/update/(:num)', 'Documents::update/$1');
+    $routes->post('documents/delete/(:num)', 'Documents::delete/$1');
 });
 
