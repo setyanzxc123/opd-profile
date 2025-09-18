@@ -16,8 +16,9 @@
     <?php endif; ?>
 
     <div class="card">
-      <div class="table-responsive">
-        <table class="table table-striped">
+      <div class="card-body">
+        <div class="table-responsive">
+        <table id="newsTable" class="table table-striped">
           <thead>
             <tr>
               <th>#</th>
@@ -29,9 +30,7 @@
             </tr>
           </thead>
           <tbody>
-          <?php if (empty($items)): ?>
-            <tr><td colspan="6" class="text-center text-muted">No news yet</td></tr>
-          <?php else: foreach ($items as $i => $n): ?>
+          <?php foreach ($items as $i => $n): ?>
             <tr>
               <td><?= $i + 1 ?></td>
               <td><?= esc($n['title']) ?></td>
@@ -50,9 +49,10 @@
                 </form>
               </td>
             </tr>
-          <?php endforeach; endif; ?>
+          <?php endforeach; ?>
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   </div>
@@ -60,3 +60,25 @@
 
 <?= $this->endSection() ?>
 
+<?= $this->section('pageStyles') ?>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<?= $this->endSection() ?>
+
+<?= $this->section('pageScripts') ?>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script>
+  $(function() {
+    $('#newsTable').DataTable({
+      pageLength: 10,
+      lengthChange: true,
+      order: [],
+      language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json' },
+      columnDefs: [
+        { targets: -1, orderable: false, searchable: false },
+        { targets: 4, orderable: false }
+      ]
+    });
+  });
+</script>
+<?= $this->endSection() ?>
