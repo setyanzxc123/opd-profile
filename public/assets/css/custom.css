@@ -17,3 +17,26 @@
   color: inherit;
 }
 
+/* ============ Active state styling ============ */
+/* Warna biru + bold untuk menu yang aktif, termasuk ikon */
+.menu-vertical .menu-item.active > .menu-link,
+.menu-vertical .menu-item.open > .menu-link {
+  color: var(--bs-primary, #696cff) !important;
+}
+
+.menu-vertical .menu-item.active > .menu-link .menu-icon,
+.menu-vertical .menu-item.open > .menu-link .menu-icon {
+  color: var(--bs-primary, #696cff) !important;
+}
+
+.menu-vertical .menu-item.active > .menu-link > div,
+.menu-vertical .menu-item.open > .menu-link > div {
+  font-weight: 700;
+  color: inherit;
+}
+
+/* Submenu active */
+.menu-vertical .menu-sub .menu-item.active > .menu-link {
+  color: var(--bs-primary, #696cff) !important;
+  font-weight: 600;
+}

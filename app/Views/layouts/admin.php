@@ -8,6 +8,7 @@
   <link href="<?= base_url('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') ?>" rel="stylesheet">
   <link href="<?= base_url('assets/css/demo.css') ?>" rel="stylesheet">
   <link href="<?= base_url('assets/css/custom.css') ?>" rel="stylesheet">
+  <?= $this->renderSection('pageStyles') ?>
  </head>
 <body>
   <div class="layout-wrapper layout-content-navbar">
@@ -41,23 +42,20 @@
           <li class="menu-item"><a href="<?= site_url('admin/contacts') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-envelope me-2"></i><div>Pesan Kontak</div></a></li>
           <li class="menu-item"><a href="<?= site_url('admin/users') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-user me-2"></i><div>Pengguna</div></a></li>
           <li class="menu-item"><a href="<?= site_url('admin/logs') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-history me-2"></i><div>Log Aktivitas</div></a></li>
+          <li class="menu-header small text-uppercase mt-4"><span class="menu-header-text">Lainnya</span></li>
+          <li class="menu-item mt-2">
+            <a href="<?= site_url('logout') ?>" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-log-out me-2"></i>
+              <div>Keluar</div>
+            </a>
+          </li>
         </ul>
       </aside>
       <!-- /Menu -->
 
       <!-- Page -->
       <div class="layout-page">
-        <!-- Navbar -->
-        <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
-          <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-            <ul class="navbar-nav flex-row align-items-center ms-auto">
-              <li class="nav-item me-2">
-                <a href="<?= site_url('logout') ?>" class="btn btn-sm btn-outline-secondary"><i class="tf-icons bx bx-log-out me-1"></i>Keluar</a>
-              </li>
-            </ul>
-          </div>
-        </nav>
-        <!-- /Navbar -->
+        
 
         <!-- Content wrapper -->
         <div class="content-wrapper">
@@ -138,4 +136,5 @@
 <script src="<?= base_url('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') ?>"></script>
 <script src="<?= base_url('assets/vendor/js/menu.js') ?>"></script>
 <script src="<?= base_url('assets/js/main.js') ?>"></script>
+<?= $this->renderSection('pageScripts') ?>
 </body></html>
