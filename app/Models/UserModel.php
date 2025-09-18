@@ -8,5 +8,5 @@ class UserModel extends Model
     protected $primaryKey    = 'id';
     protected $returnType    = 'array';
     protected $useTimestamps = false;
-    protected $allowedFields = ['username','email','password_hash','role','created_at'];
+    protected $allowedFields = ['username','email','password_hash','role','created_at','name', 'is_active', 'last_login_at'];
 }
