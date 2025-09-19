@@ -14,41 +14,52 @@ class Auth extends BaseController
 
     public function attempt()
     {
-
         $rules = ['username' => 'required', 'password' => 'required'];
-        if (!$this->validate($rules)) {
+        if (! $this->validate($rules)) {
             return redirect()->back()->withInput()->with('error', 'Lengkapi data.');
         }
 
-        $u = (new UserModel())->where('username', $this->request->getPost('username'))->first();
-        if (!$u || !password_verify($this->request->getPost('password'), $u['password_hash'])) {
+        $throttler     = service('throttler');
+        $ipKey         = 'login:ip:' . $this->request->getIPAddress();
+        $usernameInput = (string) $this->request->getPost('username');
+        $userKey       = $usernameInput !== '' ? 'login:user:' . strtolower($usernameInput) : null;
+        $maxAttempts   = 5;
+        $decaySeconds  = 60;
+
+        if (! $throttler->check($ipKey, $maxAttempts, $decaySeconds)) {
+            $wait = (int) ceil($throttler->getTokenTime($ipKey));
+            return redirect()->back()->withInput()->with('error', 'Terlalu banyak percobaan login. Coba lagi dalam ' . $wait . ' detik.');
+        }
+
+        if ($userKey && ! $throttler->check($userKey, $maxAttempts, $decaySeconds)) {
+            $wait = (int) ceil($throttler->getTokenTime($userKey));
+            return redirect()->back()->withInput()->with('error', 'Terlalu banyak percobaan untuk username ini. Coba lagi dalam ' . $wait . ' detik.');
+        }
+
+        $user = (new UserModel())->where('username', $usernameInput)->first();
+        if (! $user || ! password_verify($this->request->getPost('password'), $user['password_hash'])) {
             return redirect()->back()->withInput()->with('error', 'Username atau password salah.');
         }
 
-        // Tolak login untuk akun nonaktif (jika kolom tersedia)
-        if (isset($u['is_active']) && !$u['is_active']) {
+        if (isset($user['is_active']) && ! $user['is_active']) {
             return redirect()->back()->withInput()->with('error', 'Akun dinonaktifkan.');
         }
 
-
         session()->regenerate();
         session()->set([
-            'user_id'   => $u['id'],
-            'username'  => $u['username'],
-            'role'      => $u['role'],
+            'user_id'   => $user['id'],
+            'username'  => $user['username'],
+            'role'      => $user['role'],
             'logged_in' => true,
         ]);
 
-        // Catat waktu login terakhir (jika kolom tersedia)
         try {
-            if (array_key_exists('last_login_at', $u)) {
-                (new \App\Models\UserModel())->update($u['id'], ['last_login_at' => date('Y-m-d H:i:s')]);
+            if (array_key_exists('last_login_at', $user)) {
+                (new UserModel())->update($user['id'], ['last_login_at' => date('Y-m-d H:i:s')]);
             }
         } catch (\Throwable $e) {
-            // sengaja diabaikan agar login tidak terganggu jika gagal
+            // abaikan kegagalan pencatatan login
         }
-
-
 
         return redirect()->to(site_url('admin'));
     }
