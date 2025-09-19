@@ -1,7 +1,6 @@
-﻿<?php
+<?php
 
 use App\Models\ActivityLogModel;
-use Throwable;
 
 if (! function_exists('log_activity')) {
     function log_activity(string $action, string $description = '', ?int $userId = null): void
@@ -19,7 +18,7 @@ if (! function_exists('log_activity')) {
                 'action'     => $action,
                 'description'=> $description,
             ]);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             log_message('warning', 'Failed to log activity: {error}', ['error' => $e->getMessage()]);
         }
     }
