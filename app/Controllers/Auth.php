@@ -20,9 +20,12 @@ class Auth extends BaseController
         }
 
         $throttler     = service('throttler');
-        $ipKey         = 'login:ip:' . $this->request->getIPAddress();
+        // Gunakan key yang aman untuk cache (hindari karakter terlarang seperti : / @ dll)
+        $ipAddress     = (string) $this->request->getIPAddress();
+        $ipKey         = 'login-ip-' . hash('sha256', $ipAddress ?: 'unknown');
         $usernameInput = (string) $this->request->getPost('username');
-        $userKey       = $usernameInput !== '' ? 'login:user:' . strtolower($usernameInput) : null;
+        $sanitizedUser = strtolower(preg_replace('/[^a-z0-9]/', '', $usernameInput));
+        $userKey       = $sanitizedUser !== '' ? 'login-user-' . $sanitizedUser : null;
         $maxAttempts   = 5;
         $decaySeconds  = 60;
 
