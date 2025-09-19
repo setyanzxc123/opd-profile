@@ -1,4 +1,4 @@
-﻿<?= $this->extend('layouts/admin') ?>
+<?= $this->extend('layouts/admin') ?>
 <?= $this->section('content') ?>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -66,7 +66,13 @@
 
 <?= $this->endSection() ?>
 
+<?= $this->section('pageStyles') ?>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<?= $this->endSection() ?>
+
 <?= $this->section('pageScripts') ?>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const bootstrapAvailable = typeof bootstrap !== 'undefined';
