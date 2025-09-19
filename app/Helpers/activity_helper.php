@@ -1,11 +1,13 @@
-<?php\n\nuse App\\Models\\ActivityLogModel;\nuse Throwable;
+﻿<?php
+
+use App\Models\ActivityLogModel;
+use Throwable;
 
 if (! function_exists('log_activity')) {
     function log_activity(string $action, string $description = '', ?int $userId = null): void
     {
         try {
-            $session = session();
-            $userId = $userId ?? $session->get('user_id');
+            $userId = $userId ?? (int) session('user_id');
 
             if (! $userId) {
                 return;
@@ -22,4 +24,3 @@ if (! function_exists('log_activity')) {
         }
     }
 }
-
