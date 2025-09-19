@@ -46,12 +46,14 @@ class Documents extends BaseController
         $rules = [
             'title'    => 'required|min_length[3]|max_length[150]',
             'category' => 'permit_empty|max_length[100]',
-            'year'     => 'permit_empty|regex_match[/^\\d{4}$/]',
+            'year'     => 'permit_empty|regex_match[/^\d{4}$/]',
             'file'     => 'uploaded[file]|max_size[file,10240]|ext_in[file,pdf,doc,docx,xls,xlsx,ppt,pptx,zip]'
         ];
         if (! $this->validate($rules)) {
             return redirect()->back()->withInput()->with('error', 'Periksa kembali isian Anda.');
         }
+
+        helper('activity');
 
         $file = $this->request->getFile('file');
         $this->ensureUploadsDir();
@@ -64,6 +66,8 @@ class Documents extends BaseController
             'year'      => $this->request->getPost('year'),
             'file_path' => 'uploads/documents/' . $newName,
         ]);
+
+        log_activity('document.create', 'Menambah dokumen: ' . $this->request->getPost('title'));
 
         return redirect()->to(site_url('admin/documents'))->with('message', 'Dokumen ditambahkan.');
     }
@@ -93,7 +97,7 @@ class Documents extends BaseController
         $rules = [
             'title'    => 'required|min_length[3]|max_length[150]',
             'category' => 'permit_empty|max_length[100]',
-            'year'     => 'permit_empty|regex_match[/^\\d{4}$/]',
+            'year'     => 'permit_empty|regex_match[/^\d{4}$/]',
             'file'     => 'permit_empty|uploaded[file]|max_size[file,10240]|ext_in[file,pdf,doc,docx,xls,xlsx,ppt,pptx,zip]'
         ];
         if (!$this->request->getFile('file')->isValid()) {
@@ -102,6 +106,8 @@ class Documents extends BaseController
         if (! $this->validate($rules)) {
             return redirect()->back()->withInput()->with('error', 'Periksa kembali isian Anda.');
         }
+
+        helper('activity');
 
         $data = [
             'title'    => $this->request->getPost('title'),
@@ -118,16 +124,21 @@ class Documents extends BaseController
         }
 
         $model->update($id, $data);
+
+        log_activity('document.update', 'Memperbarui dokumen: ' . $this->request->getPost('title'));
+
         return redirect()->to(site_url('admin/documents'))->with('message', 'Perubahan disimpan.');
     }
 
     public function delete(int $id)
     {
+        helper('activity');
         $model = new DocumentModel();
-        if ($model->find($id)) {
+        $item  = $model->find($id);
+        if ($item) {
             $model->delete($id);
+            log_activity('document.delete', 'Menghapus dokumen: ' . ($item['title'] ?? ''));
         }
         return redirect()->to(site_url('admin/documents'))->with('message', 'Data dihapus.');
     }
 }
-

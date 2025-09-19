@@ -10,6 +10,7 @@ class Users extends BaseController
 
     public function __construct()
     {
+        helper('activity');
         $this->users = new UserModel();
     }
 
@@ -89,6 +90,8 @@ class Users extends BaseController
             'is_active'     => 1,
             'password_hash' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
         ]);
+
+        log_activity('user.create', 'Menambah pengguna: ' . $this->request->getPost('username'));
 
         return redirect()->to(site_url('admin/users'))->with('message', 'Pengguna ditambahkan.');
     }
@@ -173,6 +176,8 @@ class Users extends BaseController
 
         $this->users->update($id, $data);
 
+        log_activity('user.update', 'Memperbarui pengguna: ' . $user['username']);
+
         return redirect()->to(site_url('admin/users'))->with('message', 'Perubahan disimpan.');
     }
 
@@ -198,6 +203,9 @@ class Users extends BaseController
 
         $this->users->update($id, ['is_active' => $user['is_active'] ? 0 : 1]);
 
+        $statusText = $user['is_active'] ? 'Menonaktifkan' : 'Mengaktifkan';
+        log_activity('user.toggle', $statusText . ' pengguna: ' . $user['username']);
+
         return redirect()->to(site_url('admin/users'))->with('message', 'Status pengguna diperbarui.');
     }
 
@@ -214,12 +222,10 @@ class Users extends BaseController
 
         $newPassword = bin2hex(random_bytes(4));
 
-        $this->users->update($id, [
-            'password_hash' => password_hash($newPassword, PASSWORD_DEFAULT),
-        ]);
+        $this->users->update($id, ['password_hash' => password_hash($newPassword, PASSWORD_DEFAULT)]);
+
+        log_activity('user.reset_password', 'Reset password untuk ' . $user['username']);
 
         return redirect()->to(site_url('admin/users'))->with('message', "Password baru untuk {$user['username']}: {$newPassword}");
     }
 }
-
-

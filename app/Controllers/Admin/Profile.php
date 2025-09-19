@@ -54,6 +54,8 @@ class Profile extends BaseController
             return redirect()->back()->withInput()->with('error', 'Please correct the errors below.');
         }
 
+        helper('activity');
+
         $model = new OpdProfileModel();
         $id = (int) $this->request->getPost('id');
         $data = [
@@ -71,6 +73,9 @@ class Profile extends BaseController
         } else {
             $model->insert($data);
         }
+
+        $message = $id > 0 ? 'Memperbarui Profil OPD' : 'Membuat Profil OPD';
+        log_activity('profile.save', $message);
 
         return redirect()->to(site_url('admin/profile'))
             ->with('message', 'Profile has been saved.');

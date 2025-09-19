@@ -20,7 +20,6 @@ class Auth extends BaseController
         }
 
         $throttler     = service('throttler');
-        // Gunakan key yang aman untuk cache (hindari karakter terlarang seperti : / @ dll)
         $ipAddress     = (string) $this->request->getIPAddress();
         $ipKey         = 'login-ip-' . hash('sha256', $ipAddress ?: 'unknown');
         $usernameInput = (string) $this->request->getPost('username');
@@ -48,6 +47,8 @@ class Auth extends BaseController
             return redirect()->back()->withInput()->with('error', 'Akun dinonaktifkan.');
         }
 
+        helper('activity');
+
         session()->regenerate();
         session()->set([
             'user_id'   => $user['id'],
@@ -64,11 +65,19 @@ class Auth extends BaseController
             // abaikan kegagalan pencatatan login
         }
 
+        log_activity('auth.login', 'Login berhasil', $user['id']);
+
         return redirect()->to(site_url('admin'));
     }
 
     public function logout()
     {
+        helper('activity');
+        $userId = session()->get('user_id');
+        if ($userId) {
+            log_activity('auth.logout', 'Logout manual', $userId);
+        }
+
         session()->destroy();
         return redirect()->to(site_url('login'))->with('message', 'Anda telah logout.');
     }

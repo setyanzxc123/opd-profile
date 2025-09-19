@@ -47,4 +47,5 @@ $routes->group('admin', [
     $routes->post('users/update/(:num)', 'Users::update/$1');
     $routes->post('users/toggle/(:num)', 'Users::toggle/$1');
     $routes->post('users/reset/(:num)', 'Users::resetPassword/$1');
+    $routes->get('logs', 'ActivityLogs::index');
 });

@@ -52,6 +52,8 @@ class Galleries extends BaseController
             return redirect()->back()->withInput()->with('error', 'Periksa kembali isian Anda.');
         }
 
+        helper('activity');
+
         $file = $this->request->getFile('image');
         $this->ensureUploadsDir();
         $newName = $file->getRandomName();
@@ -62,6 +64,8 @@ class Galleries extends BaseController
             'description' => $this->request->getPost('description'),
             'image_path'  => 'uploads/galleries/' . $newName,
         ]);
+
+        log_activity('gallery.create', 'Menambah foto galeri: ' . $this->request->getPost('title'));
 
         return redirect()->to(site_url('admin/galleries'))->with('message', 'Foto ditambahkan.');
     }
@@ -83,7 +87,7 @@ class Galleries extends BaseController
     public function update(int $id)
     {
         $model = new GalleryModel();
-        $item = $model->find($id);
+        $item  = $model->find($id);
         if (! $item) {
             return redirect()->to(site_url('admin/galleries'))->with('error', 'Data tidak ditemukan.');
         }
@@ -99,6 +103,8 @@ class Galleries extends BaseController
             return redirect()->back()->withInput()->with('error', 'Periksa kembali isian Anda.');
         }
 
+        helper('activity');
+
         $data = [
             'title'       => $this->request->getPost('title'),
             'description' => $this->request->getPost('description'),
@@ -113,16 +119,21 @@ class Galleries extends BaseController
         }
 
         $model->update($id, $data);
+
+        log_activity('gallery.update', 'Mengubah foto galeri: ' . $this->request->getPost('title'));
+
         return redirect()->to(site_url('admin/galleries'))->with('message', 'Perubahan disimpan.');
     }
 
     public function delete(int $id)
     {
+        helper('activity');
         $model = new GalleryModel();
-        if ($model->find($id)) {
+        $item  = $model->find($id);
+        if ($item) {
             $model->delete($id);
+            log_activity('gallery.delete', 'Menghapus foto galeri: ' . ($item['title'] ?? ''));
         }
         return redirect()->to(site_url('admin/galleries'))->with('message', 'Data dihapus.');
     }
 }
-

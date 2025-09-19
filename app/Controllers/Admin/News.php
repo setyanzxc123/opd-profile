@@ -10,7 +10,7 @@ class News extends BaseController
     private function ensureUploadsDir(): string
     {
         $target = FCPATH . 'uploads/news';
-        if (!is_dir($target)) {
+        if (! is_dir($target)) {
             @mkdir($target, 0775, true);
         }
         return $target;
@@ -31,7 +31,7 @@ class News extends BaseController
             if ($ignoreId) {
                 $existing = $existing->where('id !=', $ignoreId);
             }
-            if (!$existing->first()) {
+            if (! $existing->first()) {
                 break;
             }
             $slug = $base . '-' . $i;
@@ -71,14 +71,13 @@ class News extends BaseController
     public function store()
     {
         $rules = [
-            'title'   => 'required|min_length[3]|max_length[200]',
-            'content' => 'required',
+            'title'        => 'required|min_length[3]|max_length[200]',
+            'content'      => 'required',
             'published_at' => 'permit_empty',
-            'thumbnail' => 'permit_empty|uploaded[thumbnail]|max_size[thumbnail,4096]|is_image[thumbnail]'
+            'thumbnail'    => 'permit_empty|uploaded[thumbnail]|max_size[thumbnail,4096]|is_image[thumbnail]'
         ];
 
-        // allow empty file by relaxing rule if no file uploaded
-        if (!$this->request->getFile('thumbnail')->isValid()) {
+        if (! $this->request->getFile('thumbnail')->isValid()) {
             $rules['thumbnail'] = 'permit_empty';
         }
 
@@ -86,13 +85,14 @@ class News extends BaseController
             return redirect()->back()->withInput()->with('error', 'Please correct the errors.');
         }
 
-        $model = new NewsModel();
-        $title = $this->request->getPost('title');
-        $slug  = $this->uniqueSlug($title);
+        helper('activity');
+
+        $model   = new NewsModel();
+        $title   = $this->request->getPost('title');
+        $slug    = $this->uniqueSlug($title);
         $content = $this->request->getPost('content');
         $publishedAt = $this->request->getPost('published_at');
         if ($publishedAt) {
-            // from datetime-local to Y-m-d H:i:s
             $publishedAt = str_replace('T', ' ', $publishedAt) . ':00';
         }
 
@@ -106,13 +106,15 @@ class News extends BaseController
         }
 
         $model->insert([
-            'title' => $title,
-            'slug' => $slug,
-            'content' => $content,
-            'thumbnail' => $thumbPath,
+            'title'        => $title,
+            'slug'         => $slug,
+            'content'      => $content,
+            'thumbnail'    => $thumbPath,
             'published_at' => $publishedAt ?: null,
-            'author_id' => (int) session('user_id'),
+            'author_id'    => (int) session('user_id'),
         ]);
+
+        log_activity('news.create', 'Menambah berita: ' . $title);
 
         return redirect()->to(site_url('admin/news'))->with('message', 'News created.');
     }
@@ -120,8 +122,8 @@ class News extends BaseController
     public function edit(int $id)
     {
         $model = new NewsModel();
-        $item = $model->find($id);
-        if (!$item) {
+        $item  = $model->find($id);
+        if (! $item) {
             return redirect()->to(site_url('admin/news'))->with('error', 'News not found.');
         }
 
@@ -136,26 +138,30 @@ class News extends BaseController
     public function update(int $id)
     {
         $model = new NewsModel();
-        $item = $model->find($id);
-        if (!$item) {
+        $item  = $model->find($id);
+        if (! $item) {
             return redirect()->to(site_url('admin/news'))->with('error', 'News not found.');
         }
 
         $rules = [
-            'title'   => 'required|min_length[3]|max_length[200]',
-            'content' => 'required',
+            'title'        => 'required|min_length[3]|max_length[200]',
+            'content'      => 'required',
             'published_at' => 'permit_empty',
-            'thumbnail' => 'permit_empty|uploaded[thumbnail]|max_size[thumbnail,4096]|is_image[thumbnail]'
+            'thumbnail'    => 'permit_empty|uploaded[thumbnail]|max_size[thumbnail,4096]|is_image[thumbnail]'
         ];
-        if (!$this->request->getFile('thumbnail')->isValid()) {
+
+        if (! $this->request->getFile('thumbnail')->isValid()) {
             $rules['thumbnail'] = 'permit_empty';
         }
+
         if (! $this->validate($rules)) {
             return redirect()->back()->withInput()->with('error', 'Please correct the errors.');
         }
 
-        $title = $this->request->getPost('title');
-        $slug  = $this->uniqueSlug($title, $id);
+        helper('activity');
+
+        $title   = $this->request->getPost('title');
+        $slug    = $this->uniqueSlug($title, $id);
         $content = $this->request->getPost('content');
         $publishedAt = $this->request->getPost('published_at');
         if ($publishedAt) {
@@ -163,9 +169,9 @@ class News extends BaseController
         }
 
         $data = [
-            'title' => $title,
-            'slug' => $slug,
-            'content' => $content,
+            'title'        => $title,
+            'slug'         => $slug,
+            'content'      => $content,
             'published_at' => $publishedAt ?: null,
         ];
 
@@ -178,17 +184,21 @@ class News extends BaseController
         }
 
         $model->update($id, $data);
+
+        log_activity('news.update', 'Mengubah berita: ' . $title);
+
         return redirect()->to(site_url('admin/news'))->with('message', 'News updated.');
     }
 
     public function delete(int $id)
     {
+        helper('activity');
         $model = new NewsModel();
-        $item = $model->find($id);
+        $item  = $model->find($id);
         if ($item) {
             $model->delete($id);
+            log_activity('news.delete', 'Menghapus berita: ' . ($item['title'] ?? ''));
         }
         return redirect()->to(site_url('admin/news'))->with('message', 'News deleted.');
     }
 }
-
