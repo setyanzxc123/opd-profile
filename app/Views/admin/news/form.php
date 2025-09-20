@@ -50,7 +50,7 @@
               <label class="form-label">Thumbnail</label>
               <input type="file" name="thumbnail" accept="image/*" class="form-control">
               <?php if (!empty($item['thumbnail'])): ?>
-                <div class="form-text">Current: <a target="_blank" href="<?= base_url($item['thumbnail']) ?>">view</a></div>
+                <div class="form-text">Current: <a target="_blank" href="<?= esc(base_url($item['thumbnail']), 'url') ?>">view</a></div>
               <?php endif; ?>
             </div>
           </div>
@@ -65,4 +65,5 @@
 </div>
 
 <?= $this->endSection() ?>
+
 

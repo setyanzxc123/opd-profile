@@ -26,7 +26,7 @@
               <?= csrf_field() ?>
               <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
-                <input id="username" type="text" class="form-control" name="username" value="<?= old('username') ?>" required autofocus>
+                <input id="username" type="text" class="form-control" name="username" value="<?= esc(old('username')) ?>" required autofocus>
               </div>
               <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
@@ -59,12 +59,12 @@
             <div class="alert alert-success"><?= esc(session('message')) ?></div>
           <?php endif; ?>
 
-          <div><input type="text" class="form-control" name="username" value="<?= old('username') ?>" placeholder="Username" required></div>
+          <div><input type="text" class="form-control" name="username" value="<?= esc(old('username')) ?>" placeholder="Username" required></div>
           <div><input type="password" class="form-control" name="password" placeholder="Password" required></div>
           <div><button type="submit" class="btn btn-default submit">Masuk</button></div>
 
           <div class="clearfix"></div>
-          <div class="separator"><p>© <?= date('Y') ?> OPD — Admin Panel</p></div>
+          <div class="separator"><p>&copy; <?= date('Y') ?> OPD &bull; Admin Panel</p></div>
         </form>
       </section>
     </div>
@@ -80,3 +80,5 @@
 <script src="<?= base_url('assets/js/main.js') ?>"></script>
 </body>
 </html>
+
+

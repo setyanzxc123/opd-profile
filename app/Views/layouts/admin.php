@@ -105,7 +105,7 @@
                   <?php if (!empty($c['active'])): ?>
                     <li class="breadcrumb-item active" aria-current="page"><?= esc($c['label']) ?></li>
                   <?php else: ?>
-                    <li class="breadcrumb-item"><a href="<?= $c['url'] ?>"><?= esc($c['label']) ?></a></li>
+                    <li class="breadcrumb-item"><a href="<?= esc($c['url'], 'url') ?>"><?= esc($c['label']) ?></a></li>
                   <?php endif; ?>
                 <?php endforeach; ?>
               </ol>

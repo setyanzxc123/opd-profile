@@ -3,41 +3,126 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\NewsModel;
-use App\Models\UserModel;
+use CodeIgniter\HTTP\Files\UploadedFile;
 
 class News extends BaseController
 {
+    private const UPLOAD_DIR = 'uploads/news';
+    private const ALLOWED_THUMBNAIL_MIMES = [
+        'image/jpeg',
+        'image/jpg',
+        'image/pjpeg',
+        'image/png',
+        'image/webp',
+        'image/gif',
+    ];
+
     private function ensureUploadsDir(): string
     {
-        $target = FCPATH . 'uploads/news';
+        $target = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, self::UPLOAD_DIR);
         if (! is_dir($target)) {
             @mkdir($target, 0775, true);
         }
+
         return $target;
     }
 
     private function uniqueSlug(string $title, ?int $ignoreId = null): string
     {
         helper('text');
+
         $base = url_title($title, '-', true);
         if ($base === '') {
             $base = 'news';
         }
-        $slug = $base;
+
+        $slug  = $base;
         $model = new NewsModel();
-        $i = 2;
+        $i     = 2;
+
         while (true) {
             $existing = $model->where('slug', $slug);
             if ($ignoreId) {
                 $existing = $existing->where('id !=', $ignoreId);
             }
+
             if (! $existing->first()) {
                 break;
             }
+
             $slug = $base . '-' . $i;
             $i++;
         }
+
         return $slug;
+    }
+
+    private function normalizePublishedAt(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $value = sanitize_plain_text($value);
+        if ($value === '') {
+            return null;
+        }
+
+        $value = str_replace('T', ' ', $value);
+        if (strlen($value) === 16) {
+            // handle "Y-m-d H:i"
+            $value .= ':00';
+        }
+
+        return $value;
+    }
+
+    private function hasAllowedMime(UploadedFile $file): bool
+    {
+        $mime = strtolower((string) $file->getMimeType());
+
+        return in_array($mime, self::ALLOWED_THUMBNAIL_MIMES, true);
+    }
+
+    private function deleteFile(?string $relativePath): void
+    {
+        if (! $relativePath) {
+            return;
+        }
+
+        $relativePath = ltrim($relativePath, '/\\');
+        $fullPath     = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath);
+        $uploadsRoot  = realpath(rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'uploads');
+        $realPath     = realpath($fullPath);
+
+        if (! $uploadsRoot || ! $realPath || strpos($realPath, $uploadsRoot) !== 0) {
+            return;
+        }
+
+        if (is_file($realPath)) {
+            @unlink($realPath);
+        }
+    }
+
+    private function moveThumbnail(UploadedFile $file, ?string $originalPath = null): ?string
+    {
+        $targetDir = $this->ensureUploadsDir();
+        $newName   = $file->getRandomName();
+
+        try {
+            $file->move($targetDir, $newName, true);
+        } catch (\Throwable $e) {
+            log_message('error', 'Failed to store news thumbnail: {error}', ['error' => $e->getMessage()]);
+            return null;
+        }
+
+        $relativePath = self::UPLOAD_DIR . '/' . $newName;
+
+        if ($originalPath && $originalPath !== $relativePath) {
+            $this->deleteFile($originalPath);
+        }
+
+        return $relativePath;
     }
 
     public function index()
@@ -56,65 +141,63 @@ class News extends BaseController
         return view('admin/news/form', [
             'title' => 'Create News',
             'item'  => [
-                'id' => 0,
-                'title' => '',
-                'slug' => '',
-                'content' => '',
-                'thumbnail' => '',
+                'id'           => 0,
+                'title'        => '',
+                'slug'         => '',
+                'content'      => '',
+                'thumbnail'    => '',
                 'published_at' => '',
             ],
             'validation' => \Config\Services::validation(),
-            'mode' => 'create',
+            'mode'       => 'create',
         ]);
     }
 
     public function store()
     {
+        helper(['activity', 'content']);
+
         $rules = [
             'title'        => 'required|min_length[3]|max_length[200]',
             'content'      => 'required',
             'published_at' => 'permit_empty',
-            'thumbnail'    => 'permit_empty|uploaded[thumbnail]|max_size[thumbnail,4096]|is_image[thumbnail]'
+            'thumbnail'    => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]|mime_in[thumbnail,image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,image/gif]',
         ];
-
-        if (! $this->request->getFile('thumbnail')->isValid()) {
-            $rules['thumbnail'] = 'permit_empty';
-        }
 
         if (! $this->validate($rules)) {
             return redirect()->back()->withInput()->with('error', 'Please correct the errors.');
         }
 
-        helper('activity');
-
-        $model   = new NewsModel();
-        $title   = $this->request->getPost('title');
-        $slug    = $this->uniqueSlug($title);
-        $content = $this->request->getPost('content');
-        $publishedAt = $this->request->getPost('published_at');
-        if ($publishedAt) {
-            $publishedAt = str_replace('T', ' ', $publishedAt) . ':00';
-        }
+        $model       = new NewsModel();
+        $titleInput  = sanitize_plain_text($this->request->getPost('title'));
+        $slug        = $this->uniqueSlug($titleInput);
+        $contentRaw  = (string) $this->request->getPost('content');
+        $content     = sanitize_rich_text($contentRaw);
+        $publishedAt = $this->normalizePublishedAt($this->request->getPost('published_at'));
 
         $thumbPath = null;
-        $file = $this->request->getFile('thumbnail');
+        $file      = $this->request->getFile('thumbnail');
         if ($file && $file->isValid()) {
-            $this->ensureUploadsDir();
-            $newName = $file->getRandomName();
-            $file->move(FCPATH . 'uploads/news', $newName);
-            $thumbPath = 'uploads/news/' . $newName;
+            if (! $this->hasAllowedMime($file)) {
+                return redirect()->back()->withInput()->with('error', 'Jenis file thumbnail tidak diizinkan.');
+            }
+
+            $thumbPath = $this->moveThumbnail($file);
+            if (! $thumbPath) {
+                return redirect()->back()->withInput()->with('error', 'Gagal menyimpan thumbnail.');
+            }
         }
 
         $model->insert([
-            'title'        => $title,
+            'title'        => $titleInput,
             'slug'         => $slug,
             'content'      => $content,
             'thumbnail'    => $thumbPath,
-            'published_at' => $publishedAt ?: null,
+            'published_at' => $publishedAt,
             'author_id'    => (int) session('user_id'),
         ]);
 
-        log_activity('news.create', 'Menambah berita: ' . $title);
+        log_activity('news.create', 'Menambah berita: ' . $titleInput);
 
         return redirect()->to(site_url('admin/news'))->with('message', 'News created.');
     }
@@ -128,15 +211,17 @@ class News extends BaseController
         }
 
         return view('admin/news/form', [
-            'title' => 'Edit News',
-            'item'  => $item,
+            'title'      => 'Edit News',
+            'item'       => $item,
             'validation' => \Config\Services::validation(),
-            'mode' => 'edit',
+            'mode'       => 'edit',
         ]);
     }
 
     public function update(int $id)
     {
+        helper(['activity', 'content']);
+
         $model = new NewsModel();
         $item  = $model->find($id);
         if (! $item) {
@@ -147,45 +232,43 @@ class News extends BaseController
             'title'        => 'required|min_length[3]|max_length[200]',
             'content'      => 'required',
             'published_at' => 'permit_empty',
-            'thumbnail'    => 'permit_empty|uploaded[thumbnail]|max_size[thumbnail,4096]|is_image[thumbnail]'
+            'thumbnail'    => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]|mime_in[thumbnail,image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,image/gif]',
         ];
-
-        if (! $this->request->getFile('thumbnail')->isValid()) {
-            $rules['thumbnail'] = 'permit_empty';
-        }
 
         if (! $this->validate($rules)) {
             return redirect()->back()->withInput()->with('error', 'Please correct the errors.');
         }
 
-        helper('activity');
-
-        $title   = $this->request->getPost('title');
-        $slug    = $this->uniqueSlug($title, $id);
-        $content = $this->request->getPost('content');
-        $publishedAt = $this->request->getPost('published_at');
-        if ($publishedAt) {
-            $publishedAt = str_replace('T', ' ', $publishedAt) . ':00';
-        }
+        $titleInput  = sanitize_plain_text($this->request->getPost('title'));
+        $slug        = $this->uniqueSlug($titleInput, $id);
+        $contentRaw  = (string) $this->request->getPost('content');
+        $content     = sanitize_rich_text($contentRaw);
+        $publishedAt = $this->normalizePublishedAt($this->request->getPost('published_at'));
 
         $data = [
-            'title'        => $title,
+            'title'        => $titleInput,
             'slug'         => $slug,
             'content'      => $content,
-            'published_at' => $publishedAt ?: null,
+            'published_at' => $publishedAt,
         ];
 
         $file = $this->request->getFile('thumbnail');
         if ($file && $file->isValid()) {
-            $this->ensureUploadsDir();
-            $newName = $file->getRandomName();
-            $file->move(FCPATH . 'uploads/news', $newName);
-            $data['thumbnail'] = 'uploads/news/' . $newName;
+            if (! $this->hasAllowedMime($file)) {
+                return redirect()->back()->withInput()->with('error', 'Jenis file thumbnail tidak diizinkan.');
+            }
+
+            $newPath = $this->moveThumbnail($file, $item['thumbnail'] ?? null);
+            if (! $newPath) {
+                return redirect()->back()->withInput()->with('error', 'Gagal menyimpan thumbnail.');
+            }
+
+            $data['thumbnail'] = $newPath;
         }
 
         $model->update($id, $data);
 
-        log_activity('news.update', 'Mengubah berita: ' . $title);
+        log_activity('news.update', 'Mengubah berita: ' . $titleInput);
 
         return redirect()->to(site_url('admin/news'))->with('message', 'News updated.');
     }
@@ -193,12 +276,15 @@ class News extends BaseController
     public function delete(int $id)
     {
         helper('activity');
+
         $model = new NewsModel();
         $item  = $model->find($id);
         if ($item) {
+            $this->deleteFile($item['thumbnail'] ?? null);
             $model->delete($id);
             log_activity('news.delete', 'Menghapus berita: ' . ($item['title'] ?? ''));
         }
+
         return redirect()->to(site_url('admin/news'))->with('message', 'News deleted.');
     }
 }

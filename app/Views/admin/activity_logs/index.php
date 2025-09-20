@@ -7,13 +7,13 @@
 
 <div class="card mb-4">
     <div class="card-body">
-        <form method="get" class="row g-3" action="<?= current_url() ?>">
+        <form method="get" class="row g-3" action="<?= esc(current_url(), 'url') ?>">
             <div class="col-md-4">
                 <label class="form-label" for="filterUser">Pengguna</label>
                 <select id="filterUser" name="user_id" class="form-select">
                     <option value="">Semua Pengguna</option>
                     <?php foreach ($users as $user): ?>
-                        <option value="<?= $user['id'] ?>" <?= (int)($filters['user_id'] ?? 0) === (int)$user['id'] ? 'selected' : '' ?>>
+                        <option value="<?= esc($user['id']) ?>" <?= (int)($filters['user_id'] ?? 0) === (int)$user['id'] ? 'selected' : '' ?>>
                             <?= esc($user['username']) ?>
                         </option>
                     <?php endforeach; ?>
@@ -29,7 +29,7 @@
             </div>
             <div class="col-md-2 d-flex align-items-end gap-2">
                 <button type="submit" class="btn btn-primary w-100"><i class="bx bx-filter me-1"></i> Filter</button>
-                <a href="<?= current_url() ?>" class="btn btn-outline-secondary" title="Reset filter"><i class="bx bx-reset"></i></a>
+                <a href="<?= esc(current_url(), 'url') ?>" class="btn btn-outline-secondary" title="Reset filter"><i class="bx bx-reset"></i></a>
             </div>
         </form>
     </div>
@@ -91,3 +91,4 @@
     });
 </script>
 <?= $this->endSection() ?>
+

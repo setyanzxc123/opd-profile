@@ -36,7 +36,7 @@
                 <td><small class="text-muted"><?= esc($g['description']) ?></small></td>
                 <td>
                   <?php if (!empty($g['image_path'])): ?>
-                    <img src="<?= base_url($g['image_path']) ?>" alt="img" style="width:64px;height:64px;object-fit:cover;border-radius:6px;">
+                    <img src="<?= esc(base_url($g['image_path']), 'url') ?>" alt="img" style="width:64px;height:64px;object-fit:cover;border-radius:6px;">
                   <?php endif; ?>
                 </td>
                 <td class="text-end">
@@ -79,3 +79,4 @@
   });
 </script>
 <?= $this->endSection() ?>
+

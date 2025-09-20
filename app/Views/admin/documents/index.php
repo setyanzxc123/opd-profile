@@ -38,7 +38,7 @@
                 <td><?= esc($d['year'] ?: '-') ?></td>
                 <td>
                   <?php if (!empty($d['file_path'])): ?>
-                    <a class="btn btn-sm btn-outline-primary" href="<?= base_url($d['file_path']) ?>" target="_blank"><i class="bx bx-link-external"></i> Lihat</a>
+                    <a class="btn btn-sm btn-outline-primary" href="<?= esc(base_url($d['file_path']), 'url') ?>" target="_blank"><i class="bx bx-link-external"></i> Lihat</a>
                   <?php else: ?>
                     <span class="text-muted">-</span>
                   <?php endif; ?>
@@ -83,3 +83,4 @@
   });
 </script>
 <?= $this->endSection() ?>
+

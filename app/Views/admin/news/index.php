@@ -38,7 +38,7 @@
               <td><?= esc($n['published_at'] ?: '-') ?></td>
               <td>
                 <?php if (!empty($n['thumbnail'])): ?>
-                  <img src="<?= base_url($n['thumbnail']) ?>" alt="thumb" style="width:48px;height:48px;object-fit:cover;border-radius:4px;">
+                  <img src="<?= esc(base_url($n['thumbnail']), 'url') ?>" alt="thumb" style="width:48px;height:48px;object-fit:cover;border-radius:4px;">
                 <?php endif; ?>
               </td>
               <td class="text-end">
@@ -82,3 +82,4 @@
   });
 </script>
 <?= $this->endSection() ?>
+
