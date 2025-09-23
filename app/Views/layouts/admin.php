@@ -15,15 +15,18 @@
     <div class="layout-container">
       <!-- Menu -->
       <aside id="layout-menu" class="layout-menu menu menu-vertical bg-menu-theme">
-        <div class="app-brand demo">
-          <a href="<?= site_url('admin') ?>" class="app-brand-link">
+        <div class="app-brand demo d-flex align-items-center justify-content-between">
+          <a href="<?= site_url('admin') ?>" class="app-brand-link d-inline-flex align-items-center">
             <span class="app-brand-logo demo"><i class="tf-icons bx bx-building"></i></span>
             <span class="app-brand-text demo menu-text fw-bolder ms-2">Admin OPD</span>
+          </a>
+          <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large" aria-label="Buka/tutup menu samping">
+            <i class="bx bx-chevron-left bx-sm align-middle"></i>
           </a>
         </div>
         <div class="menu-inner-shadow"></div>
         <ul class="menu-inner py-1">
-          <li class="menu-item"><a href="<?= site_url('admin') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-home me-2"></i><div>Dashboard</div></a></li>
+          <li class="menu-item"><a href="<?= site_url('admin') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-home me-2"></i><div>Dasbor</div></a></li>
           <li class="menu-item"><a href="<?= site_url('admin/profile') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-building me-2"></i><div>Profil OPD</div></a></li>
           <li class="menu-item">
             <a href="javascript:void(0);" class="menu-link menu-toggle"><i class="menu-icon tf-icons bx bx-cog me-2"></i><div>Layanan</div></a>
@@ -67,15 +70,15 @@
               $labelsMap = [
                 'admin'     => 'Beranda',
                 'profile'   => 'Profil OPD',
-                'news'      => 'News',
+                'news'      => 'Berita',
                 'services'  => 'Layanan',
                 'galleries' => 'Galeri',
                 'documents' => 'Dokumen',
                 'contacts'  => 'Pesan Kontak',
                 'users'     => 'Pengguna',
                 'logs'      => 'Log Aktivitas',
-                'create'    => 'Create',
-                'edit'      => 'Edit',
+                'create'    => 'Tambah',
+                'edit'      => 'Ubah',
               ];
 
               // Only render when inside admin area
@@ -133,8 +136,13 @@
 <script src="<?= base_url('assets/vendor/js/bootstrap.js') ?>"></script>
 <script src="<?= base_url('assets/vendor/js/helpers.js') ?>"></script>
 <script src="<?= base_url('assets/js/config.js') ?>"></script>
+<script src="<?= base_url('assets/js/helpers-override.js') ?>"></script>
 <script src="<?= base_url('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') ?>"></script>
 <script src="<?= base_url('assets/vendor/js/menu.js') ?>"></script>
 <script src="<?= base_url('assets/js/main.js') ?>"></script>
 <?= $this->renderSection('pageScripts') ?>
 </body></html>
+
+
+
+

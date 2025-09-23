@@ -1,4 +1,4 @@
-﻿<?php
+<?php
     $formErrors = isset($formErrors) ? (array) $formErrors : [];
     $validation = $validation ?? null;
 ?>
@@ -22,7 +22,7 @@
                         <?php endforeach; ?>
                     </ul>
                 <?php endif; ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
             </div>
         <?php endif; ?>
 
@@ -59,7 +59,7 @@
 
                 <?php $roleError = $validation && $validation->hasError('role'); ?>
                 <div class="col-md-6">
-                    <label class="form-label" for="roleInput">Role <span class="text-danger">*</span></label>
+                    <label class="form-label" for="roleInput">Peran <span class="text-danger">*</span></label>
                     <select id="roleInput" name="role" class="form-select<?= $roleError ? ' is-invalid' : '' ?>" required>
                         <?php foreach ($roles as $role): ?>
                             <option value="<?= esc($role) ?>" <?= old('role', $user['role']) === $role ? 'selected' : '' ?>>
@@ -113,7 +113,7 @@
 
             <div class="mt-3 d-flex gap-2">
                 <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i> Simpan</button>
-                <button type="reset" class="btn btn-outline-secondary" id="resetFormButton"><i class="bx bx-reset me-1"></i> Reset</button>
+                <button type="reset" class="btn btn-outline-secondary" id="resetFormButton"><i class="bx bx-reset me-1"></i> Atur Ulang</button>
             </div>
         </form>
     </div>

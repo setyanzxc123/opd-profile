@@ -4,14 +4,14 @@
 <div class="row g-4">
   <div class="col-12">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="fw-bold">News</h4>
-      <a class="btn btn-primary" href="<?= site_url('admin/news/create') ?>"><i class="bx bx-plus"></i> New</a>
+      <h4 class="fw-bold">Berita</h4>
+      <a class="btn btn-primary" href="<?= site_url('admin/news/create') ?>"><i class="bx bx-plus"></i> Tambah</a>
     </div>
 
     <?php if (session()->getFlashdata('message')): ?>
       <div class="alert alert-success alert-dismissible" role="alert">
         <?= esc(session('message')) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
       </div>
     <?php endif; ?>
 
@@ -22,11 +22,11 @@
           <thead>
             <tr>
               <th>#</th>
-              <th>Title</th>
-              <th>Slug</th>
-              <th>Published</th>
-              <th>Thumbnail</th>
-              <th class="text-end">Actions</th>
+              <th>Judul</th>
+              <th>Slug URL</th>
+              <th>Tanggal Terbit</th>
+              <th>Gambar Sampul</th>
+              <th class="text-end">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -38,14 +38,16 @@
               <td><?= esc($n['published_at'] ?: '-') ?></td>
               <td>
                 <?php if (!empty($n['thumbnail'])): ?>
-                  <img src="<?= esc(base_url($n['thumbnail']), 'url') ?>" alt="thumb" style="width:48px;height:48px;object-fit:cover;border-radius:4px;">
+                  <img src="<?= esc(base_url($n['thumbnail']), 'url') ?>" alt="Thumbnail berita" style="width:48px;height:48px;object-fit:cover;border-radius:4px;">
+                <?php else: ?>
+                  <span class="text-muted">-</span>
                 <?php endif; ?>
               </td>
               <td class="text-end">
-                <a href="<?= site_url('admin/news/edit/'.$n['id']) ?>" class="btn btn-sm btn-outline-secondary"><i class="bx bx-edit"></i> Edit</a>
-                <form method="post" action="<?= site_url('admin/news/delete/'.$n['id']) ?>" style="display:inline" onsubmit="return confirm('Delete this item?')">
+                <a href="<?= site_url('admin/news/edit/'.$n['id']) ?>" class="btn btn-sm btn-outline-secondary"><i class="bx bx-edit"></i> Ubah</a>
+                <form method="post" action="<?= site_url('admin/news/delete/'.$n['id']) ?>" style="display:inline" onsubmit="return confirm('Hapus berita ini?')">
                   <?= csrf_field() ?>
-                  <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bx bx-trash"></i></button>
+                  <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bx bx-trash"></i> Hapus</button>
                 </form>
               </td>
             </tr>
@@ -82,4 +84,5 @@
   });
 </script>
 <?= $this->endSection() ?>
+
 

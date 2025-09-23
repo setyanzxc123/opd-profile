@@ -51,7 +51,7 @@ class Profile extends BaseController
         ];
 
         if (! $this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', 'Please correct the errors below.');
+            return redirect()->back()->withInput()->with('error', 'Periksa kembali data yang diisi.');
         }
 
         helper(['activity', 'content']);
@@ -79,6 +79,7 @@ class Profile extends BaseController
         log_activity('profile.save', $message);
 
         return redirect()->to(site_url('admin/profile'))
-            ->with('message', 'Profile has been saved.');
+            ->with('message', 'Profil berhasil disimpan.');
     }
 }
+
