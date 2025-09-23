@@ -15,7 +15,7 @@
       <div class="authentication-inner">
         <div class="card">
           <div class="card-body">
-            <h4 class="mb-2">Login Admin</h4>
+            <h4 class="mb-2">Login</h4>
             <?php if (session()->getFlashdata('error')): ?>
               <div class="alert alert-danger" role="alert"><?= esc(session('error')) ?></div>
             <?php endif; ?>
