@@ -6,7 +6,7 @@
 
 <div class="row g-4">
   <div class="col-12">
-    <div class="card shadow-sm border-0">
+    <div class="card shadow-sm">
       <div class="card-header border-0 bg-transparent pb-0">
         <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
           <div>

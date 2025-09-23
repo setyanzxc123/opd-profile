@@ -1,10 +1,57 @@
-/* Custom menu hover highlight */
+﻿/* Custom menu hover highlight */
 /* Menggunakan warna biru saat hover agar sesuai demo template */
 
 /* Hover pada link menu yang tidak aktif/tidak terbuka */
 .menu-vertical .menu-item:not(.active):not(.open) > .menu-link:hover {
   background-color: var(--bs-primary-bg-subtle, rgba(105, 108, 255, 0.12));
   color: var(--bs-primary, #696cff);
+}
+
+/* Menguatkan warna teks supaya lebih dekat ke hitam */
+:root {
+  --bs-heading-color: #1f2430;
+  --bs-body-color: #2b313c;
+  --bs-body-color-rgb: 43, 49, 60;
+  --bs-secondary-color: #555e6a;
+  --bs-secondary-color-rgb: 85, 94, 106;
+  --bs-muted-color: #6a7380;
+}
+
+body {
+  color: var(--bs-body-color);
+}
+
+.card,
+.card p,
+.card li,
+.card span,
+.card label,
+.card .card-text,
+.card .form-label,
+.card .form-check-label,
+.card .dropdown-item,
+.card .table,
+.card .table td,
+.card .table th {
+  color: var(--bs-body-color);
+}
+
+.form-label,
+.form-check-label,
+label,
+input,
+select,
+textarea,
+.form-control,
+.form-select {
+  color: var(--bs-body-color);
+}
+
+small,
+.text-muted,
+.form-text,
+.text-secondary {
+  color: var(--bs-secondary-color) !important;
 }
 
 /* Pastikan ikon ikut berubah warna */
@@ -53,3 +100,73 @@
 .layout-menu-collapsed #layout-menu .app-brand .layout-menu-toggle {
   opacity: 1 !important;
 }
+
+/* ================= Minimal contrast improvements (non-intrusive) ================= */
+/* Tambah latar subtle pada menu aktif agar grouping lebih jelas */
+.menu-vertical .menu-item.active > .menu-link,
+.menu-vertical .menu-item.open > .menu-link {
+  background-color: var(--bs-primary-bg-subtle, rgba(105, 108, 255, 0.12));
+}
+
+.layout-menu.menu-vertical {
+  border-inline-end: 1px solid color-mix(in sRGB, var(--bs-base-color) 18%, var(--bs-paper-bg));
+}
+
+/* Breadcrumb diberi chip look agar terpisah dari konten */
+.content-wrapper nav[aria-label="breadcrumb"] .breadcrumb {
+  background-color: var(--bs-paper-bg);
+  border: 1px solid color-mix(in sRGB, var(--bs-base-color) 28%, var(--bs-paper-bg));
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  box-shadow: var(--bs-box-shadow);
+}
+
+/* Penanda ringan pada judul section */
+.content-wrapper .d-flex.align-items-center > h4.fw-bold,
+.content-wrapper .d-flex.align-items-md-center > h4.fw-bold,
+.content-wrapper .d-flex.align-items-center > div > h4.fw-bold,
+.content-wrapper .d-flex.align-items-md-center > div > h4.fw-bold {
+  border-left: 3px solid var(--bs-primary);
+  padding-left: 0.75rem;
+  margin-bottom: 0;
+}
+
+/* Card diberi border + shadow ringan untuk pemisahan kolom */
+.content-wrapper .card {
+  border: 1px solid color-mix(in sRGB, var(--bs-base-color) 26%, var(--bs-paper-bg));
+  box-shadow: var(--bs-box-shadow);
+}
+.content-wrapper .card .card-header {
+  border-bottom: 1px solid color-mix(in sRGB, var(--bs-base-color) 24%, var(--bs-paper-bg));
+}
+
+.content-wrapper .card.bg-light,
+.content-wrapper .card.bg-light .card-body {
+  border-color: color-mix(in sRGB, var(--bs-base-color) 20%, var(--bs-paper-bg));
+}
+
+.news-side-section .card {
+  border: 1px solid color-mix(in sRGB, var(--bs-base-color) 30%, var(--bs-paper-bg));
+  box-shadow: var(--bs-box-shadow);
+}
+
+.news-side-section .card .card-body > h5:first-child,
+.news-side-section .card .card-body > h6:first-child {
+  border-left: 3px solid var(--bs-primary);
+  padding-left: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Tabel: garis pemisah lebih terlihat, striping halus */
+.table > :not(caption) > * > * {
+  border-bottom-color: color-mix(in sRGB, var(--bs-base-color) 24%, var(--bs-paper-bg));
+}
+.table thead th {
+  color: var(--bs-heading-color);
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: color-mix(in sRGB, var(--bs-base-color) 5%, var(--bs-paper-bg));
+}
+

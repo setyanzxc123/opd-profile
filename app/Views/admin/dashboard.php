@@ -3,7 +3,7 @@
 
 <div class="row g-4">
   <div class="col-12">
-    <div class="card shadow-sm border-0">
+    <div class="card shadow-sm">
       <div class="card-body">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
           <div>
@@ -17,7 +17,7 @@
 
         <div class="row g-3">
           <div class="col-sm-6 col-xl-3">
-            <div class="card h-100 border-0 bg-light shadow-sm position-relative overflow-hidden">
+            <div class="card h-100 bg-light shadow-sm position-relative overflow-hidden">
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start">
                   <div>
@@ -35,7 +35,7 @@
           </div>
 
           <div class="col-sm-6 col-xl-3">
-            <div class="card h-100 border-0 bg-light shadow-sm position-relative overflow-hidden">
+            <div class="card h-100 bg-light shadow-sm position-relative overflow-hidden">
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start">
                   <div>
@@ -53,7 +53,7 @@
           </div>
 
           <div class="col-sm-6 col-xl-3">
-            <div class="card h-100 border-0 bg-light shadow-sm position-relative overflow-hidden">
+            <div class="card h-100 bg-light shadow-sm position-relative overflow-hidden">
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start">
                   <div>
@@ -71,7 +71,7 @@
           </div>
 
           <div class="col-sm-6 col-xl-3">
-            <div class="card h-100 border-0 bg-light shadow-sm position-relative overflow-hidden">
+            <div class="card h-100 bg-light shadow-sm position-relative overflow-hidden">
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start">
                   <div>

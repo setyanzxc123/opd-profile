@@ -3,7 +3,7 @@
 <?= $this->section('pageStyles') ?>
 <style>
   .news-form-header {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid var(--bs-border-color);
   }
 
   .news-quick-stats {
@@ -64,9 +64,9 @@
 <?= $this->section('content') ?>
 <div class="row g-4">
   <div class="col-12">
-    <div class="card shadow-sm border-0">
+    <div class="card shadow-sm">
       <div class="card-body p-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 news-form-header pb-3 mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center gap-3 news-form-header pb-3 mb-4">
           <div>
             <h4 class="fw-bold mb-1"><?= esc($title ?? 'Form Berita') ?></h4>
           </div>
@@ -85,9 +85,9 @@
 
           <div class="row g-4">
             <div class="col-xl-9">
-              <div class="card border-0 shadow-sm h-100">
+              <div class="card shadow-sm h-100">
                 <div class="card-body p-4">
-                  <div class="mb-4">
+                  <div class="mb-10">
                     <label class="form-label fw-semibold" for="newsTitle">Judul Berita <span class="text-danger">*</span></label>
                     <input type="text" id="newsTitle" name="title" class="form-control form-control-lg" maxlength="200" required value="<?= esc(old('title', $item['title'])) ?>" placeholder="Contoh: Pemkab Gelar Diskusi Publik Transformasi Digital">
                     <div class="d-flex flex-column flex-lg-row justify-content-between gap-1 form-text mt-2">
@@ -99,7 +99,7 @@
                     <?php endif; ?>
                   </div>
 
-                  <div class="mb-3">
+                  <div class="mb-3 mt-3">
                     <label class="form-label fw-semibold mb-0" for="newsContent">Isi Berita <span class="text-danger">*</span></label>
                   </div>
                   <textarea id="newsContent" name="content" class="form-control" rows="12" placeholder="Tulis isi berita dengan struktur yang rapi..." required><?= old('content', $item['content']) ?></textarea>
@@ -132,7 +132,7 @@
 
             <div class="col-xl-3">
               <div class="news-side-section">
-                <div class="card border-0 shadow-sm">
+                <div class="card shadow-sm">
                   <div class="card-body p-4">
                     <h5 class="fw-semibold mb-3">Pengaturan &amp; Media</h5>
 
@@ -163,7 +163,7 @@
               </div>
 
               <div class="news-side-section">
-                <div class="card border-0 shadow-sm">
+                <div class="card shadow-sm">
                   <div class="card-body p-4">
                     <h5 class="fw-semibold mb-3">Bantuan Penulisan</h5>
 
