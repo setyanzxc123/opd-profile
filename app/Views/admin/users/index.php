@@ -9,13 +9,13 @@
 <?php if (session()->getFlashdata('message')): ?>
     <div class="alert alert-success alert-dismissible" role="alert" data-auto-dismiss="true" aria-live="polite">
         <i class="bx bx-check-circle me-1"></i> <?= esc(session('message')) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
     </div>
 <?php endif; ?>
 <?php if (session()->getFlashdata('error')): ?>
     <div class="alert alert-danger alert-dismissible" role="alert" aria-live="assertive">
         <i class="bx bx-error-circle me-1"></i> <?= esc(session('error')) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
     </div>
 <?php endif; ?>
 
@@ -29,7 +29,7 @@
                         <th>Username</th>
                         <th>Nama</th>
                         <th>Email</th>
-                        <th>Role</th>
+                        <th>Peran</th>
                         <th>Status</th>
                         <th>Login Terakhir</th>
                         <th class="text-end">Aksi</th>
@@ -42,18 +42,18 @@
                             <td><?= esc($u['username']) ?></td>
                             <td><?= esc($u['name'] ?? '-') ?></td>
                             <td><?= esc($u['email']) ?></td>
-                            <td><span class="badge bg-label-info text-uppercase"><?= esc($u['role']) ?></span></td>
+                            <td><span class="badge bg-label-info"><?= esc(ucfirst($u['role'])) ?></span></td>
                             <td><?= !empty($u['is_active']) ? '<span class="badge bg-success">Aktif</span>' : '<span class="badge bg-secondary">Nonaktif</span>' ?></td>
                             <td><?= esc($u['last_login_at'] ?? '-') ?></td>
                             <td class="text-end">
-                                <a href="<?= site_url('admin/users/edit/' . $u['id']) ?>" class="btn btn-sm btn-outline-secondary"><i class="bx bx-edit"></i> Edit</a>
+                                <a href="<?= site_url('admin/users/edit/' . $u['id']) ?>" class="btn btn-sm btn-outline-secondary"><i class="bx bx-edit"></i> Ubah</a>
                                 <form method="post" action="<?= site_url('admin/users/toggle/' . $u['id']) ?>" class="d-inline" onsubmit="return confirm('Ubah status akun ini?')">
                                     <?= csrf_field() ?>
-                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Aktif/Nonaktif"><i class="bx bx-power-off"></i></button>
+                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Aktifkan atau nonaktifkan"><i class="bx bx-power-off"></i></button>
                                 </form>
-                                <form method="post" action="<?= site_url('admin/users/reset/' . $u['id']) ?>" class="d-inline" onsubmit="return confirm('Reset password pengguna ini?')">
+                                <form method="post" action="<?= site_url('admin/users/reset/' . $u['id']) ?>" class="d-inline" onsubmit="return confirm('Setel ulang kata sandi pengguna ini?')">
                                     <?= csrf_field() ?>
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Reset Password"><i class="bx bx-key"></i></button>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Setel ulang kata sandi"><i class="bx bx-key"></i> Setel Ulang</button>
                                 </form>
                             </td>
                         </tr>

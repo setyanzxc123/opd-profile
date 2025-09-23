@@ -131,7 +131,7 @@ class News extends BaseController
         $items = $model->orderBy('id', 'DESC')->findAll(50);
 
         return view('admin/news/index', [
-            'title' => 'News',
+            'title' => 'Berita',
             'items' => $items,
         ]);
     }
@@ -139,7 +139,7 @@ class News extends BaseController
     public function create()
     {
         return view('admin/news/form', [
-            'title' => 'Create News',
+            'title' => 'Tambah Berita',
             'item'  => [
                 'id'           => 0,
                 'title'        => '',
@@ -165,7 +165,7 @@ class News extends BaseController
         ];
 
         if (! $this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', 'Please correct the errors.');
+            return redirect()->back()->withInput()->with('error', 'Periksa kembali data yang diisi.');
         }
 
         $model       = new NewsModel();
@@ -199,7 +199,7 @@ class News extends BaseController
 
         log_activity('news.create', 'Menambah berita: ' . $titleInput);
 
-        return redirect()->to(site_url('admin/news'))->with('message', 'News created.');
+        return redirect()->to(site_url('admin/news'))->with('message', 'Berita berhasil ditambahkan.');
     }
 
     public function edit(int $id)
@@ -207,11 +207,11 @@ class News extends BaseController
         $model = new NewsModel();
         $item  = $model->find($id);
         if (! $item) {
-            return redirect()->to(site_url('admin/news'))->with('error', 'News not found.');
+            return redirect()->to(site_url('admin/news'))->with('error', 'Data berita tidak ditemukan.');
         }
 
         return view('admin/news/form', [
-            'title'      => 'Edit News',
+            'title'      => 'Ubah Berita',
             'item'       => $item,
             'validation' => \Config\Services::validation(),
             'mode'       => 'edit',
@@ -225,7 +225,7 @@ class News extends BaseController
         $model = new NewsModel();
         $item  = $model->find($id);
         if (! $item) {
-            return redirect()->to(site_url('admin/news'))->with('error', 'News not found.');
+            return redirect()->to(site_url('admin/news'))->with('error', 'Data berita tidak ditemukan.');
         }
 
         $rules = [
@@ -236,7 +236,7 @@ class News extends BaseController
         ];
 
         if (! $this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', 'Please correct the errors.');
+            return redirect()->back()->withInput()->with('error', 'Periksa kembali data yang diisi.');
         }
 
         $titleInput  = sanitize_plain_text($this->request->getPost('title'));
@@ -270,7 +270,7 @@ class News extends BaseController
 
         log_activity('news.update', 'Mengubah berita: ' . $titleInput);
 
-        return redirect()->to(site_url('admin/news'))->with('message', 'News updated.');
+        return redirect()->to(site_url('admin/news'))->with('message', 'Berita berhasil diperbarui.');
     }
 
     public function delete(int $id)
@@ -285,6 +285,7 @@ class News extends BaseController
             log_activity('news.delete', 'Menghapus berita: ' . ($item['title'] ?? ''));
         }
 
-        return redirect()->to(site_url('admin/news'))->with('message', 'News deleted.');
+        return redirect()->to(site_url('admin/news'))->with('message', 'Berita berhasil dihapus.');
     }
 }
+
