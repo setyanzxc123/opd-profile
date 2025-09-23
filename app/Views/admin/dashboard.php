@@ -7,7 +7,7 @@
       <div class="card-body">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
           <div>
-            <h4 class="fw-bold mb-1">Dasbor</h4>
+            <h4 class="fw-bold mb-1">Dashboard</h4>
             <p class="text-muted mb-0">Selamat datang kembali, <?= esc(session('username')) ?>.</p>
           </div>
           <a href="<?= site_url('admin/profile') ?>" class="btn btn-primary">

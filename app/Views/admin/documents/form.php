@@ -13,7 +13,7 @@
         <?php if (session()->getFlashdata('error')): ?>
           <div class="alert alert-danger alert-dismissible" role="alert">
             <?= esc(session('error')) ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         <?php endif; ?>
 

@@ -11,7 +11,7 @@
     <?php if (session()->getFlashdata('message')): ?>
       <div class="alert alert-success alert-dismissible" role="alert">
         <?= esc(session('message')) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     <?php endif; ?>
 
@@ -44,10 +44,10 @@
                   <?php endif; ?>
                 </td>
                 <td class="text-end">
-                  <a href="<?= site_url('admin/documents/edit/'.$d['id']) ?>" class="btn btn-sm btn-outline-secondary"><i class="bx bx-edit"></i> Ubah</a>
-                  <form action="<?= site_url('admin/documents/delete/'.$d['id']) ?>" method="post" style="display:inline" onsubmit="return confirm('Hapus dokumen ini?')">
+                  <a href="<?= site_url('admin/documents/edit/'.$d['id']) ?>" class="btn btn-sm btn-outline-secondary"><i class="bx bx-edit"></i> Edit</a>
+                  <form action="<?= site_url('admin/documents/delete/'.$d['id']) ?>" method="post" style="display:inline" onsubmit="return confirm('Hapus item ini?')">
                     <?= csrf_field() ?>
-                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bx bx-trash"></i> Hapus</button>
+                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bx bx-trash"></i></button>
                   </form>
                 </td>
               </tr>

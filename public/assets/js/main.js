@@ -121,10 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // If current layout is vertical and current window screen is > small
 
   // Auto update menu collapsed/expanded based on the themeConfig
-  // Default to expanded on desktop unless explicitly set elsewhere
-  if (typeof window.Helpers.setCollapsed === 'function') {
-    window.Helpers.setCollapsed(false, false);
-  }
+      window.Helpers.setCollapsed(true, false);
 })();
 // Utils
 function isMacOS() {

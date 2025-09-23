@@ -2,7 +2,7 @@
 <?= $this->section('content') ?>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="fw-bold">Log Aktivitas</h4>
+    <h4 class="fw-bold">Activity Logs</h4>
 </div>
 
 <div class="card mb-4">
@@ -29,7 +29,7 @@
             </div>
             <div class="col-md-2 d-flex align-items-end gap-2">
                 <button type="submit" class="btn btn-primary w-100"><i class="bx bx-filter me-1"></i> Filter</button>
-                <a href="<?= esc(current_url(), 'url') ?>" class="btn btn-outline-secondary" title="Atur ulang filter"><i class="bx bx-reset me-1"></i> Atur Ulang</a>
+                <a href="<?= esc(current_url(), 'url') ?>" class="btn btn-outline-secondary" title="Reset filter"><i class="bx bx-reset"></i></a>
             </div>
         </form>
     </div>

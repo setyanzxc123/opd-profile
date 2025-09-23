@@ -120,8 +120,8 @@
           <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4">
             <p class="text-muted small mb-0"><span class="text-danger">*</span> Wajib diisi.</p>
             <div class="d-flex flex-wrap gap-2">
-              <button type="reset" class="btn btn-outline-secondary"><i class="bx bx-reset me-1"></i> Atur Ulang</button>
-              <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i> Simpan</button>
+              <button type="reset" class="btn btn-light border"><i class="bx bx-refresh me-1"></i> Reset Form</button>
+              <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i> Simpan Perubahan</button>
             </div>
           </div>
         </form>

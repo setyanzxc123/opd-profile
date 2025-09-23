@@ -40,16 +40,3 @@
   color: var(--bs-primary, #696cff) !important;
   font-weight: 600;
 }
-
-/* Ensure brand toggle is always visible */
-#layout-menu .app-brand .layout-menu-toggle {
-  opacity: 1 !important;
-  display: inline-flex;
-  align-items: center;
-}
-#layout-menu .app-brand .layout-menu-toggle i {
-  color: #ffffff !important;
-}
-.layout-menu-collapsed #layout-menu .app-brand .layout-menu-toggle {
-  opacity: 1 !important;
-}
