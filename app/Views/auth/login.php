@@ -8,19 +8,26 @@
   <link href="<?= base_url('assets/vendor/css/pages/page-auth.css') ?>" rel="stylesheet">
   <link href="<?= base_url('assets/vendor/fonts/iconify-icons.css') ?>" rel="stylesheet">
   <link href="<?= base_url('assets/css/demo.css') ?>" rel="stylesheet">
+  <link href="<?= base_url('assets/css/custom.css') ?>" rel="stylesheet">
 </head>
 <body>
   <div class="container-xxl">
     <div class="authentication-wrapper authentication-basic container-p-y">
       <div class="authentication-inner">
-        <div class="card">
+        <div class="card shadow-sm">
           <div class="card-body">
             <h4 class="mb-2">Login Admin</h4>
             <?php if (session()->getFlashdata('error')): ?>
-              <div class="alert alert-danger" role="alert"><?= esc(session('error')) ?></div>
+              <div class="alert alert-soft-danger alert-dismissible fade show" role="alert" aria-live="assertive">
+                <?= esc(session('error')) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+              </div>
             <?php endif; ?>
             <?php if (session()->getFlashdata('message')): ?>
-              <div class="alert alert-success" role="alert"><?= esc(session('message')) ?></div>
+              <div class="alert alert-soft-success alert-dismissible fade show" role="alert" aria-live="polite">
+                <?= esc(session('message')) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+              </div>
             <?php endif; ?>
             <form method="post" action="<?= site_url('login') ?>">
               <?= csrf_field() ?>

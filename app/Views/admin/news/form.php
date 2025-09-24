@@ -1,64 +1,6 @@
 <?= $this->extend('layouts/admin') ?>
 
 <?= $this->section('pageStyles') ?>
-<style>
-  .news-form-header {
-    border-bottom: 1px solid var(--bs-border-color);
-  }
-
-  .news-quick-stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.25rem;
-    padding: 1.25rem;
-    border-radius: 0.75rem;
-    border: 1px solid rgba(105, 108, 255, 0.2);
-    background: rgba(105, 108, 255, 0.05);
-  }
-
-  .news-quick-stats dt {
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #6c757d;
-    margin-bottom: 0.25rem;
-  }
-
-  .news-quick-stats dd {
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .news-side-section + .news-side-section {
-    margin-top: 1.5rem;
-  }
-
-  .news-template-dropdown .dropdown-menu {
-    width: 100%;
-  }
-
-  .news-template-dropdown .dropdown-item {
-    white-space: normal;
-  }
-
-  .news-guideline {
-    border: 1px dashed rgba(34, 41, 47, 0.18);
-    border-radius: 0.75rem;
-    background: #f8f9fa;
-  }
-
-  .news-guideline li + li {
-    margin-top: 0.25rem;
-  }
-
-  .news-note {
-    border-radius: 0.5rem;
-    background: rgba(33, 150, 243, 0.08);
-    padding: 0.75rem;
-    font-size: 0.82rem;
-  }
-</style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -74,7 +16,7 @@
         </div>
 
         <?php if (session()->getFlashdata('error')): ?>
-          <div class="alert alert-danger alert-dismissible" role="alert">
+          <div class="alert alert-soft-danger alert-dismissible fade show" role="alert">
             <?= esc(session('error')) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
           </div>
@@ -152,7 +94,7 @@
                       <label class="form-label" for="thumbnail">Gambar Sampul</label>
                       <input type="file" id="thumbnail" name="thumbnail" accept="image/*" class="form-control">
                       <?php if (!empty($item['thumbnail'])): ?>
-                        <div class="form-text mt-1">Saat ini: <a target="_blank" href="<?= esc(base_url($item['thumbnail']), 'url') ?>">lihat gambar</a></div>
+                        <div class="form-text mt-1">Saat ini: <a target="_blank" href="<?= esc(base_url($item['thumbnail']), 'attr') ?>">lihat gambar</a></div>
                       <?php endif; ?>
                       <?php if (isset($validation) && $validation->hasError('thumbnail')): ?>
                         <div class="form-text text-danger mt-1"><?= esc($validation->getError('thumbnail')) ?></div>
@@ -310,7 +252,7 @@
   <cite>Nama Narasumber, Jabatan</cite>
 </blockquote>`,
         data: `<h3>Data Pendukung</h3>
-<table class="table table-bordered">
+<table class="table table-bordered table-compact">
   <thead>
     <tr>
       <th>Indikator</th>
@@ -371,8 +313,8 @@
       autosave_restore_when_empty: true,
       autosave_retention: '2m',
       image_caption: true,
-      content_style: 'body { font-family: "Source Sans Pro",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; font-size: 16px; line-height: 1.7; }',
-      table_default_attributes: { class: 'table table-striped' },
+      content_style: 'body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif; font-size: 16px; line-height: 1.7; }',
+      table_default_attributes: { class: 'table table-striped table-compact' },
       file_picker_types: 'image media',
       setup: function (editor) {
         editor.on('init', function () {

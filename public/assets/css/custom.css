@@ -114,11 +114,11 @@ small,
 
 /* Breadcrumb diberi chip look agar terpisah dari konten */
 .content-wrapper nav[aria-label="breadcrumb"] .breadcrumb {
-  background-color: var(--bs-paper-bg);
-  border: 1px solid color-mix(in sRGB, var(--bs-base-color) 28%, var(--bs-paper-bg));
+  background-color: color-mix(in sRGB, var(--bs-paper-bg) 94%, white);
+  border: 1px solid color-mix(in sRGB, var(--bs-base-color) 18%, var(--bs-paper-bg));
   border-radius: 0.5rem;
   padding: 0.5rem 0.75rem;
-  box-shadow: var(--bs-box-shadow);
+  box-shadow: none;
 }
 
 /* Penanda ringan pada judul section */
@@ -134,7 +134,6 @@ small,
 /* Card diberi border + shadow ringan untuk pemisahan kolom */
 .content-wrapper .card {
   border: 1px solid color-mix(in sRGB, var(--bs-base-color) 26%, var(--bs-paper-bg));
-  box-shadow: var(--bs-box-shadow);
 }
 .content-wrapper .card .card-header {
   border-bottom: 1px solid color-mix(in sRGB, var(--bs-base-color) 24%, var(--bs-paper-bg));
@@ -147,7 +146,6 @@ small,
 
 .news-side-section .card {
   border: 1px solid color-mix(in sRGB, var(--bs-base-color) 30%, var(--bs-paper-bg));
-  box-shadow: var(--bs-box-shadow);
 }
 
 .news-side-section .card .card-body > h5:first-child,
@@ -168,5 +166,173 @@ small,
 }
 .table-striped > tbody > tr:nth-of-type(odd) {
   background-color: color-mix(in sRGB, var(--bs-base-color) 5%, var(--bs-paper-bg));
+}
+
+/* ================= Further minimal UI enhancements ================= */
+/* Softer, modern radius for cards */
+.content-wrapper .card {
+  border-radius: 0.75rem;
+}
+.content-wrapper .card .card-header {
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+}
+
+/* Subtle focus styles for accessibility */
+.btn:focus-visible,
+.menu-vertical .menu-item > .menu-link:focus-visible,
+.breadcrumb a:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible {
+  outline: 2px solid color-mix(in sRGB, var(--bs-primary) 55%, transparent);
+  outline-offset: 2px;
+}
+
+/* Comfortable yet compact controls */
+.btn {
+  border-radius: 0.5rem;
+  transition: background-color .15s ease, color .15s ease, box-shadow .2s ease;
+}
+.form-control,
+.form-select {
+  border-radius: 0.5rem;
+}
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.15rem color-mix(in sRGB, var(--bs-primary) 25%, transparent);
+}
+
+/* Sidebar density and hover */
+#layout-menu .menu-inner .menu-item > .menu-link {
+  padding-block: 0.625rem;
+  border-radius: 0.5rem;
+  transition: background-color .15s ease, color .15s ease;
+}
+
+/* Breadcrumb truncation for long labels */
+.content-wrapper nav[aria-label="breadcrumb"] .breadcrumb .breadcrumb-item {
+  max-width: 14rem;
+}
+.content-wrapper nav[aria-label="breadcrumb"] .breadcrumb .breadcrumb-item > a,
+.content-wrapper nav[aria-label="breadcrumb"] .breadcrumb .breadcrumb-item.active {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+/* Table hover and compact mode */
+.table-hover > tbody > tr:hover {
+  background-color: color-mix(in sRGB, var(--bs-base-color) 7%, var(--bs-paper-bg));
+}
+.table.table-compact th,
+.table.table-compact td,
+.table-compact .table th,
+.table-compact .table td {
+  padding: 0.5rem 0.75rem;
+}
+
+/* Soft alerts using subtle background tokens */
+.alert-soft-primary { background-color: var(--bs-primary-bg-subtle); color: var(--bs-primary); border: 1px solid color-mix(in sRGB, var(--bs-primary) 22%, transparent); }
+.alert-soft-secondary { background-color: var(--bs-secondary-bg-subtle, rgba(108,117,125,.12)); color: var(--bs-secondary, #6c757d); border: 1px solid color-mix(in sRGB, var(--bs-secondary, #6c757d) 22%, transparent); }
+.alert-soft-success { background-color: var(--bs-success-bg-subtle); color: var(--bs-success); border: 1px solid color-mix(in sRGB, var(--bs-success) 22%, transparent); }
+.alert-soft-info { background-color: var(--bs-info-bg-subtle); color: var(--bs-info); border: 1px solid color-mix(in sRGB, var(--bs-info) 22%, transparent); }
+.alert-soft-warning { background-color: var(--bs-warning-bg-subtle); color: var(--bs-warning); border: 1px solid color-mix(in sRGB, var(--bs-warning) 22%, transparent); }
+.alert-soft-danger { background-color: var(--bs-danger-bg-subtle); color: var(--bs-danger); border: 1px solid color-mix(in sRGB, var(--bs-danger) 22%, transparent); }
+
+/* Auth page polish */
+.authentication-wrapper .authentication-inner .card {
+  border: 1px solid color-mix(in sRGB, var(--bs-base-color) 20%, var(--bs-paper-bg));
+  border-radius: 0.75rem;
+}
+.authentication-wrapper .authentication-inner .card .card-body {
+  padding: 1.75rem;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ================= News form styles ================= */
+.news-form-header {
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.news-quick-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in sRGB, var(--bs-primary) 20%, transparent);
+  background: var(--bs-primary-bg-subtle);
+}
+.news-quick-stats dt {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bs-secondary-color);
+  margin-bottom: 0.25rem;
+}
+.news-quick-stats dd {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.news-side-section + .news-side-section {
+  margin-top: 1.5rem;
+}
+
+.news-template-dropdown .dropdown-menu {
+  width: 100%;
+}
+.news-template-dropdown .dropdown-item {
+  white-space: normal;
+}
+
+.news-guideline {
+  border: 1px dashed color-mix(in sRGB, var(--bs-base-color) 18%, transparent);
+  border-radius: 0.75rem;
+  background: color-mix(in sRGB, var(--bs-paper-bg) 96%, white);
+}
+.news-guideline li + li {
+  margin-top: 0.25rem;
+}
+
+.news-note {
+  border-radius: 0.5rem;
+  background: var(--bs-info-bg-subtle);
+  border: 1px solid color-mix(in sRGB, var(--bs-info) 18%, transparent);
+  color: var(--bs-info);
+  padding: 0.75rem;
+  font-size: 0.82rem;
+}
+
+/* Subtle divider for form sections */
+/* TinyMCE editor boundary for clarity */
+.tox.tox-tinymce {
+  border: 1px solid color-mix(in sRGB, var(--bs-base-color) 30%, var(--bs-paper-bg));
+  border-radius: 0.5rem;
+  box-shadow: none;
+}
+.tox.tox-tinymce:focus-within {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.15rem color-mix(in sRGB, var(--bs-primary) 22%, transparent);
+}
+.tox .tox-toolbar-overlord,
+.tox .tox-editor-header {
+  border-bottom: 1px solid color-mix(in sRGB, var(--bs-base-color) 22%, var(--bs-paper-bg));
+}
+.tox .tox-statusbar {
+  border-top: 1px solid color-mix(in sRGB, var(--bs-base-color) 22%, var(--bs-paper-bg));
 }
 

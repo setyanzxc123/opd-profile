@@ -24,7 +24,7 @@
                     <small class="text-uppercase text-muted fw-semibold">Berita</small>
                     <h4 class="fw-bold mb-0">-</h4>
                   </div>
-                  <span class="badge bg-primary bg-opacity-10 text-primary p-3 rounded-circle">
+                  <span class="badge bg-label-primary text-primary p-3 rounded-circle">
                     <i class="bx bx-news fs-5"></i>
                   </span>
                 </div>
@@ -42,7 +42,7 @@
                     <small class="text-uppercase text-muted fw-semibold">Galeri</small>
                     <h4 class="fw-bold mb-0">-</h4>
                   </div>
-                  <span class="badge bg-success bg-opacity-10 text-success p-3 rounded-circle">
+                  <span class="badge bg-label-success text-success p-3 rounded-circle">
                     <i class="bx bx-image fs-5"></i>
                   </span>
                 </div>
@@ -60,7 +60,7 @@
                     <small class="text-uppercase text-muted fw-semibold">Dokumen</small>
                     <h4 class="fw-bold mb-0">-</h4>
                   </div>
-                  <span class="badge bg-warning bg-opacity-10 text-warning p-3 rounded-circle">
+                  <span class="badge bg-label-warning text-warning p-3 rounded-circle">
                     <i class="bx bx-file fs-5"></i>
                   </span>
                 </div>
@@ -78,7 +78,7 @@
                     <small class="text-uppercase text-muted fw-semibold">Aktivitas</small>
                     <h4 class="fw-bold mb-0">-</h4>
                   </div>
-                  <span class="badge bg-info bg-opacity-10 text-info p-3 rounded-circle">
+                  <span class="badge bg-label-info text-info p-3 rounded-circle">
                     <i class="bx bx-history fs-5"></i>
                   </span>
                 </div>

@@ -48,9 +48,9 @@
             <div class="col-md-6">
               <label class="form-label">Berkas <?= $mode === 'create' ? '<span class="text-danger">*</span>' : '' ?></label>
               <input type="file" name="file" class="form-control" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip" <?= $mode === 'create' ? 'required' : '' ?>>
-              <?php if (!empty($item['file_path'])): ?>
-                <div class="form-text">Saat ini: <a target="_blank" href="<?= esc(base_url($item['file_path']), 'url') ?>">unduh</a></div>
-              <?php endif; ?>
+                    <?php if (!empty($item['file_path'])): ?>
+                      <div class="form-text">Saat ini: <a target="_blank" href="<?= esc(base_url($item['file_path']), 'attr') ?>">unduh</a></div>
+                    <?php endif; ?>
               <?php if (isset($validation) && $validation->hasError('file')): ?>
                 <div class="form-text text-danger"><?= esc($validation->getError('file')) ?></div>
               <?php endif; ?>

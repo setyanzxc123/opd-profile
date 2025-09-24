@@ -28,18 +28,11 @@
         <ul class="menu-inner py-1">
           <li class="menu-item"><a href="<?= site_url('admin') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-home me-2"></i><div>Dasbor</div></a></li>
           <li class="menu-item"><a href="<?= site_url('admin/profile') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-building me-2"></i><div>Profil OPD</div></a></li>
-          <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle"><i class="menu-icon tf-icons bx bx-cog me-2"></i><div>Layanan</div></a>
-            <ul class="menu-sub">
-              <li class="menu-item"><a href="<?= site_url('admin/services') ?>" class="menu-link"><div>Daftar Layanan</div></a></li>
-            </ul>
-          </li>
-          <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle"><i class="menu-icon tf-icons bx bx-news me-2"></i><div>Berita</div></a>
-            <ul class="menu-sub">
-              <li class="menu-item"><a href="<?= site_url('admin/news') ?>" class="menu-link"><div>Daftar Berita</div></a></li>
-            </ul>
-          </li>
+          <!-- Layanan (disembunyikan hingga modul siap) -->
+          <?php /*
+          <li class="menu-item"><a href="<?= site_url('admin/services') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-cog me-2"></i><div>Layanan</div></a></li>
+          */ ?>
+          <li class="menu-item"><a href="<?= site_url('admin/news') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-news me-2"></i><div>Berita</div></a></li>
           <li class="menu-item"><a href="<?= site_url('admin/galleries') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-image me-2"></i><div>Galeri</div></a></li>
           <li class="menu-item"><a href="<?= site_url('admin/documents') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-file me-2"></i><div>Dokumen</div></a></li>
           <li class="menu-item"><a href="<?= site_url('admin/contacts') ?>" class="menu-link"><i class="menu-icon tf-icons bx bx-envelope me-2"></i><div>Pesan Kontak</div></a></li>
@@ -68,10 +61,9 @@
               $uri       = service('uri');
               $segments  = $uri->getSegments();
               $labelsMap = [
-                'admin'     => 'Beranda',
+                'admin'     => 'Dasbor',
                 'profile'   => 'Profil OPD',
                 'news'      => 'Berita',
-                'services'  => 'Layanan',
                 'galleries' => 'Galeri',
                 'documents' => 'Dokumen',
                 'contacts'  => 'Pesan Kontak',
@@ -86,29 +78,34 @@
                 $crumbs = [];
                 $path   = 'admin';
                 // Start with home
-                $crumbs[] = [ 'label' => $labelsMap['admin'], 'url' => site_url('admin'), 'active' => false ];
+                $crumbs[] = [ 'label' => $labelsMap['admin'], 'url' => site_url('admin'), 'active' => count($segments) === 1 ];
 
-                for ($i = 1; $i < count($segments); $i++) {
-                  $seg = $segments[$i];
-                  // Skip numeric IDs or empty segments from route
-                  if (is_numeric($seg)) continue;
-                  $path .= '/' . $seg;
-                  $label = $labelsMap[$seg] ?? ucfirst(str_replace('-', ' ', $seg));
-                  $isLast = ($i === count($segments) - 1) || (isset($segments[$i+1]) && is_numeric($segments[$i+1]));
-                  $crumbs[] = [
-                    'label' => $label,
-                    'url'   => $isLast ? null : site_url($path),
-                    'active'=> $isLast,
-                  ];
+                if (count($segments) > 1) {
+                  for ($i = 1; $i < count($segments); $i++) {
+                    $seg = $segments[$i];
+                    // Skip numeric IDs or empty segments from route
+                    if (is_numeric($seg)) { continue; }
+
+                    $path   .= '/' . $seg;
+                    $label   = $labelsMap[$seg] ?? ucfirst(str_replace('-', ' ', $seg));
+                    $isLast  = ($i === count($segments) - 1) || (isset($segments[$i+1]) && is_numeric($segments[$i+1]));
+                    $noLink  = in_array($seg, ['create','edit','update'], true);
+
+                    $crumbs[] = [
+                      'label'  => $label,
+                      'url'    => (!$isLast && !$noLink) ? site_url($path) : null,
+                      'active' => $isLast,
+                    ];
+                  }
                 }
             ?>
             <nav aria-label="breadcrumb" class="mb-3">
               <ol class="breadcrumb">
                 <?php foreach ($crumbs as $c): ?>
-                  <?php if (!empty($c['active'])): ?>
-                    <li class="breadcrumb-item active" aria-current="page"><?= esc($c['label']) ?></li>
+                  <?php if (!empty($c['active']) || empty($c['url'])): ?>
+                    <li class="breadcrumb-item<?= !empty($c['active']) ? ' active' : '' ?>"<?= !empty($c['active']) ? ' aria-current="page"' : '' ?>><?= esc($c['label']) ?></li>
                   <?php else: ?>
-                    <li class="breadcrumb-item"><a href="<?= esc($c['url'], 'url') ?>"><?= esc($c['label']) ?></a></li>
+                    <li class="breadcrumb-item"><a href="<?= esc($c['url'], 'attr') ?>"><?= esc($c['label']) ?></a></li>
                   <?php endif; ?>
                 <?php endforeach; ?>
               </ol>

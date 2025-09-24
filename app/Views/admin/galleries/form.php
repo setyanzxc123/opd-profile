@@ -35,9 +35,9 @@
             <div class="col-md-5">
               <label class="form-label">Gambar <?= $mode === 'create' ? '<span class="text-danger">*</span>' : '' ?></label>
               <input type="file" name="image" accept="image/*" class="form-control" <?= $mode === 'create' ? 'required' : '' ?>>
-              <?php if (!empty($item['image_path'])): ?>
-                <div class="form-text">Saat ini: <a target="_blank" href="<?= esc(base_url($item['image_path']), 'url') ?>">lihat</a></div>
-              <?php endif; ?>
+                  <?php if (!empty($item['image_path'])): ?>
+                    <div class="form-text">Saat ini: <a target="_blank" href="<?= esc(base_url($item['image_path']), 'attr') ?>">lihat</a></div>
+                  <?php endif; ?>
             </div>
           </div>
 

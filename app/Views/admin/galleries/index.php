@@ -9,7 +9,7 @@
     </div>
 
     <?php if (session()->getFlashdata('message')): ?>
-      <div class="alert alert-success alert-dismissible" role="alert">
+      <div class="alert alert-soft-success alert-dismissible" role="alert">
         <?= esc(session('message')) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
       </div>
@@ -18,7 +18,7 @@
     <div class="card">
       <div class="card-body">
         <div class="table-responsive">
-        <table id="galleriesTable" class="table table-striped align-middle">
+        <table id="galleriesTable" class="table table-striped table-compact align-middle">
           <thead>
             <tr>
               <th style="width:60px">#</th>
@@ -35,11 +35,11 @@
                 <td><?= esc($g['title']) ?></td>
                 <td><small class="text-muted"><?= esc($g['description']) ?></small></td>
                 <td>
-                  <?php if (!empty($g['image_path'])): ?>
-                    <img src="<?= esc(base_url($g['image_path']), 'url') ?>" alt="Gambar galeri" style="width:64px;height:64px;object-fit:cover;border-radius:6px;">
-                  <?php else: ?>
-                    <span class="text-muted">-</span>
-                  <?php endif; ?>
+                <?php if (!empty($g['image_path'])): ?>
+                  <img src="<?= esc(base_url($g['image_path']), 'attr') ?>" alt="Gambar galeri" style="width:64px;height:64px;object-fit:cover;border-radius:6px;">
+                <?php else: ?>
+                  <span class="text-muted">-</span>
+                <?php endif; ?>
                 </td>
                 <td class="text-end">
                   <a href="<?= site_url('admin/galleries/edit/'.$g['id']) ?>" class="btn btn-sm btn-outline-secondary"><i class="bx bx-edit"></i> Ubah</a>

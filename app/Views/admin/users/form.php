@@ -111,7 +111,7 @@
                 <?php endif; ?>
             </div>
 
-            <div class="mt-3 d-flex gap-2">
+            <div class="mt-3 d-flex flex-wrap gap-2">
                 <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i> Simpan</button>
                 <button type="reset" class="btn btn-outline-secondary" id="resetFormButton"><i class="bx bx-reset me-1"></i> Atur Ulang</button>
             </div>

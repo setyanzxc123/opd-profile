@@ -9,7 +9,7 @@
     </div>
 
     <?php if (session()->getFlashdata('message')): ?>
-      <div class="alert alert-success alert-dismissible" role="alert">
+      <div class="alert alert-soft-success alert-dismissible" role="alert">
         <?= esc(session('message')) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
       </div>
@@ -18,7 +18,7 @@
     <div class="card">
       <div class="card-body">
         <div class="table-responsive">
-        <table id="documentsTable" class="table table-striped align-middle">
+        <table id="documentsTable" class="table table-striped table-compact align-middle">
           <thead>
             <tr>
               <th style="width:60px">#</th>
@@ -38,7 +38,7 @@
                 <td><?= esc($d['year'] ?: '-') ?></td>
                 <td>
                   <?php if (!empty($d['file_path'])): ?>
-                    <a class="btn btn-sm btn-outline-primary" href="<?= esc(base_url($d['file_path']), 'url') ?>" target="_blank"><i class="bx bx-link-external"></i> Lihat</a>
+                    <a class="btn btn-sm btn-outline-primary" href="<?= esc(base_url($d['file_path']), 'attr') ?>" target="_blank"><i class="bx bx-link-external"></i> Lihat</a>
                   <?php else: ?>
                     <span class="text-muted">-</span>
                   <?php endif; ?>

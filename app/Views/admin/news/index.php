@@ -9,7 +9,7 @@
     </div>
 
     <?php if (session()->getFlashdata('message')): ?>
-      <div class="alert alert-success alert-dismissible" role="alert">
+      <div class="alert alert-soft-success alert-dismissible" role="alert">
         <?= esc(session('message')) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
       </div>
@@ -18,7 +18,7 @@
     <div class="card">
       <div class="card-body">
         <div class="table-responsive">
-        <table id="newsTable" class="table table-striped">
+        <table id="newsTable" class="table table-striped table-compact">
           <thead>
             <tr>
               <th>#</th>
@@ -38,7 +38,7 @@
               <td><?= esc($n['published_at'] ?: '-') ?></td>
               <td>
                 <?php if (!empty($n['thumbnail'])): ?>
-                  <img src="<?= esc(base_url($n['thumbnail']), 'url') ?>" alt="Thumbnail berita" style="width:48px;height:48px;object-fit:cover;border-radius:4px;">
+                  <img src="<?= esc(base_url($n['thumbnail']), 'attr') ?>" alt="Thumbnail berita" style="width:48px;height:48px;object-fit:cover;border-radius:4px;">
                 <?php else: ?>
                   <span class="text-muted">-</span>
                 <?php endif; ?>
