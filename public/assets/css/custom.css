@@ -224,6 +224,20 @@ small,
   vertical-align: bottom;
 }
 
+/* Softer breadcrumb palette */
+.content-wrapper nav[aria-label="breadcrumb"] .breadcrumb .breadcrumb-item > a {
+  color: color-mix(in sRGB, var(--bs-body-color) 70%, white);
+  transition: color .15s ease;
+}
+.content-wrapper nav[aria-label="breadcrumb"] .breadcrumb .breadcrumb-item > a:hover,
+.content-wrapper nav[aria-label="breadcrumb"] .breadcrumb .breadcrumb-item > a:focus {
+  color: var(--bs-primary);
+}
+.content-wrapper nav[aria-label="breadcrumb"] .breadcrumb .breadcrumb-item.active {
+  color: color-mix(in sRGB, var(--bs-body-color) 80%, white);
+  font-weight: 600;
+}
+
 /* Table hover and compact mode */
 .table-hover > tbody > tr:hover {
   background-color: color-mix(in sRGB, var(--bs-base-color) 7%, var(--bs-paper-bg));
