@@ -120,48 +120,15 @@
 
       <!-- Layout container -->
       <div class="layout-page">
-        <!-- Navbar -->
-        <nav class="layout-navbar navbar navbar-expand-xl align-items-center bg-navbar-theme" id="layout-navbar">
-          <div class="container-fluid">
-            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
-              <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
-                <i class="bx bx-menu bx-sm"></i>
-              </a>
-            </div>
-
-            <div class="flex-grow-1"></div>
-
-            <ul class="navbar-nav flex-row align-items-center ms-auto">
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                  <div class="avatar avatar-online">
-                    <img src="<?= base_url('assets/img/avatars/1.png') ?>" alt="Avatar" class="w-px-40 h-auto rounded-circle" />
-                  </div>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                  <li>
-                    <a class="dropdown-item" href="<?= site_url('admin/profile') ?>">
-                      <i class="bx bx-user me-2"></i>
-                      <span>Profil OPD</span>
-                    </a>
-                  </li>
-                  <li><div class="dropdown-divider"></div></li>
-                  <li>
-                    <a class="dropdown-item" href="<?= site_url('logout') ?>">
-                      <i class="bx bx-log-out me-2"></i>
-                      <span>Keluar</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </div>
-        </nav>
-        <!-- / Navbar -->
 
         <!-- Content wrapper -->
         <div class="content-wrapper">
           <div class="container-xxl flex-grow-1 container-p-y">
+            <div class="layout-menu-toggle navbar-nav align-items-center d-xl-none mb-3">
+              <a class="nav-item nav-link px-0" href="javascript:void(0)">
+                <i class="bx bx-menu bx-sm"></i>
+              </a>
+            </div>
             <?php
               $segments = $uri->getSegments();
               $labelsMap = [
