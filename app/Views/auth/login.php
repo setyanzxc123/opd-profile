@@ -18,13 +18,13 @@
           <div class="card-body">
             <h4 class="mb-2">Login Admin</h4>
             <?php if (session()->getFlashdata('error')): ?>
-              <div class="alert alert-soft-danger alert-dismissible fade show" role="alert" aria-live="assertive">
+              <div class="alert alert-danger alert-dismissible fade show" role="alert" aria-live="assertive">
                 <?= esc(session('error')) ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
               </div>
             <?php endif; ?>
             <?php if (session()->getFlashdata('message')): ?>
-              <div class="alert alert-soft-success alert-dismissible fade show" role="alert" aria-live="polite">
+              <div class="alert alert-success alert-dismissible fade show" role="alert" aria-live="polite">
                 <?= esc(session('message')) ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
               </div>
@@ -87,5 +87,6 @@
 <script src="<?= base_url('assets/js/main.js') ?>"></script>
 </body>
 </html>
+
 
 
