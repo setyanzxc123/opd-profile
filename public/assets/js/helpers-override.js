@@ -7,7 +7,7 @@
   // Breakpoint to decide off-canvas vs. collapsed
   H.LAYOUT_BREAKPOINT = H.LAYOUT_BREAKPOINT || 1200;
 
-  if (typeof H.isSmallScreen !== 'function') {
+  if (typeof H.isSmallScreen !== "function") {
     H.isSmallScreen = function () {
       try {
         return window.innerWidth < H.LAYOUT_BREAKPOINT;
@@ -19,11 +19,13 @@
 
   function updateChevronIcon() {
     try {
-      var icon = document.querySelector('#layout-menu .app-brand .layout-menu-toggle i');
+      var icon = document.querySelector(
+        "#layout-menu .app-brand .layout-menu-toggle i"
+      );
       if (!icon) return;
-      var collapsed = document.body.classList.contains('layout-menu-collapsed');
-      icon.classList.remove('bx-chevron-left', 'bx-chevron-right');
-      icon.classList.add(collapsed ? 'bx-chevron-right' : 'bx-chevron-left');
+      var collapsed = document.body.classList.contains("layout-menu-collapsed");
+      icon.classList.remove("bx-chevron-left", "bx-chevron-right");
+      icon.classList.add(collapsed ? "bx-chevron-right" : "bx-chevron-left");
     } catch (e) {
       /* no-op */
     }
@@ -32,24 +34,26 @@
   // Toggle collapsed/expanded state
   H.toggleCollapsed = function () {
     if (H.isSmallScreen && H.isSmallScreen()) {
-      document.body.classList.toggle('layout-menu-expanded');
+      document.body.classList.toggle("layout-menu-expanded");
     } else {
-      document.body.classList.toggle('layout-menu-collapsed');
+      document.body.classList.toggle("layout-menu-collapsed");
     }
     updateChevronIcon();
   };
 
   // Provide setCollapsed if not present (used by main.js)
-  if (typeof H.setCollapsed !== 'function') {
-    H.setCollapsed = function (state /* bool */, /* animate */) {
-      document.body.classList.toggle('layout-menu-collapsed', !!state);
+  if (typeof H.setCollapsed !== "function") {
+    H.setCollapsed = function (state /* bool */ /* animate */) {
+      document.body.classList.toggle("layout-menu-collapsed", !!state);
       updateChevronIcon();
     };
   }
 
   // Initial sync on load
-  if (document.readyState === 'complete') updateChevronIcon();
+  if (document.readyState === "complete") updateChevronIcon();
   else {
-    document.addEventListener('DOMContentLoaded', updateChevronIcon, { once: true });
+    document.addEventListener("DOMContentLoaded", updateChevronIcon, {
+      once: true,
+    });
   }
 })();

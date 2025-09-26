@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html
   lang="id"
-  class="layout-menu-fixed"
+ 
   data-assets-path="<?= base_url('assets/') ?>"
   data-template="vertical-menu-template-free">
 <head>
@@ -27,7 +27,7 @@
   <script src="<?= base_url('assets/js/config.js') ?>"></script>
 </head>
 
-<body>
+<body class="layout-menu-fixed">
   <div class="layout-wrapper layout-content-navbar">
     <div class="layout-container">
       <?php

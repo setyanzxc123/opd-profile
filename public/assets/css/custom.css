@@ -1,3 +1,27 @@
+/* Brand text: remove animation; show expanded, hide collapsed */
+#layout-menu .app-brand .app-brand-text,
+.menu .app-brand .app-brand-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: none !important;
+}
+@media (min-width: 1200px) {
+  .layout-menu-collapsed #layout-menu .app-brand .app-brand-text { display: none !important; opacity: 0 !important; }
+}
+/* Ensure brand toggle always visible */
+#layout-menu .app-brand .layout-menu-toggle {
+  opacity: 1 !important;
+  display: inline-flex !important;
+  align-items: center;
+}
+#layout-menu .app-brand .layout-menu-toggle i {
+  color: #ffffff !important;
+}
+.layout-menu-collapsed #layout-menu .app-brand .layout-menu-toggle {
+  opacity: 1 !important;
+}
+
 /*
  * Project-specific styles
  * -----------------------
@@ -84,4 +108,32 @@
 
 .tox .tox-statusbar {
   border-top: 1px solid color-mix(in sRGB, var(--bs-base-color) 22%, var(--bs-paper-bg));
+}
+
+/* Content width sync with collapsed menu */
+@media (min-width: 1200px) {
+  .layout-page {
+    padding-inline-start: var(--bs-menu-width);
+    transition: padding-inline-start 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .layout-menu-collapsed .layout-page {
+    padding-inline-start: var(--bs-menu-collapsed-width) !important;
+  }
+}
+/* Stabilize brand text layout to avoid vertical jump */
+@media (min-width: 1200px) {
+  .menu .app-brand,
+  .layout-menu .app-brand { display: flex; align-items: center; }
+  .menu .app-brand .app-brand-link { display: inline-flex; align-items: center; gap: .25rem; min-inline-size: 0; }
+/* Brand text: no animation, stable layout */
+@media (min-width: 1200px) {
+  .menu .app-brand, #layout-menu .app-brand { display: flex; align-items: center; }
+  .menu .app-brand .app-brand-link { display: inline-flex; align-items: center; gap: .25rem; min-inline-size: 0; }
+  .menu .app-brand .app-brand-text,
+  #layout-menu .app-brand .app-brand-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: none !important;
+  }
 }
