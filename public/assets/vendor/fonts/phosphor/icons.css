@@ -1,0 +1,28 @@
+﻿@font-face {
+  font-family: 'FluentIcons';
+  src: url('segmdl2.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+[class^='fi-'], [class*=' fi-'] {
+  font-family: 'FluentIcons' !important;
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  display: inline-block;
+  text-transform: none;
+  speak: none;
+}
+
+.fi-dashboard::before { content: "\e80f"; }
+.fi-profile::before { content: "\e77b"; }
+.fi-services::before { content: "\ea82"; }
+.fi-news::before { content: "\e12a"; }
+.fi-gallery::before { content: "\e158"; }
+.fi-documents::before { content: "\ecf7"; }
+.fi-contacts::before { content: "\e119"; }
+.fi-users::before { content: "\e716"; }
+.fi-activity::before { content: "\ebd2"; }
+.fi-logout::before { content: "\e8ac"; }

@@ -84,7 +84,15 @@ phpunit
 #-------------------------
 # Composer
 #-------------------------
-vendor/
+# Ignore only root composer vendor. Keep public/assets/vendor tracked.
+/vendor/
+
+#-------------------------
+# Public uploads (user-generated)
+#-------------------------
+public/uploads/*
+!public/uploads/.gitkeep
+!public/uploads/index.html
 
 #-------------------------
 # IDE / Development Files
