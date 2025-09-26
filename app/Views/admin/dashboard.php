@@ -15,7 +15,7 @@
               Pantau perkembangan layanan, konten publik, dan aktivitas tim dari satu tempat. Pastikan informasi OPD
               selalu mutakhir dan responsif.
             </p>
-            <div class="d-flex flex-wrap gap-2">
+            <div class="d-flex flex-wrap gap-2 mb-3">
               <a href="<?= site_url('admin/profile') ?>" class="btn btn-sm btn-primary">
                 <i class="bx bx-buildings me-1"></i>
                 Kelola Profil OPD
@@ -25,6 +25,13 @@
                 Tambah Berita
               </a>
             </div>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary"
+              data-bs-toggle="toast"
+              data-bs-target="#dashboardWelcomeToast">
+              Lihat Tips Dashboard
+            </button>
           </div>
         </div>
         <div class="col-sm-5 text-center text-sm-start">
@@ -362,7 +369,23 @@
 
 <?= $this->endSection() ?>
 
+
+<!-- Toast -->
+<div class="bs-toast toast fade" id="dashboardWelcomeToast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="8000">
+  <div class="toast-header">
+    <i class="bx bx-info-circle me-2"></i>
+    <div class="me-auto fw-semibold">Panduan Dashboard</div>
+    <small>Baru saja</small>
+    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Tutup"></button>
+  </div>
+  <div class="toast-body">
+    Gunakan tombol “Tambah Berita” atau kartu statistik untuk mengakses modul terkait. Data grafik masih placeholder, sesuaikan dengan data riil modul ketika tersedia.
+  </div>
+</div>
+
 <?= $this->section('pageScripts') ?>
 <script src="<?= base_url('assets/vendor/libs/apex-charts/apexcharts.js') ?>"></script>
 <script src="<?= base_url('assets/js/dashboards-analytics.js') ?>"></script>
 <?= $this->endSection() ?>
+
+
