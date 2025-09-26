@@ -10,11 +10,11 @@
       <div class="col-6 col-lg-3">
         <h6 class="text-white mb-3">Navigasi</h6>
         <ul class="list-unstyled footer-links">
-          <li><a href="#profil">Profil</a></li>
-          <li><a href="#layanan">Layanan</a></li>
-          <li><a href="#berita">Berita</a></li>
-          <li><a href="#dokumen">Dokumen</a></li>
-          <li><a href="#kontak">Kontak</a></li>
+          <li><a href="<?= site_url('profil') ?>">Profil</a></li>
+          <li><a href="<?= site_url('layanan') ?>">Layanan</a></li>
+          <li><a href="<?= site_url('berita') ?>">Berita</a></li>
+          <li><a href="<?= site_url('dokumen') ?>">Dokumen</a></li>
+          <li><a href="<?= site_url('/') ?>#kontak">Kontak</a></li>
         </ul>
       </div>
       <div class="col-6 col-lg-3">

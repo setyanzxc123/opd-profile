@@ -6,6 +6,13 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->get('/', 'Home::index');
+$routes->get('profil', 'Pages::profil');
+$routes->get('layanan', 'Pages::layanan');
+$routes->get('berita', 'Pages::berita');
+$routes->get('berita/(:segment)', 'Pages::beritaDetail/$1');
+$routes->get('galeri', 'Pages::galeri');
+$routes->get('dokumen', 'Pages::dokumen');
+
 $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::attempt');
 $routes->get('logout', 'Auth::logout');

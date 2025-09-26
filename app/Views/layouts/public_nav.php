@@ -9,16 +9,16 @@
     </button>
     <div class="collapse navbar-collapse" id="publicNavbar">
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-3">
-        <li class="nav-item"><a class="nav-link" href="#beranda">Beranda</a></li>
-        <li class="nav-item"><a class="nav-link" href="#profil">Profil</a></li>
-        <li class="nav-item"><a class="nav-link" href="#layanan">Layanan</a></li>
-        <li class="nav-item"><a class="nav-link" href="#berita">Berita</a></li>
-        <li class="nav-item"><a class="nav-link" href="#galeri">Galeri</a></li>
-        <li class="nav-item"><a class="nav-link" href="#dokumen">Dokumen</a></li>
-        <li class="nav-item"><a class="nav-link" href="#kontak">Kontak</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= site_url('/') ?>#beranda">Beranda</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= site_url('profil') ?>">Profil</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= site_url('layanan') ?>">Layanan</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= site_url('berita') ?>">Berita</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= site_url('galeri') ?>">Galeri</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= site_url('dokumen') ?>">Dokumen</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= site_url('/') ?>#kontak">Kontak</a></li>
       </ul>
       <div class="d-flex mt-3 mt-lg-0 ms-lg-3">
-        <a class="btn btn-sm btn-outline-light px-3" href="#kontak">Hubungi Kami</a>
+        <a class="btn btn-sm btn-outline-light px-3" href="<?= site_url('/') ?>#kontak">Hubungi Kami</a>
       </div>
     </div>
   </div>
