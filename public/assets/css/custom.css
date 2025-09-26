@@ -1,13 +1,30 @@
-/* Brand text: remove animation; show expanded, hide collapsed */
-#layout-menu .app-brand .app-brand-text,
-.menu .app-brand .app-brand-text {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: none !important;
+/* Sneat primary palette override to match public site blue */
+:root[data-template="vertical-menu-template-free"] {
+  --bs-primary: #2e7bd7;
+  --bs-primary-rgb: 46, 123, 215;
+  --bs-primary-text-emphasis: #1d4f8c;
+  --bs-primary-bg-subtle: #e1effd;
+  --bs-primary-border-subtle: #b7d2f4;
+  --bs-link-color: #2e7bd7;
+  --bs-link-hover-color: #1b5698;
 }
-@media (min-width: 1200px) {
-  .layout-menu-collapsed #layout-menu .app-brand .app-brand-text { display: none !important; opacity: 0 !important; }
+
+.btn-primary {
+  --bs-btn-bg: #2e7bd7;
+  --bs-btn-border-color: #2e7bd7;
+  --bs-btn-hover-bg: #255fa9;
+  --bs-btn-hover-border-color: #255fa9;
+  --bs-btn-active-bg: #1d4f8c;
+  --bs-btn-active-border-color: #1d4f8c;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: #2e7bd7;
+  --bs-btn-border-color: #2e7bd7;
+  --bs-btn-hover-bg: #2e7bd7;
+  --bs-btn-hover-border-color: #2e7bd7;
+  --bs-btn-active-bg: #255fa9;
+  --bs-btn-active-border-color: #255fa9;
 }
 /* Ensure brand toggle always visible */
 #layout-menu .app-brand .layout-menu-toggle {
@@ -22,13 +39,43 @@
   opacity: 1 !important;
 }
 
-/*
- * Project-specific styles
- * -----------------------
- * Keep Sneat components in their default appearance.
- * Only add utilities for custom modules below.
- */
+/* Brand text: show expanded, hide collapsed without animation */
+#layout-menu .app-brand .app-brand-text,
+.menu .app-brand .app-brand-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: none !important;
+}
+@media (min-width: 1200px) {
+  .menu .app-brand,
+  #layout-menu .app-brand {
+    display: flex;
+    align-items: center;
+  }
+  .menu .app-brand .app-brand-link,
+  #layout-menu .app-brand .app-brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-inline-size: 0;
+  }
+  .layout-menu-collapsed #layout-menu .app-brand .app-brand-text {
+    display: none !important;
+    opacity: 0 !important;
+  }
+}
 
+/* Content width sync with collapsed menu */
+@media (min-width: 1200px) {
+  .layout-page {
+    padding-inline-start: var(--bs-menu-width);
+    transition: padding-inline-start 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .layout-menu-collapsed .layout-page {
+    padding-inline-start: var(--bs-menu-collapsed-width) !important;
+  }
+}
 /* News module ------------------------------------------------------------- */
 .news-form-header {
   border-bottom: 1px solid var(--bs-border-color);
@@ -137,3 +184,5 @@
     transition: none !important;
   }
 }
+
+
