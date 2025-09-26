@@ -1,3 +1,60 @@
+/* Admin theme overrides ------------------------------------------------ */
+:root {
+  --bs-primary: #1c6fd3;
+  --bs-primary-rgb: 28, 111, 211;
+  --bs-primary-bg-subtle: rgba(28, 111, 211, 0.12);
+  --bs-primary-border-subtle: rgba(28, 111, 211, 0.4);
+  --bs-link-color: #1c6fd3;
+  --bs-link-hover-color: #0d4b92;
+}
+
+.btn-primary {
+  background-image: linear-gradient(135deg, #1c6fd3, #0d4b92);
+  border-color: #1c6fd3;
+  box-shadow: 0 4px 18px rgba(28, 111, 211, 0.25);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-image: linear-gradient(135deg, #0d4b92, #0a3a70);
+  border-color: #0d4b92;
+  box-shadow: 0 6px 22px rgba(13, 75, 146, 0.3);
+}
+
+.bg-menu-theme {
+  background: linear-gradient(180deg, rgba(28, 111, 211, 0.95) 0%, rgba(13, 75, 146, 0.95) 100%);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.bg-menu-theme .menu-inner > .menu-item > .menu-link {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.bg-menu-theme .menu-item.active > .menu-link,
+.bg-menu-theme .menu-item.active > .menu-link .menu-icon {
+  color: #ffffff;
+}
+
+.bg-menu-theme .menu-inner > .menu-item > .menu-link:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.bg-menu-theme .menu-item .menu-link .menu-icon {
+  color: inherit;
+}
+
+.layout-menu .app-brand-link span {
+  color: #ffffff;
+}
+
+.badge.bg-label-primary {
+  background-color: rgba(28, 111, 211, 0.16);
+  color: #1c6fd3;
+}
+
+/* ----------------------------------------------------------------------- */
+
+
 /*
  * Project-specific styles
  * -----------------------
@@ -84,4 +141,7 @@
 
 .tox .tox-statusbar {
   border-top: 1px solid color-mix(in sRGB, var(--bs-base-color) 22%, var(--bs-paper-bg));
+}
+.layout-menu-toggle .bx {
+  color: #1c6fd3;
 }
