@@ -44,11 +44,13 @@
                 <?php endif; ?>
               </td>
               <td class="text-end">
-                <a href="<?= site_url('admin/news/edit/'.$n['id']) ?>" class="btn btn-sm btn-outline-secondary"><i class="bx bx-edit"></i> Ubah</a>
-                <form method="post" action="<?= site_url('admin/news/delete/'.$n['id']) ?>" style="display:inline" onsubmit="return confirm('Hapus berita ini?')">
-                  <?= csrf_field() ?>
-                  <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bx bx-trash"></i> Hapus</button>
-                </form>
+                <div class="d-inline-flex flex-wrap justify-content-end gap-1">
+                  <a href="<?= site_url('admin/news/edit/'.$n['id']) ?>" class="btn btn-sm btn-outline-secondary"><i class="bx bx-edit"></i> Ubah</a>
+                  <form method="post" action="<?= site_url('admin/news/delete/'.$n['id']) ?>" onsubmit="return confirm('Hapus berita ini?')" class="m-0">
+                    <?= csrf_field() ?>
+                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bx bx-trash"></i> Hapus</button>
+                  </form>
+                </div>
               </td>
             </tr>
           <?php endforeach; ?>

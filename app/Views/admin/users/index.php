@@ -46,15 +46,32 @@
                             <td><?= !empty($u['is_active']) ? '<span class="badge bg-label-success">Aktif</span>' : '<span class="badge bg-label-secondary">Nonaktif</span>' ?></td>
                             <td><?= esc($u['last_login_at'] ?? '-') ?></td>
                             <td class="text-end">
-                                <a href="<?= site_url('admin/users/edit/' . $u['id']) ?>" class="btn btn-sm btn-outline-secondary"><i class="bx bx-edit"></i> Ubah</a>
-                                <form method="post" action="<?= site_url('admin/users/toggle/' . $u['id']) ?>" class="d-inline" onsubmit="return confirm('Ubah status akun ini?')">
-                                    <?= csrf_field() ?>
-                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Aktifkan atau nonaktifkan"><i class="bx bx-power-off"></i></button>
-                                </form>
-                                <form method="post" action="<?= site_url('admin/users/reset/' . $u['id']) ?>" class="d-inline" onsubmit="return confirm('Setel ulang kata sandi pengguna ini?')">
-                                    <?= csrf_field() ?>
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Setel ulang kata sandi"><i class="bx bx-key"></i> Setel Ulang</button>
-                                </form>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="<?= site_url('admin/users/edit/' . $u['id']) ?>" class="btn btn-outline-secondary"><i class="bx bx-edit"></i> Ubah</a>
+                                    <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi lainnya">
+                                        <span class="visually-hidden">Aksi lainnya</span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                        <li>
+                                            <form method="post" action="<?= site_url('admin/users/toggle/' . $u['id']) ?>" onsubmit="return confirm('Ubah status akun ini?')" class="m-0">
+                                                <?= csrf_field() ?>
+                                                <button type="submit" class="dropdown-item d-flex align-items-center gap-2 text-warning">
+                                                    <i class="bx bx-power-off"></i>
+                                                    <span><?= !empty($u['is_active']) ? 'Nonaktifkan' : 'Aktifkan' ?></span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="post" action="<?= site_url('admin/users/reset/' . $u['id']) ?>" onsubmit="return confirm('Setel ulang kata sandi pengguna ini?')" class="m-0">
+                                                <?= csrf_field() ?>
+                                                <button type="submit" class="dropdown-item d-flex align-items-center gap-2 text-danger">
+                                                    <i class="bx bx-key"></i>
+                                                    <span>Setel Ulang Kata Sandi</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

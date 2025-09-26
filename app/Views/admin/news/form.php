@@ -146,7 +146,7 @@
             </div>
           </div>
 
-          <div class="d-flex justify-content-end mt-4">
+          <div class="d-flex justify-content-end gap-2 mt-4">
             <button type="submit" class="btn btn-primary btn-lg"><i class="bx bx-save me-2"></i> Simpan Berita</button>
           </div>
         </form>
