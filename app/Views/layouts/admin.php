@@ -129,35 +129,9 @@
               </a>
             </div>
 
-            <div class="navbar-nav align-items-center flex-grow-1">
-              <div class="nav-item navbar-search d-flex align-items-center">
-                <i class="bx bx-search fs-4 lh-0 me-2"></i>
-                <input
-                  type="search"
-                  class="form-control border-0 shadow-none"
-                  placeholder="Cari di admin..."
-                  aria-label="Search" />
-              </div>
-            </div>
+            <div class="flex-grow-1"></div>
 
             <ul class="navbar-nav flex-row align-items-center ms-auto">
-              <li class="nav-item dropdown me-2">
-                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                  <i class="bx bx-customize fs-4"></i>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end">
-                  <span class="dropdown-header">Tindakan cepat</span>
-                  <a class="dropdown-item" href="<?= site_url('admin/news/create') ?>">
-                    <i class="bx bx-news me-2"></i>Tambah Berita
-                  </a>
-                  <a class="dropdown-item" href="<?= site_url('admin/galleries/create') ?>">
-                    <i class="bx bx-image-alt me-2"></i>Tambah Galeri
-                  </a>
-                  <a class="dropdown-item" href="<?= site_url('admin/documents/create') ?>">
-                    <i class="bx bx-file me-2"></i>Unggah Dokumen
-                  </a>
-                </div>
-              </li>
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                   <div class="avatar avatar-online">
@@ -165,24 +139,13 @@
                   </div>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
-                  <li class="px-3 py-2">
-                    <div class="d-flex align-items-center">
-                      <div class="avatar avatar-online me-3">
-                        <img src="<?= base_url('assets/img/avatars/1.png') ?>" alt="Avatar" class="w-px-40 h-auto rounded-circle" />
-                      </div>
-                      <div>
-                        <div class="fw-semibold mb-0"><?= esc(session('name') ?? session('username') ?? 'Admin') ?></div>
-                        <small class="text-muted text-capitalize"><?= esc(session('role') ?? 'administrator') ?></small>
-                      </div>
-                    </div>
-                  </li>
-                  <li><div class="dropdown-divider"></div></li>
                   <li>
                     <a class="dropdown-item" href="<?= site_url('admin/profile') ?>">
                       <i class="bx bx-user me-2"></i>
                       <span>Profil OPD</span>
                     </a>
                   </li>
+                  <li><div class="dropdown-divider"></div></li>
                   <li>
                     <a class="dropdown-item" href="<?= site_url('logout') ?>">
                       <i class="bx bx-log-out me-2"></i>
