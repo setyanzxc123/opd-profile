@@ -18,7 +18,7 @@
   $serviceItems   = $services ?? [];
   $galleryItems   = $galleries ?? [];
 ?>
-<section class="hero-section hero-shell" id="beranda">
+<section class="hero-section hero-shell hero-soft" id="beranda">
   <div class="container public-container">
     <?php if ($sliderItems): ?>
       <div class="hero-slider" data-slider data-interval="6500">
@@ -78,7 +78,7 @@
   </div>
 </section>
 
-<section class="public-section" id="layanan">
+<section class="public-section section-warm" id="layanan">
   <div class="container public-container">
     <div class="section-head">
       <h2>Layanan Unggulan</h2>
@@ -111,7 +111,7 @@
   </div>
 </section>
 
-<section class="public-section bg-white" id="berita">
+<section class="public-section section-cool" id="berita">
   <div class="container public-container">
     <div class="section-head">
       <h2>Berita</h2>
@@ -172,7 +172,7 @@
   </div>
 </section>
 
-<section class="public-section" id="galeri">
+<section class="public-section section-neutral" id="galeri">
   <div class="container public-container">
     <div class="section-head">
       <h2>Galeri Kegiatan</h2>
@@ -208,7 +208,7 @@
   </div>
 </section>
 
-<section class="public-section bg-white" id="dokumen">
+<section class="public-section section-warm" id="dokumen">
   <div class="container public-container">
     <div class="section-head">
       <h2>Dokumen Publik</h2>

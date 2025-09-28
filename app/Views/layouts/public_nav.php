@@ -1,7 +1,7 @@
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm public-navbar">
+<nav class="navbar navbar-expand-lg navbar-light sticky-top shadow-sm public-navbar">
   <div class="container">
     <a class="navbar-brand fw-bold d-flex align-items-center" href="<?= base_url('/') ?>">
-      <span class="me-2 rounded-circle bg-white bg-opacity-25 d-inline-flex align-items-center justify-content-center brand-circle">OPD</span>
+      <span class="me-2 rounded-circle d-inline-flex align-items-center justify-content-center brand-circle">OPD</span>
       <span>Dinas</span>
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNavbar" aria-controls="publicNavbar" aria-expanded="false" aria-label="Toggle navigation">

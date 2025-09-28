@@ -8,6 +8,11 @@
   --public-neutral-500: #7b8794;
   --public-neutral-200: #e4e7eb;
   --public-neutral-100: #f4f6fb;
+  /* Surface tints for clearer section boundaries */
+  --surface-cool: #f2f7ff;
+  --surface-warm: #fff8ec;
+  --surface-neutral: #f7f9fc;
+  --border-soft: rgba(28, 111, 211, 0.10);
 }
 
 body.public-body {
@@ -18,24 +23,66 @@ body.public-body {
 }
 
 .public-navbar {
-  background: var(--public-primary);
-  box-shadow: none;
+  background-color: #ffffff;
+  border-bottom: 1px solid rgba(31, 41, 51, 0.08);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.public-navbar .navbar-brand {
+  color: var(--public-neutral-900);
+  font-weight: 600;
+}
+
+.public-navbar .navbar-brand:hover,
+.public-navbar .navbar-brand:focus-visible {
+  color: var(--public-primary);
 }
 
 .public-navbar .nav-link {
-  color: rgba(255, 255, 255, 0.8);
-  font-weight: 500;
+  position: relative;
+  color: var(--public-neutral-700);
+  font-weight: 600;
+  padding: 0.5rem 0;
+  margin-inline: 0.75rem;
+  transition: color 0.2s ease;
+}
+
+.public-navbar .nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--public-primary);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.2s ease;
 }
 
 .public-navbar .nav-link:hover,
-.public-navbar .nav-link:focus {
-  color: #ffffff;
+.public-navbar .nav-link:focus-visible {
+  color: var(--public-primary);
+}
+
+.public-navbar .nav-link:hover::after,
+.public-navbar .nav-link:focus-visible::after,
+.public-navbar .nav-link[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+.public-navbar .nav-link:focus-visible {
+  outline: 2px solid rgba(28, 111, 211, 0.3);
+  outline-offset: 4px;
 }
 
 .brand-circle {
   width: 40px;
   height: 40px;
   font-weight: 700;
+  background: var(--public-primary);
   color: #ffffff;
 }
 
@@ -43,6 +90,13 @@ body.public-body {
   background: #ffffff;
   border-bottom: 1px solid rgba(28, 111, 211, 0.08);
   margin-top: 0;
+}
+
+/* Optional soft gradient to subtly separate hero from next section */
+.hero-soft {
+  background:
+    radial-gradient(1200px 400px at 70% -100px, rgba(28, 111, 211, 0.06), transparent 60%),
+    #ffffff;
 }
 
 .hero-shell .public-container {
@@ -118,7 +172,7 @@ body.public-body {
 }
 
 .hero-link::after {
-  content: "\\2192";
+  content: "\2192";
   font-size: 1.1em;
   transition: transform 0.2s ease;
 }
@@ -363,19 +417,40 @@ body.public-body {
     width: 36px;
     height: 36px;
   }
+
+  .public-navbar .nav-link {
+    margin-inline: 0;
+    padding: 0.75rem 0;
+  }
 }
 
 /* Layout sizing similar to vanilla */
 .public-container { width: min(92vw, 1200px); margin: 0 auto; }
 
 /* Sticky navbar look */
-.public-navbar { backdrop-filter: none; box-shadow: none; }
+.public-navbar { backdrop-filter: none; }
 
 /* Hero spacing */
 .hero-section { padding: 0 0 clamp(3rem, 9vw, 6rem); }
 
 /* Generic section spacing */
 .public-section { padding: clamp(3.5rem, 8vw, 5rem) 0; }
+
+/* Section surface tints */
+.section-cool { background: var(--surface-cool); border-top: 1px solid var(--border-soft); }
+.section-warm { background: var(--surface-warm); border-top: 1px solid var(--border-soft); }
+.section-neutral { background: var(--surface-neutral); }
+
+/* Section heading accent underline */
+.section-head h2 { position: relative; display: inline-block; }
+.section-head h2::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -0.4rem;
+  height: 3px;
+  border-radius: 999px;
+  background: color-mix(in sRGB, var(--public-primary) 60%, white);
+}
 
 /* Card tone to match vanilla */
 .stat-card, .service-card, .service-pill, .news-card, .contact-card { border-radius: 16px; }
@@ -410,22 +485,37 @@ body.public-body {
 /* Navbar search */
 .nav-actions .public-search .form-control {
   border-radius: 12px 0 0 12px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(28, 111, 211, 0.18);
   padding-inline: 1rem;
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--public-neutral-900);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .nav-actions .public-search .form-control::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--public-neutral-500);
+}
+
+.nav-actions .public-search .form-control:focus {
+  border-color: var(--public-primary);
+  box-shadow: 0 0 0 0.25rem rgba(28, 111, 211, 0.12);
+  outline: none;
 }
 
 .nav-actions .public-search .btn {
   border-radius: 0 12px 12px 0;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid var(--public-primary);
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--public-primary);
   color: #ffffff;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.nav-actions .public-search .btn:hover,
+.nav-actions .public-search .btn:focus-visible {
+  color: #ffffff;
+  background: var(--public-primary-dark);
+  border-color: var(--public-primary-dark);
 }
 
 @media (min-width: 992px) {
