@@ -118,4 +118,17 @@ class Pages extends BaseController
             'documents' => $documents,
         ]);
     }
+    public function kontak(): string
+    {
+        $profileModel = model(OpdProfileModel::class);
+
+        $profile = $profileModel
+            ->orderBy('id', 'desc')
+            ->first();
+
+        return view('public/contact', [
+            'title'   => 'Kontak & Pengaduan',
+            'profile' => $profile ?? [],
+        ]);
+    }
 }

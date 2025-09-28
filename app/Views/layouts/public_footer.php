@@ -14,7 +14,7 @@
           <li><a href="<?= site_url('layanan') ?>">Layanan</a></li>
           <li><a href="<?= site_url('berita') ?>">Berita</a></li>
           <li><a href="<?= site_url('dokumen') ?>">Dokumen</a></li>
-          <li><a href="<?= site_url('/') ?>#kontak">Kontak</a></li>
+          <li><a href="<?= site_url('kontak') ?>">Kontak</a></li>
         </ul>
       </div>
       <div class="col-6 col-lg-3">

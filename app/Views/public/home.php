@@ -69,7 +69,7 @@
             <p class="hero-lead"><?= esc($heroIntro) ?></p>
             <div class="hero-actions">
               <a class="btn btn-public-primary" href="<?= site_url('layanan') ?>">Eksplor layanan</a>
-              <a class="hero-link" href="<?= site_url('/') ?>#kontak">Hubungi kami</a>
+              <a class="hero-link" href="<?= site_url('kontak') ?>">Hubungi kami</a>
             </div>
           </div>
         </div>

@@ -15,7 +15,7 @@
         <li class="nav-item"><a class="nav-link" href="<?= site_url('berita') ?>">Berita</a></li>
         <li class="nav-item"><a class="nav-link" href="<?= site_url('galeri') ?>">Galeri</a></li>
         <li class="nav-item"><a class="nav-link" href="<?= site_url('dokumen') ?>">Dokumen</a></li>
-        <li class="nav-item"><a class="nav-link" href="<?= site_url('/') ?>#kontak">Kontak</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= site_url('kontak') ?>">Kontak</a></li>
       </ul>
       <div class="nav-actions d-flex flex-column flex-lg-row align-items-lg-center gap-3 mt-3 mt-lg-0">
         <form class="public-search w-100" action="<?= site_url('berita') ?>" method="get" role="search">

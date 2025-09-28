@@ -12,6 +12,7 @@ $routes->get('berita', 'Pages::berita');
 $routes->get('berita/(:segment)', 'Pages::beritaDetail/$1');
 $routes->get('galeri', 'Pages::galeri');
 $routes->get('dokumen', 'Pages::dokumen');
+$routes->get('kontak', 'Pages::kontak');
 
 $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::attempt');
