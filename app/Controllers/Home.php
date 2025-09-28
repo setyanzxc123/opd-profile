@@ -35,18 +35,18 @@ class Home extends BaseController
             $serviceQuery = $serviceQuery->where('is_active', 1);
         }
 
-        $services = $serviceQuery->findAll(3);
+        $services = $serviceQuery->findAll(4);
 
         $newsModel = model(NewsModel::class);
         $news      = $newsModel
             ->orderBy('published_at', 'desc')
             ->orderBy('created_at', 'desc')
-            ->findAll(3);
+            ->findAll(4);
 
         $galleryModel = model(GalleryModel::class);
         $galleries    = $galleryModel
             ->orderBy('created_at', 'desc')
-            ->findAll(6);
+            ->findAll(4);
 
         $documentModel = model(DocumentModel::class);
         $documents     = $documentModel

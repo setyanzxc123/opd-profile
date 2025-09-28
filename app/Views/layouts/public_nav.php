@@ -8,7 +8,7 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="publicNavbar">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-3">
+      <ul class="navbar-nav ms-auto ms-lg-0 me-lg-4 mb-2 mb-lg-0 align-items-lg-center gap-lg-3">
         <li class="nav-item"><a class="nav-link" href="<?= site_url('/') ?>#beranda">Beranda</a></li>
         <li class="nav-item"><a class="nav-link" href="<?= site_url('profil') ?>">Profil</a></li>
         <li class="nav-item"><a class="nav-link" href="<?= site_url('layanan') ?>">Layanan</a></li>
@@ -17,10 +17,14 @@
         <li class="nav-item"><a class="nav-link" href="<?= site_url('dokumen') ?>">Dokumen</a></li>
         <li class="nav-item"><a class="nav-link" href="<?= site_url('/') ?>#kontak">Kontak</a></li>
       </ul>
-      <div class="d-flex mt-3 mt-lg-0 ms-lg-3">
-        <a class="btn btn-sm btn-outline-light px-3" href="<?= site_url('/') ?>#kontak">Hubungi Kami</a>
+      <div class="nav-actions d-flex flex-column flex-lg-row align-items-lg-center gap-3 mt-3 mt-lg-0">
+        <form class="public-search w-100" action="<?= site_url('berita') ?>" method="get" role="search">
+          <div class="input-group">
+            <input class="form-control" type="search" name="q" placeholder="Cari informasi" aria-label="Cari informasi" />
+            <button class="btn btn-public-primary" type="submit">Cari</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </nav>
-

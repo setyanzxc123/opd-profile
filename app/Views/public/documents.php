@@ -11,7 +11,7 @@
     <div class="documents-wrap">
       <?php if ($documents): ?>
         <div class="table-responsive">
-          <table class="table align-middle document-table mb-0">
+          <table id="documentsTable" class="table align-middle document-table mb-0">
             <thead>
               <tr>
                 <th scope="col">Judul</th>
@@ -42,4 +42,34 @@
     </div>
   </div>
 </section>
+<?= $this->section('pageStyles') ?>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<?= $this->endSection() ?>
+
+<?= $this->section('pageScripts') ?>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script>
+  (function() {
+    const table = document.getElementById('documentsTable');
+    if (!table || typeof $ !== 'function' || !$.fn.DataTable) {
+      return;
+    }
+
+    $(table).DataTable({
+      pageLength: 10,
+      lengthChange: true,
+      ordering: true,
+      order: [],
+      language: {
+        url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json'
+      },
+      columnDefs: [
+        { targets: -1, orderable: false, searchable: false }
+      ]
+    });
+  })();
+</script>
+<?= $this->endSection() ?>
 <?= $this->endSection() ?>
