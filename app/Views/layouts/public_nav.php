@@ -2,7 +2,7 @@
   <div class="container">
     <a class="navbar-brand fw-bold d-flex align-items-center" href="<?= base_url('/') ?>">
       <span class="me-2 rounded-circle bg-white bg-opacity-25 d-inline-flex align-items-center justify-content-center brand-circle">OPD</span>
-      <span>Dinas Pelayanan Publik</span>
+      <span>Dinas</span>
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNavbar" aria-controls="publicNavbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
