@@ -21,87 +21,47 @@ use CodeIgniter\I18n\Time;
     <?php endif; ?>
 
     <?php
-      $filters        = $filters ?? ['status' => 'all', 'q' => '', 'per_page' => 15];
+      $filters        = $filters ?? ['status' => 'all'];
       $statusFilters  = $statusFilters ?? ['all' => 'Semua'];
       $statusCounts   = $statusCounts ?? [];
-      $perPageOptions = $perPageOptions ?? [10, 15, 25, 50];
-      $currentQuery   = [
-        'q'        => $filters['q'] ?? '',
-        'per_page' => $filters['per_page'] ?? 15,
-      ];
-      $currentUrl     = current_url();
-      $redirectQuery  = $filters;
-      $redirectUrl    = $currentUrl;
-      if (! empty(array_filter($redirectQuery, static fn ($value) => $value !== '' && $value !== null && $value !== 'all'))) {
-          $redirectUrl .= '?' . http_build_query(array_filter($redirectQuery, static fn ($value) => $value !== '' && $value !== null));
+      $selectedStatus = $filters['status'] ?? 'all';
+      $redirectParams = [];
+      if ($selectedStatus !== 'all') {
+          $redirectParams['status'] = $selectedStatus;
       }
-      $hasFilterApplied = trim((string) ($filters['q'] ?? '')) !== '' || (int) ($filters['per_page'] ?? 15) !== 15;
+      $redirectUrl      = current_url() . (! empty($redirectParams) ? '?' . http_build_query($redirectParams) : '');
+      $totalMessages    = isset($messages) && is_countable($messages) ? count($messages) : 0;
     ?>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="fw-bold mb-0">Pesan Kontak</h4>
+    </div>
 
     <div class="card mb-4">
-      <div class="card-header d-flex flex-column flex-sm-row align-items-sm-start justify-content-between gap-3">
-        <div>
-          <h4 class="fw-bold mb-1">Pesan Kontak</h4>
-        </div>
-      </div>
 
       <div class="card-body border-bottom pb-3">
-        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
-          <ul class="nav nav-pills flex-wrap gap-2 contact-status-filter mb-0">
-            <?php foreach ($statusFilters as $key => $label): ?>
-              <?php
-                $query       = array_merge($currentQuery, ['status' => $key]);
-                $queryString = http_build_query(array_filter($query, static fn ($value) => $value !== '' && $value !== null && $value !== 'all'));
-                if ($key === 'all') {
-                    $queryString = http_build_query(array_filter($currentQuery, static fn ($value) => $value !== '' && $value !== null));
-                }
-                $isActive        = ($filters['status'] ?? 'all') === $key;
-                $navLinkClasses  = 'nav-link rounded-pill d-flex align-items-center gap-2 px-3 py-1';
-                if ($isActive) {
-                    $navLinkClasses .= ' active';
-                }
-                $badgeClasses = $isActive ? 'badge rounded-pill bg-white text-primary' : 'badge rounded-pill bg-label-secondary';
-              ?>
-              <li class="nav-item">
-                <a
-                  class="<?= esc($navLinkClasses) ?>"
-                  href="<?= esc(site_url('admin/contacts') . ($queryString !== '' ? '?' . $queryString : '')) ?>"
-                >
-                  <span><?= esc($label) ?></span>
-                  <span class="<?= esc($badgeClasses) ?>"><?= esc($statusCounts[$key] ?? 0) ?></span>
-                </a>
-              </li>
-            <?php endforeach; ?>
-          </ul>
-
-          <form class="d-flex flex-wrap align-items-center gap-2 justify-content-lg-end" method="get" action="<?= current_url() ?>">
-            <input type="hidden" name="status" value="<?= esc($filters['status'] ?? 'all') ?>">
-            <div class="input-group input-group-sm flex-grow-1 flex-lg-grow-0" style="min-width: 260px;">
-              <span class="input-group-text"><i class="bx bx-search"></i></span>
-              <input
-                type="search"
-                class="form-control"
-                id="contactSearch"
-                name="q"
-                value="<?= esc($filters['q'] ?? '') ?>"
-                placeholder="Cari pesan"
-                aria-label="Cari pesan kontak"
-              >
-              <select class="form-select" id="contactPerPage" name="per_page" aria-label="Jumlah pesan per halaman">
-                <?php foreach ($perPageOptions as $option): ?>
-                  <option value="<?= $option ?>"<?= (int) ($filters['per_page'] ?? 15) === $option ? ' selected' : '' ?>><?= $option ?>/hal</option>
-                <?php endforeach; ?>
-              </select>
-            </div>
-            <button type="submit" class="btn btn-sm btn-primary">
-              <i class="bx bx-filter-alt"></i>
-              <span class="ms-1 d-none d-sm-inline">Terapkan</span>
-            </button>
-            <?php if ($hasFilterApplied): ?>
-              <a class="btn btn-sm btn-link text-decoration-none" href="<?= site_url('admin/contacts') ?>">Reset</a>
-            <?php endif; ?>
-          </form>
-        </div>
+        <ul class="nav nav-pills flex-wrap gap-2 contact-status-filter mb-0">
+          <?php foreach ($statusFilters as $key => $label): ?>
+            <?php
+              $isActive       = $selectedStatus === $key;
+              $navLinkClasses = 'nav-link rounded-pill d-flex align-items-center gap-2 px-3 py-1';
+              if ($isActive) {
+                  $navLinkClasses .= ' active';
+              }
+              $badgeClasses = $isActive ? 'badge rounded-pill bg-white text-primary' : 'badge rounded-pill bg-label-secondary';
+              $queryParams  = [];
+              if ($key !== 'all') {
+                  $queryParams['status'] = $key;
+              }
+              $filterUrl = site_url('admin/contacts') . (! empty($queryParams) ? '?' . http_build_query($queryParams) : '');
+            ?>
+            <li class="nav-item">
+              <a class="<?= esc($navLinkClasses) ?>" href="<?= esc($filterUrl) ?>">
+                <span><?= esc($label) ?></span>
+                <span class="<?= esc($badgeClasses) ?>"><?= esc($statusCounts[$key] ?? 0) ?></span>
+              </a>
+            </li>
+          <?php endforeach; ?>
+        </ul>
       </div>
 
       <?php if (! empty($messages)): ?>
@@ -120,6 +80,7 @@ use CodeIgniter\I18n\Time;
                     </th>
                     <th>Pengirim</th>
                     <th>Ringkasan</th>
+                    <th>Tanggal Pesan Masuk</th>
                     <th>Status</th>
                     <th class="text-end">Aksi</th>
                   </tr>
@@ -153,7 +114,9 @@ use CodeIgniter\I18n\Time;
                         <div class="fw-semibold">
                           <a class="text-decoration-none" href="<?= site_url('admin/contacts/' . $item['id']) ?>"><?= esc($item['name']) ?></a>
                         </div>
-                        <div class="small text-muted text-truncate" style="max-width: 200px;"><?= esc($item['email']) ?></div>
+                        <div class="small text-muted text-truncate" style="max-width: 200px;">
+                          <?= esc($item['email']) ?>
+                        </div>
                         <?php if ($phoneNumber !== ''): ?>
                           <div class="small text-muted"><?= esc($phoneNumber) ?></div>
                         <?php endif; ?>
@@ -165,14 +128,19 @@ use CodeIgniter\I18n\Time;
                         <div class="text-muted small text-truncate" style="max-width: 360px;"><?= esc($messagePreview) ?></div>
                         <div class="d-flex flex-wrap align-items-center gap-2 mt-2 small text-muted">
                           <span class="badge bg-label-secondary"><?= esc($ticketBadge) ?></span>
-                          <?php if ($createdAt): ?>
-                            <span>Masuk <?= esc($createdAt->toLocalizedString('d MMM yyyy HH:mm')) ?></span>
-                          <?php endif; ?>
                           <span class="badge bg-label-info"<?php if ($sourceTooltip !== ''): ?> data-bs-toggle="tooltip" title="<?= esc($sourceTooltip) ?>"<?php endif; ?>>Web</span>
                           <?php if ($phoneNumber !== ''): ?>
                             <span class="badge bg-label-secondary">Tel</span>
                           <?php endif; ?>
                         </div>
+                      </td>
+                      <td>
+                        <?php if ($createdAt): ?>
+                          <div><?= esc($createdAt->toLocalizedString('d MMM yyyy HH:mm')) ?></div>
+                          <small class="text-muted"><?= esc($createdAt->humanize()) ?></small>
+                        <?php else: ?>
+                          <span class="text-muted">-</span>
+                        <?php endif; ?>
                       </td>
                       <td>
                         <span class="badge <?= esc($badgeClass) ?>"><?= esc($statusLabel) ?></span>
@@ -188,15 +156,11 @@ use CodeIgniter\I18n\Time;
                       </td>
                       <td class="text-end">
                         <div class="btn-group btn-group-sm" role="group">
-                          <a
-                            class="btn btn-outline-primary px-2"
-                            href="<?= site_url('admin/contacts/' . $item['id']) ?>"
-                            title="Lihat detail"
-                          >
+                          <a class="btn btn-outline-secondary" href="<?= site_url('admin/contacts/' . $item['id']) ?>">
                             <i class="bx bx-show"></i>
-                            <span class="visually-hidden">Detail</span>
+                            <span class="ms-1">Detail</span>
                           </a>
-                          <button type="button" class="btn btn-outline-primary px-2 dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                          <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi lainnya">
                             <span class="visually-hidden">Aksi lainnya</span>
                           </button>
                           <ul class="dropdown-menu dropdown-menu-end shadow-sm">
@@ -241,13 +205,9 @@ use CodeIgniter\I18n\Time;
                 <span class="ms-1">Terapkan</span>
               </button>
             </div>
-            <div class="text-muted small">Total <?= esc($pager->getTotal('contacts') ?? count($messages)) ?> pesan</div>
+            <div class="text-muted small">Total <?= esc($totalMessages) ?> pesan</div>
           </div>
         </form>
-
-        <div class="card-footer bg-transparent border-top-0 pt-0">
-          <?= $pager->links('contacts', 'default_full') ?>
-        </div>
       <?php else: ?>
         <div class="card-body text-center py-5">
           <i class="bx bx-envelope-open display-4 text-muted mb-3"></i>
@@ -260,64 +220,136 @@ use CodeIgniter\I18n\Time;
 </div>
 <?= $this->endSection() ?>
 
+<?= $this->section('pageStyles') ?>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<?= $this->endSection() ?>
+
 <?= $this->section('pageScripts') ?>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script>
 (() => {
-  const bulkForm = document.querySelector('#contactBulkForm');
-  if (!bulkForm) {
-    return;
-  }
-
-  const selectAll = bulkForm.querySelector('[data-select-all]');
-  const rowCheckboxes = Array.from(bulkForm.querySelectorAll('[data-row-checkbox]'));
-  const bulkAlert = bulkForm.querySelector('[data-bulk-alert]');
-  const bulkActions = bulkForm.querySelector('[data-bulk-actions]');
-
-  const hideAlert = () => {
-    if (bulkAlert) {
-      bulkAlert.classList.add('d-none');
-      bulkAlert.textContent = '';
+  const initDataTable = () => {
+    const tableElement = document.querySelector('#contactsTable');
+    if (!tableElement || typeof $ !== 'function' || !$.fn.DataTable) {
+      return null;
     }
-  };
 
-  const showAlert = (message) => {
-    if (bulkAlert) {
-      bulkAlert.textContent = message;
-      bulkAlert.classList.remove('d-none');
-    }
-  };
-
-  const applySelectionState = () => {
-    const hasSelection = rowCheckboxes.some((checkbox) => checkbox.checked);
-    if (hasSelection) {
-      hideAlert();
-    }
-    if (bulkActions) {
-      bulkActions.classList.toggle('d-none', !hasSelection);
-    }
-  };
-
-  if (selectAll) {
-    selectAll.addEventListener('change', () => {
-      rowCheckboxes.forEach((checkbox) => {
-        checkbox.checked = selectAll.checked;
-      });
-      applySelectionState();
+    return $(tableElement).DataTable({
+      order: [],
+      language: {
+        url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json'
+      },
+      columnDefs: [
+        { targets: 0, orderable: false, searchable: false },
+        { targets: -1, orderable: false, searchable: false }
+      ],
+      pageLength: 10
     });
-  }
+  };
 
-  rowCheckboxes.forEach((checkbox) => {
-    checkbox.addEventListener('change', applySelectionState);
-  });
-
-  applySelectionState();
-
-  bulkForm.addEventListener('submit', (event) => {
-    if (!rowCheckboxes.some((checkbox) => checkbox.checked)) {
-      event.preventDefault();
-      showAlert('Pilih minimal satu pesan sebelum menerapkan aksi massal.');
-      bulkForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const initBulkActions = (dataTable) => {
+    const bulkForm = document.querySelector('#contactBulkForm');
+    if (!bulkForm) {
+      return;
     }
+
+    const selectAll = bulkForm.querySelector('[data-select-all]');
+    const bulkAlert = bulkForm.querySelector('[data-bulk-alert]');
+    const bulkActions = bulkForm.querySelector('[data-bulk-actions]');
+    const rowCheckboxSelector = '[data-row-checkbox]';
+
+    const getRowCheckboxes = () => Array.from(bulkForm.querySelectorAll(rowCheckboxSelector));
+
+    const hideAlert = () => {
+      if (bulkAlert) {
+        bulkAlert.classList.add('d-none');
+        bulkAlert.textContent = '';
+      }
+    };
+
+    const showAlert = (message) => {
+      if (bulkAlert) {
+        bulkAlert.textContent = message;
+        bulkAlert.classList.remove('d-none');
+      }
+    };
+
+    const syncSelectAllState = () => {
+      if (!selectAll) {
+        return;
+      }
+
+      const rowCheckboxes = getRowCheckboxes();
+      if (rowCheckboxes.length === 0) {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+        return;
+      }
+
+      const checkedCount = rowCheckboxes.filter((checkbox) => checkbox.checked).length;
+      if (checkedCount === 0) {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+      } else if (checkedCount === rowCheckboxes.length) {
+        selectAll.checked = true;
+        selectAll.indeterminate = false;
+      } else {
+        selectAll.checked = false;
+        selectAll.indeterminate = true;
+      }
+    };
+
+    const applySelectionState = () => {
+      const hasSelection = getRowCheckboxes().some((checkbox) => checkbox.checked);
+
+      if (hasSelection) {
+        hideAlert();
+      }
+
+      if (bulkActions) {
+        bulkActions.classList.toggle('d-none', !hasSelection);
+      }
+
+      syncSelectAllState();
+    };
+
+    if (selectAll) {
+      selectAll.addEventListener('change', () => {
+        getRowCheckboxes().forEach((checkbox) => {
+          checkbox.checked = selectAll.checked;
+        });
+        applySelectionState();
+      });
+    }
+
+    bulkForm.addEventListener('change', (event) => {
+      if (event.target.matches(rowCheckboxSelector)) {
+        applySelectionState();
+      }
+    });
+
+    applySelectionState();
+
+    bulkForm.addEventListener('submit', (event) => {
+      const hasSelection = getRowCheckboxes().some((checkbox) => checkbox.checked);
+      if (!hasSelection) {
+        event.preventDefault();
+        showAlert('Pilih minimal satu pesan sebelum menerapkan aksi massal.');
+        bulkForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    if (dataTable) {
+      $(dataTable.table().node()).on('draw.dt', () => {
+        applySelectionState();
+      });
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const dataTable = initDataTable();
+    initBulkActions(dataTable);
   });
 })();
 </script>
