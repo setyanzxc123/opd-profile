@@ -12,8 +12,9 @@ use CodeIgniter\I18n\Time;
           <h5 class="mb-0">Detail Pesan</h5>
           <small class="text-muted">Diterima melalui formulir kontak publik</small>
         </div>
-        <a class="btn btn-label-secondary btn-sm" href="<?= site_url('admin/contacts') ?>">
-          <i class="bx bx-arrow-back"></i> Kembali ke daftar
+        <a class="btn btn-sm btn-outline-secondary" href="<?= site_url('admin/contacts') ?>">
+          <i class="bx bx-arrow-back"></i>
+          <span class="d-none d-sm-inline ms-1">Kembali</span>
         </a>
       </div>
       <div class="card-body">

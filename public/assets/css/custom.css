@@ -186,3 +186,33 @@
 }
 
 
+
+/* Admin contacts */
+.contact-status-filter .btn {
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.contact-status-filter .btn .badge {
+  font-size: 0.75rem;
+}
+
+.contact-status-filter .btn.btn-primary .badge {
+  background-color: #ffffff;
+  color: var(--bs-primary);
+}
+
+.contact-status-filter .btn.btn-outline-secondary .badge {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.contact-bulk-actions .form-select {
+  min-width: 160px;
+}
+
+.contact-bulk-alert {
+  margin-bottom: 1.25rem;
+}
+
