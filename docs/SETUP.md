@@ -62,12 +62,12 @@ The admin sidebar collapse is provided by `helpers-override.js` and is loaded af
 - Do not edit files in `public/assets/vendor/`. Keep vendor clean for easy upgrades.
 - Only add or edit code in `custom.css`, `helpers-override.js`, and your own JS/CSS files.
 - Commit the `public/assets/vendor/` bundle so a fresh clone works without extra build steps.
-- If you add new third‑party libraries, place them under `public/assets/vendor/`.
+- If you add new third-party libraries, place them under `public/assets/vendor/`.
 
 ## Common Issues
 
 CSS/JS not loading (page looks like plain HTML)
-- Most likely `app.baseURL` is incorrect. Set it to your actual site root ending with `/public/` when using PHP’s built‑in server, or to the host that points to `public/`.
+- Most likely `app.baseURL` is incorrect. Set it to your actual site root ending with `/public/` when using PHP's built-in server, or to the host that points to `public/`.
 
 HTTP redirects to HTTPS on local
 - `app.forceGlobalSecureRequests` is enforced by a filter in production. Disable it in `.env` for local HTTP.
@@ -96,3 +96,23 @@ php spark routes           # Inspect routes
 - JS override: `public/assets/js/helpers-override.js`
 - Vendor libs: `public/assets/vendor/**`
 
+## Kontak & Anti-Spam
+
+- Jalankan migrasi terbaru untuk kolom `phone`, `ip_address`, `user_agent`, dan `responded_at`:
+  ```bash
+  php spark migrate --all
+  ```
+- Setelah migrasi, gunakan command berikut untuk membersihkan pesan lama:
+  ```bash
+  php spark contacts:purge 90
+  php spark contacts:purge 60 --anonymize
+  ```
+- Atur variabel `CONTACT_*` di `.env` (lihat `docs/ENV_SETUP.md`) untuk blacklist, limit harian, dan notifikasi email/telegram.
+
+## Menjalankan Pengujian
+
+- PHPUnit membutuhkan ekstensi `sqlite3` aktif karena koneksi `tests` memakai database `:memory:`.
+- Jalankan tes aplikasi:
+  ```bash
+  vendor/bin/phpunit --testsuite App
+  ```

@@ -50,7 +50,7 @@ class ContactController extends BaseController
         }
 
         $throttler = service('throttler');
-        if ($throttler && ! $throttler->check('contact-form:' . md5($ipAddress), 4, 60)) {
+        if ($throttler && ! $throttler->check('contact-form-' . md5($ipAddress), 4, 60)) {
             $session->setFlashdata('contact_old', $payload);
 
             return $this->respondError($isAjax, 'Terlalu banyak percobaan. Mohon tunggu sebelum mengirim ulang.', [], 429, $payload);
@@ -199,8 +199,8 @@ class ContactController extends BaseController
     private function exceedsDailyLimit(string $email, string $ipAddress): bool
     {
         $now   = Time::now('UTC');
-        $start = $now->clone()->setTime(0, 0, 0)->toDateTimeString();
-        $end   = $now->clone()->setTime(23, 59, 59)->toDateTimeString();
+        $start = (clone $now)->setTime(0, 0, 0)->toDateTimeString();
+        $end   = (clone $now)->setTime(23, 59, 59)->toDateTimeString();
 
         $config = $this->contactConfig;
         $limitPerIp    = max(0, (int) $config->dailyLimitPerIp);
