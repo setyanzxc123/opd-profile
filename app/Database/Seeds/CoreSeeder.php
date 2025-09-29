@@ -137,8 +137,11 @@ class CoreSeeder extends Seeder
             $this->db->table('contact_messages')->insert([
                 'name'        => 'Budi Santoso',
                 'email'       => 'budi@example.com',
+                'phone'       => '+62 811-2233-4455',
                 'subject'     => 'Permintaan Informasi Publik',
                 'message'     => 'Mohon informasi mengenai jadwal layanan keliling.',
+                'ip_address'  => '127.0.0.1',
+                'user_agent'  => 'Seeder/1.0',
                 'status'      => 'new',
                 'created_at'  => Time::now('UTC')->toDateTimeString(),
             ]);
