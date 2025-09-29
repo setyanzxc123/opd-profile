@@ -2,18 +2,22 @@
 
 namespace App\Controllers;
 
+use App\Config\Contact as ContactConfig;
 use App\Models\ContactMessageModel;
 use CodeIgniter\Database\Exceptions\DatabaseException;
 use CodeIgniter\HTTP\ResponseInterface;
+use CodeIgniter\I18n\Time;
 use Throwable;
 
 class ContactController extends BaseController
 {
     private ContactMessageModel $messages;
+    private ContactConfig $contactConfig;
 
     public function __construct()
     {
-        $this->messages = model(ContactMessageModel::class);
+        $this->messages      = model(ContactMessageModel::class);
+        $this->contactConfig = ContactConfig::fromEnv();
     }
 
     public function submit(): ResponseInterface
@@ -35,6 +39,14 @@ class ContactController extends BaseController
 
         if ($honeypot !== '') {
             return $this->respondSuccess($isAjax, 'Pesan Anda berhasil dikirim. Tim kami akan menindaklanjuti secepatnya.');
+        }
+
+        if ($this->isBlacklisted($payload['email'], $ipAddress)) {
+            return $this->respondError($isAjax, 'Pengiriman pesan diblokir. Silakan hubungi kami melalui kanal lain.', [], 429, $payload);
+        }
+
+        if ($this->exceedsDailyLimit($payload['email'], $ipAddress)) {
+            return $this->respondError($isAjax, 'Anda telah mengirim terlalu banyak pesan dalam satu hari. Mohon coba lagi besok.', [], 429, $payload);
         }
 
         $throttler = service('throttler');
@@ -118,8 +130,8 @@ class ContactController extends BaseController
             return $this->respondError($isAjax, 'Tidak dapat menyimpan pesan.', [], 500, $payload);
         }
 
-        $storedMessage     = $insertId ? $this->messages->find($insertId) : null;
-        $notificationData  = $storedMessage ?? array_merge($saveData, ['id' => $insertId]);
+        $storedMessage    = $insertId ? $this->messages->find($insertId) : null;
+        $notificationData = $storedMessage ?? array_merge($saveData, ['id' => $insertId]);
 
         try {
             if (! function_exists('notify_contact_message')) {
@@ -160,6 +172,67 @@ class ContactController extends BaseController
         }
 
         return mb_strimwidth($agent, 0, 500, '', 'UTF-8');
+    }
+
+    private function isBlacklisted(string $email, string $ipAddress): bool
+    {
+        $config = $this->contactConfig;
+
+        if ($email !== '') {
+            if (in_array($email, $config->blockedEmails, true)) {
+                return true;
+            }
+
+            $domain = substr(strrchr($email, '@') ?: '', 1);
+            if ($domain !== '' && in_array(strtolower($domain), array_map('strtolower', $config->blockedDomains), true)) {
+                return true;
+            }
+        }
+
+        if ($ipAddress !== '' && in_array($ipAddress, $config->blockedIpAddresses, true)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function exceedsDailyLimit(string $email, string $ipAddress): bool
+    {
+        $now   = Time::now('UTC');
+        $start = $now->clone()->setTime(0, 0, 0)->toDateTimeString();
+        $end   = $now->clone()->setTime(23, 59, 59)->toDateTimeString();
+
+        $config = $this->contactConfig;
+        $limitPerIp    = max(0, (int) $config->dailyLimitPerIp);
+        $limitPerEmail = max(0, (int) $config->dailyLimitPerEmail);
+
+        $model = model(ContactMessageModel::class);
+
+        if ($limitPerIp > 0 && $ipAddress !== '') {
+            $count = $model->builder()
+                ->where('ip_address', $ipAddress)
+                ->where('created_at >=', $start)
+                ->where('created_at <=', $end)
+                ->countAllResults();
+
+            if ($count >= $limitPerIp) {
+                return true;
+            }
+        }
+
+        if ($limitPerEmail > 0 && $email !== '') {
+            $count = $model->builder()
+                ->where('email', $email)
+                ->where('created_at >=', $start)
+                ->where('created_at <=', $end)
+                ->countAllResults();
+
+            if ($count >= $limitPerEmail) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function respondSuccess(bool $isAjax, string $message)
