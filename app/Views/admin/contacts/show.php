@@ -6,127 +6,143 @@ use CodeIgniter\I18n\Time;
 
 <div class="row g-4">
   <div class="col-12 col-lg-7">
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
+    <?php
+      $statusKey   = $message['status'] ?? 'new';
+      $statusLabel = $statusLabels[$statusKey] ?? ucfirst($statusKey);
+      $badgeClass  = [
+        'new'         => 'bg-label-primary',
+        'in_progress' => 'bg-label-warning',
+        'closed'      => 'bg-label-success',
+      ][$statusKey] ?? 'bg-label-secondary';
+      $createdAt   = ! empty($message['created_at']) ? Time::parse($message['created_at']) : null;
+      $respondedAt = ! empty($message['responded_at']) ? Time::parse($message['responded_at']) : null;
+      $phoneNumber = trim((string) ($message['phone'] ?? ''));
+      $hasTechInfo = ! empty($message['ip_address']) || ! empty($message['user_agent']);
+    ?>
+    <div class="card h-100">
+      <div class="card-header d-flex align-items-start justify-content-between gap-3">
         <div>
-          <h5 class="mb-0">Detail Pesan</h5>
-          <small class="text-muted">Diterima melalui formulir kontak publik</small>
+          <span class="badge <?= esc($badgeClass) ?> mb-2"><?= esc($statusLabel) ?></span>
+          <h5 class="mb-1">Detail Pesan</h5>
+          <?php if ($createdAt): ?>
+            <small class="text-muted">Masuk <?= esc($createdAt->toLocalizedString('d MMM yyyy HH:mm')) ?></small>
+          <?php else: ?>
+            <small class="text-muted">Diterima melalui formulir kontak publik</small>
+          <?php endif; ?>
         </div>
         <a class="btn btn-sm btn-outline-secondary" href="<?= site_url('admin/contacts') ?>">
           <i class="bx bx-arrow-back"></i>
-          <span class="d-none d-sm-inline ms-1">Kembali</span>
+          <span class="ms-1 d-none d-sm-inline">Kembali</span>
         </a>
       </div>
       <div class="card-body">
         <?php if (session()->getFlashdata('message')): ?>
-          <div class="alert alert-soft-success alert-dismissible" role="alert">
+          <div class="alert alert-soft-success alert-dismissible mb-3" role="alert">
             <?= esc(session('message')) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
           </div>
         <?php endif; ?>
 
         <?php if (session()->getFlashdata('error')): ?>
-          <div class="alert alert-soft-danger alert-dismissible" role="alert">
+          <div class="alert alert-soft-danger alert-dismissible mb-3" role="alert">
             <?= esc(session('error')) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
           </div>
         <?php endif; ?>
 
-        <?php
-          $statusKey   = $message['status'] ?? 'new';
-          $statusLabel = $statusLabels[$statusKey] ?? ucfirst($statusKey);
-          $badgeClass  = [
-            'new'         => 'bg-label-primary',
-            'in_progress' => 'bg-label-warning',
-            'closed'      => 'bg-label-success',
-          ][$statusKey] ?? 'bg-label-secondary';
-          $createdAt   = ! empty($message['created_at']) ? Time::parse($message['created_at']) : null;
-          $respondedAt = ! empty($message['responded_at']) ? Time::parse($message['responded_at']) : null;
-          $phoneNumber = trim((string) ($message['phone'] ?? ''));
-        ?>
-
-        <dl class="row mb-4">
-          <dt class="col-sm-4">Nama Pengirim</dt>
-          <dd class="col-sm-8 fw-semibold"><?= esc($message['name']) ?></dd>
-
-          <dt class="col-sm-4">Email</dt>
-          <dd class="col-sm-8">
+        <div class="row g-3 mb-4">
+          <div class="col-sm-6">
+            <div class="small text-uppercase text-muted fw-semibold">Nama Pengirim</div>
+            <div class="fw-semibold"><?= esc($message['name']) ?></div>
+          </div>
+          <div class="col-sm-6">
+            <div class="small text-uppercase text-muted fw-semibold">Email</div>
             <a href="mailto:<?= esc($message['email']) ?>" class="text-decoration-none"><?= esc($message['email']) ?></a>
-          </dd>
-
-          <dt class="col-sm-4">Nomor Telepon</dt>
-          <dd class="col-sm-8">
+          </div>
+          <div class="col-sm-6">
+            <div class="small text-uppercase text-muted fw-semibold">Nomor Telepon</div>
             <?php if ($phoneNumber !== ''): ?>
               <a href="tel:<?= esc(preg_replace('/[^0-9+]/', '', $phoneNumber)) ?>" class="text-decoration-none"><?= esc($phoneNumber) ?></a>
             <?php else: ?>
               <span class="text-muted">Tidak disertakan</span>
             <?php endif; ?>
-          </dd>
-
-          <dt class="col-sm-4">Alamat IP</dt>
-          <dd class="col-sm-8">
-            <?= ! empty($message['ip_address']) ? esc($message['ip_address']) : '<span class="text-muted">Tidak tersedia</span>' ?>
-          </dd>
-
-          <dt class="col-sm-4">Peramban</dt>
-          <dd class="col-sm-8">
-            <?php if (! empty($message['user_agent'])): ?>
-              <span class="text-break"><?= esc($message['user_agent']) ?></span>
-            <?php else: ?>
-              <span class="text-muted">Tidak tersedia</span>
-            <?php endif; ?>
-          </dd>
-
-          <dt class="col-sm-4">Subjek</dt>
-          <dd class="col-sm-8"><?= esc($message['subject'] ?: '(Tanpa subjek)') ?></dd>
-
-          <dt class="col-sm-4">Status</dt>
-          <dd class="col-sm-8"><span class="badge <?= $badgeClass ?>"><?= esc($statusLabel) ?></span></dd>
-
-          <dt class="col-sm-4">Diterima</dt>
-          <dd class="col-sm-8">
-            <?php if ($createdAt): ?>
-              <?= esc($createdAt->toLocalizedString('d MMM yyyy HH:mm')) ?>
-            <?php else: ?>
-              <span class="text-muted">-</span>
-            <?php endif; ?>
-          </dd>
-
-          <dt class="col-sm-4">Ditangani oleh</dt>
-          <dd class="col-sm-8">
+          </div>
+          <div class="col-sm-6">
+            <div class="small text-uppercase text-muted fw-semibold">Penanggung Jawab</div>
             <?php if (! empty($message['handler_name'])): ?>
-              <div><?= esc($message['handler_name']) ?></div>
+              <div class="fw-semibold"><?= esc($message['handler_name']) ?></div>
               <?php if (! empty($message['handler_email'])): ?>
-                <small class="text-muted"><?= esc($message['handler_email']) ?></small>
+                <div class="small text-muted"><?= esc($message['handler_email']) ?></div>
               <?php endif; ?>
             <?php else: ?>
-              <span class="text-muted">Belum ada penanggung jawab</span>
+              <span class="text-muted">Belum ditetapkan</span>
             <?php endif; ?>
-          </dd>
-
-          <dt class="col-sm-4">Ditanggapi</dt>
-          <dd class="col-sm-8">
+          </div>
+          <div class="col-sm-6">
+            <div class="small text-uppercase text-muted fw-semibold">Ditanggapi</div>
             <?php if ($respondedAt): ?>
-              <?= esc($respondedAt->toLocalizedString('d MMM yyyy HH:mm')) ?>
+              <span><?= esc($respondedAt->toLocalizedString('d MMM yyyy HH:mm')) ?></span>
             <?php elseif ($statusKey === 'closed'): ?>
               <span class="text-muted">Ditandai selesai</span>
             <?php else: ?>
               <span class="text-muted">Belum ada tindak lanjut</span>
             <?php endif; ?>
-          </dd>
-        </dl>
+          </div>
+          <div class="col-sm-6">
+            <div class="small text-uppercase text-muted fw-semibold">Status Respons</div>
+            <?php if ($respondedAt): ?>
+              <span class="text-muted">Ditindak <?= esc($respondedAt->humanize()) ?></span>
+            <?php else: ?>
+              <span class="text-muted">Menunggu tindak lanjut</span>
+            <?php endif; ?>
+          </div>
+          <div class="col-12">
+            <div class="small text-uppercase text-muted fw-semibold">Subjek</div>
+            <div class="fw-semibold"><?= esc($message['subject'] ?: '(Tanpa subjek)') ?></div>
+          </div>
+        </div>
 
         <div class="mb-4">
-          <h6 class="fw-semibold">Isi Pesan</h6>
-          <div class="border rounded p-3 bg-light-subtle" style="white-space: pre-wrap;">
+          <h6 class="fw-semibold mb-2">Isi Pesan</h6>
+          <div class="bg-body-tertiary rounded p-3" style="white-space: pre-wrap;">
             <?= esc($message['message']) ?>
           </div>
         </div>
 
         <?php if (! empty($message['admin_note'])): ?>
           <div class="alert alert-soft-info" role="alert">
-            <strong>Catatan Admin:</strong>
-            <div class="mt-2 mb-0" style="white-space: pre-wrap;"><?= esc($message['admin_note']) ?></div>
+            <h6 class="alert-heading mb-2">Catatan Admin</h6>
+            <div class="mb-0" style="white-space: pre-wrap;">
+              <?= esc($message['admin_note']) ?>
+            </div>
+          </div>
+        <?php endif; ?>
+
+        <?php if ($hasTechInfo): ?>
+          <div class="accordion mt-4" id="contactTechInfo">
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="contactTechInfoHeading">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#contactTechInfoCollapse" aria-expanded="false" aria-controls="contactTechInfoCollapse">
+                  Info Teknis
+                </button>
+              </h2>
+              <div id="contactTechInfoCollapse" class="accordion-collapse collapse" aria-labelledby="contactTechInfoHeading">
+                <div class="accordion-body">
+                  <?php if (! empty($message['ip_address'])): ?>
+                    <div class="mb-3">
+                      <div class="small text-uppercase text-muted fw-semibold">Alamat IP</div>
+                      <div><?= esc($message['ip_address']) ?></div>
+                    </div>
+                  <?php endif; ?>
+                  <?php if (! empty($message['user_agent'])): ?>
+                    <div>
+                      <div class="small text-uppercase text-muted fw-semibold">Peramban</div>
+                      <div class="text-break"><?= esc($message['user_agent']) ?></div>
+                    </div>
+                  <?php endif; ?>
+                </div>
+              </div>
+            </div>
           </div>
         <?php endif; ?>
       </div>
@@ -160,19 +176,22 @@ use CodeIgniter\I18n\Time;
               class="form-control<?= isset($errors['admin_note']) ? ' is-invalid' : '' ?>"
               id="contactNote"
               name="admin_note"
-              rows="5"
-              placeholder="Catat progres tindak lanjut, ringkas isi komunikasi, atau informasi penting lainnya."
+              rows="4"
+              placeholder="Catat tindak lanjut internal"
             ><?= esc(old('admin_note', $message['admin_note'] ?? '')) ?></textarea>
             <?php if (isset($errors['admin_note'])): ?>
               <div class="invalid-feedback"><?= esc($errors['admin_note']) ?></div>
             <?php else: ?>
-              <div class="form-text">Catatan ini tidak ditampilkan ke publik.</div>
+              <div class="form-text">Catatan ini hanya terlihat oleh admin.</div>
             <?php endif; ?>
           </div>
 
-          <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary"><i class="bx bx-save"></i> Simpan Perubahan</button>
-            <a class="btn btn-label-secondary" href="<?= site_url('admin/contacts') ?>">Kembali</a>
+          <div class="d-flex flex-wrap justify-content-end gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="bx bx-save"></i>
+              <span class="ms-1">Simpan</span>
+            </button>
+            <a class="btn btn-link" href="<?= site_url('admin/contacts') ?>">Kembali</a>
           </div>
         </form>
       </div>

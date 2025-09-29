@@ -28,7 +28,7 @@
       </div>
     </div>
     <div class="border-top border-light border-opacity-25 mt-4 pt-3 text-center text-white-50 small">
-      &copy; <?= date('Y') ?> Dinas Pelayanan Publik Kota Harmoni. Seluruh hak cipta dilindungi.
+      &copy; <?= date('Y') ?> Dinas ...... Seluruh hak cipta dilindungi.
     </div>
   </div>
 </footer>

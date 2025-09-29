@@ -187,8 +187,7 @@
 
           <footer class="content-footer footer bg-footer-theme">
             <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
-              <div class="mb-2 mb-md-0">&copy; <?= date('Y') ?> Dinas Pelayanan Publik Kota Harmoni</div>
-              <div class="d-none d-md-block small text-body-secondary">Dibangun dengan Sneat Bootstrap 5</div>
+              <div class="mb-2 mb-md-0">&copy; <?= date('Y') ?> Dinas</div>
             </div>
           </footer>
 

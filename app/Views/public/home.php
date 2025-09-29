@@ -5,7 +5,7 @@
 <?php
   $profile        = $profile ?? [];
   $profileName    = trim((string) ($profile['name'] ?? 'Dinas Pelayanan Publik Kota Harmoni'));
-  $defaultIntro   = 'Menyediakan informasi terkini mengenai program kerja, layanan publik, data dokumen penting, serta berita terbaru dari Dinas Pelayanan Publik Kota Harmoni.';
+  $defaultIntro   = 'Menyediakan informasi terkini mengenai program kerja, layanan publik, data dokumen penting, serta berita terbaru dari Dinas ........';
   $profileIntro   = trim((string) ($profile['description'] ?? ''));
   $heroIntro      = $profileIntro !== '' ? $profileIntro : $defaultIntro;
   $address        = trim((string) ($profile['address'] ?? ''));
