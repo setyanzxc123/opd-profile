@@ -1,4 +1,4 @@
-﻿# Panduan Konfigurasi `.env`
+# Panduan Konfigurasi `.env`
 
 Panduan ini membantu menyiapkan file `.env` untuk aplikasi OPD Profile berbasis CodeIgniter 4.
 
@@ -114,12 +114,7 @@ CONTACT_BLOCKED_IPS = ''
 CONTACT_LIMIT_PER_IP    = 20
 CONTACT_LIMIT_PER_EMAIL = 20
 
-# Notifikasi opsional (stubs untuk email/telegram)
-CONTACT_NOTIFY_EMAIL    = ''
-CONTACT_NOTIFY_TELEGRAM = ''
 ```
-
-Jika notifikasi email diaktifkan, pastikan konfigurasi SMTP pada bagian sebelumnya sudah benar.
 
 ## 11. Command Pemeliharaan
 

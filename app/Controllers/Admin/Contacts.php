@@ -150,7 +150,6 @@ class Contacts extends BaseController
         log_activity('contacts.update_status', sprintf('Memperbarui status pesan kontak #%d menjadi %s', $id, $statusLabel));
 
         $updatedMessage = $this->messages->find($id) ?? array_merge($message, $updateData);
-        $this->triggerNotification('status_updated', $updatedMessage);
 
         return redirect()->to(site_url('admin/contacts/' . $id))
             ->with('message', 'Status pesan berhasil diperbarui.');
@@ -191,29 +190,9 @@ class Contacts extends BaseController
         $statusLabel = $this->statusOptions()[$status] ?? $status;
         log_activity('contacts.bulk_update_status', sprintf('Memperbarui status %d pesan kontak menjadi %s', count($ids), $statusLabel));
 
-        $this->triggerNotification('status_bulk_updated', [
-            'status' => $status,
-            'ids'    => $ids,
-        ]);
-
         return redirect()->to($redirectTo)->with('message', 'Status pesan terpilih berhasil diperbarui.');
     }
 
-    private function triggerNotification(string $event, array $payload): void
-    {
-        try {
-            if (! function_exists('notify_contact_message')) {
-                helper('contact_notifier');
-            }
-
-            notify_contact_message($event, $payload);
-        } catch (Throwable $exception) {
-            log_message('warning', 'Gagal menjalankan notifikasi kontak ({event}): {message}', [
-                'event'   => $event,
-                'message' => $exception->getMessage(),
-            ]);
-        }
-    }
 
     private function statusOptions(): array
     {

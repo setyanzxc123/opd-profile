@@ -133,16 +133,6 @@ class ContactController extends BaseController
         $storedMessage    = $insertId ? $this->messages->find($insertId) : null;
         $notificationData = $storedMessage ?? array_merge($saveData, ['id' => $insertId]);
 
-        try {
-            if (! function_exists('notify_contact_message')) {
-                helper('contact_notifier');
-            }
-
-            notify_contact_message('new_submission', $notificationData);
-        } catch (Throwable $notifyException) {
-            log_message('warning', 'Gagal mengirim notifikasi pesan kontak: {message}', ['message' => $notifyException->getMessage()]);
-        }
-
         $session->remove(['contact_error', 'contact_errors', 'contact_old']);
 
         return $this->respondSuccess($isAjax, 'Pesan Anda berhasil dikirim. Tim kami akan menindaklanjuti secepatnya.');
