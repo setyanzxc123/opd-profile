@@ -125,22 +125,7 @@
                     </div>
 
                     <button type="button" class="btn btn-outline-secondary w-100 js-editor-action" data-action="clear-format"><i class="bx bx-eraser me-1"></i> Bersihkan Format</button>
-
-                    <div class="news-note mt-3">
-                      <strong>Catatan internal:</strong> Gunakan area ini untuk poin penting atau tindak lanjut. Konten tidak ikut tersimpan.
                     </div>
-                    <textarea class="form-control form-control-sm mt-2" rows="3" placeholder="Catatan sementara untuk tim redaksi..."></textarea>
-
-                    <div class="news-guideline mt-4 p-3">
-                      <h6 class="fw-semibold mb-2">Panduan Singkat</h6>
-                      <ul class="mb-0 ps-3">
-                        <li>Judul ringkas dan mencerminkan inti berita.</li>
-                        <li>Lead memuat unsur 5W+1H dan menjawab pertanyaan utama.</li>
-                        <li>Sertakan kutipan resmi dan data yang telah diverifikasi.</li>
-                        <li>Pastikan gambar sampul relevan dan memiliki resolusi baik.</li>
-                      </ul>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -326,6 +311,4 @@
   });
 </script>
 <?= $this->endSection() ?>
-
-
 
