@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Commands;
 
@@ -63,3 +63,4 @@ class PurgeContactMessages extends BaseCommand
         CLI::write("$total pesan berhasil dihapus.", 'green');
     }
 }
+
