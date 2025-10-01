@@ -7,14 +7,14 @@ use CodeIgniter\I18n\Time;
 <div class="row g-4">
   <div class="col-12">
     <?php if (session()->getFlashdata('message')): ?>
-      <div class="alert alert-soft-success alert-dismissible mb-3" role="alert">
+      <div class="alert alert-success alert-dismissible mb-3" role="alert">
         <?= esc(session('message')) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
       </div>
     <?php endif; ?>
 
     <?php if (session()->getFlashdata('error')): ?>
-      <div class="alert alert-soft-danger alert-dismissible mb-3" role="alert">
+      <div class="alert alert-danger alert-dismissible mb-3" role="alert">
         <?= esc(session('error')) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
       </div>
@@ -70,9 +70,9 @@ use CodeIgniter\I18n\Time;
           <input type="hidden" name="redirect_to" value="<?= esc($redirectUrl) ?>">
 
           <div class="card-body pb-0">
-            <div class="alert alert-soft-warning contact-bulk-alert d-none mb-3" role="alert" data-bulk-alert></div>
+            <div class="alert alert-warning contact-bulk-alert d-none mb-3" role="alert" data-bulk-alert></div>
             <div class="table-responsive">
-              <table class="table table-striped table-hover table-compact align-middle mb-0" id="contactsTable">
+              <table class="table table-striped table-hover table-sm align-middle mb-0" id="contactsTable">
                 <thead>
                   <tr>
                     <th style="width: 38px;">
@@ -93,10 +93,10 @@ use CodeIgniter\I18n\Time;
                       $statusKey      = $item['status'] ?? 'new';
                       $statusLabel    = $statusLabels[$statusKey] ?? ucfirst($statusKey);
                       $badgeClass     = [
-                        'new'         => 'bg-label-primary',
-                        'in_progress' => 'bg-label-warning',
-                        'closed'      => 'bg-label-success',
-                      ][$statusKey] ?? 'bg-label-secondary';
+                        'new'         => 'text-bg-primary',
+                        'in_progress' => 'text-bg-warning',
+                        'closed'      => 'text-bg-success',
+                      ][$statusKey] ?? 'text-bg-secondary';
                       $phoneNumber    = trim((string) ($item['phone'] ?? ''));
                       $messageRaw     = strip_tags((string) ($item['message'] ?? ''));
                       $messagePreview = mb_strimwidth($messageRaw, 0, 120, '...');

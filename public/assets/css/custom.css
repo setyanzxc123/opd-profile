@@ -199,6 +199,44 @@
   font-size: 0.75rem;
 }
 
+/* Minimal dashboard ------------------------------------------------------ */
+.dash-stat {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.75rem;
+  padding: 0.9rem 1rem;
+  background: var(--bs-body-bg);
+  transition: background .2s ease, border-color .2s ease;
+}
+.dash-stat:hover {
+  border-color: color-mix(in sRGB, var(--bs-primary) 35%, var(--bs-border-color));
+  background: var(--bs-primary-bg-subtle);
+  text-decoration: none;
+}
+
+.list-clean > li + li {
+  border-top: 1px solid var(--bs-border-color);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  line-height: 1;
+  border: 1px solid transparent;
+  background: var(--bs-body-bg);
+}
+.chip--primary { color: var(--bs-primary); border-color: color-mix(in sRGB, var(--bs-primary) 28%, transparent); background: var(--bs-primary-bg-subtle); }
+.chip--secondary { color: var(--bs-secondary-color); border-color: color-mix(in sRGB, var(--bs-secondary) 25%, transparent); }
+.chip--warning { color: var(--bs-warning); border-color: color-mix(in sRGB, var(--bs-warning) 28%, transparent); background: var(--bs-warning-bg-subtle); }
+.chip--success { color: var(--bs-success); border-color: color-mix(in sRGB, var(--bs-success) 28%, transparent); background: var(--bs-success-bg-subtle); }
+.chip--info { color: var(--bs-info); border-color: color-mix(in sRGB, var(--bs-info) 28%, transparent); background: var(--bs-info-bg-subtle); }
+
+/* Utility */
+.min-w-0 { min-width: 0; }
+
 .contact-status-filter .btn.btn-primary .badge {
   background-color: #ffffff;
   color: var(--bs-primary);
