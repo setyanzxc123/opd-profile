@@ -24,6 +24,9 @@ $routes->group('admin', [
     'filter'    => 'admin',
 ], function ($routes) {
     $routes->get('/', 'Dashboard::index');
+    // Account settings
+    $routes->get('settings', 'Account::edit');
+    $routes->post('settings', 'Account::update');
     // OPD Profile CMS
     $routes->get('profile', 'Profile::edit');
     $routes->post('profile', 'Profile::update');
@@ -63,3 +66,4 @@ $routes->group('admin', [
     $routes->post('users/reset/(:num)', 'Users::resetPassword/$1');
     $routes->get('logs', 'ActivityLogs::index');
 });
+

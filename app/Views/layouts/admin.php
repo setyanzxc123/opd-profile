@@ -35,6 +35,21 @@
         $matchedRoute = service('router')->getMatchedRoute();
         $currentRoute = $matchedRoute[0] ?? '';
         $section      = $uri->getSegment(2);
+        $sessionName  = trim((string) (session('name') ?? ''));
+        $sessionUser  = trim((string) (session('username') ?? ''));
+        $displayName  = $sessionName !== '' ? $sessionName : ($sessionUser !== '' ? $sessionUser : 'Pengguna');
+        $initial      = strtoupper(substr($displayName, 0, 1));
+        if (function_exists('mb_substr')) {
+          $mbInitial = mb_substr($displayName, 0, 1, 'UTF-8');
+          if ($mbInitial !== false && $mbInitial !== '') {
+            $initial = mb_strtoupper($mbInitial, 'UTF-8');
+          }
+        }
+        if ($initial === '') {
+          $initial = 'P';
+        }
+        $sessionRole = trim((string) (session('role') ?? ''));
+        $roleLabel   = $sessionRole !== '' ? ucfirst(strtolower($sessionRole)) : '-';
       ?>
       <!-- Menu -->
       <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
@@ -108,12 +123,6 @@
               <div class="text-truncate">Log Aktivitas</div>
             </a>
           </li>
-          <li class="menu-item mt-auto">
-            <a href="<?= site_url('logout') ?>" class="menu-link">
-              <i class="menu-icon tf-icons bx bx-log-out"></i>
-              <div class="text-truncate">Keluar</div>
-            </a>
-          </li>
         </ul>
       </aside>
       <!-- / Menu -->
@@ -123,7 +132,7 @@
 
         <!-- Content wrapper -->
         <div class="content-wrapper">
-          <div class="container-xxl flex-grow-1 container-p-y">
+          <div class="container-xxl flex-grow-1 container-p-y pt-2">
             <?php
               $segments = $uri->getSegments();
               $labelsMap = [
@@ -134,6 +143,7 @@
                 'documents' => 'Dokumen',
                 'contacts'  => 'Pesan Kontak',
                 'users'     => 'Pengguna',
+                'settings'  => 'Pengaturan Akun',
                 'logs'      => 'Log Aktivitas',
                 'create'    => 'Tambah',
                 'edit'      => 'Ubah',
@@ -164,17 +174,58 @@
                   }
                 }
             ?>
-            <nav aria-label="breadcrumb" class="mb-4">
-              <ol class="breadcrumb">
-                <?php foreach ($crumbs as $c): ?>
-                  <?php if (!empty($c['active']) || empty($c['url'])): ?>
-                    <li class="breadcrumb-item<?= !empty($c['active']) ? ' active' : '' ?>"<?= !empty($c['active']) ? ' aria-current="page"' : '' ?>><?= esc($c['label']) ?></li>
-                  <?php else: ?>
-                    <li class="breadcrumb-item"><a href="<?= esc($c['url'], 'attr') ?>"><?= esc($c['label']) ?></a></li>
-                  <?php endif; ?>
-                <?php endforeach; ?>
-              </ol>
-            </nav>
+            <div class="card border-0 shadow-sm mb-4">
+              <div class="card-body py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <nav aria-label="breadcrumb" class="mb-0">
+                  <ol class="breadcrumb mb-0">
+                    <?php foreach ($crumbs as $c): ?>
+                      <?php if (!empty($c['active']) || empty($c['url'])): ?>
+                        <li class="breadcrumb-item<?= !empty($c['active']) ? ' active' : '' ?>"<?= !empty($c['active']) ? ' aria-current="page"' : '' ?>><?= esc($c['label']) ?></li>
+                      <?php else: ?>
+                        <li class="breadcrumb-item"><a href="<?= esc($c['url'], 'attr') ?>"><?= esc($c['label']) ?></a></li>
+                      <?php endif; ?>
+                    <?php endforeach; ?>
+                  </ol>
+                </nav>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="dropdown">
+                    <a class="nav-link dropdown-toggle hide-arrow p-0 d-flex align-items-center" href="javascript:void(0);" id="dropdownAccount" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <div class="avatar avatar-online">
+                        <span class="avatar-initial rounded-circle bg-primary text-uppercase"><?= esc($initial) ?></span>
+                      </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownAccount">
+                      <li>
+                        <a class="dropdown-item" href="javascript:void(0);">
+                          <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                              <div class="avatar avatar-online">
+                                <span class="avatar-initial rounded-circle bg-primary text-uppercase"><?= esc($initial) ?></span>
+                              </div>
+                            </div>
+                            <div class="flex-grow-1">
+                              <h6 class="mb-0"><?= esc($displayName) ?></h6>
+                              <small class="text-body-secondary"><?= esc($roleLabel) ?></small>
+                            </div>
+                          </div>
+                        </a>
+                      </li>
+                      <li><div class="dropdown-divider my-1"></div></li>
+                      <li>
+                        <a class="dropdown-item<?= $section === 'settings' ? ' active' : '' ?>" href="<?= site_url('admin/settings') ?>">
+                          <i class="icon-base bx bx-cog icon-md me-3"></i><span>Pengaturan Akun</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a class="dropdown-item" href="<?= site_url('logout') ?>">
+                          <i class="icon-base bx bx-power-off icon-md me-3"></i><span>Keluar</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
             <?php endif; ?>
 
             <?= $this->renderSection('content') ?>
@@ -208,4 +259,3 @@
   <?= $this->renderSection('pageScripts') ?>
 </body>
 </html>
-
