@@ -49,6 +49,9 @@
   function syncToggleAffordances() {
     var expanded = mqDesktop.matches ? !state.desktopCollapsed : state.mobileOpen;
     doc.querySelectorAll('.layout-menu-toggle').forEach(function (btn) {
+      if (btn.classList.contains('layout-overlay') || !btn.matches('a, button')) {
+        return;
+      }
       btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
       var icon = btn.querySelector('i');
       if (icon) {
@@ -139,8 +142,6 @@
       setDesktopCollapsed(collapsed);
     }
   };
-  Helpers.setMenuCollapsed = setDesktopCollapsed;
-  Helpers.setMenuOpen = setMobileOpen;
 
   if (doc.readyState === 'loading') {
     doc.addEventListener('DOMContentLoaded', applyState, { once: true });
@@ -148,6 +149,7 @@
     applyState();
   }
 })();
+
 
 
 
