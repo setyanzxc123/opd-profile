@@ -9,7 +9,7 @@
     </div>
 
     <?php if (session()->getFlashdata('message')): ?>
-      <div class="alert alert-soft-success alert-dismissible" role="alert">
+      <div class="alert alert-success alert-dismissible" role="alert">
         <?= esc(session('message')) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
       </div>
@@ -18,7 +18,7 @@
     <div class="card">
       <div class="card-body">
         <div class="table-responsive">
-        <table id="newsTable" class="table table-striped table-compact">
+        <table id="newsTable" class="table table-striped table-sm">
           <thead>
             <tr>
               <th>#</th>

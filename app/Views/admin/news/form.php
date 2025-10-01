@@ -16,7 +16,7 @@
         </div>
 
         <?php if (session()->getFlashdata('error')): ?>
-          <div class="alert alert-soft-danger alert-dismissible fade show" role="alert">
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <?= esc(session('error')) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
           </div>
@@ -252,7 +252,7 @@
   <cite>Nama Narasumber, Jabatan</cite>
 </blockquote>`,
         data: `<h3>Data Pendukung</h3>
-<table class="table table-bordered table-compact">
+<table class="table table-bordered table-sm">
   <thead>
     <tr>
       <th>Indikator</th>
@@ -314,7 +314,7 @@
       autosave_retention: '2m',
       image_caption: true,
       content_style: 'body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif; font-size: 16px; line-height: 1.7; }',
-      table_default_attributes: { class: 'table table-striped table-compact' },
+      table_default_attributes: { class: 'table table-striped table-sm' },
       file_picker_types: 'image media',
       setup: function (editor) {
         editor.on('init', function () {

@@ -7,13 +7,13 @@
 </div>
 
 <?php if (session()->getFlashdata('message')): ?>
-    <div class="alert alert-soft-success alert-dismissible" role="alert" data-auto-dismiss="true" aria-live="polite">
+    <div class="alert alert-success alert-dismissible" role="alert" data-auto-dismiss="true" aria-live="polite">
         <i class="bx bx-check-circle me-1"></i> <?= esc(session('message')) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
     </div>
 <?php endif; ?>
 <?php if (session()->getFlashdata('error')): ?>
-    <div class="alert alert-soft-danger alert-dismissible" role="alert" aria-live="assertive">
+    <div class="alert alert-danger alert-dismissible" role="alert" aria-live="assertive">
         <i class="bx bx-error-circle me-1"></i> <?= esc(session('error')) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
     </div>
@@ -22,7 +22,7 @@
 <div class="card">
     <div class="card-body">
         <div class="table-responsive">
-            <table id="usersTable" class="table table-striped table-compact align-middle">
+            <table id="usersTable" class="table table-striped table-sm align-middle">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -42,8 +42,8 @@
                             <td><?= esc($u['username']) ?></td>
                             <td><?= esc($u['name'] ?? '-') ?></td>
                             <td><?= esc($u['email']) ?></td>
-                            <td><span class="badge bg-label-info"><?= esc(ucfirst($u['role'])) ?></span></td>
-                            <td><?= !empty($u['is_active']) ? '<span class="badge bg-label-success">Aktif</span>' : '<span class="badge bg-label-secondary">Nonaktif</span>' ?></td>
+                            <td><span class="badge text-bg-info"><?= esc(ucfirst($u['role'])) ?></span></td>
+                            <td><?= !empty($u['is_active']) ? '<span class="badge text-bg-success">Aktif</span>' : '<span class="badge text-bg-secondary">Nonaktif</span>' ?></td>
                             <td><?= esc($u['last_login_at'] ?? '-') ?></td>
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm" role="group">

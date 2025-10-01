@@ -10,10 +10,10 @@ use CodeIgniter\I18n\Time;
       $statusKey   = $message['status'] ?? 'new';
       $statusLabel = $statusLabels[$statusKey] ?? ucfirst($statusKey);
       $badgeClass  = [
-        'new'         => 'bg-label-primary',
-        'in_progress' => 'bg-label-warning',
-        'closed'      => 'bg-label-success',
-      ][$statusKey] ?? 'bg-label-secondary';
+        'new'         => 'text-bg-primary',
+        'in_progress' => 'text-bg-warning',
+        'closed'      => 'text-bg-success',
+      ][$statusKey] ?? 'text-bg-secondary';
       $createdAt   = ! empty($message['created_at']) ? Time::parse($message['created_at']) : null;
       $respondedAt = ! empty($message['responded_at']) ? Time::parse($message['responded_at']) : null;
       $phoneNumber = trim((string) ($message['phone'] ?? ''));
@@ -37,14 +37,14 @@ use CodeIgniter\I18n\Time;
       </div>
       <div class="card-body">
         <?php if (session()->getFlashdata('message')): ?>
-          <div class="alert alert-soft-success alert-dismissible mb-3" role="alert">
+          <div class="alert alert-success alert-dismissible mb-3" role="alert">
             <?= esc(session('message')) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
           </div>
         <?php endif; ?>
 
         <?php if (session()->getFlashdata('error')): ?>
-          <div class="alert alert-soft-danger alert-dismissible mb-3" role="alert">
+          <div class="alert alert-danger alert-dismissible mb-3" role="alert">
             <?= esc(session('error')) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
           </div>
@@ -110,7 +110,7 @@ use CodeIgniter\I18n\Time;
         </div>
 
         <?php if (! empty($message['admin_note'])): ?>
-          <div class="alert alert-soft-info" role="alert">
+          <div class="alert alert-info" role="alert">
             <h6 class="alert-heading mb-2">Catatan Admin</h6>
             <div class="mb-0" style="white-space: pre-wrap;">
               <?= esc($message['admin_note']) ?>

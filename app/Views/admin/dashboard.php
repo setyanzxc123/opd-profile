@@ -28,9 +28,9 @@ $parseTime = static function (?string $datetime): ?Time {
 $now = Time::now();
 
 $statusMeta = [
-    'new'         => ['label' => 'Baru',      'badge' => 'bg-label-primary'],
-    'in_progress' => ['label' => 'Diproses',  'badge' => 'bg-label-warning'],
-    'closed'      => ['label' => 'Selesai',   'badge' => 'bg-label-success'],
+    'new'         => ['label' => 'Baru',      'badge' => 'text-bg-primary'],
+    'in_progress' => ['label' => 'Diproses',  'badge' => 'text-bg-warning'],
+    'closed'      => ['label' => 'Selesai',   'badge' => 'text-bg-success'],
 ];
 
 $openContacts = (int) (($contactSummary['counts']['new'] ?? 0) + ($contactSummary['counts']['in_progress'] ?? 0));
@@ -111,7 +111,7 @@ $openContacts = (int) (($contactSummary['counts']['new'] ?? 0) + ($contactSummar
                 $createdHuman= $createdAt ? $createdAt->humanize() : 'Waktu tidak tersedia';
                 $statusKey   = $message['status'] ?? 'new';
                 if ($statusKey === 'closed') { continue; }
-                $statusInfo  = $statusMeta[$statusKey] ?? ['label' => ucfirst((string) $statusKey), 'badge' => 'bg-label-secondary'];
+                $statusInfo  = $statusMeta[$statusKey] ?? ['label' => ucfirst((string) $statusKey), 'badge' => 'text-bg-secondary'];
                 $preview     = trim((string) ($message['message'] ?? ''));
                 $preview     = $preview !== '' ? mb_strimwidth(strip_tags($preview), 0, 120, '...') : 'Tanpa isi pesan';
               ?>

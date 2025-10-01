@@ -38,7 +38,7 @@
 <div class="card">
     <div class="card-body">
         <div class="table-responsive">
-            <table id="logsTable" class="table table-striped table-hover table-compact align-middle">
+            <table id="logsTable" class="table table-striped table-hover table-sm align-middle">
                 <thead>
                     <tr>
                         <th scope="col">#</th>
@@ -56,25 +56,25 @@
                             <td><?= esc($log['username'] ?? '-') ?></td>
                             <td>
                               <?php
-                                $badgeClass = 'bg-label-primary';
+                                $badgeClass = 'text-bg-primary';
                                 $act = strtolower((string)($log['action'] ?? ''));
                                 if ($act !== '') {
                                   if (strpos($act, 'failed') !== false && (strpos($act, 'login') !== false || strpos($act, 'auth') !== false)) {
-                                    $badgeClass = 'bg-label-danger';
+                                    $badgeClass = 'text-bg-danger';
                                   } elseif (strpos($act, 'logout') !== false) {
-                                    $badgeClass = 'bg-label-secondary';
+                                    $badgeClass = 'text-bg-secondary';
                                   } elseif (strpos($act, 'login') !== false || strpos($act, 'auth') !== false) {
-                                    $badgeClass = 'bg-label-success';
+                                    $badgeClass = 'text-bg-success';
                                   } elseif (strpos($act, 'delete') !== false || strpos($act, 'remove') !== false) {
-                                    $badgeClass = 'bg-label-danger';
+                                    $badgeClass = 'text-bg-danger';
                                   } elseif (strpos($act, 'update') !== false || strpos($act, 'edit') !== false) {
-                                    $badgeClass = 'bg-label-warning';
+                                    $badgeClass = 'text-bg-warning';
                                   } elseif (strpos($act, 'create') !== false || strpos($act, 'add') !== false || strpos($act, 'insert') !== false) {
-                                    $badgeClass = 'bg-label-success';
+                                    $badgeClass = 'text-bg-success';
                                   } elseif (strpos($act, 'download') !== false) {
-                                    $badgeClass = 'bg-label-info';
+                                    $badgeClass = 'text-bg-info';
                                   } elseif (strpos($act, 'upload') !== false) {
-                                    $badgeClass = 'bg-label-primary';
+                                    $badgeClass = 'text-bg-primary';
                                   }
                                 }
                               ?>

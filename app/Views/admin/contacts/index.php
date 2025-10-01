@@ -47,7 +47,7 @@ use CodeIgniter\I18n\Time;
               if ($isActive) {
                   $navLinkClasses .= ' active';
               }
-              $badgeClasses = $isActive ? 'badge rounded-pill bg-white text-primary' : 'badge rounded-pill bg-label-secondary';
+              $badgeClasses = $isActive ? 'badge rounded-pill bg-white text-primary' : 'badge rounded-pill text-bg-secondary';
               $queryParams  = [];
               if ($key !== 'all') {
                   $queryParams['status'] = $key;
@@ -127,10 +127,10 @@ use CodeIgniter\I18n\Time;
                         </a>
                         <div class="text-muted small text-truncate" style="max-width: 360px;"><?= esc($messagePreview) ?></div>
                         <div class="d-flex flex-wrap align-items-center gap-2 mt-2 small text-muted">
-                          <span class="badge bg-label-secondary"><?= esc($ticketBadge) ?></span>
-                          <span class="badge bg-label-info"<?php if ($sourceTooltip !== ''): ?> data-bs-toggle="tooltip" title="<?= esc($sourceTooltip) ?>"<?php endif; ?>>Web</span>
+                          <span class="badge text-bg-secondary"><?= esc($ticketBadge) ?></span>
+                          <span class="badge text-bg-info"<?php if ($sourceTooltip !== ''): ?> data-bs-toggle="tooltip" title="<?= esc($sourceTooltip) ?>"<?php endif; ?>>Web</span>
                           <?php if ($phoneNumber !== ''): ?>
-                            <span class="badge bg-label-secondary">Tel</span>
+                            <span class="badge text-bg-secondary">Tel</span>
                           <?php endif; ?>
                         </div>
                       </td>

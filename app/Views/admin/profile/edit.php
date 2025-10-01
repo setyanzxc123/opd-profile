@@ -21,19 +21,19 @@
 
       <div class="card-body pt-3">
         <?php if (session()->getFlashdata('message')): ?>
-          <div class="alert alert-soft-success alert-dismissible fade show" role="alert" aria-live="polite">
+          <div class="alert alert-success alert-dismissible fade show" role="alert" aria-live="polite">
             <i class="bx bx-check-circle me-2"></i><?= esc(session('message')) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
           </div>
         <?php endif; ?>
         <?php if (session()->getFlashdata('error')): ?>
-          <div class="alert alert-soft-danger alert-dismissible fade show" role="alert" aria-live="assertive">
+          <div class="alert alert-danger alert-dismissible fade show" role="alert" aria-live="assertive">
             <i class="bx bx-error-circle me-2"></i><?= esc(session('error')) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
           </div>
         <?php endif; ?>
 
-        <div class="alert alert-soft-info" role="alert">
+        <div class="alert alert-info" role="alert">
           <i class="bx bx-bulb me-2"></i>
           <span>Gunakan konten yang ringkas dan mudah dibaca. Perubahan akan langsung terlihat oleh pengunjung.</span>
         </div>
