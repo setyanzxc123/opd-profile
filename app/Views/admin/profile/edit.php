@@ -1,4 +1,4 @@
-﻿<?php
+<?php
   $validation = $validation ?? null;
 ?>
 <?= $this->extend('layouts/admin') ?>
@@ -57,7 +57,7 @@
           <div class="tab-content border border-top-0 p-3">
             <div class="tab-pane fade show active" id="tab-umum" role="tabpanel" aria-labelledby="tab-umum-tab">
               <div class="row g-3">
-                <div class="col-xl-8 col-lg-9">
+                <div class="col-12 col-lg-9 col-xl-8">
                   <label class="form-label">Nama OPD <span class="text-danger">*</span></label>
                   <input type="text" name="name" class="form-control" required maxlength="150" value="<?= esc(old('name', $profile['name'])) ?>" placeholder="Contoh: Dinas Komunikasi dan Informatika">
                   <?php if ($validation && $validation->hasError('name')): ?>
@@ -67,7 +67,7 @@
                   <?php endif; ?>
                 </div>
 
-                <div class="col-xl-10">
+                <div class="col-12 col-lg-10">
                   <label class="form-label">Deskripsi Singkat</label>
                   <textarea name="description" rows="4" class="form-control" placeholder="Tuliskan deskripsi ringkas mengenai profil dan layanan utama OPD."><?= esc(old('description', $profile['description'])) ?></textarea>
                 </div>
@@ -76,11 +76,11 @@
 
             <div class="tab-pane fade" id="tab-visimisi" role="tabpanel" aria-labelledby="tab-visimisi-tab">
               <div class="row g-3">
-                <div class="col-xl-10">
+                <div class="col-12 col-lg-10">
                   <label class="form-label">Visi</label>
                   <textarea name="vision" rows="3" class="form-control" placeholder="Masukkan rumusan visi instansi."><?= esc(old('vision', $profile['vision'])) ?></textarea>
                 </div>
-                <div class="col-xl-10">
+                <div class="col-12 col-lg-10">
                   <label class="form-label">Misi</label>
                   <textarea name="mission" rows="4" class="form-control" placeholder="Jabarkan poin-poin misi instansi."><?= esc(old('mission', $profile['mission'])) ?></textarea>
                 </div>
@@ -131,3 +131,4 @@
 </div>
 
 <?= $this->endSection() ?>
+

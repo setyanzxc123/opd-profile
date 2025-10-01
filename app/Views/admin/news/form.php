@@ -26,7 +26,7 @@
           <?= csrf_field() ?>
 
           <div class="row g-4">
-            <div class="col-xl-9">
+            <div class="col-12 col-lg-8 col-xl-9">
               <div class="card shadow-sm h-100">
                 <div class="card-body p-4">
                   <div class="mb-10">
@@ -72,7 +72,7 @@
               </div>
             </div>
 
-            <div class="col-xl-3">
+            <div class="col-12 col-lg-4 col-xl-3">
               <div class="news-side-section">
                 <div class="card shadow-sm">
                   <div class="card-body p-4">
@@ -326,5 +326,6 @@
   });
 </script>
 <?= $this->endSection() ?>
+
 
 

@@ -124,11 +124,6 @@
         <!-- Content wrapper -->
         <div class="content-wrapper">
           <div class="container-xxl flex-grow-1 container-p-y">
-            <div class="layout-menu-toggle navbar-nav align-items-center d-xl-none mb-3">
-              <a class="nav-item nav-link px-0" href="javascript:void(0)">
-                <i class="bx bx-menu bx-sm"></i>
-              </a>
-            </div>
             <?php
               $segments = $uri->getSegments();
               $labelsMap = [
@@ -213,3 +208,4 @@
   <?= $this->renderSection('pageScripts') ?>
 </body>
 </html>
+

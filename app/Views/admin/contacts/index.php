@@ -222,11 +222,14 @@ use CodeIgniter\I18n\Time;
 
 <?= $this->section('pageStyles') ?>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 <?= $this->endSection() ?>
 
 <?= $this->section('pageScripts') ?>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 <script>
 (() => {
   const initDataTable = () => {
@@ -237,12 +240,23 @@ use CodeIgniter\I18n\Time;
 
     return $(tableElement).DataTable({
       order: [],
+      responsive: {
+        details: {
+          display: $.fn.dataTable.Responsive.display.childRowImmediate,
+          target: 'tr'
+        }
+      },
+      autoWidth: false,
       language: {
         url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json'
       },
       columnDefs: [
-        { targets: 0, orderable: false, searchable: false },
-        { targets: -1, orderable: false, searchable: false }
+        { targets: 0, orderable: false, searchable: false, responsivePriority: 1 },
+        { targets: 1, responsivePriority: 2 },
+        { targets: 2, responsivePriority: 3 },
+        { targets: 3, responsivePriority: 5 },
+        { targets: 4, responsivePriority: 6 },
+        { targets: -1, orderable: false, searchable: false, responsivePriority: 4 }
       ],
       pageLength: 10
     });

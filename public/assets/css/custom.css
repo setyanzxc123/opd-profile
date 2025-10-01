@@ -47,24 +47,7 @@
   text-overflow: ellipsis;
   transition: none !important;
 }
-@media (min-width: 1200px) {
-  .menu .app-brand,
-  #layout-menu .app-brand {
-    display: flex;
-    align-items: center;
-  }
-  .menu .app-brand .app-brand-link,
-  #layout-menu .app-brand .app-brand-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    min-inline-size: 0;
-  }
-  .layout-menu-collapsed #layout-menu .app-brand .app-brand-text {
-    display: none !important;
-    opacity: 0 !important;
-  }
-}
+
 
 /* Content width sync with collapsed menu */
 @media (min-width: 1200px) {
@@ -82,12 +65,14 @@
 }
 
 .news-quick-stats {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 1.25rem;
   padding: 1.25rem;
   border-radius: 0.75rem;
+  border: 1px solid rgba(46, 123, 215, 0.2);
   border: 1px solid color-mix(in sRGB, var(--bs-primary) 20%, transparent);
+  background: #e1effd;
   background: var(--bs-primary-bg-subtle);
 }
 
@@ -118,10 +103,13 @@
 }
 
 .news-guideline {
+  border: 1px dashed rgba(71, 85, 105, 0.18);
   border: 1px dashed color-mix(in sRGB, var(--bs-base-color) 18%, transparent);
   border-radius: 0.75rem;
+  background: rgba(248, 250, 252, 0.96);
   background: color-mix(in sRGB, var(--bs-paper-bg) 96%, white);
 }
+
 
 .news-guideline li + li {
   margin-top: 0.25rem;
@@ -129,19 +117,25 @@
 
 .news-note {
   border-radius: 0.5rem;
-  background: var(--bs-info-bg-subtle);
+  border: 1px solid rgba(13, 110, 253, 0.18);
   border: 1px solid color-mix(in sRGB, var(--bs-info) 18%, transparent);
+  background: rgba(13, 110, 253, 0.08);
+  background: var(--bs-info-bg-subtle);
+  color: #0d6efd;
   color: var(--bs-info);
   padding: 0.75rem;
   font-size: 0.82rem;
 }
 
+
 /* TinyMCE tweaks --------------------------------------------------------- */
 .tox.tox-tinymce {
+  border: 1px solid rgba(15, 23, 42, 0.18);
   border: 1px solid color-mix(in sRGB, var(--bs-base-color) 30%, var(--bs-paper-bg));
   border-radius: 0.5rem;
   box-shadow: none;
 }
+
 
 .tox.tox-tinymce:focus-within {
   border-color: var(--bs-primary);
@@ -157,35 +151,54 @@
   border-top: 1px solid color-mix(in sRGB, var(--bs-base-color) 22%, var(--bs-paper-bg));
 }
 
-/* Content width sync with collapsed menu */
-@media (min-width: 1200px) {
-  .layout-page {
-    padding-inline-start: var(--bs-menu-width);
-    transition: padding-inline-start 0.24s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .layout-menu-collapsed .layout-page {
-    padding-inline-start: var(--bs-menu-collapsed-width) !important;
-  }
-}
-/* Stabilize brand text layout to avoid vertical jump */
+/* Layout menu brand adjustments */
 @media (min-width: 1200px) {
   .menu .app-brand,
-  .layout-menu .app-brand { display: flex; align-items: center; }
-  .menu .app-brand .app-brand-link { display: inline-flex; align-items: center; gap: .25rem; min-inline-size: 0; }
-/* Brand text: no animation, stable layout */
-@media (min-width: 1200px) {
-  .menu .app-brand, #layout-menu .app-brand { display: flex; align-items: center; }
-  .menu .app-brand .app-brand-link { display: inline-flex; align-items: center; gap: .25rem; min-inline-size: 0; }
-  .menu .app-brand .app-brand-text,
-  #layout-menu .app-brand .app-brand-text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: none !important;
+  #layout-menu .app-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .menu .app-brand .app-brand-link,
+  #layout-menu .app-brand .app-brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-inline-size: 0;
+  }
+
+  .layout-menu-collapsed #layout-menu .app-brand .app-brand-text {
+    display: none !important;
+    opacity: 0 !important;
   }
 }
 
+/* Mobile layout helpers */
+@media (max-width: 767.98px) {
+  .container-xxl.container-p-y {
+    padding-inline: 1rem;
+  }
 
+  .contact-status-filter {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    margin-bottom: -0.5rem;
+    scrollbar-width: thin;
+  }
+
+  .contact-status-filter .nav-item {
+    flex: 0 0 auto;
+  }
+}
+
+@media (min-width: 992px) {
+  .news-side-section > .card {
+    position: sticky;
+    top: 1.5rem;
+  }
+}
 
 /* Admin contacts */
 .contact-status-filter .btn {
@@ -218,4 +231,3 @@
 .contact-bulk-alert {
   margin-bottom: 1.25rem;
 }
-
