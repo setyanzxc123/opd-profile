@@ -56,7 +56,7 @@ class Home extends BaseController
             ];
         }
 
-        $profileName  = trim((string) ($profile['name'] ?? 'Dinas Pelayanan Publik Kota Harmoni'));
+        $profileName  = trim((string) ($profile['name'] ?? 'Dinas ....'));
         $profileIntro = trim((string) ($profile['description'] ?? 'Menyediakan informasi terkini mengenai program kerja, layanan publik, data dokumen penting, serta berita terbaru dari dinas.'));
 
         return [
@@ -74,7 +74,7 @@ class Home extends BaseController
     private function buildProfileSummary(?array $profile): array
     {
         return [
-            'name'        => trim((string) ($profile['name'] ?? 'Dinas Pelayanan Publik Kota Harmoni')),
+            'name'        => trim((string) ($profile['name'] ?? 'Dinas......')),
             'description' => trim((string) ($profile['description'] ?? 'Melayani masyarakat dengan cepat, transparan, dan akuntabel.')),
             'address'     => trim((string) ($profile['address'] ?? '')),
             'phone'       => trim((string) ($profile['phone'] ?? '')),
