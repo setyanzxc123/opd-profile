@@ -161,7 +161,7 @@
         <?php endif; ?>
         <div class="news-list" role="list">
           <?php foreach ($otherNews as $news): ?>
-            <article class="news-list-item surface-card" role="listitem">
+            <article class="news-list-item card-base" role="listitem">
               <div>
                 <?php if ($news['published']): ?>
                   <span class="news-meta"><?= esc($news['published']) ?></span>
@@ -193,7 +193,7 @@
       <?php if ($galleries): ?>
         <div class="minimal-grid minimal-grid-4 gallery-minimal" role="list">
           <?php foreach ($galleries as $gallery): ?>
-            <article class="surface-card gallery-item" role="listitem">
+            <article class="card-base gallery-item" role="listitem">
               <?php if ($gallery['image']): ?>
                 <div class="gallery-item-media">
                   <img src="<?= esc($gallery['image']) ?>" alt="<?= esc($gallery['title']) ?>" loading="lazy">
@@ -229,7 +229,7 @@
                 <p class="text-muted mb-0">
                   <?php if ($document['category']): ?>
                     <span><?= esc($document['category']) ?></span>
-                    <span class="mx-2">•</span>
+                    <span class="mx-2">ï¿½</span>
                   <?php endif; ?>
                   <?php if ($document['year']): ?>
                     <span><?= esc($document['year']) ?></span>

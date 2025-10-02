@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/public') ?>
 
 <?= $this->section('content') ?>
-<section class="public-section bg-white">
+<section class="public-section">
   <div class="container public-container py-5">
     <div class="text-center mb-5">
       <span class="hero-badge text-uppercase">Dokumen</span>

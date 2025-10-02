@@ -3,7 +3,7 @@
 
 <?= $this->section('content') ?>
 <?php $query = trim((string) ($search ?? '')); ?>
-<section class="public-section bg-white" aria-labelledby="news-archive-heading">
+<section class="public-section" aria-labelledby="news-archive-heading">
   <div class="container public-container py-5">
     <div class="text-center mb-5">
       <span class="hero-badge text-uppercase" id="news-archive-heading">Berita Resmi</span>

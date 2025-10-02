@@ -2,7 +2,7 @@
 <?= $this->extend('layouts/public') ?>
 
 <?= $this->section('content') ?>
-<section class="public-section bg-white">
+<section class="public-section">
   <div class="container public-container py-5">
     <div class="mb-4">
       <a class="btn btn-link text-decoration-none px-0" href="<?= site_url('berita') ?>">&larr; Kembali ke daftar berita</a>

@@ -7,8 +7,11 @@
 /* Hero spacing */
 .hero-section { padding: 0 0 clamp(3rem, 9vw, 6rem); }
 
-/* Generic section spacing */
-.public-section { padding: clamp(3.5rem, 8vw, 5rem) 0; }
+/* Generic section spacing and styling */
+.public-section {
+  padding: clamp(3.5rem, 8vw, 5rem) 0;
+  background: var(--surface-base);
+}
 
 /* Section surface tints */
 .section-cool { background: var(--surface-cool); border-top: 1px solid var(--border-soft); }
@@ -26,12 +29,12 @@
   background: color-mix(in sRGB, var(--public-primary) 60%, white);
 }
 
-/* Card tone to match vanilla */
-.stat-card, .service-card, .service-pill, .news-card, .contact-card { border-radius: 16px; }
+/* Add card-base class to all card elements in HTML instead of CSS inheritance */
 
 /* Documents wrapper */
 .documents-card {
   margin-top: 1.5rem;
+  padding: 1.5rem;
 }
 
 .documents-card .table {
@@ -39,17 +42,17 @@
 }
 
 /* Contact background gradient */
-.contact-summary { background: #f8fbff; border-top: 1px solid rgba(28,111,211,0.08); }
+.contact-summary { background: var(--surface-base); border-top: 1px solid var(--surface-border); }
 
 /* Hero news highlight */
 .hero-news {
-  background: #f8fbff;
+  background: var(--surface-base);
 }
 
 .hero-news-card {
-  background: #ffffff;
-  border: 1px solid rgba(28, 111, 211, 0.12);
-  box-shadow: none;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 12px 32px var(--surface-shadow);
 }
 
 .hero-news-card .ratio img {
@@ -104,13 +107,13 @@
 
 /* Services grid */
 .services-grid {
-  --pill-border: rgba(28, 111, 211, 0.12);
+  --pill-border: var(--surface-border);
 }
 
 .service-pill {
-  background: #ffffff;
-  border: 1px solid var(--pill-border);
-  box-shadow: none;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 12px 28px var(--surface-shadow);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -198,10 +201,11 @@
 }
 
 .news-list-item {
-  border: 1px solid rgba(28, 111, 211, 0.12);
+  border: 1px solid var(--surface-border);
   border-radius: 16px;
   padding: 1.25rem 1.5rem;
-  background: #ffffff;
+  background: var(--surface-card);
+  box-shadow: 0 10px 26px var(--surface-shadow);
   transition: border-color 0.2s ease;
 }
 
@@ -285,8 +289,9 @@
   gap: 0.35rem;
   padding: 0.85rem 1.1rem;
   border-radius: 12px;
-  border: 1px solid rgba(28, 111, 211, 0.18);
-  background: #ffffff;
+  border: 1px solid var(--surface-border);
+  background: var(--surface-card);
+  box-shadow: 0 10px 24px var(--surface-shadow);
   color: var(--public-primary-dark);
 }
 
@@ -358,8 +363,9 @@
 .profile-item {
   padding: 1.25rem 1.5rem;
   border-radius: 16px;
-  background: #ffffff;
-  border: 1px solid rgba(28, 111, 211, 0.12);
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 12px 28px var(--surface-shadow);
 }
 
 .profile-item dt {
@@ -380,8 +386,9 @@
   display: grid;
   gap: 1.5rem;
   border-radius: 20px;
-  border: 1px solid rgba(28, 111, 211, 0.12);
-  background: #ffffff;
+  border: 1px solid var(--surface-border);
+  background: var(--surface-card);
+  box-shadow: 0 14px 34px var(--surface-shadow);
   overflow: hidden;
 }
 
@@ -456,8 +463,9 @@
   gap: 0.75rem;
   padding: 1.2rem 1.4rem;
   border-radius: 16px;
-  background: #ffffff;
-  border: 1px solid rgba(28, 111, 211, 0.12);
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 12px 28px var(--surface-shadow);
 }
 
 @media (min-width: 768px) {
@@ -489,6 +497,7 @@
 
 .public-home {
   display: block;
-  background: var(--public-neutral-100);
+  background: var(--surface-base);
 }
+
 

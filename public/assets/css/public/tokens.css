@@ -1,3 +1,12 @@
+/* Card base style */
+.card-base {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
 /* Public site custom theme */
 :root {
   --public-primary: #1c6fd3;
@@ -9,16 +18,20 @@
   --public-neutral-200: #e4e7eb;
   --public-neutral-100: #ffffff;
   /* Surface tints for clearer section boundaries */
-  --surface-cool: #ffffff;
-  --surface-warm: #ffffff;
-  --surface-neutral: #ffffff;
+  --surface-cool: #f2f4f7;
+  --surface-warm: #f2f4f7;
+  --surface-neutral: #f2f4f7;
+  --surface-base: #f2f4f7;
+  --surface-card: #ffffff;
+  --surface-border: #d0d2d4;
+  --surface-shadow: 0 8px 16px rgba(208, 210, 212, 0.35), 0 1px 4px rgba(208, 210, 212, 0.25);
   --border-soft: rgba(28, 111, 211, 0.10);
 }
 
 body.public-body {
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--public-neutral-900);
-  background-color: var(--public-neutral-100);
+  background-color: var(--surface-base);
   margin: 0;
 }
 
@@ -236,11 +249,22 @@ body.public-body {
   border-color: var(--public-primary-dark);
 }
 
+/* Base card styles */
+.card-base {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Specific card types */
 .stat-card,
 .service-card,
 .news-card,
 .contact-card,
-.gallery-card {
+.gallery-card,
+.documents-card {
   border-radius: 16px;
 }
 
@@ -300,10 +324,10 @@ body.public-body {
 }
 
 .surface-card {
-  border: 1px solid rgba(28, 111, 211, 0.12);
+  border: 1px solid var(--surface-border);
   border-radius: 18px;
-  background: #ffffff;
-  box-shadow: 0 18px 45px rgba(28, 111, 211, 0.12);
+  background: var(--surface-card);
+  box-shadow: 0 12px 32px var(--surface-shadow);
   padding: clamp(1.5rem, 3vw, 2rem);
   display: flex;
   flex-direction: column;
@@ -421,4 +445,5 @@ body.public-body {
     padding: 0.75rem 0;
   }
 }
+
 
