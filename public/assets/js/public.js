@@ -89,14 +89,12 @@
       if (prevBtn) {
         prevBtn.addEventListener('click', () => {
           move(-1);
-          start();
         });
       }
 
       if (nextBtn) {
         nextBtn.addEventListener('click', () => {
           move(1);
-          start();
         });
       }
 
@@ -104,7 +102,6 @@
         dot.addEventListener('click', () => {
           goTo(idx);
           dot.focus();
-          start();
         });
       });
 
@@ -117,20 +114,6 @@
           }
         });
       }
-
-      carousel.addEventListener('pointerenter', pause);
-      carousel.addEventListener('pointerleave', () => {
-        if (!isPaused) {
-          start();
-        }
-      });
-
-      carousel.addEventListener('focusin', pause);
-      carousel.addEventListener('focusout', () => {
-        if (!isPaused) {
-          start();
-        }
-      });
 
       resume();
     });
