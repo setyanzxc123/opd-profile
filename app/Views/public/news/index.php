@@ -49,7 +49,7 @@
       </div>
       <?php if ($pager !== null): ?>
         <div class="d-flex justify-content-center">
-          <?= $pager->appends(['q' => $query])->links('default', 'default_full') ?>
+          <?= $pager->only(['q'])->links('default', 'default_full') ?>
         </div>
       <?php endif; ?>
     <?php else: ?>
@@ -63,3 +63,4 @@
   </div>
 </section>
 <?= $this->endSection() ?>
+

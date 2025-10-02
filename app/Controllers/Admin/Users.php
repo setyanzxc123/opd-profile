@@ -3,6 +3,7 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\UserModel;
+use Throwable;
 
 class Users extends BaseController
 {
@@ -220,12 +221,66 @@ class Users extends BaseController
             return redirect()->to(site_url('admin/users'))->with('error', 'Data tidak ditemukan.');
         }
 
-        $newPassword = bin2hex(random_bytes(4));
+        try {
+            $temporaryPassword = rtrim(strtr(base64_encode(random_bytes(18)), '+/', '-_'), '=');
+        } catch (Throwable $exception) {
+            log_message('error', 'Failed generating temporary password: {error}', ['error' => $exception->getMessage()]);
 
-        $this->users->update($id, ['password_hash' => password_hash($newPassword, PASSWORD_DEFAULT)]);
+            return redirect()->to(site_url('admin/users'))->with('error', 'Gagal membuat password baru. Silakan coba lagi.');
+        }
+
+        $newHash = password_hash($temporaryPassword, PASSWORD_DEFAULT);
+        $originalHash = $user['password_hash'] ?? null;
+
+        if (! $this->users->update($id, ['password_hash' => $newHash])) {
+            return redirect()->to(site_url('admin/users'))->with('error', 'Gagal menyimpan password baru.');
+        }
+
+        if (! $this->storePasswordResetSecret($user, $temporaryPassword)) {
+            if ($originalHash !== null) {
+                $this->users->update($id, ['password_hash' => $originalHash]);
+            }
+
+            log_message('error', 'Failed to persist temporary password for user: {username}', ['username' => $user['username'] ?? '']);
+
+            return redirect()->to(site_url('admin/users'))->with('error', 'Password baru gagal dicatat. Tidak ada perubahan yang dilakukan.');
+        }
 
         log_activity('user.reset_password', 'Reset password untuk ' . $user['username']);
 
-        return redirect()->to(site_url('admin/users'))->with('message', "Password baru untuk {$user['username']}: {$newPassword}");
+        return redirect()->to(site_url('admin/users'))
+            ->with('message', 'Password sementara berhasil dibuat. Ambil secara aman dari berkas writable/private/password-resets.log dan bagikan kepada pengguna.');
+    }
+
+    private function storePasswordResetSecret(array $user, string $plainPassword): bool
+    {
+        $logDir = rtrim(WRITEPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'private';
+
+        if (! is_dir($logDir) && ! @mkdir($logDir, 0700, true) && ! is_dir($logDir)) {
+            return false;
+        }
+
+        $logPath = $logDir . DIRECTORY_SEPARATOR . 'password-resets.log';
+        $username = str_replace(["\r", "\n"], '', (string) ($user['username'] ?? ''));
+
+        $entry = sprintf(
+            "[%s] user_id=%d username=%s reset_by=%d new_password=%s%s",
+            date('c'),
+            (int) ($user['id'] ?? 0),
+            $username,
+            (int) session('user_id'),
+            $plainPassword,
+            PHP_EOL
+        );
+
+        $result = @file_put_contents($logPath, $entry, FILE_APPEND | LOCK_EX);
+
+        if ($result === false) {
+            return false;
+        }
+
+        @chmod($logPath, 0600);
+
+        return true;
     }
 }
