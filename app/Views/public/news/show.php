@@ -7,11 +7,13 @@
     <div class="mb-4">
       <a class="btn btn-link text-decoration-none px-0" href="<?= site_url('berita') ?>">&larr; Kembali ke daftar berita</a>
     </div>
-    <article class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <article class="surface-card news-article">
       <?php if (! empty($article['thumbnail'])): ?>
-        <img src="<?= esc(base_url($article['thumbnail'])) ?>" alt="<?= esc($article['title']) ?>" class="w-100 object-fit-cover" style="max-height: 420px;" loading="lazy">
+        <div class="news-article__media">
+          <img src="<?= esc(base_url($article['thumbnail'])) ?>" alt="<?= esc($article['title']) ?>" loading="lazy">
+        </div>
       <?php endif; ?>
-      <div class="card-body p-5">
+      <div class="news-article__body">
         <?php if ($published_at instanceof Time): ?>
           <span class="badge bg-light text-primary mb-3">Dipublikasikan <?= esc($published_at->toLocalizedString('d MMMM yyyy')) ?></span>
         <?php endif; ?>

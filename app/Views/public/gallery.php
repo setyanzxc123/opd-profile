@@ -12,12 +12,16 @@
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         <?php foreach ($galleries as $item): ?>
           <div class="col">
-            <article class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-              <img src="<?= esc(base_url($item['image_path'])) ?>" alt="<?= esc($item['title']) ?>" class="w-100" loading="lazy">
-              <div class="card-body">
-                <h2 class="h5 fw-semibold text-dark mb-2"><?= esc($item['title']) ?></h2>
+            <article class="surface-card gallery-item h-100">
+              <?php if (! empty($item['image_path'])): ?>
+                <div class="gallery-item-media">
+                  <img src="<?= esc(base_url($item['image_path'])) ?>" alt="<?= esc($item['title']) ?>" loading="lazy">
+                </div>
+              <?php endif; ?>
+              <div class="gallery-item-body">
+                <h3><?= esc($item['title']) ?></h3>
                 <?php if (! empty($item['description'])): ?>
-                  <p class="mb-0 text-muted"><?= esc($item['description']) ?></p>
+                  <p class="text-muted small mb-0"><?= esc($item['description']) ?></p>
                 <?php endif; ?>
               </div>
             </article>
@@ -32,3 +36,4 @@
   </div>
 </section>
 <?= $this->endSection() ?>
+

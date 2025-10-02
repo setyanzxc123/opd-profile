@@ -7,11 +7,11 @@
   --public-neutral-700: #3e4c59;
   --public-neutral-500: #7b8794;
   --public-neutral-200: #e4e7eb;
-  --public-neutral-100: #f4f6fb;
+  --public-neutral-100: #ffffff;
   /* Surface tints for clearer section boundaries */
-  --surface-cool: #f2f7ff;
-  --surface-warm: #fff8ec;
-  --surface-neutral: #f7f9fc;
+  --surface-cool: #ffffff;
+  --surface-warm: #ffffff;
+  --surface-neutral: #ffffff;
   --border-soft: rgba(28, 111, 211, 0.10);
 }
 
@@ -213,7 +213,7 @@ body.public-body {
   color: #ffffff;
   border: none;
   border-radius: 12px;
-  box-shadow: none;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
 }
 
 .btn-public-primary:hover,
@@ -225,7 +225,7 @@ body.public-body {
 .btn-public-ghost {
   color: var(--public-primary-dark);
   background: transparent;
-  border: 1px solid rgba(28, 111, 211, 0.5);
+  border: 1px solid rgba(28, 111, 211, 0.12);
   border-radius: 12px;
 }
 
@@ -242,9 +242,6 @@ body.public-body {
 .contact-card,
 .gallery-card {
   border-radius: 16px;
-  border: 1px solid rgba(28, 111, 211, 0.08);
-  box-shadow: none;
-  background-color: #ffffff;
 }
 
 .stat-card .display-5 {
@@ -306,6 +303,7 @@ body.public-body {
   border: 1px solid rgba(28, 111, 211, 0.12);
   border-radius: 18px;
   background: #ffffff;
+  box-shadow: 0 18px 45px rgba(28, 111, 211, 0.12);
   padding: clamp(1.5rem, 3vw, 2rem);
   display: flex;
   flex-direction: column;

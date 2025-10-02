@@ -27,11 +27,13 @@
       <div class="row row-cols-1 row-cols-md-2 g-4 mb-5" role="list">
         <?php foreach ($articles as $article): ?>
           <div class="col" role="listitem">
-            <article class="news-card h-100 shadow-sm border-0 bg-white rounded-4 overflow-hidden">
+            <article class="surface-card news-card h-100">
               <?php if (! empty($article['thumbnail'])): ?>
-                <img src="<?= esc(base_url($article['thumbnail'])) ?>" alt="<?= esc($article['title']) ?>" class="w-100" loading="lazy">
+                <div class="news-card__media">
+                  <img src="<?= esc(base_url($article['thumbnail'])) ?>" alt="<?= esc($article['title']) ?>" loading="lazy">
+                </div>
               <?php endif; ?>
-              <div class="p-4">
+              <div class="news-card__body">
                 <?php if (! empty($article['published_at'])): ?>
                   <?php $time = Time::parse($article['published_at']); ?>
                   <span class="badge bg-light text-primary mb-2"><?= esc($time->toLocalizedString('d MMMM yyyy')) ?></span>

@@ -12,7 +12,7 @@
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         <?php foreach ($services as $index => $service): ?>
           <div class="col">
-            <article id="<?= esc($service['slug'], 'attr') ?>" class="service-card p-4 h-100">
+            <article id="<?= esc($service['slug'], 'attr') ?>" class="surface-card service-card h-100">
               <span class="service-icon"><?= str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) ?></span>
               <h2 class="h5 fw-semibold mt-3 mb-2"><a class="text-decoration-none text-dark" href="<?= site_url('layanan#' . esc($service['slug'], 'url')) ?>"><?= esc($service['title']) ?></a></h2>
               <?php if (! empty($service['description'])): ?>
