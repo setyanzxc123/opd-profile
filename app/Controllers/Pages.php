@@ -2,25 +2,34 @@
 
 namespace App\Controllers;
 
-use App\Models\DocumentModel;
-use App\Models\GalleryModel;
 use App\Models\NewsModel;
-use App\Models\OpdProfileModel;
-use App\Models\ServiceModel;
+use App\Services\PublicContentService;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\I18n\Time;
 
 class Pages extends BaseController
 {
+    private PublicContentService $contentService;
+
+    public function __construct()
+    {
+        $this->contentService = new PublicContentService();
+    }
+
     public function profil(): string
     {
-        $profileModel = model(OpdProfileModel::class);
-        $profile      = $profileModel
-            ->orderBy('id', 'desc')
-            ->first();
+        $profile = $this->contentService->latestProfile();
 
         if (! $profile) {
-            throw PageNotFoundException::forPageNotFound('Profil OPD belum tersedia.');
+            $profile = [
+                'name'        => 'Profil OPD belum tersedia',
+                'description' => 'Profil resmi OPD sedang diperbarui. Silakan kembali lagi untuk melihat informasi terbaru mengenai visi, misi, dan struktur organisasi.',
+                'vision'      => null,
+                'mission'     => null,
+                'address'     => null,
+                'phone'       => null,
+                'email'       => null,
+            ];
         }
 
         return view('public/profile', [
@@ -31,24 +40,7 @@ class Pages extends BaseController
 
     public function layanan(): string
     {
-        $serviceModel = model(ServiceModel::class);
-
-        $serviceFields = [];
-        try {
-            $serviceFields = db_connect()->getFieldNames('services');
-        } catch (\Throwable $th) {
-            $serviceFields = [];
-        }
-
-        $serviceQuery = $serviceModel
-            ->orderBy('sort_order', 'asc')
-            ->orderBy('title', 'asc');
-
-        if (in_array('is_active', $serviceFields, true)) {
-            $serviceQuery = $serviceQuery->where('is_active', 1);
-        }
-
-        $services = $serviceQuery->findAll();
+        $services = $this->contentService->allActiveServices();
 
         return view('public/services', [
             'title'    => 'Layanan Publik',
@@ -58,17 +50,14 @@ class Pages extends BaseController
 
     public function berita(): string
     {
-        $newsModel = model(NewsModel::class);
-
-        $articles = $newsModel
-            ->orderBy('published_at', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->paginate(6);
+        $search = trim((string) $this->request->getGet('q'));
+        $news   = $this->contentService->paginatedNews(6, $search);
 
         return view('public/news/index', [
             'title'    => 'Berita Terbaru',
-            'articles' => $articles,
-            'pager'    => $newsModel->pager,
+            'articles' => $news['articles'],
+            'pager'    => $news['pager'],
+            'search'   => $search,
         ]);
     }
 
@@ -96,9 +85,7 @@ class Pages extends BaseController
 
     public function galeri(): string
     {
-        $galleries = model(GalleryModel::class)
-            ->orderBy('created_at', 'desc')
-            ->findAll();
+        $galleries = $this->contentService->recentGalleries(12);
 
         return view('public/gallery', [
             'title'     => 'Galeri Kegiatan',
@@ -108,27 +95,21 @@ class Pages extends BaseController
 
     public function dokumen(): string
     {
-        $documents = model(DocumentModel::class)
-            ->orderBy('year', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->findAll();
+        $documents = $this->contentService->recentDocuments(50);
 
         return view('public/documents', [
             'title'     => 'Dokumen Publik',
             'documents' => $documents,
         ]);
     }
+
     public function kontak(): string
     {
-        $profileModel = model(OpdProfileModel::class);
-
-        $profile = $profileModel
-            ->orderBy('id', 'desc')
-            ->first();
+        $profile = $this->contentService->latestProfile() ?? [];
 
         return view('public/contact', [
             'title'   => 'Kontak & Pengaduan',
-            'profile' => $profile ?? [],
+            'profile' => $profile,
         ]);
     }
 }

@@ -1,415 +1,273 @@
-<?php use CodeIgniter\I18n\Time; ?>
 <?= $this->extend('layouts/public') ?>
 
 <?= $this->section('content') ?>
-<?php
-  $profile        = $profile ?? [];
-  $profileName    = trim((string) ($profile['name'] ?? 'Dinas Pelayanan Publik Kota Harmoni'));
-  $defaultIntro   = 'Menyediakan informasi terkini mengenai program kerja, layanan publik, data dokumen penting, serta berita terbaru dari Dinas ........';
-  $profileIntro   = trim((string) ($profile['description'] ?? ''));
-  $heroIntro      = $profileIntro !== '' ? $profileIntro : $defaultIntro;
-  $address        = trim((string) ($profile['address'] ?? ''));
-  $phone          = trim((string) ($profile['phone'] ?? ''));
-  $email          = trim((string) ($profile['email'] ?? ''));
-  $newsItems      = $news ?? [];
-  $latestNews     = $newsItems[0] ?? null;
-  $secondaryNews  = $latestNews ? array_slice($newsItems, 1, 3) : array_slice($newsItems, 0, 3);
-  $sliderItems    = $newsItems ? array_slice($newsItems, 0, 4) : [];
-  $serviceItems   = $services ?? [];
-  $galleryItems   = $galleries ?? [];
-?>
-<section class="hero-section hero-shell hero-soft" id="beranda">
-  <div class="container public-container">
-    <?php if ($sliderItems): ?>
-      <div class="hero-slider" data-slider data-interval="6500">
-        <div class="hero-slides">
-          <?php foreach ($sliderItems as $index => $item): ?>
-            <?php $excerpt = mb_strimwidth(strip_tags($item['content'] ?? ''), 0, 200, '...'); ?>
-            <?php $thumbnail = ! empty($item['thumbnail']) ? esc(base_url($item['thumbnail'])) : ''; ?>
-            <article class="hero-slide hero-slide-cover<?= $index === 0 ? ' is-active' : '' ?>">
-              <figure class="hero-cover-media">
-                <?php if ($thumbnail !== ''): ?>
-                  <img src="<?= $thumbnail ?>" alt="<?= esc($item['title']) ?>" loading="lazy">
-                <?php else: ?>
-                  <div class="hero-placeholder">Thumbnail belum tersedia</div>
-                <?php endif; ?>
-              </figure>
-              <div class="hero-cover-overlay">
-                <div class="hero-cover-copy">
-                  <span class="hero-eyebrow hero-eyebrow-light">Berita Terbaru</span>
-                  <h1 class="hero-cover-title"><?= esc($item['title']) ?></h1>
-                  <p class="hero-cover-lead"><?= esc($excerpt) ?></p>
-                  <div class="hero-cover-actions">
-                    <a class="btn btn-public-primary" href="<?= site_url('berita/' . esc($item['slug'], 'url')) ?>">Baca selengkapnya</a>
-                    <a class="hero-link hero-link-light" href="<?= site_url('berita') ?>">Lihat semua</a>
+<div class="public-home">
+  <section class="hero-section hero-shell hero-soft" id="beranda" aria-labelledby="beranda-heading">
+    <div class="container public-container">
+      <?php if ($hero['hasSlider']): ?>
+        <div class="hero-slider" data-carousel data-carousel-interval="6500">
+          <header class="visually-hidden" id="beranda-heading">Berita Terbaru</header>
+          <div class="hero-slides" role="list">
+            <?php foreach ($hero['slides'] as $index => $slide): ?>
+              <article class="hero-slide hero-slide-cover<?= $slide['isActive'] ? ' is-active' : '' ?>" role="listitem" data-carousel-slide data-index="<?= $index ?>">
+                <figure class="hero-cover-media">
+                  <?php if ($slide['thumbnail']): ?>
+                    <img src="<?= esc($slide['thumbnail']) ?>" alt="<?= esc($slide['title']) ?>" loading="lazy">
+                  <?php else: ?>
+                    <div class="hero-placeholder" role="img" aria-label="Thumbnail belum tersedia">Thumbnail belum tersedia</div>
+                  <?php endif; ?>
+                </figure>
+                <div class="hero-cover-overlay">
+                  <div class="hero-cover-copy">
+                    <?php if ($slide['published']): ?>
+                      <span class="hero-eyebrow hero-eyebrow-light">Terbit <?= esc($slide['published']) ?></span>
+                    <?php endif; ?>
+                    <h2 class="hero-cover-title"><?= esc($slide['title']) ?></h2>
+                    <?php if ($slide['excerpt']): ?>
+                      <p class="hero-cover-lead"><?= esc($slide['excerpt']) ?></p>
+                    <?php endif; ?>
+                    <div class="hero-cover-actions">
+                      <a class="btn btn-public-primary" href="<?= site_url('berita/' . esc($slide['slug'], 'url')) ?>">Baca selengkapnya</a>
+                      <a class="hero-link hero-link-light" href="<?= site_url('berita') ?>">Lihat semua berita</a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </article>
-          <?php endforeach; ?>
-        </div>
-        <?php if (count($sliderItems) > 1): ?>
-          <div class="hero-slider-controls" aria-hidden="true">
-            <button class="hero-slide-btn prev" type="button" aria-label="Berita sebelumnya">&#8592;</button>
-            <button class="hero-slide-btn next" type="button" aria-label="Berita selanjutnya">&#8594;</button>
-          </div>
-          <div class="hero-slider-dots" role="tablist">
-            <?php foreach ($sliderItems as $index => $item): ?>
-              <button type="button" class="hero-slide-dot<?= $index === 0 ? ' is-active' : '' ?>" aria-label="Slide berita <?= $index + 1 ?>" data-slide="<?= $index ?>"></button>
+              </article>
             <?php endforeach; ?>
           </div>
-        <?php endif; ?>
-      </div>
-    <?php else: ?>
-      <div class="hero-fallback-wrap">
-        <div class="hero-grid">
-          <div class="hero-copy">
-            <span class="hero-eyebrow">Selamat datang</span>
-            <h1 class="hero-title"><?= esc($profileName) ?></h1>
-            <p class="hero-lead"><?= esc($heroIntro) ?></p>
-            <div class="hero-actions">
-              <a class="btn btn-public-primary" href="<?= site_url('layanan') ?>">Eksplor layanan</a>
-              <a class="hero-link" href="<?= site_url('kontak') ?>">Hubungi kami</a>
+          <div class="hero-slider-controls" aria-hidden="true">
+            <button class="hero-slide-btn prev" type="button" data-carousel-prev aria-label="Berita sebelumnya">&#8592;</button>
+            <button class="hero-slide-btn next" type="button" data-carousel-next aria-label="Berita selanjutnya">&#8594;</button>
+          </div>
+          <div class="hero-slider-dots" role="tablist" aria-label="Pilih slide berita">
+            <?php foreach ($hero['slides'] as $index => $slide): ?>
+              <button type="button"
+                      class="hero-slide-dot<?= $slide['isActive'] ? ' is-active' : '' ?>"
+                      role="tab"
+                      data-carousel-dot
+                      aria-selected="<?= $slide['isActive'] ? 'true' : 'false' ?>"
+                      aria-label="Slide berita <?= $index + 1 ?>"
+                      data-index="<?= $index ?>"></button>
+            <?php endforeach; ?>
+          </div>
+          <button type="button" class="hero-slider-toggle" data-carousel-toggle aria-pressed="false" aria-label="Jeda putar otomatis">Jeda</button>
+        </div>
+      <?php else: ?>
+        <div class="hero-fallback-wrap">
+          <div class="hero-grid">
+            <div class="hero-copy">
+              <span class="hero-eyebrow" id="beranda-heading">Selamat datang</span>
+              <h1 class="hero-title"><?= esc($hero['fallback']['title']) ?></h1>
+              <p class="hero-lead"><?= esc($hero['fallback']['description']) ?></p>
+              <div class="hero-actions">
+                <a class="btn btn-public-primary" href="<?= esc($hero['fallback']['ctaServices']) ?>">Eksplor layanan</a>
+                <a class="hero-link" href="<?= esc($hero['fallback']['ctaContact']) ?>">Hubungi kami</a>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    <?php endif; ?>
-  </div>
-</section>
+      <?php endif; ?>
+    </div>
+  </section>
 
-<section class="public-section section-warm" id="layanan">
-  <div class="container public-container">
-    <div class="section-head">
-      <h2>Layanan Unggulan</h2>
-      <p>Akses singkat menuju layanan prioritas yang paling sering digunakan masyarakat.</p>
-    </div>
-    <?php if ($serviceItems): ?>
-      <div class="minimal-grid minimal-grid-4">
-        <?php foreach ($serviceItems as $service): ?>
-          <?php $initial = mb_strtoupper(mb_substr($service['title'] ?? '', 0, 1, 'UTF-8'), 'UTF-8'); ?>
-          <article class="surface-card service-minimal">
-            <span class="mono-badge"><?= esc($initial !== '' ? $initial : 'L') ?></span>
-            <h3><a class="surface-link" href="<?= site_url('layanan') ?>#<?= esc($service['slug'] ?? '', 'url') ?>"><?= esc($service['title'] ?? 'Layanan Publik') ?></a></h3>
-            <?php if (! empty($service['description'])): ?>
-              <?php $summary = mb_strimwidth(strip_tags($service['description']), 0, 120, '...'); ?>
-              <p class="text-muted mb-0"><?= esc($summary) ?></p>
-            <?php else: ?>
-              <p class="text-muted mb-0">Detail layanan segera tersedia.</p>
-            <?php endif; ?>
-          </article>
-        <?php endforeach; ?>
-      </div>
-    <?php else: ?>
-      <div class="empty-state">
-        <p>Data layanan sedang disiapkan. Silakan cek kembali beberapa saat lagi.</p>
-      </div>
-    <?php endif; ?>
-    <div class="section-cta">
-      <a class="hero-link" href="<?= site_url('layanan') ?>">Lihat seluruh layanan</a>
-    </div>
-  </div>
-</section>
-
-<section class="public-section section-cool" id="berita">
-  <div class="container public-container">
-    <div class="section-head">
-      <h2>Berita</h2>
-      <p>Ikuti perkembangan kebijakan dan layanan terbaru kami.</p>
-    </div>
-    <?php if ($latestNews): ?>
-      <div class="news-grid">
-        <article class="surface-card news-feature">
-          <?php if (! empty($latestNews['thumbnail'])): ?>
-            <div class="news-feature-media">
-              <img src="<?= esc(base_url($latestNews['thumbnail'])) ?>" alt="<?= esc($latestNews['title']) ?>" loading="lazy">
+  <section class="public-section section-neutral" id="profil-singkat" aria-labelledby="profil-heading">
+    <div class="container public-container">
+      <header class="section-head">
+        <span class="hero-badge" id="profil-heading">Profil Singkat</span>
+        <h2 class="section-title"><?= esc($profileSummary['name']) ?></h2>
+        <?php if ($profileSummary['description']): ?>
+          <p class="section-lead"><?= esc($profileSummary['description']) ?></p>
+        <?php endif; ?>
+      </header>
+      <div class="profile-grid">
+        <dl class="profile-list">
+          <?php if ($profileSummary['address']): ?>
+            <div class="profile-item">
+              <dt>Alamat</dt>
+              <dd><?= nl2br(esc($profileSummary['address'])) ?></dd>
             </div>
           <?php endif; ?>
-          <div class="news-feature-body">
-            <?php if (! empty($latestNews['published_at'])): ?>
-              <?php $published = Time::parse($latestNews['published_at']); ?>
-              <span class="news-meta"><?= esc($published->toLocalizedString('d MMM yyyy')) ?></span>
+          <?php if ($profileSummary['phone']): ?>
+            <div class="profile-item">
+              <dt>Telepon</dt>
+              <dd><?= esc($profileSummary['phone']) ?></dd>
+            </div>
+          <?php endif; ?>
+          <?php if ($profileSummary['email']): ?>
+            <div class="profile-item">
+              <dt>Email</dt>
+              <dd><a class="surface-link" href="mailto:<?= esc($profileSummary['email']) ?>"><?= esc($profileSummary['email']) ?></a></dd>
+            </div>
+          <?php endif; ?>
+        </dl>
+        <div class="profile-card surface-card" role="complementary" aria-label="Tautan cepat">
+          <h3>Butuh layanan cepat?</h3>
+          <p class="text-muted">Kunjungi halaman layanan untuk melihat persyaratan, biaya, dan estimasi waktu proses.</p>
+          <a class="btn btn-public-primary" href="<?= site_url('layanan') ?>">Daftar layanan</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="public-section section-warm" id="layanan" aria-labelledby="layanan-heading">
+    <div class="container public-container">
+      <header class="section-head">
+        <span class="hero-badge" id="layanan-heading">Layanan Unggulan</span>
+        <h2 class="section-title">Kemudahan akses untuk layanan prioritas</h2>
+        <p class="section-lead">Pilih layanan yang paling sering digunakan masyarakat dan mulai proses secara daring.</p>
+      </header>
+      <?php if ($services): ?>
+        <div class="minimal-grid minimal-grid-4" role="list">
+          <?php foreach ($services as $service): ?>
+            <article class="surface-card service-minimal" role="listitem">
+              <span class="mono-badge" aria-hidden="true"><?= esc($service['initial']) ?></span>
+              <h3><a class="surface-link" href="<?= esc($service['target']) ?>"><?= esc($service['title']) ?></a></h3>
+              <?php if ($service['summary']): ?>
+                <p class="text-muted"><?= esc($service['summary']) ?></p>
+              <?php endif; ?>
+            </article>
+          <?php endforeach; ?>
+        </div>
+      <?php else: ?>
+        <p class="text-muted">Data layanan belum tersedia.</p>
+      <?php endif; ?>
+    </div>
+  </section>
+
+  <section class="public-section section-neutral" id="berita" aria-labelledby="berita-heading">
+    <div class="container public-container">
+      <header class="section-head">
+        <span class="hero-badge" id="berita-heading">Berita Resmi</span>
+        <h2 class="section-title">Informasi terkini dari OPD</h2>
+        <p class="section-lead">Ikuti kabar terbaru mengenai kebijakan, pelayanan, dan kegiatan penting.</p>
+      </header>
+      <div class="news-grid">
+        <?php if ($featuredNews): ?>
+          <article class="news-featured surface-card">
+            <?php if ($featuredNews['thumbnail']): ?>
+              <img class="news-featured__media" src="<?= esc($featuredNews['thumbnail']) ?>" alt="<?= esc($featuredNews['title']) ?>" loading="lazy">
             <?php endif; ?>
-            <h3><a class="surface-link" href="<?= site_url('berita/' . esc($latestNews['slug'], 'url')) ?>"><?= esc($latestNews['title']) ?></a></h3>
-            <?php if (! empty($latestNews['content'])): ?>
-              <?php $lead = mb_strimwidth(strip_tags($latestNews['content']), 0, 200, '...'); ?>
-              <p class="text-muted mb-4"><?= esc($lead) ?></p>
-            <?php endif; ?>
-            <a class="btn btn-public-primary" href="<?= site_url('berita/' . esc($latestNews['slug'], 'url')) ?>">Baca selengkapnya</a>
-          </div>
-        </article>
-        <div class="news-list">
-          <?php foreach ($secondaryNews as $article): ?>
-            <article class="news-list-item">
+            <div class="news-featured__body">
+              <?php if ($featuredNews['published']): ?>
+                <span class="news-meta"><?= esc($featuredNews['published']) ?></span>
+              <?php endif; ?>
+              <h3><a class="surface-link" href="<?= site_url('berita/' . esc($featuredNews['slug'], 'url')) ?>"><?= esc($featuredNews['title']) ?></a></h3>
+              <?php if ($featuredNews['excerpt']): ?>
+                <p class="text-muted"><?= esc($featuredNews['excerpt']) ?></p>
+              <?php endif; ?>
+              <a class="btn btn-public-primary" href="<?= site_url('berita/' . esc($featuredNews['slug'], 'url')) ?>">Baca selengkapnya</a>
+            </div>
+          </article>
+        <?php endif; ?>
+        <div class="news-list" role="list">
+          <?php foreach ($otherNews as $news): ?>
+            <article class="news-list-item surface-card" role="listitem">
               <div>
-                <?php if (! empty($article['published_at'])): ?>
-                  <?php $published = Time::parse($article['published_at']); ?>
-                  <span class="news-meta"><?= esc($published->toLocalizedString('d MMM yyyy')) ?></span>
+                <?php if ($news['published']): ?>
+                  <span class="news-meta"><?= esc($news['published']) ?></span>
                 <?php endif; ?>
-                <h4><a class="surface-link" href="<?= site_url('berita/' . esc($article['slug'], 'url')) ?>"><?= esc($article['title']) ?></a></h4>
-                <?php if (! empty($article['content'])): ?>
-                  <?php $excerpt = mb_strimwidth(strip_tags($article['content']), 0, 130, '...'); ?>
-                  <p class="text-muted mb-0 small"><?= esc($excerpt) ?></p>
+                <h3><a class="surface-link" href="<?= site_url('berita/' . esc($news['slug'], 'url')) ?>"><?= esc($news['title']) ?></a></h3>
+                <?php if ($news['excerpt']): ?>
+                  <p class="text-muted small mb-0"><?= esc($news['excerpt']) ?></p>
                 <?php endif; ?>
               </div>
             </article>
           <?php endforeach; ?>
-          <?php if (! $secondaryNews): ?>
-            <div class="empty-state">
-              <p>Belum ada berita tambahan.</p>
-            </div>
+          <?php if (! $otherNews && ! $featuredNews): ?>
+            <p class="text-muted">Belum ada berita yang dipublikasikan.</p>
           <?php endif; ?>
         </div>
       </div>
-    <?php else: ?>
-      <div class="empty-state">
-        <p>Belum ada berita yang dipublikasikan.</p>
+      <div class="section-cta">
+        <a class="hero-link" href="<?= site_url('berita') ?>">Lihat arsip berita</a>
       </div>
-    <?php endif; ?>
-    <div class="section-cta">
-      <a class="hero-link" href="<?= site_url('berita') ?>">Buka arsip berita</a>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="public-section section-neutral" id="galeri">
-  <div class="container public-container">
-    <div class="section-head">
-      <h2>Galeri Kegiatan</h2>
-      <p>Dokumentasi singkat dari pelayanan dan aktivitas lapangan kami.</p>
-    </div>
-    <?php if ($galleryItems): ?>
-      <div class="minimal-grid minimal-grid-4 gallery-minimal">
-        <?php foreach ($galleryItems as $gallery): ?>
-          <article class="surface-card gallery-item">
-            <div class="gallery-item-media">
-              <img src="<?= esc(base_url($gallery['image_path'])) ?>" alt="<?= esc($gallery['title']) ?>" loading="lazy">
-            </div>
-            <div class="gallery-item-body">
-              <h3><?= esc($gallery['title']) ?></h3>
-              <?php if (! empty($gallery['description'])): ?>
-                <?php $caption = mb_strimwidth(strip_tags($gallery['description']), 0, 100, '...'); ?>
-                <p class="text-muted mb-0 small"><?= esc($caption) ?></p>
-              <?php else: ?>
-                <p class="text-muted mb-0 small">Keterangan akan ditambahkan.</p>
+  <section class="public-section section-neutral" id="galeri" aria-labelledby="galeri-heading">
+    <div class="container public-container">
+      <header class="section-head">
+        <span class="hero-badge" id="galeri-heading">Galeri Kegiatan</span>
+        <h2 class="section-title">Dokumentasi pelayanan dan aktivitas</h2>
+      </header>
+      <?php if ($galleries): ?>
+        <div class="minimal-grid minimal-grid-4 gallery-minimal" role="list">
+          <?php foreach ($galleries as $gallery): ?>
+            <article class="surface-card gallery-item" role="listitem">
+              <?php if ($gallery['image']): ?>
+                <div class="gallery-item-media">
+                  <img src="<?= esc($gallery['image']) ?>" alt="<?= esc($gallery['title']) ?>" loading="lazy">
+                </div>
               <?php endif; ?>
-            </div>
-          </article>
-        <?php endforeach; ?>
-      </div>
-    <?php else: ?>
-      <div class="empty-state">
-        <p>Galeri akan diunggah setelah dokumentasi tersedia.</p>
-      </div>
-    <?php endif; ?>
-    <div class="section-cta">
-      <a class="hero-link" href="<?= site_url('galeri') ?>">Buka galeri lengkap</a>
-    </div>
-  </div>
-</section>
-
-<section class="public-section section-warm" id="dokumen">
-  <div class="container public-container">
-    <div class="section-head">
-      <h2>Dokumen Publik</h2>
-      <p>Unduh SOP, laporan kinerja, dan regulasi terbaru.</p>
-    </div>
-    <?php if ($documents): ?>
-      <div class="surface-card documents-card">
-        <div class="table-responsive">
-          <table class="table table-sm align-middle document-table mb-0">
-            <thead>
-              <tr>
-                <th scope="col">Judul</th>
-                <th scope="col">Kategori</th>
-                <th scope="col">Tahun</th>
-                <th scope="col" class="text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php foreach ($documents as $document): ?>
-                <tr>
-                  <td><?= esc($document['title']) ?></td>
-                  <td><?= esc($document['category'] ?? '-') ?></td>
-                  <td><?= esc($document['year'] ?? '-') ?></td>
-                  <td class="text-center">
-                    <?php if (! empty($document['file_path'])): ?>
-                      <a class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener" href="<?= esc(base_url($document['file_path'])) ?>">Unduh</a>
-                    <?php else: ?>
-                      <span class="text-muted">Tidak tersedia</span>
-                    <?php endif; ?>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    <?php else: ?>
-      <div class="empty-state">
-        <p>Dokumen publik akan tersedia setelah proses unggah selesai.</p>
-      </div>
-    <?php endif; ?>
-    <div class="section-cta">
-      <a class="hero-link" href="<?= site_url('dokumen') ?>">Lihat semua dokumen</a>
-    </div>
-  </div>
-</section>
-
-<section class="public-section contact-summary" id="kontak">
-  <div class="container public-container">
-    <div class="section-head">
-      <h2>Hubungi Kami</h2>
-      <p>Informasi kantor dan kanal komunikasi resmi.</p>
-    </div>
-    <div class="minimal-grid minimal-grid-2 contact-minimal">
-      <article class="surface-card contact-panel">
-        <h3>Alamat &amp; Jadwal</h3>
-        <dl class="contact-info mb-0">
-          <dt>Alamat Kantor</dt>
-          <dd><?= $address !== '' ? nl2br(esc($address)) : 'Alamat belum tersedia.' ?></dd>
-          <dt>Telepon</dt>
-          <dd><?= $phone !== '' ? esc($phone) : 'Nomor telepon belum tersedia.' ?></dd>
-          <dt>Email</dt>
-          <dd>
-            <?php if ($email !== ''): ?>
-              <a class="surface-link" href="mailto:<?= esc($email) ?>"><?= esc($email) ?></a>
-            <?php else: ?>
-              <span class="text-muted">Email belum tersedia.</span>
-            <?php endif; ?>
-          </dd>
-        </dl>
-      </article>
-      <article class="surface-card contact-panel">
-        <h3>Kanal Cepat</h3>
-        <ul class="list-unstyled contact-links mb-0">
-          <?php
-            $quickLinks = [];
-            if ($phone !== '') {
-                $quickLinks[] = [
-                    'label' => 'Hubungi via Telepon',
-                    'value' => $phone,
-                    'href'  => 'tel:' . preg_replace('/[^0-9+]/', '', $phone),
-                ];
-            }
-            if ($email !== '') {
-                $quickLinks[] = [
-                    'label' => 'Kirim Email',
-                    'value' => $email,
-                    'href'  => 'mailto:' . $email,
-                ];
-            }
-            if (! $quickLinks) {
-                $quickLinks[] = [
-                    'label' => 'Layanan Pengaduan',
-                    'value' => 'Segera hadir',
-                    'href'  => '#',
-                ];
-            }
-          ?>
-          <?php foreach ($quickLinks as $link): ?>
-            <?php $isExternal = $link['href'] !== '#'; ?>
-            <li>
-              <a class="surface-link" href="<?= esc($link['href']) ?>"<?php if ($isExternal): ?> target="_blank" rel="noopener"<?php endif; ?>>
-                <span><?= esc($link['label']) ?></span>
-                <span class="contact-link-value"><?= esc($link['value']) ?></span>
-              </a>
-            </li>
+              <div class="gallery-item-body">
+                <h3><?= esc($gallery['title']) ?></h3>
+                <?php if ($gallery['description']): ?>
+                  <p class="text-muted small mb-0"><?= esc($gallery['description']) ?></p>
+                <?php endif; ?>
+              </div>
+            </article>
           <?php endforeach; ?>
-        </ul>
-        <p class="text-muted small mt-4 mb-0">Kunjungi langsung pada jam kerja atau hubungi kami melalui kanal di atas untuk respons cepat.</p>
-      </article>
+        </div>
+      <?php else: ?>
+        <p class="text-muted">Belum ada dokumentasi yang ditampilkan.</p>
+      <?php endif; ?>
     </div>
-  </div>
-</section>
+  </section>
+
+  <section class="public-section section-neutral" id="dokumen" aria-labelledby="dokumen-heading">
+    <div class="container public-container">
+      <header class="section-head">
+        <span class="hero-badge" id="dokumen-heading">Dokumen Publik</span>
+        <h2 class="section-title">Unduh regulasi dan laporan resmi</h2>
+      </header>
+      <?php if ($documents): ?>
+        <div class="documents-list" role="list">
+          <?php foreach ($documents as $document): ?>
+            <article class="document-item surface-card" role="listitem">
+              <div>
+                <h3><?= esc($document['title']) ?></h3>
+                <p class="text-muted mb-0">
+                  <?php if ($document['category']): ?>
+                    <span><?= esc($document['category']) ?></span>
+                    <span class="mx-2">•</span>
+                  <?php endif; ?>
+                  <?php if ($document['year']): ?>
+                    <span><?= esc($document['year']) ?></span>
+                  <?php endif; ?>
+                </p>
+              </div>
+              <a class="btn btn-public-ghost" href="<?= esc($document['url']) ?>" target="_blank" rel="noopener">Unduh</a>
+            </article>
+          <?php endforeach; ?>
+        </div>
+      <?php else: ?>
+        <p class="text-muted">Belum ada dokumen yang dapat diunduh.</p>
+      <?php endif; ?>
+    </div>
+  </section>
+
+  <section class="public-section section-neutral" id="kontak" aria-labelledby="kontak-heading">
+    <div class="container public-container">
+      <header class="section-head">
+        <span class="hero-badge" id="kontak-heading">Kontak Cepat</span>
+        <h2 class="section-title">Hubungi kami</h2>
+        <p class="section-lead">Gunakan kanal berikut untuk memperoleh respons tercepat dari tim kami.</p>
+      </header>
+      <ul class="contact-quick-links" role="list">
+        <?php foreach ($contactQuickLinks as $link): ?>
+          <li role="listitem">
+            <a class="surface-link" href="<?= esc($link['href']) ?>"<?= $link['href'] !== '#' ? ' target="_blank" rel="noopener"' : '' ?>>
+              <span><?= esc($link['label']) ?></span>
+              <span class="contact-link-value"><?= esc($link['value']) ?></span>
+            </a>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+      <div class="section-cta">
+        <a class="btn btn-public-primary" href="<?= site_url('kontak') ?>">Form pengaduan</a>
+      </div>
+    </div>
+  </section>
+</div>
 <?= $this->endSection() ?>
 
-
-
-<?= $this->section('pageScripts') ?>
-<script>
-(() => {
-  const slider = document.querySelector('[data-slider]');
-  if (!slider) {
-    return;
-  }
-
-  const slides = Array.from(slider.querySelectorAll('.hero-slide'));
-  if (!slides.length) {
-    return;
-  }
-
-  let activeIndex = slides.findIndex((slide) => slide.classList.contains('is-active'));
-  if (activeIndex < 0) {
-    activeIndex = 0;
-    slides[0].classList.add('is-active');
-  }
-
-  const dots = Array.from(slider.querySelectorAll('.hero-slide-dot'));
-  const prevBtn = slider.querySelector('.hero-slide-btn.prev');
-  const nextBtn = slider.querySelector('.hero-slide-btn.next');
-  const interval = Number(slider.getAttribute('data-interval')) || 6500;
-  const hasMultiple = slides.length > 1;
-  let timerId = null;
-
-  const setActive = (index) => {
-    slides[activeIndex].classList.remove('is-active');
-    if (dots[activeIndex]) {
-      dots[activeIndex].classList.remove('is-active');
-    }
-
-    activeIndex = (index + slides.length) % slides.length;
-
-    slides[activeIndex].classList.add('is-active');
-    if (dots[activeIndex]) {
-      dots[activeIndex].classList.add('is-active');
-    }
-  };
-
-  const move = (step) => {
-    setActive(activeIndex + step);
-  };
-
-  const restartTimer = () => {
-    if (timerId) {
-      clearInterval(timerId);
-      timerId = null;
-    }
-    if (hasMultiple) {
-      timerId = setInterval(() => move(1), interval);
-    }
-  };
-
-  if (prevBtn && nextBtn) {
-    prevBtn.addEventListener('click', () => {
-      move(-1);
-      restartTimer();
-    });
-    nextBtn.addEventListener('click', () => {
-      move(1);
-      restartTimer();
-    });
-  }
-
-  dots.forEach((dot, index) => {
-    dot.addEventListener('click', () => {
-      setActive(index);
-      restartTimer();
-    });
-  });
-
-  slider.addEventListener('pointerenter', () => {
-    if (timerId) {
-      clearInterval(timerId);
-      timerId = null;
-    }
-  });
-
-  slider.addEventListener('pointerleave', () => {
-    restartTimer();
-  });
-
-  restartTimer();
-})();
-</script>
-<?= $this->endSection() ?>

@@ -53,7 +53,7 @@ Navigate to the URL in `app.baseURL`. Make sure your web server document root po
 - Put all customizations here:
   - `public/assets/css/custom.css` (admin overrides)
   - `public/assets/js/helpers-override.js` (JS overrides to keep vendor untouched)
-  - `public/assets/css/public.css` (public site theme)
+  - Direktori `public/assets/css/public/` (tokens, layout, components, pages untuk situs publik)
 
 The admin sidebar collapse is provided by `helpers-override.js` and is loaded after vendor JS in the admin layout.
 
@@ -91,7 +91,7 @@ php spark routes           # Inspect routes
 - Admin layout: `app/Views/layouts/admin.php`
 - Public layout: `app/Views/layouts/public.php`
 - Admin styles: `public/assets/css/custom.css`
-- Public styles: `public/assets/css/public.css`
+- Public styles: `public/assets/css/public/`
 - Admin JS: `public/assets/js/main.js`
 - JS override: `public/assets/js/helpers-override.js`
 - Vendor libs: `public/assets/vendor/**`
@@ -116,3 +116,5 @@ php spark routes           # Inspect routes
   ```bash
   vendor/bin/phpunit --testsuite App
   ```
+
+
