@@ -1,17 +1,35 @@
 <?php
 use CodeIgniter\I18n\Time;
 
-$metrics          = $metrics ?? [];
-$defaultContact   = [
+$metrics         = $metrics ?? [];
+$defaultContact  = [
     'counts' => ['new' => 0, 'in_progress' => 0, 'closed' => 0],
     'total'  => 0,
     'latest' => [],
 ];
-$contactSummary   = array_replace_recursive($defaultContact, $contactSummary ?? []);
-$latestNews       = $latestNews ?? [];
-$latestDocuments  = $latestDocuments ?? [];
-$activityFeed     = $activityFeed ?? [];
-$welcomeName      = $welcomeName ?? 'Admin';
+$rawContactSummary = is_array($contactSummary ?? null) ? $contactSummary : $defaultContact;
+$contactSummary    = array_replace_recursive($defaultContact, $rawContactSummary);
+$latestNews        = $latestNews ?? [];
+$latestDocuments   = $latestDocuments ?? [];
+$activityFeed      = $activityFeed ?? [];
+$welcomeName       = $welcomeName ?? 'Admin';
+
+$canAccess = (isset($canAccess) && is_callable($canAccess))
+    ? $canAccess
+    : static fn (string $section): bool => true;
+
+$canSeeNews       = $canAccess('news');
+$canSeeContacts   = $canAccess('contacts');
+$canSeeLogs       = $canAccess('logs');
+$canSeeDocuments  = $canAccess('documents');
+
+$hasContactsAndLogs = $canSeeContacts && $canSeeLogs;
+$contactColumnClasses  = $hasContactsAndLogs ? 'col-12 col-xl-7' : 'col-12';
+$activityColumnClasses = $hasContactsAndLogs ? 'col-12 col-xl-5' : 'col-12';
+
+$hasNewsAndDocuments = $canSeeNews && $canSeeDocuments;
+$newsColumnClasses      = $hasNewsAndDocuments ? 'col-12 col-xl-6' : 'col-12';
+$documentsColumnClasses = $hasNewsAndDocuments ? 'col-12 col-xl-6' : 'col-12';
 
 $formatNumber = static fn ($value): string => number_format((int) $value, 0, ',', '.');
 $parseTime = static function (?string $datetime): ?Time {
@@ -33,7 +51,9 @@ $statusMeta = [
     'closed'      => ['label' => 'Selesai',   'badge' => 'text-bg-success'],
 ];
 
-$openContacts = (int) (($contactSummary['counts']['new'] ?? 0) + ($contactSummary['counts']['in_progress'] ?? 0));
+$openContacts = $canSeeContacts
+    ? (int) (($contactSummary['counts']['new'] ?? 0) + ($contactSummary['counts']['in_progress'] ?? 0))
+    : 0;
 ?>
 <?= $this->extend('layouts/admin') ?>
 <?= $this->section('content') ?>
@@ -47,16 +67,24 @@ $openContacts = (int) (($contactSummary['counts']['new'] ?? 0) + ($contactSummar
           <p class="text-body-secondary mb-0">Fokus pada hal penting hari ini.</p>
         </div>
         <div class="d-flex flex-wrap align-items-center gap-2">
-          <a href="<?= site_url('admin/news/create') ?>" class="btn btn-primary btn-sm">
-            <i class="bx bx-plus me-1"></i>Buat Konten
-          </a>
-          <a href="<?= site_url('admin/contacts') ?>" class="link-secondary small text-decoration-none">
-            <i class="bx bx-message-rounded-dots me-1"></i>Lihat Pesan
-          </a>
-          <span class="text-body-secondary">&middot;</span>
-          <a href="<?= site_url('admin/logs') ?>" class="link-secondary small text-decoration-none">
-            <i class="bx bx-time-five me-1"></i>Aktivitas
-          </a>
+          <?php if ($canSeeNews): ?>
+            <a href="<?= site_url('admin/news/create') ?>" class="btn btn-primary btn-sm">
+              <i class="bx bx-plus me-1"></i>Buat Konten
+            </a>
+          <?php endif; ?>
+          <?php if ($canSeeContacts): ?>
+            <a href="<?= site_url('admin/contacts') ?>" class="link-secondary small text-decoration-none">
+              <i class="bx bx-message-rounded-dots me-1"></i>Lihat Pesan
+            </a>
+          <?php endif; ?>
+          <?php if ($canSeeContacts && $canSeeLogs): ?>
+            <span class="text-body-secondary">&middot;</span>
+          <?php endif; ?>
+          <?php if ($canSeeLogs): ?>
+            <a href="<?= site_url('admin/logs') ?>" class="link-secondary small text-decoration-none">
+              <i class="bx bx-time-five me-1"></i>Aktivitas
+            </a>
+          <?php endif; ?>
         </div>
       </div>
     </div>
@@ -88,176 +116,186 @@ $openContacts = (int) (($contactSummary['counts']['new'] ?? 0) + ($contactSummar
     </div>
   <?php endif; ?>
 
-  <div class="col-xl-7">
-    <div class="card border-0 shadow-sm h-100">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <div>
-          <h6 class="mb-0">Pesan Kontak</h6>
-          <small class="text-body-secondary"><?= esc($formatNumber($openContacts)) ?> butuh tindakan</small>
+  <?php if ($canSeeContacts): ?>
+    <div class="<?= esc($contactColumnClasses) ?>">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="mb-0">Pesan Kontak</h6>
+            <small class="text-body-secondary"><?= esc($formatNumber($openContacts)) ?> butuh tindakan</small>
+          </div>
+          <a href="<?= site_url('admin/contacts') ?>" class="link-secondary small text-decoration-none">Kelola</a>
         </div>
-        <a href="<?= site_url('admin/contacts') ?>" class="link-secondary small text-decoration-none">Kelola</a>
-      </div>
-      <div class="card-body">
-        <div class="d-flex align-items-baseline justify-content-between mb-3">
-          <div class="text-body-secondary text-uppercase small">Butuh Tindakan</div>
-          <div class="fs-4 fw-semibold"><?= esc($formatNumber($openContacts)) ?></div>
+        <div class="card-body">
+          <div class="d-flex align-items-baseline justify-content-between mb-3">
+            <div class="text-body-secondary text-uppercase small">Butuh Tindakan</div>
+            <div class="fs-4 fw-semibold"><?= esc($formatNumber($openContacts)) ?></div>
+          </div>
+          <div class="text-body-secondary text-uppercase small mb-2">Terbaru</div>
+          <ul class="list-group list-group-flush mb-0">
+            <?php if (! empty($contactSummary['latest'])): ?>
+              <?php foreach ($contactSummary['latest'] as $message): ?>
+                <?php
+                  $createdAt    = $parseTime($message['created_at'] ?? null);
+                  $createdHuman = $createdAt ? $createdAt->humanize() : 'Waktu tidak tersedia';
+                  $statusKey    = $message['status'] ?? 'new';
+                  if ($statusKey === 'closed') { continue; }
+                  $statusInfo = $statusMeta[$statusKey] ?? ['label' => ucfirst((string) $statusKey), 'badge' => 'text-bg-secondary'];
+                  $preview    = trim((string) ($message['message'] ?? ''));
+                  $preview    = $preview !== '' ? mb_strimwidth(strip_tags($preview), 0, 120, '...') : 'Tanpa isi pesan';
+                ?>
+                <li class="list-group-item px-0">
+                  <div class="d-flex justify-content-between align-items-start gap-3">
+                    <div class="min-w-0">
+                      <div class="fw-semibold text-truncate">
+                        <a href="<?= site_url('admin/contacts/' . (int) ($message['id'] ?? 0)) ?>" class="text-body text-decoration-none">
+                          <?= esc($message['subject'] ?? ($message['name'] ?? 'Pesan')) ?>
+                        </a>
+                      </div>
+                      <small class="text-body-secondary text-truncate d-block">
+                        <?= esc($preview) ?> &middot; dari <?= esc($message['name'] ?: 'Anonim') ?> &middot; <?= esc($createdHuman) ?>
+                      </small>
+                    </div>
+                    <?php $badgeClass = ['new' => 'text-bg-primary', 'in_progress' => 'text-bg-warning', 'closed' => 'text-bg-success'][$statusKey] ?? 'text-bg-secondary'; ?>
+                    <span class="badge <?= esc($badgeClass) ?>"><?= esc($statusInfo['label'] ?? ucfirst((string) $statusKey)) ?></span>
+                  </div>
+                </li>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <li class="list-group-item px-0 text-body-secondary">Belum ada pesan yang tercatat.</li>
+            <?php endif; ?>
+          </ul>
         </div>
-        <div class="text-body-secondary text-uppercase small mb-2">Terbaru</div>
-        <ul class="list-group list-group-flush mb-0">
-          <?php if (! empty($contactSummary['latest'])): ?>
-            <?php foreach ($contactSummary['latest'] as $message): ?>
-              <?php
-                $createdAt   = $parseTime($message['created_at'] ?? null);
-                $createdHuman= $createdAt ? $createdAt->humanize() : 'Waktu tidak tersedia';
-                $statusKey   = $message['status'] ?? 'new';
-                if ($statusKey === 'closed') { continue; }
-                $statusInfo  = $statusMeta[$statusKey] ?? ['label' => ucfirst((string) $statusKey), 'badge' => 'text-bg-secondary'];
-                $preview     = trim((string) ($message['message'] ?? ''));
-                $preview     = $preview !== '' ? mb_strimwidth(strip_tags($preview), 0, 120, '...') : 'Tanpa isi pesan';
-              ?>
-              <li class="list-group-item px-0">
-                <div class="d-flex justify-content-between align-items-start gap-3">
-                  <div class="min-w-0">
-                    <div class="fw-semibold text-truncate">
-                      <a href="<?= site_url('admin/contacts/' . (int) ($message['id'] ?? 0)) ?>" class="text-body text-decoration-none">
-                        <?= esc($message['subject'] ?? ($message['name'] ?? 'Pesan')) ?>
-                      </a>
-                    </div>
-                    <small class="text-body-secondary text-truncate d-block">
-                      <?= esc($preview) ?> &middot; dari <?= esc($message['name'] ?: 'Anonim') ?> &middot; <?= esc($createdHuman) ?>
-                    </small>
-                  </div>
-                  <?php $badgeClass = ['new'=>'text-bg-primary','in_progress'=>'text-bg-warning','closed'=>'text-bg-success'][$statusKey] ?? 'text-bg-secondary'; ?>
-                  <span class="badge <?= esc($badgeClass) ?>"><?= esc($statusInfo['label'] ?? ucfirst((string) $statusKey)) ?></span>
-                </div>
-              </li>
-            <?php endforeach; ?>
-          <?php else: ?>
-            <li class="list-group-item px-0 text-body-secondary">Belum ada pesan yang tercatat.</li>
-          <?php endif; ?>
-        </ul>
       </div>
     </div>
-  </div>
+  <?php endif; ?>
 
-  <div class="col-xl-5">
-    <div class="card border-0 shadow-sm h-100">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0">Aktivitas Terbaru</h6>
-        <a href="<?= site_url('admin/logs') ?>" class="link-secondary small text-decoration-none">Semua</a>
-      </div>
-      <div class="card-body">
-        <ul class="list-group list-group-flush mb-0">
-          <?php if (! empty($activityFeed)): ?>
-            <?php foreach (array_slice($activityFeed, 0, 5) as $log): ?>
-              <?php
-                $logTime   = $parseTime($log['created_at'] ?? null);
-                $timeLabel = $logTime ? $logTime->humanize() : 'Baru';
-                $actor     = $log['name'] ?: ($log['username'] ?? 'Sistem');
-              ?>
-              <li class="py-2">
-                <div class="d-flex justify-content-between align-items-start gap-3">
-                  <div class="min-w-0">
-                    <div class="fw-semibold text-truncate"><?= esc($log['action'] ?? 'Aktivitas') ?></div>
-                    <small class="text-body-secondary d-block text-truncate"><?= esc($log['description'] ?? '-') ?></small>
-                    <small class="text-body-secondary">oleh <?= esc($actor) ?></small>
-                  </div>
-                  <small class="text-body-secondary text-nowrap"><?= esc($timeLabel) ?></small>
-                </div>
-              </li>
-            <?php endforeach; ?>
-          <?php else: ?>
-            <li class="text-body-secondary">Belum ada aktivitas tercatat.</li>
-          <?php endif; ?>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-xl-6">
-    <div class="card border-0 shadow-sm h-100">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0">Berita Terbaru</h6>
-        <a href="<?= site_url('admin/news') ?>" class="link-primary small text-decoration-none">Kelola</a>
-      </div>
-      <div class="card-body">
-        <ul class="list-group list-group-flush mb-0">
-          <?php if (! empty($latestNews)): ?>
-            <?php foreach (array_slice($latestNews, 0, 5) as $news): ?>
-              <?php
-                $publishedAt   = $parseTime($news['published_at'] ?? null);
-                $isDraft       = empty($news['published_at']);
-                $badgeClass    = 'text-bg-success';
-                $badgeText     = 'Terbit';
-                if ($isDraft) {
-                  $badgeClass = 'text-bg-secondary';
-                  $badgeText  = 'Draft';
-                } elseif ($publishedAt && $publishedAt->getTimestamp() > $now->getTimestamp()) {
-                  $badgeClass = 'text-bg-info';
-                  $badgeText  = 'Terjadwal';
-                }
-                $publishedLabel = $publishedAt ? $publishedAt->humanize() : ($isDraft ? 'Draft disimpan' : 'Belum dijadwalkan');
-              ?>
-              <li class="list-group-item px-0">
-                <div class="d-flex justify-content-between align-items-start gap-3">
-                  <div class="min-w-0">
-                    <div class="fw-semibold text-truncate">
-                      <a href="<?= site_url('admin/news/edit/' . (int) ($news['id'] ?? 0)) ?>" class="text-body text-decoration-none">
-                        <?= esc($news['title'] ?? 'Tanpa judul') ?>
-                      </a>
+  <?php if ($canSeeLogs): ?>
+    <div class="<?= esc($activityColumnClasses) ?>">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">Aktivitas Terbaru</h6>
+          <a href="<?= site_url('admin/logs') ?>" class="link-secondary small text-decoration-none">Semua</a>
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush mb-0">
+            <?php if (! empty($activityFeed)): ?>
+              <?php foreach (array_slice($activityFeed, 0, 5) as $log): ?>
+                <?php
+                  $logTime   = $parseTime($log['created_at'] ?? null);
+                  $timeLabel = $logTime ? $logTime->humanize() : 'Baru';
+                  $actor     = $log['name'] ?: ($log['username'] ?? 'Sistem');
+                ?>
+                <li class="py-2">
+                  <div class="d-flex justify-content-between align-items-start gap-3">
+                    <div class="min-w-0">
+                      <div class="fw-semibold text-truncate"><?= esc($log['action'] ?? 'Aktivitas') ?></div>
+                      <small class="text-body-secondary d-block text-truncate"><?= esc($log['description'] ?? '-') ?></small>
+                      <small class="text-body-secondary">oleh <?= esc($actor) ?></small>
                     </div>
-                    <small class="text-body-secondary d-block text-truncate"><?= esc($publishedLabel) ?></small>
+                    <small class="text-body-secondary text-nowrap"><?= esc($timeLabel) ?></small>
                   </div>
-                  <span class="badge <?= esc($badgeClass) ?>"><?= esc($badgeText) ?></span>
-                </div>
-              </li>
-            <?php endforeach; ?>
-          <?php else: ?>
-            <li class="list-group-item px-0 text-body-secondary">Belum ada berita terbaru.</li>
-          <?php endif; ?>
-        </ul>
+                </li>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <li class="text-body-secondary">Belum ada aktivitas tercatat.</li>
+            <?php endif; ?>
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
+  <?php endif; ?>
 
-  <div class="col-xl-6">
-    <div class="card border-0 shadow-sm h-100">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0">Dokumen Terbaru</h6>
-        <a href="<?= site_url('admin/documents') ?>" class="link-info small text-decoration-none">Kelola</a>
-      </div>
-      <div class="card-body">
-        <ul class="list-group list-group-flush mb-0">
-          <?php if (! empty($latestDocuments)): ?>
-            <?php foreach (array_slice($latestDocuments, 0, 5) as $document): ?>
-              <?php
-                $categoryLabel = trim((string) ($document['category'] ?? ''));
-                if ($categoryLabel === '') { $categoryLabel = 'Tanpa Kategori'; }
-                $yearLabel = trim((string) ($document['year'] ?? ''));
-              ?>
-              <li class="py-2">
-                <div class="d-flex justify-content-between align-items-start gap-3">
-                  <div class="min-w-0">
-                    <div class="fw-semibold text-truncate">
-                      <a href="<?= site_url('admin/documents/edit/' . (int) ($document['id'] ?? 0)) ?>" class="text-body text-decoration-none">
-                        <?= esc($document['title'] ?? 'Tanpa judul') ?>
-                      </a>
+  <?php if ($canSeeNews): ?>
+    <div class="<?= esc($newsColumnClasses) ?>">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">Berita Terbaru</h6>
+          <a href="<?= site_url('admin/news') ?>" class="link-primary small text-decoration-none">Kelola</a>
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush mb-0">
+            <?php if (! empty($latestNews)): ?>
+              <?php foreach (array_slice($latestNews, 0, 5) as $news): ?>
+                <?php
+                  $publishedAt   = $parseTime($news['published_at'] ?? null);
+                  $isDraft       = empty($news['published_at']);
+                  $badgeClass    = 'text-bg-success';
+                  $badgeText     = 'Terbit';
+                  if ($isDraft) {
+                    $badgeClass = 'text-bg-secondary';
+                    $badgeText  = 'Draft';
+                  } elseif ($publishedAt && $publishedAt->getTimestamp() > $now->getTimestamp()) {
+                    $badgeClass = 'text-bg-info';
+                    $badgeText  = 'Terjadwal';
+                  }
+                  $publishedLabel = $publishedAt ? $publishedAt->humanize() : ($isDraft ? 'Draft disimpan' : 'Belum dijadwalkan');
+                ?>
+                <li class="list-group-item px-0">
+                  <div class="d-flex justify-content-between align-items-start gap-3">
+                    <div class="min-w-0">
+                      <div class="fw-semibold text-truncate">
+                        <a href="<?= site_url('admin/news/edit/' . (int) ($news['id'] ?? 0)) ?>" class="text-body text-decoration-none">
+                          <?= esc($news['title'] ?? 'Tanpa judul') ?>
+                        </a>
+                      </div>
+                      <small class="text-body-secondary d-block text-truncate"><?= esc($publishedLabel) ?></small>
                     </div>
-                    <small class="text-body-secondary d-block text-truncate">
-                      <?= esc($categoryLabel) ?><?php if ($yearLabel !== ''): ?> &middot; <?= esc($yearLabel) ?><?php endif; ?>
-                    </small>
+                    <span class="badge <?= esc($badgeClass) ?>"><?= esc($badgeText) ?></span>
                   </div>
-                  <span class="badge text-bg-info">Dokumen</span>
-                </div>
-              </li>
-            <?php endforeach; ?>
-          <?php else: ?>
-            <li class="text-body-secondary">Belum ada dokumen terbaru.</li>
-          <?php endif; ?>
-        </ul>
+                </li>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <li class="list-group-item px-0 text-body-secondary">Belum ada berita terbaru.</li>
+            <?php endif; ?>
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
+  <?php endif; ?>
+
+  <?php if ($canSeeDocuments): ?>
+    <div class="<?= esc($documentsColumnClasses) ?>">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">Dokumen Terbaru</h6>
+          <a href="<?= site_url('admin/documents') ?>" class="link-info small text-decoration-none">Kelola</a>
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush mb-0">
+            <?php if (! empty($latestDocuments)): ?>
+              <?php foreach (array_slice($latestDocuments, 0, 5) as $document): ?>
+                <?php
+                  $categoryLabel = trim((string) ($document['category'] ?? ''));
+                  if ($categoryLabel === '') {
+                      $categoryLabel = 'Tanpa Kategori';
+                  }
+                  $yearLabel = trim((string) ($document['year'] ?? ''));
+                ?>
+                <li class="py-2">
+                  <div class="d-flex justify-content-between align-items-start gap-3">
+                    <div class="min-w-0">
+                      <div class="fw-semibold text-truncate">
+                        <a href="<?= site_url('admin/documents/edit/' . (int) ($document['id'] ?? 0)) ?>" class="text-body text-decoration-none">
+                          <?= esc($document['title'] ?? 'Tanpa judul') ?>
+                        </a>
+                      </div>
+                      <small class="text-body-secondary d-block text-truncate">
+                        <?= esc($categoryLabel) ?><?php if ($yearLabel !== ''): ?> &middot; <?= esc($yearLabel) ?><?php endif; ?>
+                      </small>
+                    </div>
+                    <span class="badge text-bg-info">Dokumen</span>
+                  </div>
+                </li>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <li class="text-body-secondary">Belum ada dokumen terbaru.</li>
+            <?php endif; ?>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <?php endif; ?>
 </div>
 
 <?= $this->endSection() ?>

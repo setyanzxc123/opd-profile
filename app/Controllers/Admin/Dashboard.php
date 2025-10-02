@@ -15,24 +15,41 @@ class Dashboard extends BaseController
     {
         helper('url');
 
+        $access = $this->resolveAccess();
+        /** @var callable(string): bool $canAccess */
+        $canAccess = $access['canAccess'];
+
+        $metrics = $this->collectMetrics();
+        $metrics = array_values(array_filter(
+            $metrics,
+            static fn (array $metric): bool => ! isset($metric['section']) || $metric['section'] === ''
+                || $canAccess((string) $metric['section'])
+        ));
+
+        $contactSummary  = $canAccess('contacts') ? $this->collectContactSummary() : null;
+        $latestNews      = $canAccess('news') ? $this->collectLatestNews() : [];
+        $latestDocuments = $canAccess('documents') ? $this->collectLatestDocuments() : [];
+        $activityFeed    = $canAccess('logs') ? $this->collectActivityFeed() : [];
+
         return view('admin/dashboard', [
             'title'           => 'Dashboard',
             'welcomeName'     => (string) (session('name') ?? session('username') ?? 'Admin'),
-            'metrics'         => $this->collectMetrics(),
-            'contactSummary'  => $this->collectContactSummary(),
-            'latestNews'      => $this->collectLatestNews(),
-            'latestDocuments' => $this->collectLatestDocuments(),
-            'activityFeed'    => $this->collectActivityFeed(),
+            'metrics'         => $metrics,
+            'contactSummary'  => $contactSummary,
+            'latestNews'      => $latestNews,
+            'latestDocuments' => $latestDocuments,
+            'activityFeed'    => $activityFeed,
+            'canAccess'       => $canAccess,
         ]);
     }
 
     private function collectMetrics(): array
     {
-        $now          = date('Y-m-d H:i:s');
-        $newsModel    = model(NewsModel::class);
+        $now           = date('Y-m-d H:i:s');
+        $newsModel     = model(NewsModel::class);
         $documentModel = model(DocumentModel::class);
-        $serviceModel = model(ServiceModel::class);
-        $contactModel = model(ContactMessageModel::class);
+        $serviceModel  = model(ServiceModel::class);
+        $contactModel  = model(ContactMessageModel::class);
 
         $publishedNews = (int) $newsModel->builder()
             ->where('published_at IS NOT NULL', null, false)
@@ -56,6 +73,7 @@ class Dashboard extends BaseController
                 'url'     => site_url('admin/news'),
                 'icon'    => 'bx-news',
                 'variant' => 'primary',
+                'section' => 'news',
             ],
             [
                 'label'   => 'Dokumen',
@@ -63,6 +81,7 @@ class Dashboard extends BaseController
                 'url'     => site_url('admin/documents'),
                 'icon'    => 'bx-file',
                 'variant' => 'info',
+                'section' => 'documents',
             ],
             [
                 'label'   => 'Layanan Aktif',
@@ -70,6 +89,7 @@ class Dashboard extends BaseController
                 'url'     => site_url('admin/profile'),
                 'icon'    => 'bx-git-branch',
                 'variant' => 'success',
+                'section' => 'profile',
             ],
             [
                 'label'   => 'Pesan Terbuka',
@@ -77,6 +97,7 @@ class Dashboard extends BaseController
                 'url'     => site_url('admin/contacts'),
                 'icon'    => 'bx-message-rounded-dots',
                 'variant' => 'warning',
+                'section' => 'contacts',
             ],
         ];
     }
@@ -155,6 +176,39 @@ class Dashboard extends BaseController
             ->get()
             ->getResultArray();
     }
+
+    /**
+     * @return array{allowedSections: list<string>, hasFullAccess: bool, canAccess: callable(string):bool}
+     */
+    private function resolveAccess(): array
+    {
+        $config = config('AdminAccess');
+        $role   = strtolower((string) (session('role') ?? ''));
+        $roleConfig = $config->roles[$role] ?? ['allowedSections' => ['*']];
+
+        $allowed = array_map(
+            static fn ($item) => strtolower((string) $item),
+            $roleConfig['allowedSections'] ?? []
+        );
+
+        if ($allowed === []) {
+            $allowed = ['*'];
+        }
+
+        $hasFullAccess = in_array('*', $allowed, true);
+
+        $canAccess = static function (string $section) use ($allowed, $hasFullAccess): bool {
+            if ($hasFullAccess) {
+                return true;
+            }
+
+            return in_array(strtolower($section), $allowed, true);
+        };
+
+        return [
+            'allowedSections' => $allowed,
+            'hasFullAccess'   => $hasFullAccess,
+            'canAccess'       => $canAccess,
+        ];
+    }
 }
-
-

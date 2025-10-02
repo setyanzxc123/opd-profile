@@ -50,6 +50,23 @@
         }
         $sessionRole = trim((string) (session('role') ?? ''));
         $roleLabel   = $sessionRole !== '' ? ucfirst(strtolower($sessionRole)) : '-';
+        $accessConfig = config('AdminAccess');
+        $roleConfig   = ($sessionRole !== '' && isset($accessConfig->roles[$sessionRole])) ? $accessConfig->roles[$sessionRole] : null;
+        $allowedSections = [];
+        if (is_array($roleConfig) && isset($roleConfig['allowedSections'])) {
+          $allowedSections = array_map(
+            static fn ($item) => strtolower((string) $item),
+            $roleConfig['allowedSections']
+          );
+        }
+        $hasFullAccess = in_array('*', $allowedSections, true);
+        $canAccess = static function (string $target) use ($allowedSections, $hasFullAccess): bool {
+          if ($hasFullAccess) {
+            return true;
+          }
+
+          return in_array(strtolower($target), $allowedSections, true);
+        };
       ?>
       <!-- Menu -->
       <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
@@ -68,61 +85,85 @@
         </div>
         <div class="menu-inner-shadow"></div>
         <ul class="menu-inner py-1">
+          <?php if ($canAccess('dashboard')): ?>
           <li class="menu-item<?= $currentRoute === 'admin' ? ' active' : '' ?>">
             <a href="<?= site_url('admin') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-home-smile"></i>
               <div class="text-truncate">Dasbor</div>
             </a>
           </li>
+          <?php endif; ?>
+
+          <?php if ($canAccess('profile')): ?>
           <li class="menu-item<?= $section === 'profile' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/profile') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-buildings"></i>
               <div class="text-truncate">Profil OPD</div>
             </a>
           </li>
+          <?php endif; ?>
+
+          <?php $hasContentAccess = $canAccess('news') || $canAccess('galleries') || $canAccess('documents') || $canAccess('contacts'); ?>
+          <?php if ($hasContentAccess): ?>
           <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Konten</span>
           </li>
+          <?php if ($canAccess('news')): ?>
           <li class="menu-item<?= $section === 'news' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/news') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-news"></i>
               <div class="text-truncate">Berita</div>
             </a>
           </li>
+          <?php endif; ?>
+          <?php if ($canAccess('galleries')): ?>
           <li class="menu-item<?= $section === 'galleries' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/galleries') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-image-alt"></i>
               <div class="text-truncate">Galeri</div>
             </a>
           </li>
+          <?php endif; ?>
+          <?php if ($canAccess('documents')): ?>
           <li class="menu-item<?= $section === 'documents' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/documents') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-file"></i>
               <div class="text-truncate">Dokumen</div>
             </a>
           </li>
+          <?php endif; ?>
+          <?php if ($canAccess('contacts')): ?>
           <li class="menu-item<?= $section === 'contacts' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/contacts') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-envelope"></i>
               <div class="text-truncate">Pesan Kontak</div>
             </a>
           </li>
+          <?php endif; ?>
+          <?php endif; ?>
 
+          <?php $hasManagementAccess = $canAccess('users') || $canAccess('logs'); ?>
+          <?php if ($hasManagementAccess): ?>
           <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Pengelolaan</span>
           </li>
+          <?php if ($canAccess('users')): ?>
           <li class="menu-item<?= $section === 'users' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/users') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-user"></i>
               <div class="text-truncate">Pengguna</div>
             </a>
           </li>
+          <?php endif; ?>
+          <?php if ($canAccess('logs')): ?>
           <li class="menu-item<?= $section === 'logs' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/logs') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-history"></i>
               <div class="text-truncate">Log Aktivitas</div>
             </a>
           </li>
+          <?php endif; ?>
+          <?php endif; ?>
         </ul>
       </aside>
       <!-- / Menu -->
