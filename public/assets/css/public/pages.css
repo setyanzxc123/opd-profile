@@ -100,7 +100,7 @@
   border: 1px solid var(--surface-border);
   border-radius: 14px;
   background: var(--surface-card);
-  box-shadow: 0 8px 24px var(--surface-shadow);
+  box-shadow: var(--surface-shadow);
   overflow: hidden;
 }
 
@@ -156,7 +156,7 @@
   gap: 1.5rem;
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
-  box-shadow: 0 4px 12px var(--surface-shadow);
+  box-shadow: var(--surface-shadow);
   padding: clamp(1.6rem, 3.2vw, 2.3rem);
 }
 
@@ -351,7 +351,7 @@
   gap: 0;
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
-  box-shadow: 0 12px 32px var(--surface-shadow);
+  box-shadow: var(--surface-shadow);
   overflow: hidden;
 }
 

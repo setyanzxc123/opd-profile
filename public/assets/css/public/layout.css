@@ -52,7 +52,7 @@
 .hero-news-card {
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
-  box-shadow: 0 12px 32px var(--surface-shadow);
+  box-shadow: var(--surface-shadow);
 }
 
 .hero-news-card .ratio img {
@@ -113,7 +113,7 @@
 .service-pill {
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
-  box-shadow: 0 12px 28px var(--surface-shadow);
+  box-shadow: var(--surface-shadow);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -201,13 +201,9 @@
 }
 
 .news-list-item {
-  border: 1px solid var(--surface-border);
-  border-radius: 16px;
   padding: 1.25rem 1.5rem;
-  background: var(--surface-card);
-  box-shadow: 0 10px 26px var(--surface-shadow);
-  transition: border-color 0.2s ease;
 }
+
 
 .news-list-item:hover {
   border-color: rgba(28, 111, 211, 0.35);
@@ -291,7 +287,7 @@
   border-radius: 12px;
   border: 1px solid var(--surface-border);
   background: var(--surface-card);
-  box-shadow: 0 10px 24px var(--surface-shadow);
+  box-shadow: var(--surface-shadow);
   color: var(--public-primary-dark);
 }
 
@@ -365,7 +361,7 @@
   border-radius: 16px;
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
-  box-shadow: 0 12px 28px var(--surface-shadow);
+  box-shadow: var(--surface-shadow);
 }
 
 .profile-item dt {
@@ -388,7 +384,7 @@
   border-radius: 20px;
   border: 1px solid var(--surface-border);
   background: var(--surface-card);
-  box-shadow: 0 14px 34px var(--surface-shadow);
+  box-shadow: var(--surface-shadow);
   overflow: hidden;
 }
 
@@ -462,11 +458,8 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 1.2rem 1.4rem;
-  border-radius: 16px;
-  background: var(--surface-card);
-  border: 1px solid var(--surface-border);
-  box-shadow: 0 12px 28px var(--surface-shadow);
 }
+
 
 @media (min-width: 768px) {
   .document-item {
@@ -475,6 +468,7 @@
     justify-content: space-between;
   }
 }
+
 
 .document-item h3 {
   margin: 0 0 0.3rem;
@@ -499,5 +493,4 @@
   display: block;
   background: var(--surface-base);
 }
-
 
