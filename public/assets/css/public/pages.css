@@ -3,7 +3,7 @@
 .contact-hero {
   padding: clamp(3rem, 8vw, 4.5rem) 0;
   background:
-    radial-gradient(640px 420px at 82% -60px, rgba(28, 111, 211, 0.08), transparent 70%),
+    radial-gradient(640px 420px at 82% -60px, rgba(var(--public-primary-rgb), 0.08), transparent 70%),
     var(--surface-base);
 }
 
@@ -32,7 +32,7 @@
   gap: 0.4rem;
   padding: 0.35rem 0.85rem;
   border-radius: 999px;
-  background: rgba(28, 111, 211, 0.12);
+  background: rgba(var(--public-primary-rgb), 0.12);
   color: var(--public-primary);
   font-weight: 600;
   font-size: 0.85rem;
@@ -115,9 +115,8 @@
   transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
-.contact-quick-links a:hover,
 .contact-quick-links a:focus-visible {
-  background: rgba(28, 111, 211, 0.08);
+  background: rgba(var(--public-primary-rgb), 0.08);
   color: var(--public-primary);
   transform: translateY(-1px);
 }
@@ -198,13 +197,13 @@
 
 .contact-form .form-control {
   border-radius: 12px;
-  border-color: rgba(28, 111, 211, 0.18);
+  border-color: rgba(var(--public-primary-rgb), 0.18);
   padding-block: 0.65rem;
 }
 
 .contact-form .form-control:focus {
   border-color: var(--public-primary);
-  box-shadow: 0 0 0 0.2rem rgba(28, 111, 211, 0.15);
+  box-shadow: 0 0 0 0.2rem rgba(var(--public-primary-rgb), 0.15);
 }
 
 .contact-form .form-control.is-invalid {
@@ -251,10 +250,10 @@
 }
 
 .contact-captcha-placeholder {
-  border: 1px dashed rgba(28, 111, 211, 0.3);
+  border: 1px dashed rgba(var(--public-primary-rgb), 0.3);
   border-radius: 14px;
   padding: 1rem;
-  background: rgba(28, 111, 211, 0.04);
+  background: rgba(var(--public-primary-rgb), 0.04);
   color: var(--public-neutral-600, #475467);
   font-size: 0.9rem;
 }
@@ -267,7 +266,7 @@
 }
 
 .contact-map__frame {
-  border: 1px solid rgba(28, 111, 211, 0.12);
+  border: 1px solid rgba(var(--public-primary-rgb), 0.12);
   border-radius: 14px;
   background: #f8fbff;
   min-height: 220px;
@@ -318,7 +317,7 @@
 
 .news-card__media {
   aspect-ratio: 16 / 9;
-  background: rgba(28, 111, 211, 0.08);
+  background: rgba(var(--public-primary-rgb), 0.08);
   overflow: hidden;
 }
 
@@ -357,7 +356,7 @@
 
 .news-article__media {
   max-height: 420px;
-  background: rgba(28, 111, 211, 0.08);
+  background: rgba(var(--public-primary-rgb), 0.08);
   display: flex;
 }
 
