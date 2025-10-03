@@ -1,0 +1,22 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /opd-profile/
+
+    # Redirect the base path to the front controller
+    RewriteRule ^$ public/index.php [L]
+
+    # Allow direct access to resources already inside /public
+    RewriteCond %{REQUEST_URI} ^/opd-profile/public/ [NC]
+    RewriteRule ^ - [L]
+
+    # Serve existing files from the public directory
+    RewriteCond %{DOCUMENT_ROOT}/opd-profile/public/$1 -f
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # Serve existing directories from the public directory
+    RewriteCond %{DOCUMENT_ROOT}/opd-profile/public/$1 -d
+    RewriteRule ^(.*)$ public/$1/ [L]
+
+    # Everything else goes through the front controller
+    RewriteRule ^(.*)$ public/index.php/$1 [L]
+</IfModule>
