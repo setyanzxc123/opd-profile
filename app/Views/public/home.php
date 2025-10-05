@@ -69,6 +69,9 @@
       <?php endif; ?>
     </div>
   </section>
+  <div class="section-divider section-divider-brand" aria-hidden="true">
+    <span class="section-divider__label">PROFIL</span>
+  </div>
 
   <section class="public-section section-neutral" id="profil-singkat" aria-labelledby="profil-heading">
     <div class="container public-container">
@@ -108,6 +111,9 @@
       </div>
     </div>
   </section>
+  <div class="section-divider section-divider-brand" aria-hidden="true">
+    <span class="section-divider__label">LAYANAN UNGGULAN</span>
+  </div>
 
   <section class="public-section section-warm" id="layanan" aria-labelledby="layanan-heading">
     <div class="container public-container">
@@ -133,6 +139,9 @@
       <?php endif; ?>
     </div>
   </section>
+  <div class="section-divider section-divider-brand" aria-hidden="true">
+    <span class="section-divider__label">BERITA</span>
+  </div>
 
   <section class="public-section section-neutral" id="berita" aria-labelledby="berita-heading">
     <div class="container public-container">
@@ -183,6 +192,9 @@
       </div>
     </div>
   </section>
+  <div class="section-divider section-divider-brand" aria-hidden="true">
+    <span class="section-divider__label">GALERI KEGIATAN</span>
+  </div>
 
   <section class="public-section section-neutral" id="galeri" aria-labelledby="galeri-heading">
     <div class="container public-container">
@@ -213,6 +225,9 @@
       <?php endif; ?>
     </div>
   </section>
+  <div class="section-divider section-divider-brand" aria-hidden="true">
+    <span class="section-divider__label">DOKUMEN PUBLIK</span>
+  </div>
 
   <section class="public-section section-neutral" id="dokumen" aria-labelledby="dokumen-heading">
     <div class="container public-container">
@@ -245,6 +260,9 @@
       <?php endif; ?>
     </div>
   </section>
+  <div class="section-divider section-divider-brand" aria-hidden="true">
+    <span class="section-divider__label">KONTAK CEPAT</span>
+  </div>
 
   <section class="public-section section-neutral" id="kontak" aria-labelledby="kontak-heading">
     <div class="container public-container">
@@ -270,4 +288,5 @@
   </section>
 </div>
 <?= $this->endSection() ?>
+
 
