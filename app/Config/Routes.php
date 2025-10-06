@@ -9,6 +9,7 @@ $routes->get('/', 'Home::index');
 $routes->get('profil', 'Pages::profil');
 $routes->get('layanan', 'Pages::layanan');
 $routes->get('berita', 'Pages::berita');
+$routes->get('search/berita', 'Pages::beritaSearch');
 $routes->get('berita/(:segment)', 'Pages::beritaDetail/$1');
 $routes->get('galeri', 'Pages::galeri');
 $routes->get('dokumen', 'Pages::dokumen');

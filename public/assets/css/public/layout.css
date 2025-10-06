@@ -489,22 +489,6 @@
   outline-offset: 2px;
 }
 
-/* News search */
-.news-search .input-group {
-  max-width: clamp(300px, 60vw, 520px);
-  margin-inline: auto;
-}
-
-.news-search .form-control {
-  border-radius: 999px 0 0 999px;
-  padding-inline: 1.25rem;
-}
-
-.news-search .btn {
-  border-radius: 0 999px 999px 0;
-  padding-inline: 1.5rem;
-}
-
 /* Documents */
 .documents-list {
   display: grid;

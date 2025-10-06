@@ -3,6 +3,43 @@
 
   const toArray = (value) => Array.prototype.slice.call(value);
 
+  const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (match) => {
+    switch (match) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      case "'":
+        return '&#39;';
+      default:
+        return match;
+    }
+  });
+
+  const debounce = (fn, delay = 250) => {
+    let timerId = null;
+    const debounced = (...args) => {
+      if (timerId) {
+        clearTimeout(timerId);
+      }
+      timerId = setTimeout(() => {
+        timerId = null;
+        fn(...args);
+      }, delay);
+    };
+    debounced.cancel = () => {
+      if (timerId) {
+        clearTimeout(timerId);
+        timerId = null;
+      }
+    };
+    return debounced;
+  };
+
   const initCarousels = () => {
     const carousels = document.querySelectorAll('[data-carousel]');
     if (!carousels.length) {
@@ -259,6 +296,237 @@
     });
   };
 
+  const initNavSearch = () => {
+    const form = document.querySelector('[data-nav-search-form]');
+    if (!form) {
+      return;
+    }
+
+    const input = form.querySelector('[data-nav-search-input]');
+    const resultsContainer = form.querySelector('[data-nav-search-results]');
+    const endpoint = form.getAttribute('data-nav-search-url');
+
+    if (!input || !resultsContainer || !endpoint) {
+      return;
+    }
+
+    const minLengthAttr = form.getAttribute('data-nav-search-min');
+    const minLength = Number(minLengthAttr) > 0 ? Number(minLengthAttr) : 2;
+    const maxItemsAttr = form.getAttribute('data-nav-search-limit');
+    const maxItems = Number(maxItemsAttr) > 0 ? Number(maxItemsAttr) : 5;
+
+    let currentQuery = '';
+    let controller = null;
+
+    const setExpanded = (expanded) => {
+      input.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    };
+
+    const setLoading = (isLoading) => {
+      if (isLoading) {
+        form.setAttribute('aria-busy', 'true');
+      } else {
+        form.removeAttribute('aria-busy');
+      }
+    };
+
+    const clearResults = () => {
+      resultsContainer.innerHTML = '';
+      resultsContainer.setAttribute('hidden', 'hidden');
+      resultsContainer.classList.remove('is-visible');
+      setExpanded(false);
+    };
+
+    const showResults = () => {
+      resultsContainer.removeAttribute('hidden');
+      resultsContainer.classList.add('is-visible');
+      setExpanded(true);
+    };
+
+    const formatDate = (value) => {
+      if (!value) {
+        return '';
+      }
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) {
+        return '';
+      }
+      return parsed.toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
+    };
+
+    const renderResults = (items, query) => {
+      resultsContainer.innerHTML = '';
+
+      if (!items.length) {
+        resultsContainer.innerHTML = `<div class="public-search-result public-search-result--empty" role="option">Tidak ada hasil untuk "<span class="public-search-result__query"></span>".</div>`;
+        const span = resultsContainer.querySelector('.public-search-result__query');
+        if (span) {
+          span.textContent = query;
+        }
+        showResults();
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+
+      items.slice(0, maxItems).forEach((item, index) => {
+        if (!item || !item.url) {
+          return;
+        }
+        const entry = document.createElement('a');
+        entry.className = 'public-search-result public-search-result--link';
+        entry.href = item.url;
+        entry.setAttribute('role', 'option');
+        entry.setAttribute('tabindex', '-1');
+        entry.dataset.index = String(index);
+
+        const title = escapeHtml(item.title || 'Tanpa judul');
+        const snippet = escapeHtml(item.snippet || '');
+        const date = escapeHtml(formatDate(item.published_at));
+
+        entry.innerHTML = `
+          <span class="public-search-result__title">${title}</span>
+          ${
+            date || snippet
+              ? `<span class="public-search-result__meta">
+                  ${date ? `<span class="public-search-result__date">${date}</span>` : ''}
+                  ${snippet ? `<span class="public-search-result__snippet">${snippet}</span>` : ''}
+                </span>`
+              : ''
+          }
+        `;
+
+        fragment.appendChild(entry);
+      });
+
+      if (!fragment.childNodes.length) {
+        resultsContainer.innerHTML = `<div class="public-search-result public-search-result--empty" role="option">Tidak ada hasil untuk "<span class="public-search-result__query"></span>".</div>`;
+        const span = resultsContainer.querySelector('.public-search-result__query');
+        if (span) {
+          span.textContent = query;
+        }
+      } else {
+        resultsContainer.appendChild(fragment);
+      }
+
+      showResults();
+    };
+
+    const showError = () => {
+      resultsContainer.innerHTML = '<div class="public-search-result public-search-result--error" role="option">Terjadi kesalahan saat memuat hasil.</div>';
+      showResults();
+    };
+
+    const fetchResults = async (query) => {
+      if (controller) {
+        controller.abort();
+      }
+
+      try {
+        controller = new AbortController();
+      } catch (error) {
+        controller = null;
+      }
+
+      setLoading(true);
+
+      try {
+        let requestUrl;
+        try {
+          requestUrl = new URL(endpoint, window.location.origin);
+        } catch (error) {
+          requestUrl = new URL(window.location.origin + endpoint.replace(/^\//, ''));
+        }
+        requestUrl.searchParams.set('q', query);
+        requestUrl.searchParams.set('limit', String(maxItems));
+
+        const response = await fetch(requestUrl.toString(), {
+          headers: { Accept: 'application/json' },
+          signal: controller ? controller.signal : undefined,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const payload = await response.json();
+        if (currentQuery !== query) {
+          return;
+        }
+
+        const items = Array.isArray(payload.results) ? payload.results : [];
+        renderResults(items, query);
+      } catch (error) {
+        if (controller && error.name === 'AbortError') {
+          return;
+        }
+        console.error('Pencarian navbar gagal:', error);
+        if (currentQuery === query) {
+          showError();
+        }
+      } finally {
+        if (currentQuery === query) {
+          setLoading(false);
+          controller = null;
+        }
+      }
+    };
+
+    const debouncedFetch = debounce(fetchResults, 320);
+
+    input.addEventListener('input', (event) => {
+      const value = event.target.value.trim();
+      currentQuery = value;
+      if (value.length < minLength) {
+        debouncedFetch.cancel();
+        if (controller) {
+          controller.abort();
+          controller = null;
+        }
+        setLoading(false);
+        clearResults();
+        return;
+      }
+      debouncedFetch(value);
+    });
+
+    input.addEventListener('focus', () => {
+      if (resultsContainer.children.length) {
+        showResults();
+      }
+    });
+
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        clearResults();
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!form.contains(event.target)) {
+        clearResults();
+      }
+    });
+
+    resultsContainer.addEventListener('click', () => {
+      clearResults();
+    });
+
+    form.addEventListener('submit', () => {
+      debouncedFetch.cancel();
+      if (controller) {
+        controller.abort();
+        controller = null;
+      }
+      setLoading(false);
+      clearResults();
+    });
+  };
+
   const initContactForm = () => {
     const form = document.querySelector('[data-contact-form]');
     if (!form) {
@@ -407,10 +675,12 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       initCarousels();
+      initNavSearch();
       initContactForm();
     });
   } else {
     initCarousels();
+    initNavSearch();
     initContactForm();
   }
 })();

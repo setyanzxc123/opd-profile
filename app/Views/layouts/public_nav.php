@@ -30,12 +30,12 @@
         <?php endforeach; ?>
       </ul>
       <div class="nav-actions d-flex flex-column flex-lg-row align-items-lg-center gap-3 mt-3 mt-lg-0">
-        <form class="public-search w-100" action="<?= site_url('berita') ?>" method="get" role="search">
-          <div class="input-group">
+        <form class="public-search" action="<?= site_url('berita') ?>" method="get" role="search" data-nav-search-form data-nav-search-url="<?= site_url('search/berita') ?>">
+          <div class="public-search-field">
             <label class="visually-hidden" for="navSearch">Cari informasi</label>
-            <input id="navSearch" class="form-control" type="search" name="q" placeholder="Cari berita" aria-label="Cari berita" value="<?= esc($path === 'berita' ? ($request->getGet('q') ?? '') : '') ?>">
-            <button class="btn btn-public-primary" type="submit">Cari</button>
+            <input id="navSearch" class="public-search-input" type="search" name="q" placeholder="Cari berita" aria-label="Cari berita" value="<?= esc($path === 'berita' ? ($request->getGet('q') ?? '') : '') ?>" autocomplete="off" data-nav-search-input aria-autocomplete="list" aria-controls="navSearchResults">
           </div>
+          <div class="public-search-results" id="navSearchResults" role="listbox" aria-label="Hasil pencarian berita" hidden data-nav-search-results></div>
         </form>
       </div>
     </div>

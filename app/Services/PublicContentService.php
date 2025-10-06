@@ -133,6 +133,34 @@ class PublicContentService
         }
     }
 
+    public function searchNews(string $query, int $limit = 5): array
+    {
+        $keyword = trim($query);
+
+        if ($keyword === '') {
+            return [];
+        }
+
+        $limit = max(1, min(10, $limit));
+
+        try {
+            $model = model(NewsModel::class);
+
+            return $model
+                ->orderBy('published_at', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->groupStart()
+                    ->like('title', $keyword)
+                    ->orLike('content', $keyword)
+                ->groupEnd()
+                ->findAll($limit) ?: [];
+        } catch (Throwable $throwable) {
+            log_message('warning', 'Failed to search news: {error}', ['error' => $throwable->getMessage()]);
+
+            return [];
+        }
+    }
+
     public function recentGalleries(int $limit = 4): array
     {
         $limit = max(1, $limit);

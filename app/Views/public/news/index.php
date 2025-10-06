@@ -10,16 +10,6 @@
       <h1 class="display-5 fw-bold mt-3 mb-3">Informasi &amp; Kabar Terbaru</h1>
       <p class="lead text-muted">Update kegiatan, kebijakan, dan layanan terbaru dari Dinas Pelayanan Publik.</p>
     </div>
-    <form class="news-search mb-5" role="search" method="get" action="<?= current_url() ?>">
-      <div class="input-group input-group-lg">
-        <label class="visually-hidden" for="newsSearch">Cari berita</label>
-        <input id="newsSearch" class="form-control" type="search" name="q" value="<?= esc($query) ?>" placeholder="Cari berita atau kebijakan" aria-label="Cari berita atau kebijakan">
-        <button class="btn btn-public-primary" type="submit">Cari</button>
-        <?php if ($query !== ''): ?>
-          <a class="btn btn-outline-secondary" href="<?= current_url() ?>">Reset</a>
-        <?php endif; ?>
-      </div>
-    </form>
     <?php if ($query !== ''): ?>
       <p class="text-muted">Menampilkan hasil untuk kata kunci <strong><?= esc($query) ?></strong>.</p>
     <?php endif; ?>

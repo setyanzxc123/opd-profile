@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\NewsModel;
 use App\Services\PublicContentService;
 use CodeIgniter\Exceptions\PageNotFoundException;
+use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\I18n\Time;
 
 class Pages extends BaseController
@@ -59,6 +60,49 @@ class Pages extends BaseController
             'pager'    => $news['pager'],
             'search'   => $search,
         ]);
+    }
+
+    public function beritaSearch(): ResponseInterface
+    {
+        $query = trim((string) $this->request->getGet('q'));
+        $limitParam = $this->request->getGet('limit');
+        $limit = is_numeric($limitParam) ? (int) $limitParam : 5;
+        $limit = max(1, min(10, $limit));
+
+        if ($query === '') {
+            return $this->response->setJSON(['results' => []]);
+        }
+
+        helper(['url']);
+
+        $articles = $this->contentService->searchNews($query, $limit);
+
+        $results = array_map(static function (array $article): array {
+            $content = isset($article['content']) ? strip_tags((string) $article['content']) : '';
+            $content = trim(preg_replace('/\s+/', ' ', $content));
+
+            if (function_exists('mb_substr')) {
+                $snippet = trim(mb_substr($content, 0, 120));
+                $hasMore = mb_strlen($content) > 120;
+            } else {
+                $snippet = trim(substr($content, 0, 120));
+                $hasMore = strlen($content) > 120;
+            }
+
+            if ($snippet !== '' && $hasMore) {
+                $snippet = rtrim($snippet, " \t\n\r\0\x0B,.") . '…';
+            }
+
+            return [
+                'title'         => $article['title'] ?? '',
+                'url'           => site_url('berita/' . ($article['slug'] ?? '')),
+                'published_at'  => $article['published_at'] ?? null,
+                'thumbnail'     => $article['thumbnail'] ?? null,
+                'snippet'       => $snippet,
+            ];
+        }, $articles);
+
+        return $this->response->setJSON(['results' => $results]);
     }
 
     public function beritaDetail(string $slug): string
