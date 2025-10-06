@@ -16,8 +16,7 @@
 <nav class="navbar navbar-expand-lg navbar-light sticky-top shadow-sm public-navbar" aria-label="Navigasi utama">
   <div class="container">
     <a class="navbar-brand fw-bold d-flex align-items-center" href="<?= base_url('/') ?>">
-      <span class="me-2 rounded-circle d-inline-flex align-items-center justify-content-center brand-circle">OPD</span>
-      <span>Dinas</span>
+      <span class="me-2 rounded-circle d-inline-flex align-items-center justify-content-center brand-circle bg-primary text-white fs-6">LOGO</span>
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNavbar" aria-controls="publicNavbar" aria-expanded="false" aria-label="Tampilkan navigasi">
       <span class="navbar-toggler-icon"></span>
@@ -42,4 +41,3 @@
     </div>
   </div>
 </nav>
-

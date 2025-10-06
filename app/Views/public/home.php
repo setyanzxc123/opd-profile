@@ -76,7 +76,6 @@
   <section class="public-section section-neutral" id="profil-singkat" aria-labelledby="profil-heading">
     <div class="container public-container">
       <header class="section-head">
-        <span class="hero-badge" id="profil-heading">Profil Singkat</span>
         <h2 class="section-title"><?= esc($profileSummary['name']) ?></h2>
         <?php if ($profileSummary['description']): ?>
           <p class="section-lead"><?= esc($profileSummary['description']) ?></p>
@@ -118,7 +117,6 @@
   <section class="public-section section-warm" id="layanan" aria-labelledby="layanan-heading">
     <div class="container public-container">
       <header class="section-head">
-        <span class="hero-badge" id="layanan-heading">Layanan Unggulan</span>
         <h2 class="section-title">Kemudahan akses untuk layanan prioritas</h2>
         <p class="section-lead">Pilih layanan yang paling sering digunakan masyarakat dan mulai proses secara daring.</p>
       </header>
@@ -146,8 +144,7 @@
   <section class="public-section section-neutral" id="berita" aria-labelledby="berita-heading">
     <div class="container public-container">
       <header class="section-head">
-        <span class="hero-badge" id="berita-heading">Berita Resmi</span>
-        <h2 class="section-title">Informasi terkini dari OPD</h2>
+        <h2 class="section-title">Informasi terkini</h2>
         <p class="section-lead">Ikuti kabar terbaru mengenai kebijakan, pelayanan, dan kegiatan penting.</p>
       </header>
       <div class="news-grid">
@@ -199,7 +196,6 @@
   <section class="public-section section-neutral" id="galeri" aria-labelledby="galeri-heading">
     <div class="container public-container">
       <header class="section-head">
-        <span class="hero-badge" id="galeri-heading">Galeri Kegiatan</span>
         <h2 class="section-title">Dokumentasi pelayanan dan aktivitas</h2>
       </header>
       <?php if ($galleries): ?>
@@ -232,7 +228,6 @@
   <section class="public-section section-neutral" id="dokumen" aria-labelledby="dokumen-heading">
     <div class="container public-container">
       <header class="section-head">
-        <span class="hero-badge" id="dokumen-heading">Dokumen Publik</span>
         <h2 class="section-title">Unduh regulasi dan laporan resmi</h2>
       </header>
       <?php if ($documents): ?>
@@ -267,7 +262,6 @@
   <section class="public-section section-neutral" id="kontak" aria-labelledby="kontak-heading">
     <div class="container public-container">
       <header class="section-head">
-        <span class="hero-badge" id="kontak-heading">Kontak Cepat</span>
         <h2 class="section-title">Hubungi kami</h2>
         <p class="section-lead">Gunakan kanal berikut untuk memperoleh respons tercepat dari tim kami.</p>
       </header>

@@ -100,8 +100,8 @@ body.public-body {
 }
 
 .brand-circle {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   font-weight: 700;
   background: var(--public-primary);
   color: #ffffff;
@@ -444,8 +444,8 @@ body.public-body {
 
 @media (max-width: 991.98px) {
   .brand-circle {
-    width: 36px;
-    height: 36px;
+    width: 42px;
+    height: 42px;
   }
 
   .public-navbar .nav-link {
