@@ -1,32 +1,32 @@
-/* Sneat primary palette override to match public site blue */
+/* Sneat primary palette override to match public site primary */
 :root[data-template="vertical-menu-template-free"] {
-  --bs-primary: #2e7bd7;
-  --bs-primary-rgb: 46, 123, 215;
-  --bs-primary-text-emphasis: #1d4f8c;
-  --bs-primary-bg-subtle: #e1effd;
-  --bs-primary-border-subtle: #b7d2f4;
-  --bs-link-color: #2e7bd7;
-  --bs-link-hover-color: #1b5698;
+  --bs-primary: #05a5a8;
+  --bs-primary-rgb: 5, 165, 168;
+  --bs-primary-text-emphasis: #034f51;
+  --bs-primary-bg-subtle: #d4f2f3;
+  --bs-primary-border-subtle: #9fe1e3;
+  --bs-link-color: #05a5a8;
+  --bs-link-hover-color: #048c90;
   --bs-card-border-radius: 16px;
   --bs-card-inner-border-radius: 16px;
 }
 
 .btn-primary {
-  --bs-btn-bg: #2e7bd7;
-  --bs-btn-border-color: #2e7bd7;
-  --bs-btn-hover-bg: #255fa9;
-  --bs-btn-hover-border-color: #255fa9;
-  --bs-btn-active-bg: #1d4f8c;
-  --bs-btn-active-border-color: #1d4f8c;
+  --bs-btn-bg: #05a5a8;
+  --bs-btn-border-color: #05a5a8;
+  --bs-btn-hover-bg: #048f92;
+  --bs-btn-hover-border-color: #048689;
+  --bs-btn-active-bg: #037a7d;
+  --bs-btn-active-border-color: #037a7d;
 }
 
 .btn-outline-primary {
-  --bs-btn-color: #2e7bd7;
-  --bs-btn-border-color: #2e7bd7;
-  --bs-btn-hover-bg: #2e7bd7;
-  --bs-btn-hover-border-color: #2e7bd7;
-  --bs-btn-active-bg: #255fa9;
-  --bs-btn-active-border-color: #255fa9;
+  --bs-btn-color: #05a5a8;
+  --bs-btn-border-color: #05a5a8;
+  --bs-btn-hover-bg: #05a5a8;
+  --bs-btn-hover-border-color: #05a5a8;
+  --bs-btn-active-bg: #037a7d;
+  --bs-btn-active-border-color: #037a7d;
 }
 /* Ensure brand toggle always visible */
 #layout-menu .app-brand .layout-menu-toggle {
@@ -72,9 +72,9 @@
   gap: 1.25rem;
   padding: 1.25rem;
   border-radius: 0.75rem;
-  border: 1px solid rgba(46, 123, 215, 0.2);
+  border: 1px solid rgba(5, 165, 168, 0.2);
   border: 1px solid color-mix(in sRGB, var(--bs-primary) 20%, transparent);
-  background: #e1effd;
+  background: #d4f2f3;
   background: var(--bs-primary-bg-subtle);
 }
 
@@ -123,7 +123,7 @@
   border: 1px solid color-mix(in sRGB, var(--bs-info) 18%, transparent);
   background: rgba(13, 110, 253, 0.08);
   background: var(--bs-info-bg-subtle);
-  color: #0d6efd;
+  color: #05a5a8;
   color: var(--bs-info);
   padding: 0.75rem;
   font-size: 0.82rem;

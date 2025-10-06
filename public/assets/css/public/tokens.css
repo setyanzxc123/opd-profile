@@ -14,9 +14,9 @@
 
 /* Public site custom theme */
 :root {
-  --public-primary: #2e7bd7;
-  --public-primary-dark: #1d4f8c;
-  --public-primary-rgb: 46, 123, 215;
+  --public-primary: #05a5a8;
+  --public-primary-dark: #036c6e;
+  --public-primary-rgb: 5, 165, 168;
   --public-primary-soft: rgba(var(--public-primary-rgb), 0.12);
   --public-accent: #03c3ec;
   --public-neutral-900: #22303e;
