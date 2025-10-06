@@ -27,13 +27,59 @@
   inset: 0;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.45s ease;
+  transform: translateX(0);
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  will-change: transform, opacity;
 }
 
 .hero-slide.is-active {
   position: relative;
   opacity: 1;
   visibility: visible;
+  transform: translateX(0);
+  z-index: 2;
+}
+
+.hero-slide.is-transitioning {
+  position: absolute;
+  visibility: visible;
+  opacity: 1;
+  z-index: 1;
+}
+
+.hero-slide.is-transitioning.is-entering-from-right {
+  transform: translateX(100%);
+  z-index: 2;
+}
+
+.hero-slide.is-transitioning.is-entering-from-left {
+  transform: translateX(-100%);
+  z-index: 2;
+}
+
+.hero-slide.is-transitioning.is-exiting-to-left {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.hero-slide.is-transitioning.is-exiting-to-right {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.hero-slide.is-transitioning.is-active {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 2;
+  position: relative;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide,
+  .hero-slide.is-transitioning {
+    transition: none;
+    transform: none;
+  }
 }
 
 .hero-slide-cover {
@@ -59,6 +105,7 @@
 
 .hero-cover-media img {
   object-fit: cover;
+  transition: filter 0.3s ease;
 }
 
 .hero-cover-overlay {
@@ -68,6 +115,9 @@
   padding: clamp(2.2rem, 6vw, 3rem);
   border-radius: 0;
   background: linear-gradient(180deg, rgba(12, 18, 32, 0.05) 0%, rgba(12, 18, 32, 0.75) 65%, rgba(12, 18, 32, 0.92) 100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
 }
 
 .hero-cover-copy {
@@ -110,6 +160,17 @@
   color: #ffffff;
 }
 
+.hero-slide:hover .hero-cover-overlay,
+.hero-slide:focus-within .hero-cover-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hero-slide:hover .hero-cover-media img,
+.hero-slide:focus-within .hero-cover-media img {
+  filter: brightness(0.55);
+}
+
 .hero-slider-controls {
   position: absolute;
   top: 50%;
@@ -119,6 +180,7 @@
   justify-content: space-between;
   padding: 0 0.75rem;
   pointer-events: none;
+  z-index: 5;
 }
 
 .hero-slide-btn {
@@ -150,6 +212,8 @@
   justify-content: center;
   gap: 0.5rem;
   margin-top: 1.6rem;
+  position: relative;
+  z-index: 4;
 }
 
 .hero-slide-dot {

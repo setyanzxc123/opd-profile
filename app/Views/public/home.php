@@ -19,16 +19,9 @@
                 </figure>
                 <div class="hero-cover-overlay">
                   <div class="hero-cover-copy">
-                    <?php if ($slide['published']): ?>
-                      <span class="hero-eyebrow hero-eyebrow-light">Terbit <?= esc($slide['published']) ?></span>
-                    <?php endif; ?>
                     <h2 class="hero-cover-title"><?= esc($slide['title']) ?></h2>
-                    <?php if ($slide['excerpt']): ?>
-                      <p class="hero-cover-lead"><?= esc($slide['excerpt']) ?></p>
-                    <?php endif; ?>
                     <div class="hero-cover-actions">
                       <a class="btn btn-public-primary" href="<?= site_url('berita/' . esc($slide['slug'], 'url')) ?>">Baca selengkapnya</a>
-                      <a class="hero-link hero-link-light" href="<?= site_url('berita') ?>">Lihat semua berita</a>
                     </div>
                   </div>
                 </div>

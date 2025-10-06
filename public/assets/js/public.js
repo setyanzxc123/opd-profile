@@ -9,19 +9,6 @@
       return;
     }
 
-    const setActiveState = (slides, dots, index) => {
-      slides.forEach((slide, idx) => {
-        const isActive = idx === index;
-        slide.classList.toggle('is-active', isActive);
-        slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
-        if (dots[idx]) {
-          dots[idx].classList.toggle('is-active', isActive);
-          dots[idx].setAttribute('aria-selected', isActive ? 'true' : 'false');
-          dots[idx].setAttribute('tabindex', isActive ? '0' : '-1');
-        }
-      });
-    };
-
     carousels.forEach((carousel) => {
       const slides = toArray(carousel.querySelectorAll('[data-carousel-slide]'));
       if (!slides.length) {
@@ -33,24 +20,142 @@
       const nextBtn = carousel.querySelector('[data-carousel-next]');
       const toggleBtn = carousel.querySelector('[data-carousel-toggle]');
       const interval = Number(carousel.getAttribute('data-carousel-interval')) || 6500;
+      const reduceMotionQuery = typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+
+      const shouldReduceMotion = () => (reduceMotionQuery ? reduceMotionQuery.matches : false);
+
+      const updateDots = (index) => {
+        dots.forEach((dot, idx) => {
+          const isActive = idx === index;
+          dot.classList.toggle('is-active', isActive);
+          dot.setAttribute('aria-selected', isActive ? 'true' : 'false');
+          dot.setAttribute('tabindex', isActive ? '0' : '-1');
+        });
+      };
+
+      const resetSlideState = (slide) => {
+        slide.classList.remove(
+          'is-transitioning',
+          'is-entering-from-left',
+          'is-entering-from-right',
+          'is-exiting-to-left',
+          'is-exiting-to-right'
+        );
+      };
+
+      const applyImmediateState = (index) => {
+        slides.forEach((slide, idx) => {
+          const isActive = idx === index;
+          slide.classList.toggle('is-active', isActive);
+          resetSlideState(slide);
+          slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+        });
+        updateDots(index);
+      };
 
       let activeIndex = slides.findIndex((slide) => slide.classList.contains('is-active'));
       if (activeIndex < 0) {
         activeIndex = 0;
       }
-      setActiveState(slides, dots, activeIndex);
+      applyImmediateState(activeIndex);
 
       let timerId = null;
       let isPaused = false;
+      let isAnimating = false;
 
-      const move = (step) => {
-        activeIndex = (activeIndex + step + slides.length) % slides.length;
-        setActiveState(slides, dots, activeIndex);
-      };
+      if (reduceMotionQuery) {
+        const handleMotionChange = (event) => {
+          if (event.matches) {
+            isAnimating = false;
+            applyImmediateState(activeIndex);
+          }
+        };
+        if (typeof reduceMotionQuery.addEventListener === 'function') {
+          reduceMotionQuery.addEventListener('change', handleMotionChange);
+        } else if (typeof reduceMotionQuery.addListener === 'function') {
+          reduceMotionQuery.addListener(handleMotionChange);
+        }
+      }
 
-      const goTo = (index) => {
-        activeIndex = (index + slides.length) % slides.length;
-        setActiveState(slides, dots, activeIndex);
+      const performTransition = (nextIndex, direction) => {
+        if (slides.length <= 1) {
+          if (nextIndex !== activeIndex) {
+            activeIndex = nextIndex;
+            applyImmediateState(activeIndex);
+          }
+          return false;
+        }
+
+        const reduceMotion = shouldReduceMotion();
+        if (reduceMotion) {
+          if (nextIndex !== activeIndex) {
+            activeIndex = nextIndex;
+            applyImmediateState(activeIndex);
+          }
+          return true;
+        }
+
+        if (isAnimating || nextIndex === activeIndex) {
+          return false;
+        }
+
+        isAnimating = true;
+        const currentIndex = activeIndex;
+        const currentSlide = slides[currentIndex];
+        const nextSlide = slides[nextIndex];
+        const enteringClass = direction > 0 ? 'is-entering-from-right' : 'is-entering-from-left';
+        const exitingClass = direction > 0 ? 'is-exiting-to-left' : 'is-exiting-to-right';
+
+        resetSlideState(currentSlide);
+        resetSlideState(nextSlide);
+
+        currentSlide.classList.add('is-transitioning', exitingClass);
+        nextSlide.classList.add('is-transitioning', enteringClass);
+        nextSlide.setAttribute('aria-hidden', 'false');
+        updateDots(nextIndex);
+
+        const cleanup = () => {
+          currentSlide.classList.remove('is-active');
+          currentSlide.setAttribute('aria-hidden', 'true');
+          resetSlideState(currentSlide);
+
+          nextSlide.classList.add('is-active');
+          nextSlide.setAttribute('aria-hidden', 'false');
+          resetSlideState(nextSlide);
+
+          activeIndex = nextIndex;
+          isAnimating = false;
+        };
+
+        let didCleanup = false;
+        const finish = () => {
+          if (didCleanup) {
+            return;
+          }
+          didCleanup = true;
+          nextSlide.removeEventListener('transitionend', onTransitionEnd);
+          cleanup();
+        };
+
+        const onTransitionEnd = (event) => {
+          if (event.target !== nextSlide || event.propertyName !== 'transform') {
+            return;
+          }
+          finish();
+        };
+
+        nextSlide.addEventListener('transitionend', onTransitionEnd);
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            currentSlide.classList.remove('is-active');
+            currentSlide.setAttribute('aria-hidden', 'true');
+            nextSlide.classList.add('is-active');
+          });
+        });
+
+        setTimeout(finish, 700);
+        return true;
       };
 
       const stop = () => {
@@ -60,12 +165,47 @@
         }
       };
 
+      const restartTimer = () => {
+        stop();
+        if (!isPaused) {
+          start();
+        }
+      };
+
+      const move = (step, { resetTimer = true } = {}) => {
+        if (!step) {
+          return;
+        }
+        const direction = step > 0 ? 1 : -1;
+        const nextIndex = (activeIndex + step + slides.length) % slides.length;
+        const didChange = performTransition(nextIndex, direction);
+        if (didChange && resetTimer) {
+          restartTimer();
+        }
+      };
+
+      const goTo = (index) => {
+        const normalizedIndex = (index + slides.length) % slides.length;
+        if (normalizedIndex === activeIndex) {
+          return;
+        }
+        const rawDiff = normalizedIndex - activeIndex;
+        let direction = rawDiff > 0 ? 1 : -1;
+        if (Math.abs(rawDiff) > slides.length / 2) {
+          direction *= -1;
+        }
+        const didChange = performTransition(normalizedIndex, direction);
+        if (didChange) {
+          restartTimer();
+        }
+      };
+
       const start = () => {
         if (slides.length <= 1 || isPaused) {
           return;
         }
         stop();
-        timerId = setInterval(() => move(1), interval);
+        timerId = setInterval(() => move(1, { resetTimer: false }), interval);
       };
 
       const pause = () => {
