@@ -17,6 +17,15 @@ class News extends BaseController
         'image/gif',
     ];
 
+    private function optimizeImage(string $path): void
+    {
+        $image = \Config\Services::image();
+        
+        $image->withFile($path)
+            ->resize(1200, 630, true, 'width') // Optimal size for social media sharing
+            ->save($path, 85);
+    }
+
     private function ensureUploadsDir(): string
     {
         $target = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, self::UPLOAD_DIR);
@@ -117,6 +126,13 @@ class News extends BaseController
         }
 
         $relativePath = self::UPLOAD_DIR . '/' . $newName;
+        $fullPath     = $targetDir . DIRECTORY_SEPARATOR . $newName;
+
+        try {
+            $this->optimizeImage($fullPath);
+        } catch (\Throwable $e) {
+            log_message('error', 'Failed to optimize news thumbnail: {error}', ['error' => $e->getMessage()]);
+        }
 
         if ($originalPath && $originalPath !== $relativePath) {
             $this->deleteFile($originalPath);
@@ -288,4 +304,3 @@ class News extends BaseController
         return redirect()->to(site_url('admin/news'))->with('message', 'Berita berhasil dihapus.');
     }
 }
-
