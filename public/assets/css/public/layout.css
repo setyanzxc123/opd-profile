@@ -80,14 +80,6 @@
 
 /* Section heading accent underline */
 .section-head h2 { position: relative; display: inline-block; }
-.section-head h2::after {
-  content: '';
-  position: absolute;
-  left: 0; right: 0; bottom: -0.4rem;
-  height: 3px;
-  border-radius: 999px;
-  background: color-mix(in sRGB, var(--public-primary) 60%, white);
-}
 
 /* Add card-base class to all card elements in HTML instead of CSS inheritance */
 

@@ -10,7 +10,7 @@
       <div class="card-header border-0 bg-transparent pb-0">
         <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
           <div>
-            <h4 class="fw-bold mb-1">Profil OPD</h4>
+            <h4 class="fw-bold mb-1">Profil</h4>
             <p class="text-muted mb-0">Perbarui informasi instansi yang tampil pada situs publik.</p>
           </div>
           <a href="<?= site_url('admin') ?>" class="btn btn-outline-secondary btn-sm">

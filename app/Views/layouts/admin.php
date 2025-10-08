@@ -8,7 +8,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title><?= esc($title ?? 'Admin OPD') ?></title>
-  <link rel="icon" type="image/x-icon" href="<?= base_url('assets/img/favicon/favicon.ico') ?>" />
+  <link rel="icon" type="image/x-icon" href="<?= base_url('favicon.ico') ?>" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -98,7 +98,7 @@
           <li class="menu-item<?= $section === 'profile' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/profile') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-buildings"></i>
-              <div class="text-truncate">Profil OPD</div>
+              <div class="text-truncate">Profil</div>
             </a>
           </li>
           <?php endif; ?>
@@ -178,7 +178,7 @@
               $segments = $uri->getSegments();
               $labelsMap = [
                 'admin'     => 'Dasbor',
-                'profile'   => 'Profil OPD',
+                'profile'   => 'Profil',
                 'news'      => 'Berita',
                 'galleries' => 'Galeri',
                 'documents' => 'Dokumen',
