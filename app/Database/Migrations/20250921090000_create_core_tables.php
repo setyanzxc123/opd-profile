@@ -3,6 +3,7 @@
 namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
+use CodeIgniter\Database\RawSql;
 
 class CreateCoreTables extends Migration
 {
@@ -48,9 +49,9 @@ class CreateCoreTables extends Migration
                 'null' => true,
             ],
             'created_at' => [
-                'type'    => 'DATETIME',
+                'type'    => 'TIMESTAMP',
                 'null'    => false,
-                'default' => 'CURRENT_TIMESTAMP',
+                'default' => new RawSql('CURRENT_TIMESTAMP'),
             ],
             'updated_at' => [
                 'type' => 'DATETIME',
@@ -101,9 +102,9 @@ class CreateCoreTables extends Migration
                 'null'       => true,
             ],
             'created_at' => [
-                'type'    => 'DATETIME',
+                'type'    => 'TIMESTAMP',
                 'null'    => false,
-                'default' => 'CURRENT_TIMESTAMP',
+                'default' => new RawSql('CURRENT_TIMESTAMP'),
             ],
             'updated_at' => [
                 'type' => 'DATETIME',
@@ -159,9 +160,9 @@ class CreateCoreTables extends Migration
                 'default'    => 0,
             ],
             'created_at' => [
-                'type'    => 'DATETIME',
+                'type'    => 'TIMESTAMP',
                 'null'    => false,
-                'default' => 'CURRENT_TIMESTAMP',
+                'default' => new RawSql('CURRENT_TIMESTAMP'),
             ],
             'updated_at' => [
                 'type' => 'DATETIME',
@@ -207,9 +208,9 @@ class CreateCoreTables extends Migration
                 'null'       => true,
             ],
             'created_at' => [
-                'type'    => 'DATETIME',
+                'type'    => 'TIMESTAMP',
                 'null'    => false,
-                'default' => 'CURRENT_TIMESTAMP',
+                'default' => new RawSql('CURRENT_TIMESTAMP'),
             ],
             'updated_at' => [
                 'type' => 'DATETIME',
@@ -243,9 +244,9 @@ class CreateCoreTables extends Migration
                 'constraint' => 255,
             ],
             'created_at' => [
-                'type'    => 'DATETIME',
+                'type'    => 'TIMESTAMP',
                 'null'    => false,
-                'default' => 'CURRENT_TIMESTAMP',
+                'default' => new RawSql('CURRENT_TIMESTAMP'),
             ],
             'updated_at' => [
                 'type' => 'DATETIME',
@@ -282,9 +283,9 @@ class CreateCoreTables extends Migration
                 'constraint' => 255,
             ],
             'created_at' => [
-                'type'    => 'DATETIME',
+                'type'    => 'TIMESTAMP',
                 'null'    => false,
-                'default' => 'CURRENT_TIMESTAMP',
+                'default' => new RawSql('CURRENT_TIMESTAMP'),
             ],
             'updated_at' => [
                 'type' => 'DATETIME',
@@ -337,9 +338,9 @@ class CreateCoreTables extends Migration
                 'null' => true,
             ],
             'created_at' => [
-                'type'    => 'DATETIME',
+                'type'    => 'TIMESTAMP',
                 'null'    => false,
-                'default' => 'CURRENT_TIMESTAMP',
+                'default' => new RawSql('CURRENT_TIMESTAMP'),
             ],
             'updated_at' => [
                 'type' => 'DATETIME',
@@ -375,9 +376,9 @@ class CreateCoreTables extends Migration
                 'null' => true,
             ],
             'created_at' => [
-                'type'    => 'DATETIME',
+                'type'    => 'TIMESTAMP',
                 'null'    => false,
-                'default' => 'CURRENT_TIMESTAMP',
+                'default' => new RawSql('CURRENT_TIMESTAMP'),
             ],
         ]);
         $this->forge->addKey('id', true);
@@ -398,3 +399,6 @@ class CreateCoreTables extends Migration
         $this->forge->dropTable('users', true);
     }
 }
+
+
+

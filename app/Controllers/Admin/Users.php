@@ -228,4 +228,6 @@ class Users extends BaseController
 
         return redirect()->to(site_url('admin/users'))->with('message', "Password baru untuk {$user['username']}: {$newPassword}");
     }
+
 }
+

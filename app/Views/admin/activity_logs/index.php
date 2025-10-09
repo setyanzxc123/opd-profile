@@ -38,7 +38,7 @@
 <div class="card">
     <div class="card-body">
         <div class="table-responsive">
-            <table id="logsTable" class="table table-striped table-hover table-compact align-middle">
+            <table id="logsTable" class="table table-striped table-hover table-sm align-middle">
                 <thead>
                     <tr>
                         <th scope="col">#</th>
@@ -56,25 +56,25 @@
                             <td><?= esc($log['username'] ?? '-') ?></td>
                             <td>
                               <?php
-                                $badgeClass = 'bg-label-primary';
+                                $badgeClass = 'text-bg-primary';
                                 $act = strtolower((string)($log['action'] ?? ''));
                                 if ($act !== '') {
                                   if (strpos($act, 'failed') !== false && (strpos($act, 'login') !== false || strpos($act, 'auth') !== false)) {
-                                    $badgeClass = 'bg-label-danger';
+                                    $badgeClass = 'text-bg-danger';
                                   } elseif (strpos($act, 'logout') !== false) {
-                                    $badgeClass = 'bg-label-secondary';
+                                    $badgeClass = 'text-bg-secondary';
                                   } elseif (strpos($act, 'login') !== false || strpos($act, 'auth') !== false) {
-                                    $badgeClass = 'bg-label-success';
+                                    $badgeClass = 'text-bg-success';
                                   } elseif (strpos($act, 'delete') !== false || strpos($act, 'remove') !== false) {
-                                    $badgeClass = 'bg-label-danger';
+                                    $badgeClass = 'text-bg-danger';
                                   } elseif (strpos($act, 'update') !== false || strpos($act, 'edit') !== false) {
-                                    $badgeClass = 'bg-label-warning';
+                                    $badgeClass = 'text-bg-warning';
                                   } elseif (strpos($act, 'create') !== false || strpos($act, 'add') !== false || strpos($act, 'insert') !== false) {
-                                    $badgeClass = 'bg-label-success';
+                                    $badgeClass = 'text-bg-success';
                                   } elseif (strpos($act, 'download') !== false) {
-                                    $badgeClass = 'bg-label-info';
+                                    $badgeClass = 'text-bg-info';
                                   } elseif (strpos($act, 'upload') !== false) {
-                                    $badgeClass = 'bg-label-primary';
+                                    $badgeClass = 'text-bg-primary';
                                   }
                                 }
                               ?>
@@ -92,28 +92,57 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('pageStyles') ?>
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"
+      integrity="sha384-5oFfLntNy8kuC2TaebWZbaHTqdh3Q+7PwYbB490gupK0YtTAB7mBJGv4bQl9g9rK"
+      crossorigin="anonymous">
+<link rel="stylesheet"
+      href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css"
+      integrity="sha384-jj44VXG857zuSsNQ7iqJihzOcCFRhs3qS4oLwyc4Hg+P9WjpwyR6T1ulnFKzhhaQ"
+      crossorigin="anonymous">
 <?= $this->endSection() ?>
 
 <?= $this->section('pageScripts') ?>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"
+        integrity="sha384-k5vbMeKHbxEZ0AEBTSdR7UjAgWCcUfrS8c0c5b2AfIh7olfhNkyCZYwOfzOQhauK"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"
+        integrity="sha384-PgPBH0hy6DTJwu7pTf6bkRqPlf/+pjUBExpr/eIfzszlGYFlF9Wi9VTAJODPhgCO"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"
+        integrity="sha384-VUnyCeQcqiiTlSM4AISHjJWKgLSM5VSyOeipcD9S/ybCKR3OhChZrPPjjrLfVV0y"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"
+        integrity="sha384-T6YQaHyTPTbybQQV23jtlugHCneQYjePXdcEU+KMWGQY8EUQygBW9pRx0zpSU0/i"
+        crossorigin="anonymous"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const table = document.querySelector('#logsTable');
         if (table && typeof $ === 'function' && $.fn.DataTable) {
             $(table).DataTable({
                 order: [[1, 'desc']],
+                responsive: {
+                    details: {
+                        display: $.fn.dataTable.Responsive.display.childRowImmediate,
+                        target: 'tr'
+                    }
+                },
+                autoWidth: false,
                 language: {
                     url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json'
                 },
                 pageLength: 25,
                 columnDefs: [
-                    { targets: 0, orderable: false },
-                ],
+                    { targets: 0, orderable: false, responsivePriority: 5 },
+                    { targets: 1, responsivePriority: 1 },
+                    { targets: 2, responsivePriority: 3 },
+                    { targets: 3, responsivePriority: 2 },
+                    { targets: 4, responsivePriority: 4 }
+                ]
             });
         }
     });
 </script>
 <?= $this->endSection() ?>
+
 

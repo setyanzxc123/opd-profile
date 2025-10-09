@@ -32,7 +32,7 @@ class Profile extends BaseController
         }
 
         return view('admin/profile/edit', [
-            'title'      => 'Profil OPD',
+            'title'      => 'Profil',
             'profile'    => $profile,
             'validation' => \Config\Services::validation(),
         ]);
@@ -75,7 +75,7 @@ class Profile extends BaseController
             $model->insert($data);
         }
 
-        $message = $id > 0 ? 'Memperbarui Profil OPD' : 'Membuat Profil OPD';
+        $message = $id > 0 ? 'Memperbarui Profil' : 'Membuat Profil';
         log_activity('profile.save', $message);
 
         return redirect()->to(site_url('admin/profile'))

@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html
   lang="id"
-  class="layout-menu-fixed"
+ 
   data-assets-path="<?= base_url('assets/') ?>"
   data-template="vertical-menu-template-free">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title><?= esc($title ?? 'Admin OPD') ?></title>
-  <link rel="icon" type="image/x-icon" href="<?= base_url('assets/img/favicon/favicon.ico') ?>" />
+  <link rel="icon" type="image/x-icon" href="<?= base_url('favicon.ico') ?>" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,7 +27,7 @@
   <script src="<?= base_url('assets/js/config.js') ?>"></script>
 </head>
 
-<body>
+<body class="layout-menu-fixed">
   <div class="layout-wrapper layout-content-navbar">
     <div class="layout-container">
       <?php
@@ -35,6 +35,38 @@
         $matchedRoute = service('router')->getMatchedRoute();
         $currentRoute = $matchedRoute[0] ?? '';
         $section      = $uri->getSegment(2);
+        $sessionName  = trim((string) (session('name') ?? ''));
+        $sessionUser  = trim((string) (session('username') ?? ''));
+        $displayName  = $sessionName !== '' ? $sessionName : ($sessionUser !== '' ? $sessionUser : 'Pengguna');
+        $initial      = strtoupper(substr($displayName, 0, 1));
+        if (function_exists('mb_substr')) {
+          $mbInitial = mb_substr($displayName, 0, 1, 'UTF-8');
+          if ($mbInitial !== false && $mbInitial !== '') {
+            $initial = mb_strtoupper($mbInitial, 'UTF-8');
+          }
+        }
+        if ($initial === '') {
+          $initial = 'P';
+        }
+        $sessionRole = trim((string) (session('role') ?? ''));
+        $roleLabel   = $sessionRole !== '' ? ucfirst(strtolower($sessionRole)) : '-';
+        $accessConfig = config('AdminAccess');
+        $roleConfig   = ($sessionRole !== '' && isset($accessConfig->roles[$sessionRole])) ? $accessConfig->roles[$sessionRole] : null;
+        $allowedSections = [];
+        if (is_array($roleConfig) && isset($roleConfig['allowedSections'])) {
+          $allowedSections = array_map(
+            static fn ($item) => strtolower((string) $item),
+            $roleConfig['allowedSections']
+          );
+        }
+        $hasFullAccess = in_array('*', $allowedSections, true);
+        $canAccess = static function (string $target) use ($allowedSections, $hasFullAccess): bool {
+          if ($hasFullAccess) {
+            return true;
+          }
+
+          return in_array(strtolower($target), $allowedSections, true);
+        };
       ?>
       <!-- Menu -->
       <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
@@ -45,7 +77,7 @@
                 <i class="tf-icons bx bx-building fs-3"></i>
               </span>
             </span>
-            <span class="app-brand-text demo menu-text fw-bold ms-2">Admin OPD</span>
+            <span class="app-brand-text demo menu-text fw-bold ms-2">Admin</span>
           </a>
           <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
             <i class="bx bx-chevron-left bx-sm align-middle"></i>
@@ -53,67 +85,85 @@
         </div>
         <div class="menu-inner-shadow"></div>
         <ul class="menu-inner py-1">
+          <?php if ($canAccess('dashboard')): ?>
           <li class="menu-item<?= $currentRoute === 'admin' ? ' active' : '' ?>">
             <a href="<?= site_url('admin') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-home-smile"></i>
               <div class="text-truncate">Dasbor</div>
             </a>
           </li>
+          <?php endif; ?>
+
+          <?php if ($canAccess('profile')): ?>
           <li class="menu-item<?= $section === 'profile' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/profile') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-buildings"></i>
-              <div class="text-truncate">Profil OPD</div>
+              <div class="text-truncate">Profil</div>
             </a>
           </li>
+          <?php endif; ?>
+
+          <?php $hasContentAccess = $canAccess('news') || $canAccess('galleries') || $canAccess('documents') || $canAccess('contacts'); ?>
+          <?php if ($hasContentAccess): ?>
           <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Konten</span>
           </li>
+          <?php if ($canAccess('news')): ?>
           <li class="menu-item<?= $section === 'news' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/news') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-news"></i>
               <div class="text-truncate">Berita</div>
             </a>
           </li>
+          <?php endif; ?>
+          <?php if ($canAccess('galleries')): ?>
           <li class="menu-item<?= $section === 'galleries' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/galleries') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-image-alt"></i>
               <div class="text-truncate">Galeri</div>
             </a>
           </li>
+          <?php endif; ?>
+          <?php if ($canAccess('documents')): ?>
           <li class="menu-item<?= $section === 'documents' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/documents') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-file"></i>
               <div class="text-truncate">Dokumen</div>
             </a>
           </li>
+          <?php endif; ?>
+          <?php if ($canAccess('contacts')): ?>
           <li class="menu-item<?= $section === 'contacts' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/contacts') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-envelope"></i>
               <div class="text-truncate">Pesan Kontak</div>
             </a>
           </li>
+          <?php endif; ?>
+          <?php endif; ?>
 
+          <?php $hasManagementAccess = $canAccess('users') || $canAccess('logs'); ?>
+          <?php if ($hasManagementAccess): ?>
           <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Pengelolaan</span>
           </li>
+          <?php if ($canAccess('users')): ?>
           <li class="menu-item<?= $section === 'users' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/users') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-user"></i>
               <div class="text-truncate">Pengguna</div>
             </a>
           </li>
+          <?php endif; ?>
+          <?php if ($canAccess('logs')): ?>
           <li class="menu-item<?= $section === 'logs' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/logs') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-history"></i>
               <div class="text-truncate">Log Aktivitas</div>
             </a>
           </li>
-          <li class="menu-item mt-auto">
-            <a href="<?= site_url('logout') ?>" class="menu-link">
-              <i class="menu-icon tf-icons bx bx-log-out"></i>
-              <div class="text-truncate">Keluar</div>
-            </a>
-          </li>
+          <?php endif; ?>
+          <?php endif; ?>
         </ul>
       </aside>
       <!-- / Menu -->
@@ -123,22 +173,18 @@
 
         <!-- Content wrapper -->
         <div class="content-wrapper">
-          <div class="container-xxl flex-grow-1 container-p-y">
-            <div class="layout-menu-toggle navbar-nav align-items-center d-xl-none mb-3">
-              <a class="nav-item nav-link px-0" href="javascript:void(0)">
-                <i class="bx bx-menu bx-sm"></i>
-              </a>
-            </div>
+          <div class="container-xxl flex-grow-1 container-p-y pt-2">
             <?php
               $segments = $uri->getSegments();
               $labelsMap = [
                 'admin'     => 'Dasbor',
-                'profile'   => 'Profil OPD',
+                'profile'   => 'Profil',
                 'news'      => 'Berita',
                 'galleries' => 'Galeri',
                 'documents' => 'Dokumen',
                 'contacts'  => 'Pesan Kontak',
                 'users'     => 'Pengguna',
+                'settings'  => 'Pengaturan Akun',
                 'logs'      => 'Log Aktivitas',
                 'create'    => 'Tambah',
                 'edit'      => 'Ubah',
@@ -169,17 +215,58 @@
                   }
                 }
             ?>
-            <nav aria-label="breadcrumb" class="mb-4">
-              <ol class="breadcrumb">
-                <?php foreach ($crumbs as $c): ?>
-                  <?php if (!empty($c['active']) || empty($c['url'])): ?>
-                    <li class="breadcrumb-item<?= !empty($c['active']) ? ' active' : '' ?>"<?= !empty($c['active']) ? ' aria-current="page"' : '' ?>><?= esc($c['label']) ?></li>
-                  <?php else: ?>
-                    <li class="breadcrumb-item"><a href="<?= esc($c['url'], 'attr') ?>"><?= esc($c['label']) ?></a></li>
-                  <?php endif; ?>
-                <?php endforeach; ?>
-              </ol>
-            </nav>
+            <div class="card border-0 shadow-sm mb-4">
+              <div class="card-body py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <nav aria-label="breadcrumb" class="mb-0">
+                  <ol class="breadcrumb mb-0">
+                    <?php foreach ($crumbs as $c): ?>
+                      <?php if (!empty($c['active']) || empty($c['url'])): ?>
+                        <li class="breadcrumb-item<?= !empty($c['active']) ? ' active' : '' ?>"<?= !empty($c['active']) ? ' aria-current="page"' : '' ?>><?= esc($c['label']) ?></li>
+                      <?php else: ?>
+                        <li class="breadcrumb-item"><a href="<?= esc($c['url'], 'attr') ?>"><?= esc($c['label']) ?></a></li>
+                      <?php endif; ?>
+                    <?php endforeach; ?>
+                  </ol>
+                </nav>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="dropdown">
+                    <a class="nav-link dropdown-toggle hide-arrow p-0 d-flex align-items-center" href="javascript:void(0);" id="dropdownAccount" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <div class="avatar avatar-online">
+                        <span class="avatar-initial rounded-circle bg-primary text-uppercase"><?= esc($initial) ?></span>
+                      </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownAccount">
+                      <li>
+                        <a class="dropdown-item" href="javascript:void(0);">
+                          <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                              <div class="avatar avatar-online">
+                                <span class="avatar-initial rounded-circle bg-primary text-uppercase"><?= esc($initial) ?></span>
+                              </div>
+                            </div>
+                            <div class="flex-grow-1">
+                              <h6 class="mb-0"><?= esc($displayName) ?></h6>
+                              <small class="text-body-secondary"><?= esc($roleLabel) ?></small>
+                            </div>
+                          </div>
+                        </a>
+                      </li>
+                      <li><div class="dropdown-divider my-1"></div></li>
+                      <li>
+                        <a class="dropdown-item<?= $section === 'settings' ? ' active' : '' ?>" href="<?= site_url('admin/settings') ?>">
+                          <i class="icon-base bx bx-cog icon-md me-3"></i><span>Pengaturan Akun</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a class="dropdown-item" href="<?= site_url('logout') ?>">
+                          <i class="icon-base bx bx-power-off icon-md me-3"></i><span>Keluar</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
             <?php endif; ?>
 
             <?= $this->renderSection('content') ?>
@@ -187,8 +274,7 @@
 
           <footer class="content-footer footer bg-footer-theme">
             <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
-              <div class="mb-2 mb-md-0">&copy; <?= date('Y') ?> Dinas Pelayanan Publik Kota Harmoni</div>
-              <div class="d-none d-md-block small text-body-secondary">Dibangun dengan Sneat Bootstrap 5</div>
+              <div class="mb-2 mb-md-0">&copy; <?= date('Y') ?> Dinas</div>
             </div>
           </footer>
 

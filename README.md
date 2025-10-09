@@ -69,3 +69,12 @@ Additionally, make sure that the following extensions are enabled in your PHP:
 - json (enabled by default - don't turn it off)
 - [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
 - [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+
+## Running Under XAMPP
+
+1. Pastikan Apache mod_rewrite aktif di xampp/apache/conf/httpd.conf (hapus tanda # pada LoadModule rewrite_module).
+2. Pastikan direktori virtual mengizinkan .htaccess: update AllowOverride All untuk htdocs atau virtual host yang dipakai.
+3. Taruh proyek ini di C:/xampp/htdocs/opd-profile lalu jalankan Apache dari XAMPP Control Panel.
+4. Salin env ke .env (atau perbarui .env yang ada) dan set app.baseURL = 'http://localhost/opd-profile/' serta kredensial database Anda.
+5. Akses aplikasi melalui http://localhost/opd-profile/. Semua aset otomatis dihidangkan dari folder public melalui konfigurasi rewrite baru.
+6. Jika Anda memakai virtual host khusus, arahkan DocumentRoot langsung ke folder public agar rewrite tambahan tidak diperlukan.

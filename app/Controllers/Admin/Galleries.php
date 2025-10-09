@@ -17,6 +17,15 @@ class Galleries extends BaseController
         'image/gif',
     ];
 
+    private function optimizeImage(string $path): void
+    {
+        $image = \Config\Services::image();
+        
+        $image->withFile($path)
+            ->resize(1920, 1080, true, 'width')
+            ->save($path, 80);
+    }
+
     private function ensureUploadsDir(): string
     {
         $target = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, self::UPLOAD_DIR);
@@ -67,6 +76,13 @@ class Galleries extends BaseController
         }
 
         $relativePath = self::UPLOAD_DIR . '/' . $newName;
+        $fullPath     = $targetDir . DIRECTORY_SEPARATOR . $newName;
+
+        try {
+            $this->optimizeImage($fullPath);
+        } catch (\Throwable $e) {
+            log_message('error', 'Failed to optimize gallery image: {error}', ['error' => $e->getMessage()]);
+        }
 
         if ($originalPath && $originalPath !== $relativePath) {
             $this->deleteFile($originalPath);

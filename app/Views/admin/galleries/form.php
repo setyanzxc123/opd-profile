@@ -41,7 +41,7 @@
             </div>
           </div>
 
-          <div class="mt-3">
+          <div class="mt-4 d-flex justify-content-end gap-2">
             <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i> Simpan</button>
           </div>
         </form>

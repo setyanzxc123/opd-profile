@@ -111,9 +111,9 @@
                 <?php endif; ?>
             </div>
 
-            <div class="mt-3 d-flex flex-wrap gap-2">
-                <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i> Simpan</button>
+            <div class="mt-4 d-flex flex-wrap justify-content-end gap-2 align-items-center">
                 <button type="reset" class="btn btn-outline-secondary" id="resetFormButton"><i class="bx bx-reset me-1"></i> Atur Ulang</button>
+                <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i> Simpan</button>
             </div>
         </form>
     </div>

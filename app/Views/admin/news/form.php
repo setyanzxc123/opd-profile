@@ -16,7 +16,7 @@
         </div>
 
         <?php if (session()->getFlashdata('error')): ?>
-          <div class="alert alert-soft-danger alert-dismissible fade show" role="alert">
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <?= esc(session('error')) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
           </div>
@@ -26,7 +26,7 @@
           <?= csrf_field() ?>
 
           <div class="row g-4">
-            <div class="col-xl-9">
+            <div class="col-12">
               <div class="card shadow-sm h-100">
                 <div class="card-body p-4">
                   <div class="mb-10">
@@ -71,12 +71,23 @@
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="col-xl-3">
+          <div class="row row-cols-1 row-cols-md-2 g-4 mt-0 align-items-stretch">
+            <div class="col">
               <div class="news-side-section">
-                <div class="card shadow-sm">
+                <div class="card shadow-sm h-100">
                   <div class="card-body p-4">
                     <h5 class="fw-semibold mb-3">Pengaturan &amp; Media</h5>
+
+                    <div class="mb-3">
+                      <label class="form-label" for="editorLanguage">Bahasa Editor</label>
+                      <select id="editorLanguage" class="form-select">
+                        <option value="id" selected>Bahasa Indonesia</option>
+                        <option value="en">English</option>
+                      </select>
+                      <div class="form-text">Pilih bahasa antarmuka TinyMCE yang paling nyaman digunakan.</div>
+                    </div>
 
                     <div class="mb-3">
                       <label class="form-label" for="publishedAt">Rencana Tanggal Terbit</label>
@@ -103,9 +114,11 @@
                   </div>
                 </div>
               </div>
+            </div>
 
+            <div class="col">
               <div class="news-side-section">
-                <div class="card shadow-sm">
+                <div class="card shadow-sm h-100">
                   <div class="card-body p-4">
                     <h5 class="fw-semibold mb-3">Bantuan Penulisan</h5>
 
@@ -125,28 +138,13 @@
                     </div>
 
                     <button type="button" class="btn btn-outline-secondary w-100 js-editor-action" data-action="clear-format"><i class="bx bx-eraser me-1"></i> Bersihkan Format</button>
-
-                    <div class="news-note mt-3">
-                      <strong>Catatan internal:</strong> Gunakan area ini untuk poin penting atau tindak lanjut. Konten tidak ikut tersimpan.
-                    </div>
-                    <textarea class="form-control form-control-sm mt-2" rows="3" placeholder="Catatan sementara untuk tim redaksi..."></textarea>
-
-                    <div class="news-guideline mt-4 p-3">
-                      <h6 class="fw-semibold mb-2">Panduan Singkat</h6>
-                      <ul class="mb-0 ps-3">
-                        <li>Judul ringkas dan mencerminkan inti berita.</li>
-                        <li>Lead memuat unsur 5W+1H dan menjawab pertanyaan utama.</li>
-                        <li>Sertakan kutipan resmi dan data yang telah diverifikasi.</li>
-                        <li>Pastikan gambar sampul relevan dan memiliki resolusi baik.</li>
-                      </ul>
-                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="d-flex justify-content-end mt-4">
+          <div class="d-flex justify-content-end gap-2 mt-4">
             <button type="submit" class="btn btn-primary btn-lg"><i class="bx bx-save me-2"></i> Simpan Berita</button>
           </div>
         </form>
@@ -167,8 +165,20 @@
     const characterCountEl = document.getElementById('characterCount');
     const readingTimeEl = document.getElementById('readingTime');
     const lastUpdatedEl = document.getElementById('lastUpdated');
+    const editorLanguageSelect = document.getElementById('editorLanguage');
     const slugPreviewInitial = slugPreview ? slugPreview.dataset.initialSlug || 'slug-otomatis' : 'slug-otomatis';
     let lastUpdateTimer;
+    const safeStorage = (() => {
+      if (typeof window === 'undefined') return null;
+      try {
+        return window.localStorage;
+      } catch (error) {
+        return null;
+      }
+    })();
+    const LANGUAGE_STORAGE_KEY = 'newsEditorLanguage';
+    const DEFAULT_EDITOR_LANGUAGE = 'id';
+    let currentEditorLanguage = DEFAULT_EDITOR_LANGUAGE;
 
     const slugify = (value) => {
       const raw = value ? value.toString() : '';
@@ -213,8 +223,9 @@
       const characters = text.replace(/\s/g, '').length;
       const minutes = words ? Math.max(1, Math.round(words / 200)) : 0;
 
+      const statsLocale = currentEditorLanguage === 'en' ? 'en-US' : 'id-ID';
       if (wordCountEl) wordCountEl.textContent = `${words} kata`;
-      if (characterCountEl) characterCountEl.textContent = characters.toLocaleString('id-ID');
+      if (characterCountEl) characterCountEl.textContent = characters.toLocaleString(statsLocale);
       if (readingTimeEl) {
         readingTimeEl.textContent = minutes ? `${minutes} menit` : '—';
       }
@@ -252,7 +263,7 @@
   <cite>Nama Narasumber, Jabatan</cite>
 </blockquote>`,
         data: `<h3>Data Pendukung</h3>
-<table class="table table-bordered table-compact">
+<table class="table table-bordered table-sm">
   <thead>
     <tr>
       <th>Indikator</th>
@@ -296,35 +307,66 @@
       });
     });
 
-    tinymce.init({
-      selector: '#newsContent',
-      language: 'id',
-      language_url: '<?= base_url('assets/vendor/tinymce/langs/id.js') ?>',
-      branding: false,
-      promotion: false,
-      height: 520,
-      menubar: 'file edit view insert format tools table help',
-      toolbar_sticky: true,
-      toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist checklist outdent indent | table image media link | removeformat | fullscreen preview print code',
-      plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount help quickbars emoticons',
-      quickbars_selection_toolbar: 'bold italic underline | quicklink blockquote quicktable',
-      quickbars_insert_toolbar: 'image media codesample | hr',
-      autosave_interval: '30s',
-      autosave_restore_when_empty: true,
-      autosave_retention: '2m',
-      image_caption: true,
-      content_style: 'body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif; font-size: 16px; line-height: 1.7; }',
-      table_default_attributes: { class: 'table table-striped table-compact' },
-      file_picker_types: 'image media',
-      setup: function (editor) {
-        editor.on('init', function () {
-          updateContentStats();
-        });
-        editor.on('change keyup setcontent', updateContentStats);
+    const initTinyMCE = (languageCode) => {
+      currentEditorLanguage = languageCode === 'en' ? 'en' : DEFAULT_EDITOR_LANGUAGE;
+      tinymce.remove('#newsContent');
+
+      const editorConfig = {
+        selector: '#newsContent',
+        branding: false,
+        promotion: false,
+        height: 520,
+        menubar: 'file edit view insert format tools table help',
+        toolbar_sticky: true,
+        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist checklist outdent indent | table image media link | removeformat | fullscreen preview print code',
+        plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount help quickbars emoticons',
+        quickbars_selection_toolbar: 'bold italic underline | quicklink blockquote quicktable',
+        quickbars_insert_toolbar: 'image media codesample | hr',
+        autosave_interval: '30s',
+        autosave_restore_when_empty: true,
+        autosave_retention: '2m',
+        image_caption: true,
+        content_style: 'body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif; font-size: 16px; line-height: 1.7; }',
+        table_default_attributes: { class: 'table table-striped table-sm' },
+        file_picker_types: 'image media',
+        language: currentEditorLanguage,
+        setup: function (editor) {
+          editor.on('init', function () {
+            updateContentStats();
+          });
+          editor.on('change keyup setcontent', updateContentStats);
+        }
+      };
+
+      if (currentEditorLanguage === 'id') {
+        editorConfig.language_url = '<?= base_url('assets/vendor/tinymce/langs/id.js') ?>';
       }
-    });
+
+      tinymce.init(editorConfig);
+    };
+
+    let initialEditorLanguage = DEFAULT_EDITOR_LANGUAGE;
+
+    if (safeStorage) {
+      const storedLanguage = safeStorage.getItem(LANGUAGE_STORAGE_KEY);
+      if (storedLanguage === 'en' || storedLanguage === 'id') {
+        initialEditorLanguage = storedLanguage;
+      }
+    }
+
+    if (editorLanguageSelect) {
+      editorLanguageSelect.value = initialEditorLanguage;
+      editorLanguageSelect.addEventListener('change', (event) => {
+        const selectedLanguage = event.target.value === 'en' ? 'en' : DEFAULT_EDITOR_LANGUAGE;
+        if (safeStorage) {
+          safeStorage.setItem(LANGUAGE_STORAGE_KEY, selectedLanguage);
+        }
+        initTinyMCE(selectedLanguage);
+      });
+    }
+
+    initTinyMCE(initialEditorLanguage);
   });
 </script>
 <?= $this->endSection() ?>
-
 

@@ -1,4 +1,4 @@
-﻿# Panduan Konfigurasi `.env`
+# Panduan Konfigurasi `.env`
 
 Panduan ini membantu menyiapkan file `.env` untuk aplikasi OPD Profile berbasis CodeIgniter 4.
 
@@ -95,5 +95,42 @@ Perintah tersebut membuat seluruh tabel (users, opd_profile, services, news, gal
 
 ## 9. Catatan Tambahan
 
-- Kolom `services`, `contact_messages`, dan fitur anti-spam akan diimplementasikan setelah frontend publik rampung. Konfigurasi SMTP tetap disiapkan untuk mengantisipasi fitur tersebut.
+- Kolom `services`, `documents`, dan `contact_messages` dikelola melalui panel admin. Pastikan migrasi terbaru sudah diterapkan sebelum mengubah data.
 - Apabila mengaktifkan caching atau fitur lainnya, tambahkan variabel yang relevan (misal Redis) di `.env` sesuai dokumentasi CodeIgniter 4.
+
+## 10. Konfigurasi Kontak & Anti-Spam
+
+Tambah variabel berikut jika ingin mengaktifkan proteksi tambahan pada formulir kontak:
+
+```ini
+# Daftar email yang diblokir (pisahkan dengan koma)
+CONTACT_BLOCKED_EMAILS = ''
+# Daftar domain email yang diblokir
+CONTACT_BLOCKED_DOMAINS = ''
+# Daftar alamat IP yang diblokir
+CONTACT_BLOCKED_IPS = ''
+
+# Limit harian per IP/email (0 = tidak dibatasi)
+CONTACT_LIMIT_PER_IP    = 20
+CONTACT_LIMIT_PER_EMAIL = 20
+
+```
+
+## 11. Command Pemeliharaan
+
+Gunakan command berikut untuk menghapus atau menganonimkan pesan kontak yang sudah selesai:
+
+```bash
+php spark contacts:purge 90           # hapus pesan closed lebih tua 90 hari
+php spark contacts:purge 60 --anonymize  # anonimkan tanpa menghapus
+```
+
+## 12. Menjalankan Tes
+
+Aktifkan ekstensi `sqlite3` di `php.ini` lalu jalankan:
+
+```bash
+vendor/bin/phpunit --testsuite App
+```
+
+Tes akan memakai koneksi database `tests` (SQLite in-memory) sehingga data produksi aman.
