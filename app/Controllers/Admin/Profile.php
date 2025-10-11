@@ -25,6 +25,10 @@ class Profile extends BaseController
                 'vision'      => null,
                 'mission'     => null,
                 'address'     => null,
+                'latitude'    => null,
+                'longitude'   => null,
+                'map_zoom'    => null,
+                'map_display' => 0,
                 'phone'       => null,
                 'email'       => null,
             ]);
@@ -48,6 +52,10 @@ class Profile extends BaseController
             'vision'      => 'permit_empty',
             'mission'     => 'permit_empty',
             'address'     => 'permit_empty',
+            'latitude'    => 'permit_empty|numeric|greater_than_equal_to[-90]|less_than_equal_to[90]',
+            'longitude'   => 'permit_empty|numeric|greater_than_equal_to[-180]|less_than_equal_to[180]',
+            'map_zoom'    => 'permit_empty|integer|greater_than_equal_to[1]|less_than_equal_to[20]',
+            'map_display' => 'permit_empty|in_list[0,1]',
         ];
 
         if (! $this->validate($rules)) {
@@ -65,6 +73,10 @@ class Profile extends BaseController
             'vision'      => sanitize_rich_text($this->request->getPost('vision')),
             'mission'     => sanitize_rich_text($this->request->getPost('mission')),
             'address'     => sanitize_plain_text($this->request->getPost('address')),
+            'latitude'    => $this->normalizeCoordinate($this->request->getPost('latitude')),
+            'longitude'   => $this->normalizeCoordinate($this->request->getPost('longitude')),
+            'map_zoom'    => $this->normalizeZoom($this->request->getPost('map_zoom')),
+            'map_display' => $this->normalizeDisplayFlag($this->request->getPost('map_display')),
             'phone'       => sanitize_plain_text($this->request->getPost('phone')),
             'email'       => sanitize_plain_text($this->request->getPost('email')),
         ];
@@ -77,9 +89,55 @@ class Profile extends BaseController
 
         $message = $id > 0 ? 'Memperbarui Profil' : 'Membuat Profil';
         log_activity('profile.save', $message);
+        cache()->delete('public_profile_latest');
 
         return redirect()->to(site_url('admin/profile'))
             ->with('message', 'Profil berhasil disimpan.');
+    }
+
+    private function normalizeCoordinate($value): ?float
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $filtered = trim((string) $value);
+        if ($filtered === '') {
+            return null;
+        }
+
+        $normalized = str_replace(',', '.', $filtered);
+
+        return is_numeric($normalized) ? (float) $normalized : null;
+    }
+
+    private function normalizeZoom($value): ?int
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $filtered = trim((string) $value);
+        if ($filtered === '') {
+            return null;
+        }
+
+        if (ctype_digit($filtered)) {
+            return (int) $filtered;
+        }
+
+        $sanitized = filter_var($filtered, FILTER_SANITIZE_NUMBER_INT);
+
+        return $sanitized === '' ? null : (int) $sanitized;
+    }
+
+    private function normalizeDisplayFlag($value): int
+    {
+        if ($value === null || $value === '') {
+            return 0;
+        }
+
+        return (int) ((string) $value === '1' ? 1 : 0);
     }
 }
 

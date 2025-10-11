@@ -9,7 +9,17 @@ class OpdProfileModel extends Model
     protected $primaryKey = 'id';
     protected $returnType = 'array';
     protected $allowedFields = [
-        'name','description','vision','mission','address','phone','email'
+        'name',
+        'description',
+        'vision',
+        'mission',
+        'address',
+        'latitude',
+        'longitude',
+        'map_zoom',
+        'map_display',
+        'phone',
+        'email',
     ];
     protected $useTimestamps = false; // schema has no created_at/updated_at
 }

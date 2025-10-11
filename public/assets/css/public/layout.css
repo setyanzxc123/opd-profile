@@ -528,3 +528,59 @@
   background: var(--surface-base);
 }
 
+.public-footer .footer-map {
+  min-height: 260px;
+  max-height: 360px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.public-footer .footer-map-placeholder {
+  min-height: 260px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+@media (min-width: 768px) {
+  .public-footer .footer-map {
+    min-height: 300px;
+  }
+  .public-footer .footer-map-placeholder {
+    min-height: 300px;
+  }
+}
+
+.public-footer .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+}
+
+.public-footer .leaflet-popup-content {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #27303f;
+}
+
+.public-footer .leaflet-popup-content a {
+  color: var(--public-primary);
+  text-decoration: none;
+}
+
+.public-footer .leaflet-popup-content a:hover,
+.public-footer .leaflet-popup-content a:focus {
+  text-decoration: underline;
+}
+
+.public-footer .footer-contact-list {
+  margin: 0;
+  padding: 0;
+}
+
+.public-footer .footer-contact-list dt {
+  margin-bottom: 0.25rem;
+}
+
+.public-footer .footer-contact-list dd {
+  margin: 0;
+}
+

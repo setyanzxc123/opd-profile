@@ -1,3 +1,17 @@
+<?php
+  $footerProfileData = $footerProfile ?? ($profile ?? null);
+  $footerMapEnabled  = false;
+
+  if (is_array($footerProfileData)) {
+      $lat = $footerProfileData['latitude'] ?? null;
+      $lng = $footerProfileData['longitude'] ?? null;
+      $display = (int) ($footerProfileData['map_display'] ?? 0) === 1;
+      if ($display && $lat !== null && $lat !== '' && $lng !== null && $lng !== '') {
+          $footerMapEnabled = true;
+      }
+  }
+
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -12,6 +26,9 @@
   <link href="<?= base_url('assets/css/public/layout.css') ?>" rel="stylesheet" />
   <link href="<?= base_url('assets/css/public/components.css') ?>" rel="stylesheet" />
   <link href="<?= base_url('assets/css/public/pages.css') ?>" rel="stylesheet" />
+  <?php if ($footerMapEnabled): ?>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <?php endif; ?>
   <?= $this->renderSection('pageStyles') ?>
 </head>
 <body class="d-flex flex-column min-vh-100 public-body">
@@ -20,9 +37,13 @@
   <main id="konten-utama" class="flex-grow-1" tabindex="-1">
     <?= $this->renderSection('content') ?>
   </main>
-  <?= $this->include('layouts/public_footer') ?>
+  <?= $this->include('layouts/public_footer', ['footerProfile' => $footerProfileData]) ?>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   <script src="<?= base_url('assets/js/public.js') ?>" defer></script>
+  <?php if ($footerMapEnabled): ?>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+    <script src="<?= base_url('assets/js/footer-map.js') ?>" defer></script>
+  <?php endif; ?>
   <?= $this->renderSection('pageScripts') ?>
 </body>
 </html>

@@ -34,8 +34,9 @@ class Pages extends BaseController
         }
 
         return view('public/profile', [
-            'title'   => 'Profil OPD',
-            'profile' => $profile,
+            'title'         => 'Profil OPD',
+            'profile'       => $profile,
+            'footerProfile' => $profile,
         ]);
     }
 
@@ -44,8 +45,9 @@ class Pages extends BaseController
         $services = $this->contentService->allActiveServices();
 
         return view('public/services', [
-            'title'    => 'Layanan Publik',
-            'services' => $services,
+            'title'         => 'Layanan Publik',
+            'services'      => $services,
+            'footerProfile' => $this->contentService->latestProfile(),
         ]);
     }
 
@@ -55,10 +57,11 @@ class Pages extends BaseController
         $news   = $this->contentService->paginatedNews(6, $search);
 
         return view('public/news/index', [
-            'title'    => 'Berita Terbaru',
-            'articles' => $news['articles'],
-            'pager'    => $news['pager'],
-            'search'   => $search,
+            'title'         => 'Berita Terbaru',
+            'articles'      => $news['articles'],
+            'pager'         => $news['pager'],
+            'search'        => $search,
+            'footerProfile' => $this->contentService->latestProfile(),
         ]);
     }
 
@@ -121,9 +124,10 @@ class Pages extends BaseController
         }
 
         return view('public/news/show', [
-            'title'        => $article['title'],
-            'article'      => $article,
-            'published_at' => $publishedAt,
+            'title'         => $article['title'],
+            'article'       => $article,
+            'published_at'  => $publishedAt,
+            'footerProfile' => $this->contentService->latestProfile(),
         ]);
     }
 
@@ -132,8 +136,9 @@ class Pages extends BaseController
         $galleries = $this->contentService->recentGalleries(12);
 
         return view('public/gallery', [
-            'title'     => 'Galeri Kegiatan',
-            'galleries' => $galleries,
+            'title'         => 'Galeri Kegiatan',
+            'galleries'     => $galleries,
+            'footerProfile' => $this->contentService->latestProfile(),
         ]);
     }
 
@@ -142,8 +147,9 @@ class Pages extends BaseController
         $documents = $this->contentService->recentDocuments(50);
 
         return view('public/documents', [
-            'title'     => 'Dokumen Publik',
-            'documents' => $documents,
+            'title'         => 'Dokumen Publik',
+            'documents'     => $documents,
+            'footerProfile' => $this->contentService->latestProfile(),
         ]);
     }
 
@@ -152,8 +158,9 @@ class Pages extends BaseController
         $profile = $this->contentService->latestProfile() ?? [];
 
         return view('public/contact', [
-            'title'   => 'Kontak & Pengaduan',
-            'profile' => $profile,
+            'title'         => 'Kontak & Pengaduan',
+            'profile'       => $profile,
+            'footerProfile' => $profile,
         ]);
     }
 }

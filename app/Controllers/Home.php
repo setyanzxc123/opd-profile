@@ -39,6 +39,7 @@ class Home extends BaseController
             'galleries'        => $galleryItems,
             'documents'        => $documentItems,
             'contactQuickLinks'=> $contactQuickLinks,
+            'footerProfile'    => $profile,
         ]);
     }
 
