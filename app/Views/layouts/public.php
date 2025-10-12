@@ -1,5 +1,6 @@
 <?php
   $footerProfileData = $footerProfile ?? ($profile ?? null);
+  $headerProfileData = is_array($profile ?? null) ? $profile : (is_array($footerProfileData) ? $footerProfileData : null);
   $footerMapEnabled  = false;
 
   if (is_array($footerProfileData)) {
@@ -33,7 +34,7 @@
 </head>
 <body class="d-flex flex-column min-vh-100 public-body">
   <a class="skip-link" href="#konten-utama">Lewati ke konten utama</a>
-  <?= $this->include('layouts/public_nav') ?>
+  <?= $this->include('layouts/public_nav', ['profile' => $headerProfileData]) ?>
   <main id="konten-utama" class="flex-grow-1" tabindex="-1">
     <?= $this->renderSection('content') ?>
   </main>

@@ -3,6 +3,27 @@
   $uri = $request->getUri();
   $path = trim($uri->getPath(), '/');
   $isHome = $path === '';
+  $profileData = is_array($profile ?? null) ? $profile : [];
+
+  if ($profileData === []) {
+      $cachedProfile = cache('public_profile_latest');
+      if (! is_array($cachedProfile)) {
+          try {
+              $cachedProfile = model(\App\Models\OpdProfileModel::class)
+                  ->orderBy('id', 'desc')
+                  ->first() ?: [];
+          } catch (\Throwable $throwable) {
+              log_message('debug', 'Failed to load profile for navbar fallback: {error}', ['error' => $throwable->getMessage()]);
+              $cachedProfile = [];
+          }
+      }
+      $profileData = is_array($cachedProfile) ? $cachedProfile : [];
+  }
+
+  $profileName = trim((string) ($profileData['name'] ?? ''));
+  $logoPublicPath = trim((string) ($profileData['logo_public_path'] ?? ''));
+  $logoPublicUrl = $logoPublicPath !== '' ? base_url($logoPublicPath) : null;
+
   $navItems = [
     ['label' => 'Beranda', 'href' => site_url('/') . '#beranda', 'active' => $isHome],
     ['label' => 'Profil', 'href' => site_url('profil'), 'active' => strpos($path, 'profil') === 0],
@@ -16,7 +37,11 @@
 <nav class="navbar navbar-expand-lg navbar-light sticky-top shadow-sm public-navbar" aria-label="Navigasi utama">
   <div class="container">
     <a class="navbar-brand fw-bold d-flex align-items-center" href="<?= base_url('/') ?>">
-      <span class="me-2 rounded-circle d-inline-flex align-items-center justify-content-center brand-circle text-white fs-6"></span>
+      <?php if ($logoPublicUrl): ?>
+        <img src="<?= esc($logoPublicUrl) ?>" alt="<?= esc($profileName !== '' ? $profileName : 'Logo OPD') ?>" class="navbar-brand-logo">
+      <?php else: ?>
+        <span class="me-2 rounded-circle d-inline-flex align-items-center justify-content-center brand-circle text-white fs-6" aria-hidden="true"></span>
+      <?php endif; ?>
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNavbar" aria-controls="publicNavbar" aria-expanded="false" aria-label="Tampilkan navigasi">
       <span class="navbar-toggler-icon"></span>

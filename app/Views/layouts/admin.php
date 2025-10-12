@@ -48,6 +48,21 @@
         if ($initial === '') {
           $initial = 'P';
         }
+        $profileData = cache('public_profile_latest');
+        if (! is_array($profileData)) {
+          try {
+            $profileData = model(\App\Models\OpdProfileModel::class)
+              ->orderBy('id', 'desc')
+              ->first();
+          } catch (\Throwable $throwable) {
+            log_message('debug', 'Failed to fetch profile for admin layout: {error}', ['error' => $throwable->getMessage()]);
+            $profileData = [];
+          }
+        }
+        $profileData = is_array($profileData) ? $profileData : [];
+        $profileSiteName = trim((string) ($profileData['name'] ?? ''));
+        $adminLogoPath   = trim((string) ($profileData['logo_admin_path'] ?? ($profileData['logo_public_path'] ?? '')));
+        $adminLogoUrl    = $adminLogoPath !== '' ? base_url($adminLogoPath) : null;
         $sessionRole = trim((string) (session('role') ?? ''));
         $roleLabel   = $sessionRole !== '' ? ucfirst(strtolower($sessionRole)) : '-';
         $accessConfig = config('AdminAccess');
@@ -71,11 +86,15 @@
       <!-- Menu -->
       <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
         <div class="app-brand demo">
-          <a href="<?= site_url('admin') ?>" class="app-brand-link">
+          <a href="<?= site_url('admin') ?>" class="app-brand-link" title="<?= esc($profileSiteName !== '' ? $profileSiteName : 'Admin') ?>">
             <span class="app-brand-logo demo">
-              <span class="text-primary">
-                <i class="tf-icons bx bx-building fs-3"></i>
-              </span>
+              <?php if ($adminLogoUrl): ?>
+                <img src="<?= esc($adminLogoUrl) ?>" alt="<?= esc($profileSiteName !== '' ? $profileSiteName : 'Logo Admin') ?>" class="admin-brand-logo">
+              <?php else: ?>
+                <span class="text-primary">
+                  <i class="tf-icons bx bx-building fs-3" aria-hidden="true"></i>
+                </span>
+              <?php endif; ?>
             </span>
             <span class="app-brand-text demo menu-text fw-bold ms-2">Admin</span>
           </a>

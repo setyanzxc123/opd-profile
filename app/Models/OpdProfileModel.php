@@ -20,6 +20,8 @@ class OpdProfileModel extends Model
         'map_display',
         'phone',
         'email',
+        'logo_public_path',
+        'logo_admin_path',
     ];
     protected $useTimestamps = false; // schema has no created_at/updated_at
 }

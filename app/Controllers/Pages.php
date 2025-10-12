@@ -43,11 +43,13 @@ class Pages extends BaseController
     public function layanan(): string
     {
         $services = $this->contentService->allActiveServices();
+        $profile  = $this->contentService->latestProfile();
 
         return view('public/services', [
             'title'         => 'Layanan Publik',
             'services'      => $services,
-            'footerProfile' => $this->contentService->latestProfile(),
+            'footerProfile' => $profile,
+            'profile'       => $profile,
         ]);
     }
 
@@ -55,13 +57,15 @@ class Pages extends BaseController
     {
         $search = trim((string) $this->request->getGet('q'));
         $news   = $this->contentService->paginatedNews(6, $search);
+        $profile = $this->contentService->latestProfile();
 
         return view('public/news/index', [
             'title'         => 'Berita Terbaru',
             'articles'      => $news['articles'],
             'pager'         => $news['pager'],
             'search'        => $search,
-            'footerProfile' => $this->contentService->latestProfile(),
+            'footerProfile' => $profile,
+            'profile'       => $profile,
         ]);
     }
 
@@ -123,33 +127,40 @@ class Pages extends BaseController
             $publishedAt = Time::parse($article['published_at']);
         }
 
+        $profile = $this->contentService->latestProfile();
+
         return view('public/news/show', [
             'title'         => $article['title'],
             'article'       => $article,
             'published_at'  => $publishedAt,
-            'footerProfile' => $this->contentService->latestProfile(),
+            'footerProfile' => $profile,
+            'profile'       => $profile,
         ]);
     }
 
     public function galeri(): string
     {
         $galleries = $this->contentService->recentGalleries(12);
+        $profile   = $this->contentService->latestProfile();
 
         return view('public/gallery', [
             'title'         => 'Galeri Kegiatan',
             'galleries'     => $galleries,
-            'footerProfile' => $this->contentService->latestProfile(),
+            'footerProfile' => $profile,
+            'profile'       => $profile,
         ]);
     }
 
     public function dokumen(): string
     {
         $documents = $this->contentService->recentDocuments(50);
+        $profile   = $this->contentService->latestProfile();
 
         return view('public/documents', [
             'title'         => 'Dokumen Publik',
             'documents'     => $documents,
-            'footerProfile' => $this->contentService->latestProfile(),
+            'footerProfile' => $profile,
+            'profile'       => $profile,
         ]);
     }
 
