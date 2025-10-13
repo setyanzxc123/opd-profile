@@ -248,7 +248,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
       </div>
       <div class="modal-body">
-        <div class="ratio ratio-1x1 border rounded bg-light overflow-hidden">
+        <div class="logo-cropper-canvas border rounded bg-light overflow-hidden">
           <img src="" alt="Area cropping logo" class="w-100 h-100 object-fit-contain" data-cropper-image>
         </div>
         <p class="small text-muted mt-3 mb-0">
