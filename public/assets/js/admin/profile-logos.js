@@ -82,7 +82,54 @@
     }
 
     const defaultConfig = {
-      public: { aspect: 1, max: 512, label: 'Logo OPD' }
+      public: { aspect: null, max: 512, label: 'Logo OPD' }
+    };
+
+    const parseAspectRatioSetting = (input, key) => {
+      const attrValue = input.getAttribute('data-crop-aspect');
+      if (typeof attrValue === 'string') {
+        const normalized = attrValue.trim().toLowerCase();
+        if (normalized === '' || ['auto', 'free', 'flex', 'fluid', 'none'].includes(normalized)) {
+          return null;
+        }
+        const parsed = parseFloat(normalized);
+        if (!Number.isNaN(parsed) && parsed > 0) {
+          return parsed;
+        }
+      }
+
+      const fallbackConfig = defaultConfig[key];
+      if (fallbackConfig && Object.prototype.hasOwnProperty.call(fallbackConfig, 'aspect')) {
+        const fallbackValue = fallbackConfig.aspect;
+        if (typeof fallbackValue === 'number' && fallbackValue > 0) {
+          return fallbackValue;
+        }
+      }
+
+      return null;
+    };
+
+    const parseMaxDimensionSetting = (input, key) => {
+      const attrValue = input.getAttribute('data-crop-max');
+      if (typeof attrValue === 'string') {
+        const trimmed = attrValue.trim();
+        if (trimmed !== '') {
+          const parsed = parseInt(trimmed, 10);
+          if (!Number.isNaN(parsed) && parsed > 0) {
+            return parsed;
+          }
+        }
+      }
+
+      const fallbackConfig = defaultConfig[key];
+      if (fallbackConfig && Object.prototype.hasOwnProperty.call(fallbackConfig, 'max')) {
+        const fallbackValue = fallbackConfig.max;
+        if (Number.isInteger(fallbackValue) && fallbackValue > 0) {
+          return fallbackValue;
+        }
+      }
+
+      return 512;
     };
 
     let cropper = null;
@@ -224,8 +271,11 @@
       }
 
       cleanUpCropper();
+      const aspectRatio = typeof activeConfig.aspect === 'number' && activeConfig.aspect > 0 ? activeConfig.aspect : NaN;
+      const initialAspectRatio = Number.isNaN(aspectRatio) ? undefined : aspectRatio;
       cropper = new window.Cropper(imageEl, {
-        aspectRatio: activeConfig.aspect,
+        aspectRatio,
+        initialAspectRatio,
         viewMode: 1,
         dragMode: 'move',
         autoCropArea: 1,
@@ -319,8 +369,8 @@
       const config = {
         key,
         label: input.getAttribute('data-crop-label') || (defaultConfig[key] && defaultConfig[key].label) || 'Logo',
-        aspect: parseFloat(input.getAttribute('data-crop-aspect') || '') || (defaultConfig[key] && defaultConfig[key].aspect) || 1,
-        max: parseInt(input.getAttribute('data-crop-max') || '', 10) || (defaultConfig[key] && defaultConfig[key].max) || 512
+        aspect: parseAspectRatioSetting(input, key),
+        max: parseMaxDimensionSetting(input, key)
       };
 
       const modalState = ensureModalReady();
@@ -376,9 +426,38 @@
         }
 
         const maxDimension = activeConfig.max;
+        const cropData = cropper.getData(true);
+
+        const computeDimensions = () => {
+          let targetWidth = maxDimension;
+          let targetHeight = maxDimension;
+          let aspect = null;
+
+          if (cropData && cropData.width > 0 && cropData.height > 0) {
+            aspect = cropData.width / cropData.height;
+          } else if (typeof activeConfig.aspect === 'number' && activeConfig.aspect > 0) {
+            aspect = activeConfig.aspect;
+          }
+
+          if (aspect && aspect > 0) {
+            if (aspect >= 1) {
+              targetWidth = maxDimension;
+              targetHeight = Math.max(1, Math.round(maxDimension / aspect));
+            } else {
+              targetHeight = maxDimension;
+              targetWidth = Math.max(1, Math.round(maxDimension * aspect));
+            }
+          }
+
+          return { targetWidth, targetHeight };
+        };
+
+        const { targetWidth, targetHeight } = computeDimensions();
+
         const canvas = cropper.getCroppedCanvas({
-          width: maxDimension,
-          height: maxDimension,
+          width: targetWidth,
+          height: targetHeight,
+          imageSmoothingEnabled: true,
           imageSmoothingQuality: 'high'
         });
 

@@ -98,7 +98,6 @@
                          data-logo-input
                          data-crop-key="public"
                          data-crop-label="Logo OPD"
-                         data-crop-aspect="1"
                          data-crop-max="512"
                          data-meta-target="logo_public_meta"
                          data-preview-target="public">
@@ -106,7 +105,7 @@
                   <?php if ($validation && $validation->hasError('logo_public')): ?>
                     <div class="form-text text-danger"><?= esc($validation->getError('logo_public')) ?></div>
                   <?php else: ?>
-                    <div class="form-text text-muted">Disarankan rasio persegi, minimal 96x96 piksel, maksimum 512 piksel.</div>
+                    <div class="form-text text-muted">Gunakan logo berkualitas; sisi terpanjang maksimal 512 piksel dan sisi terpendek minimal ±96 piksel. Rasio akan dipertahankan otomatis.</div>
                   <?php endif; ?>
                   <div class="form-text text-muted">Format yang didukung: JPG, PNG, WEBP, GIF (maksimal 3 MB).</div>
                   <div class="form-check mt-2">
@@ -252,7 +251,7 @@
           <img src="" alt="Area cropping logo" class="w-100 h-100 object-fit-contain" data-cropper-image>
         </div>
         <p class="small text-muted mt-3 mb-0">
-          Seret atau zoom untuk menyesuaikan logo. Ukuran akhir akan disesuaikan maksimal <span data-cropper-max>512</span> piksel.
+          Seret atau zoom untuk menyesuaikan logo. Sisi terpanjang akan disesuaikan maksimal <span data-cropper-max>512</span> piksel tanpa mengubah rasio.
         </p>
       </div>
       <div class="modal-footer">
