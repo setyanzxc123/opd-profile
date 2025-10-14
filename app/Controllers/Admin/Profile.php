@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\OpdProfileModel;
 use App\Services\ProfileLogoService;
+use CodeIgniter\HTTP\ResponseInterface;
 
 class Profile extends BaseController
 {
@@ -166,6 +167,127 @@ class Profile extends BaseController
 
         return redirect()->to(site_url('admin/profile'))
             ->with('message', 'Profil berhasil disimpan.');
+    }
+
+    public function searchLocation(): ResponseInterface
+    {
+        if (! $this->request->isAJAX()) {
+            return $this->response->setStatusCode(ResponseInterface::HTTP_METHOD_NOT_ALLOWED)
+                ->setJSON(['message' => 'Metode tidak diizinkan.']);
+        }
+
+        $query = trim((string) $this->request->getGet('q'));
+        $length = function_exists('mb_strlen') ? mb_strlen($query) : strlen($query);
+
+        if ($length < 3) {
+            return $this->response->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
+                ->setJSON(['message' => 'Masukkan minimal 3 karakter untuk pencarian.']);
+        }
+
+        $lowerQuery = function_exists('mb_strtolower') ? mb_strtolower($query, 'UTF-8') : strtolower($query);
+        $cacheKey   = 'nominatim_search_' . md5($lowerQuery);
+        $cacheStore = cache();
+        $cached     = $cacheStore ? $cacheStore->get($cacheKey) : null;
+
+        if (is_array($cached)) {
+            return $this->response->setJSON(['data' => $cached]);
+        }
+
+        $contactEmail = trim((string) env('nominatim.contactEmail', ''));
+        if ($contactEmail === '') {
+            $emailConfig = null;
+            try {
+                $emailConfig = config('Email');
+            } catch (\Throwable $ignore) {
+                $emailConfig = null;
+            }
+
+            if ($emailConfig && property_exists($emailConfig, 'fromEmail')) {
+                $candidate = trim((string) $emailConfig->fromEmail);
+                if ($candidate !== '' && filter_var($candidate, FILTER_VALIDATE_EMAIL)) {
+                    $contactEmail = $candidate;
+                }
+            }
+        }
+
+        $userAgent = 'OPDProfileCMS/1.0 (+' . base_url();
+        if ($contactEmail !== '' && filter_var($contactEmail, FILTER_VALIDATE_EMAIL)) {
+            $userAgent .= '; ' . $contactEmail;
+        }
+        $userAgent .= ')';
+
+        $client = \Config\Services::curlrequest([
+            'baseURI' => 'https://nominatim.openstreetmap.org/',
+            'timeout'  => 5,
+        ]);
+
+        try {
+            $response = $client->get('search', [
+                'query' => [
+                    'format'         => 'jsonv2',
+                    'q'              => $query,
+                    'addressdetails' => 1,
+                    'limit'          => 5,
+                ],
+                'headers' => [
+                    'User-Agent'      => $userAgent,
+                    'Accept-Language' => 'id,en;q=0.8',
+                ],
+            ]);
+        } catch (\Throwable $throwable) {
+            log_message('error', 'Pencarian Nominatim gagal: {error}', ['error' => $throwable->getMessage()]);
+
+            return $this->response->setStatusCode(ResponseInterface::HTTP_BAD_GATEWAY)
+                ->setJSON(['message' => 'Tidak dapat terhubung ke layanan lokasi. Coba lagi nanti.']);
+        }
+
+        if ($response->getStatusCode() !== 200) {
+            log_message('warning', 'Nominatim mengembalikan status {status}.', ['status' => $response->getStatusCode()]);
+
+            return $this->response->setStatusCode(ResponseInterface::HTTP_BAD_GATEWAY)
+                ->setJSON(['message' => 'Layanan lokasi sedang tidak tersedia.']);
+        }
+
+        try {
+            $decoded = json_decode($response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\Throwable $throwable) {
+            log_message('error', 'Gagal mengurai hasil Nominatim: {error}', ['error' => $throwable->getMessage()]);
+
+            return $this->response->setStatusCode(ResponseInterface::HTTP_BAD_GATEWAY)
+                ->setJSON(['message' => 'Data lokasi tidak dapat diproses.']);
+        }
+
+        $results = [];
+
+        if (is_array($decoded)) {
+            foreach ($decoded as $item) {
+                $lat = isset($item['lat']) ? (float) $item['lat'] : null;
+                $lng = isset($item['lon']) ? (float) $item['lon'] : (isset($item['lng']) ? (float) $item['lng'] : null);
+
+                if ($lat === null || $lng === null) {
+                    continue;
+                }
+
+                $label = trim((string) ($item['display_name'] ?? ''));
+                $boundingBox = [];
+                if (isset($item['boundingbox']) && is_array($item['boundingbox']) && count($item['boundingbox']) === 4) {
+                    $boundingBox = array_values($item['boundingbox']);
+                }
+
+                $results[] = [
+                    'label'       => $label !== '' ? $label : sprintf('Lat %.5f, Lng %.5f', $lat, $lng),
+                    'lat'         => $lat,
+                    'lng'         => $lng,
+                    'boundingBox' => $boundingBox,
+                ];
+            }
+        }
+
+        if ($cacheStore) {
+            $cacheStore->save($cacheKey, $results, 600);
+        }
+
+        return $this->response->setJSON(['data' => $results]);
     }
 
     private function isAffirmative($value): bool

@@ -29,6 +29,7 @@ $routes->group('admin', [
     $routes->get('settings', 'Account::edit');
     $routes->post('settings', 'Account::update');
     // OPD Profile CMS
+    $routes->get('profile/search-location', 'Profile::searchLocation');
     $routes->get('profile', 'Profile::edit');
     $routes->post('profile', 'Profile::update');
     // News CMS

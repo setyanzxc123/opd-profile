@@ -1,4 +1,4 @@
-﻿<?php
+<?php
   $validation      = $validation ?? null;
   $publicLogoPath  = $profile['logo_public_path'] ?? null;
   $publicLogoUrl   = $publicLogoPath ? base_url($publicLogoPath) : null;
@@ -7,6 +7,8 @@
 <?= $this->extend('layouts/admin') ?>
 <?= $this->section('pageStyles') ?>
   <link rel="stylesheet" href="<?= base_url('assets/vendor/cropperjs/cropper.min.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('assets/vendor/leaflet/leaflet.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('assets/css/admin/profile-map.css') ?>">
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
 
@@ -105,7 +107,7 @@
                   <?php if ($validation && $validation->hasError('logo_public')): ?>
                     <div class="form-text text-danger"><?= esc($validation->getError('logo_public')) ?></div>
                   <?php else: ?>
-                    <div class="form-text text-muted">Gunakan logo berkualitas; sisi terpanjang maksimal 512 piksel dan sisi terpendek minimal ±96 piksel. Rasio akan dipertahankan otomatis.</div>
+                    <div class="form-text text-muted">Gunakan logo berkualitas; sisi terpanjang maksimal 512 piksel dan sisi terpendek minimal �96 piksel. Rasio akan dipertahankan otomatis.</div>
                   <?php endif; ?>
                   <div class="form-text text-muted">Format yang didukung: JPG, PNG, WEBP, GIF (maksimal 3 MB).</div>
                   <div class="form-check mt-2">
@@ -137,94 +139,115 @@
             </div>
 
             <div class="tab-pane fade" id="tab-kontak" role="tabpanel" aria-labelledby="tab-kontak-tab">
-              <div class="row g-3">
-                <div class="col-lg-8">
-                  <label class="form-label">Alamat Kantor</label>
-                  <textarea name="address" rows="3" class="form-control" placeholder="Tuliskan alamat lengkap beserta patokan bila perlu."><?= esc(old('address', $profile['address'] ?? '')) ?></textarea>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                  <label class="form-label">Telepon</label>
-                  <div class="input-group">
-                    <span class="input-group-text"><i class="bx bx-phone"></i></span>
-                     <input type="text" name="phone" class="form-control" value="<?= esc(old('phone', $profile['phone'] ?? '')) ?>" placeholder="(021) 555-1234">
+              <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                  <div class="row g-4 g-xl-5 align-items-start">
+                    <div class="col-12 col-xl-4">
+                      <h6 class="fw-semibold mb-3">Informasi Kontak</h6>
+                      <div class="mb-3">
+                        <label class="form-label">Alamat Kantor</label>
+                        <textarea name="address" rows="4" class="form-control" placeholder="Tuliskan alamat lengkap beserta patokan bila perlu."><?= esc(old('address', $profile['address'] ?? '')) ?></textarea>
+                        <?php if ($validation && $validation->hasError('address')): ?>
+                          <div class="form-text text-danger"><?= esc($validation->getError('address')) ?></div>
+                        <?php endif; ?>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Telepon</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="bx bx-phone"></i></span>
+                          <input type="text" name="phone" class="form-control" value="<?= esc(old('phone', $profile['phone'] ?? '')) ?>" placeholder="(021) 555-1234">
+                        </div>
+                        <?php if ($validation && $validation->hasError('phone')): ?>
+                          <div class="form-text text-danger"><?= esc($validation->getError('phone')) ?></div>
+                        <?php endif; ?>
+                      </div>
+                      <div>
+                        <label class="form-label">Email</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="bx bx-envelope"></i></span>
+                          <input type="email" name="email" class="form-control" value="<?= esc(old('email', $profile['email'] ?? '')) ?>" placeholder="kontak@opd.go.id">
+                        </div>
+                        <?php if ($validation && $validation->hasError('email')): ?>
+                          <div class="form-text text-danger"><?= esc($validation->getError('email')) ?></div>
+                        <?php endif; ?>
+                      </div>
+                    </div>
+                    <div class="col-12 col-xl-8">
+                      <div class="row g-4">
+                        <div class="col-12">
+                          <h6 class="fw-semibold mb-3">Koordinat & Zoom</h6>
+                          <div class="row row-cols-1 row-cols-md-3 g-3">
+                            <div class="col">
+                              <label class="form-label">Latitude</label>
+                              <input type="number" name="latitude" class="form-control" step="any" value="<?= esc(old('latitude', $profile['latitude'] ?? '')) ?>" placeholder="-6.1753920">
+                              <?php if ($validation && $validation->hasError('latitude')): ?>
+                                <div class="form-text text-danger"><?= esc($validation->getError('latitude')) ?></div>
+                              <?php else: ?>
+                                <div class="form-text text-muted">Gunakan format desimal dengan titik.</div>
+                              <?php endif; ?>
+                            </div>
+                            <div class="col">
+                              <label class="form-label">Longitude</label>
+                              <input type="number" name="longitude" class="form-control" step="any" value="<?= esc(old('longitude', $profile['longitude'] ?? '')) ?>" placeholder="106.8271530">
+                              <?php if ($validation && $validation->hasError('longitude')): ?>
+                                <div class="form-text text-danger"><?= esc($validation->getError('longitude')) ?></div>
+                              <?php else: ?>
+                                <div class="form-text text-muted">Gunakan format desimal dengan titik.</div>
+                              <?php endif; ?>
+                            </div>
+                            <div class="col">
+                              <label class="form-label">Level Zoom</label>
+                              <input type="number" name="map_zoom" class="form-control" min="1" max="20" value="<?= esc(old('map_zoom', $profile['map_zoom'] ?? '')) ?>" placeholder="16">
+                              <?php if ($validation && $validation->hasError('map_zoom')): ?>
+                                <div class="form-text text-danger"><?= esc($validation->getError('map_zoom')) ?></div>
+                              <?php else: ?>
+                                <div class="form-text text-muted">1 = jauh, 20 = sangat dekat.</div>
+                              <?php endif; ?>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-12">
+                          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                            <h6 class="fw-semibold mb-0">Peta Interaktif</h6>
+                            <?php $mapDisplayOld = old('map_display', (string) ($profile['map_display'] ?? '0')); ?>
+                            <div class="form-check form-switch mb-0">
+                              <input class="form-check-input" type="checkbox" id="field-map-display" name="map_display" value="1" <?= $mapDisplayOld === '1' ? 'checked' : '' ?>>
+                              <label class="form-check-label small" for="field-map-display">Tampilkan di situs publik</label>
+                            </div>
+                          </div>
+                          <?php if ($validation && $validation->hasError('map_display')): ?>
+                            <div class="form-text text-danger mb-2"><?= esc($validation->getError('map_display')) ?></div>
+                          <?php else: ?>
+                            <div class="form-text text-muted mb-3">Aktifkan agar marker lokasi muncul pada halaman publik.</div>
+                          <?php endif; ?>
+                          <div class="profile-map-wrapper" data-map-wrapper>
+                            <div class="profile-map-search-area mb-2" data-map-search-area>
+                              <div class="input-group">
+                                <span class="input-group-text" id="map-search-addon">
+                                  <i class="bx bx-map-pin" aria-hidden="true"></i>
+                                </span>
+                                <input type="search" class="form-control" placeholder="Cari nama tempat atau alamat (minimal 3 karakter)" aria-label="Cari lokasi" aria-describedby="map-search-addon" data-map-search-input>
+                                <button class="btn btn-outline-secondary" type="button" data-map-search-clear>
+                                  <span class="d-none d-lg-inline">Bersihkan</span>
+                                  <span class="d-inline d-lg-none"><i class="bx bx-x" aria-hidden="true"></i></span>
+                                </button>
+                              </div>
+                              <div class="profile-map-search-results list-group shadow-sm d-none" data-map-search-results role="listbox" aria-label="Hasil pencarian lokasi"></div>
+                            </div>
+                            <div class="alert alert-warning py-2 px-3 profile-map-alert small" role="alert" data-map-feedback></div>
+                            <div id="profile-map" data-search-url="<?= site_url('admin/profile/search-location') ?>" data-default-lat="-2.548926" data-default-lng="118.0148634" data-default-zoom="5" aria-label="Pratinjau peta lokasi OPD"></div>
+                          </div>
+                          <div class="form-text text-muted mt-3">
+                            Geser marker atau klik peta untuk memperbarui koordinat. Gunakan pencarian di atas untuk menemukan titik dengan cepat.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <?php if ($validation && $validation->hasError('phone')): ?>
-                    <div class="form-text text-danger"><?= esc($validation->getError('phone')) ?></div>
-                  <?php endif; ?>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                  <label class="form-label">Email</label>
-                  <div class="input-group">
-                    <span class="input-group-text"><i class="bx bx-envelope"></i></span>
-                     <input type="email" name="email" class="form-control" value="<?= esc(old('email', $profile['email'] ?? '')) ?>" placeholder="kontak@opd.go.id">
-                  </div>
-                  <?php if ($validation && $validation->hasError('email')): ?>
-                    <div class="form-text text-danger"><?= esc($validation->getError('email')) ?></div>
-                  <?php endif; ?>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                  <label class="form-label">Latitude</label>
-                  <input type="number"
-                         name="latitude"
-                         class="form-control"
-                         step="any"
-                         value="<?= esc(old('latitude', $profile['latitude'] ?? '')) ?>"
-                         placeholder="-6.1753920">
-                  <?php if ($validation && $validation->hasError('latitude')): ?>
-                    <div class="form-text text-danger"><?= esc($validation->getError('latitude')) ?></div>
-                  <?php else: ?>
-                    <div class="form-text text-muted">Koordinat lintang dalam format desimal (gunakan titik).</div>
-                  <?php endif; ?>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                  <label class="form-label">Longitude</label>
-                  <input type="number"
-                         name="longitude"
-                         class="form-control"
-                         step="any"
-                         value="<?= esc(old('longitude', $profile['longitude'] ?? '')) ?>"
-                         placeholder="106.8271530">
-                  <?php if ($validation && $validation->hasError('longitude')): ?>
-                    <div class="form-text text-danger"><?= esc($validation->getError('longitude')) ?></div>
-                  <?php else: ?>
-                    <div class="form-text text-muted">Koordinat bujur dalam format desimal (gunakan titik).</div>
-                  <?php endif; ?>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                  <label class="form-label">Level Zoom Peta</label>
-                  <input type="number"
-                         name="map_zoom"
-                         class="form-control"
-                         min="1"
-                         max="20"
-                         value="<?= esc(old('map_zoom', $profile['map_zoom'] ?? '')) ?>"
-                         placeholder="16">
-                  <?php if ($validation && $validation->hasError('map_zoom')): ?>
-                    <div class="form-text text-danger"><?= esc($validation->getError('map_zoom')) ?></div>
-                  <?php else: ?>
-                    <div class="form-text text-muted">Nilai antara 1 (jauh) hingga 20 (sangat dekat). Kosongkan untuk default.</div>
-                  <?php endif; ?>
-                </div>
-                <div class="col-12">
-                  <?php $mapDisplayOld = old('map_display', (string) ($profile['map_display'] ?? '0')); ?>
-                  <div class="form-check form-switch">
-                    <input class="form-check-input"
-                           type="checkbox"
-                           id="field-map-display"
-                           name="map_display"
-                           value="1"
-                           <?= $mapDisplayOld === '1' ? 'checked' : '' ?>>
-                    <label class="form-check-label" for="field-map-display">Tampilkan peta lokasi pada halaman publik</label>
-                  </div>
-                  <?php if ($validation && $validation->hasError('map_display')): ?>
-                    <div class="form-text text-danger"><?= esc($validation->getError('map_display')) ?></div>
-                  <?php else: ?>
-                    <div class="form-text text-muted">Aktifkan agar peta dengan marker OPD muncul di footer publik.</div>
-                  <?php endif; ?>
                 </div>
               </div>
             </div>
-          </div>
+          </div> 
 
           <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4">
             <p class="text-muted small mb-0"><span class="text-danger">*</span> Wajib diisi.</p>
@@ -266,7 +289,12 @@
 
 <?= $this->section('pageScripts') ?>
   <script src="<?= base_url('assets/vendor/cropperjs/cropper.min.js') ?>"></script>
+  <script src="<?= base_url('assets/vendor/leaflet/leaflet.js') ?>" defer></script>
+  <script src="<?= base_url('assets/js/admin/profile-map.js') ?>" defer></script>
   <script src="<?= base_url('assets/js/admin/profile-logos.js') ?>" defer></script>
 <?= $this->endSection() ?>
+
+
+
 
 
