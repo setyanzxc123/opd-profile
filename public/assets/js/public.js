@@ -84,6 +84,7 @@
         slides.forEach((slide, idx) => {
           const isActive = idx === index;
           slide.classList.toggle('is-active', isActive);
+          slide.classList.toggle('hidden', !isActive);
           resetSlideState(slide);
           slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
         });
@@ -148,15 +149,18 @@
 
         currentSlide.classList.add('is-transitioning', exitingClass);
         nextSlide.classList.add('is-transitioning', enteringClass);
+        nextSlide.classList.remove('hidden');
         nextSlide.setAttribute('aria-hidden', 'false');
         updateDots(nextIndex);
 
         const cleanup = () => {
           currentSlide.classList.remove('is-active');
+          currentSlide.classList.add('hidden');
           currentSlide.setAttribute('aria-hidden', 'true');
           resetSlideState(currentSlide);
 
           nextSlide.classList.add('is-active');
+          nextSlide.classList.remove('hidden');
           nextSlide.setAttribute('aria-hidden', 'false');
           resetSlideState(nextSlide);
 
@@ -186,8 +190,10 @@
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             currentSlide.classList.remove('is-active');
+            currentSlide.classList.add('hidden');
             currentSlide.setAttribute('aria-hidden', 'true');
             nextSlide.classList.add('is-active');
+            nextSlide.classList.remove('hidden');
           });
         });
 
@@ -296,192 +302,286 @@
     });
   };
 
-  const initNavSearch = () => {
-    const form = document.querySelector('[data-nav-search-form]');
-    if (!form) {
+  const initNavToggle = () => {
+    const toggleBtn = document.querySelector('[data-nav-toggle]');
+    const panel = document.querySelector('[data-nav-panel]');
+
+    if (!toggleBtn || !panel) {
       return;
     }
 
-    const input = form.querySelector('[data-nav-search-input]');
-    const resultsContainer = form.querySelector('[data-nav-search-results]');
-    const endpoint = form.getAttribute('data-nav-search-url');
+    const closeButtons = panel.querySelectorAll('[data-nav-close]');
+    let isOpen = false;
 
-    if (!input || !resultsContainer || !endpoint) {
-      return;
-    }
-
-    const minLengthAttr = form.getAttribute('data-nav-search-min');
-    const minLength = Number(minLengthAttr) > 0 ? Number(minLengthAttr) : 2;
-    const maxItemsAttr = form.getAttribute('data-nav-search-limit');
-    const maxItems = Number(maxItemsAttr) > 0 ? Number(maxItemsAttr) : 5;
-
-    let currentQuery = '';
-    let controller = null;
-
-    const setExpanded = (expanded) => {
-      input.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-    };
-
-    const setLoading = (isLoading) => {
-      if (isLoading) {
-        form.setAttribute('aria-busy', 'true');
+    const setState = (open) => {
+      isOpen = open;
+      toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) {
+        panel.hidden = false;
       } else {
-        form.removeAttribute('aria-busy');
+        panel.hidden = true;
       }
     };
 
-    const clearResults = () => {
-      resultsContainer.innerHTML = '';
-      resultsContainer.setAttribute('hidden', 'hidden');
-      resultsContainer.classList.remove('is-visible');
-      setExpanded(false);
-    };
-
-    const showResults = () => {
-      resultsContainer.removeAttribute('hidden');
-      resultsContainer.classList.add('is-visible');
-      setExpanded(true);
-    };
-
-    const formatDate = (value) => {
-      if (!value) {
-        return '';
-      }
-      const parsed = new Date(value);
-      if (Number.isNaN(parsed.getTime())) {
-        return '';
-      }
-      return parsed.toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      });
-    };
-
-    const renderResults = (items, query) => {
-      resultsContainer.innerHTML = '';
-
-      if (!items.length) {
-        resultsContainer.innerHTML = `<div class="public-search-result public-search-result--empty" role="option">Tidak ada hasil untuk "<span class="public-search-result__query"></span>".</div>`;
-        const span = resultsContainer.querySelector('.public-search-result__query');
-        if (span) {
-          span.textContent = query;
+    toggleBtn.addEventListener('click', () => {
+      setState(!isOpen);
+      if (isOpen) {
+        const focusTarget = panel.querySelector('[data-nav-search-input]') || panel.querySelector('[data-nav-close]');
+        if (focusTarget) {
+          focusTarget.focus();
         }
-        showResults();
+      }
+    });
+
+    closeButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        setState(false);
+        toggleBtn.focus();
+      });
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && isOpen) {
+        setState(false);
+        toggleBtn.focus();
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!isOpen) {
+        return;
+      }
+      if (panel.contains(event.target) || toggleBtn.contains(event.target)) {
+        return;
+      }
+      setState(false);
+    });
+  };
+
+  const initNavSearch = () => {
+    const forms = document.querySelectorAll('[data-nav-search-form]');
+    if (!forms.length) {
+      return;
+    }
+
+    forms.forEach((form) => {
+      const input = form.querySelector('[data-nav-search-input]');
+      const resultsContainer = form.querySelector('[data-nav-search-results]');
+      const endpoint = form.getAttribute('data-nav-search-url');
+
+      if (!input || !resultsContainer || !endpoint) {
         return;
       }
 
-      const fragment = document.createDocumentFragment();
+      const minLengthAttr = form.getAttribute('data-nav-search-min');
+      const minLength = Number(minLengthAttr) > 0 ? Number(minLengthAttr) : 2;
+      const maxItemsAttr = form.getAttribute('data-nav-search-limit');
+      const maxItems = Number(maxItemsAttr) > 0 ? Number(maxItemsAttr) : 5;
 
-      items.slice(0, maxItems).forEach((item, index) => {
-        if (!item || !item.url) {
+      let currentQuery = '';
+      let controller = null;
+
+      const setExpanded = (expanded) => {
+        input.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      };
+
+      const setLoading = (isLoading) => {
+        if (isLoading) {
+          form.setAttribute('aria-busy', 'true');
+        } else {
+          form.removeAttribute('aria-busy');
+        }
+      };
+
+      const clearResults = () => {
+        resultsContainer.innerHTML = '';
+        resultsContainer.setAttribute('hidden', 'hidden');
+        resultsContainer.classList.remove('is-visible');
+        setExpanded(false);
+      };
+
+      const showResults = () => {
+        resultsContainer.removeAttribute('hidden');
+        resultsContainer.classList.add('is-visible');
+        setExpanded(true);
+      };
+
+      const formatDate = (value) => {
+        if (!value) {
+          return '';
+        }
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) {
+          return '';
+        }
+        return parsed.toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        });
+      };
+
+      const renderResults = (items, query) => {
+        resultsContainer.innerHTML = '';
+
+        if (!items.length) {
+          resultsContainer.innerHTML = `<div class="public-search-result public-search-result--empty" role="option">Tidak ada hasil untuk "<span class="public-search-result__query"></span>".</div>`;
+          const span = resultsContainer.querySelector('.public-search-result__query');
+          if (span) {
+            span.textContent = query;
+          }
+          showResults();
           return;
         }
-        const entry = document.createElement('a');
-        entry.className = 'public-search-result public-search-result--link';
-        entry.href = item.url;
-        entry.setAttribute('role', 'option');
-        entry.setAttribute('tabindex', '-1');
-        entry.dataset.index = String(index);
 
-        const title = escapeHtml(item.title || 'Tanpa judul');
-        const snippet = escapeHtml(item.snippet || '');
-        const date = escapeHtml(formatDate(item.published_at));
+        const fragment = document.createDocumentFragment();
 
-        entry.innerHTML = `
-          <span class="public-search-result__title">${title}</span>
-          ${
-            date || snippet
-              ? `<span class="public-search-result__meta">
-                  ${date ? `<span class="public-search-result__date">${date}</span>` : ''}
-                  ${snippet ? `<span class="public-search-result__snippet">${snippet}</span>` : ''}
-                </span>`
-              : ''
+        items.slice(0, maxItems).forEach((item, index) => {
+          if (!item || !item.url) {
+            return;
           }
-        `;
+          const entry = document.createElement('a');
+          entry.className = 'public-search-result public-search-result--link';
+          entry.href = item.url;
+          entry.setAttribute('role', 'option');
+          entry.setAttribute('tabindex', '-1');
+          entry.dataset.index = String(index);
 
-        fragment.appendChild(entry);
-      });
+          const title = escapeHtml(item.title || 'Tanpa judul');
+          const snippet = escapeHtml(item.snippet || '');
+          const date = escapeHtml(formatDate(item.published_at));
 
-      if (!fragment.childNodes.length) {
-        resultsContainer.innerHTML = `<div class="public-search-result public-search-result--empty" role="option">Tidak ada hasil untuk "<span class="public-search-result__query"></span>".</div>`;
-        const span = resultsContainer.querySelector('.public-search-result__query');
-        if (span) {
-          span.textContent = query;
-        }
-      } else {
-        resultsContainer.appendChild(fragment);
-      }
+          entry.innerHTML = `
+            <span class="public-search-result__title">${title}</span>
+            ${
+              date || snippet
+                ? `<span class="public-search-result__meta">
+                    ${date ? `<span class="public-search-result__date">${date}</span>` : ''}
+                    ${snippet ? `<span class="public-search-result__snippet">${snippet}</span>` : ''}
+                  </span>`
+                : ''
+            }
+          `;
 
-      showResults();
-    };
-
-    const showError = () => {
-      resultsContainer.innerHTML = '<div class="public-search-result public-search-result--error" role="option">Terjadi kesalahan saat memuat hasil.</div>';
-      showResults();
-    };
-
-    const fetchResults = async (query) => {
-      if (controller) {
-        controller.abort();
-      }
-
-      try {
-        controller = new AbortController();
-      } catch (error) {
-        controller = null;
-      }
-
-      setLoading(true);
-
-      try {
-        let requestUrl;
-        try {
-          requestUrl = new URL(endpoint, window.location.origin);
-        } catch (error) {
-          requestUrl = new URL(window.location.origin + endpoint.replace(/^\//, ''));
-        }
-        requestUrl.searchParams.set('q', query);
-        requestUrl.searchParams.set('limit', String(maxItems));
-
-        const response = await fetch(requestUrl.toString(), {
-          headers: { Accept: 'application/json' },
-          signal: controller ? controller.signal : undefined,
+          fragment.appendChild(entry);
         });
 
-        if (!response.ok) {
-          throw new Error(`Request failed with status ${response.status}`);
+        if (!fragment.childNodes.length) {
+          resultsContainer.innerHTML = `<div class="public-search-result public-search-result--empty" role="option">Tidak ada hasil untuk "<span class="public-search-result__query"></span>".</div>`;
+          const span = resultsContainer.querySelector('.public-search-result__query');
+          if (span) {
+            span.textContent = query;
+          }
+        } else {
+          resultsContainer.appendChild(fragment);
         }
 
-        const payload = await response.json();
-        if (currentQuery !== query) {
-          return;
+        showResults();
+      };
+
+      const showError = () => {
+        resultsContainer.innerHTML = '<div class="public-search-result public-search-result--error" role="option">Terjadi kesalahan saat memuat hasil.</div>';
+        showResults();
+      };
+
+      const fetchResults = async (query) => {
+        if (controller) {
+          controller.abort();
         }
 
-        const items = Array.isArray(payload.results) ? payload.results : [];
-        renderResults(items, query);
-      } catch (error) {
-        if (controller && error.name === 'AbortError') {
-          return;
-        }
-        console.error('Pencarian navbar gagal:', error);
-        if (currentQuery === query) {
-          showError();
-        }
-      } finally {
-        if (currentQuery === query) {
-          setLoading(false);
+        try {
+          controller = new AbortController();
+        } catch (error) {
           controller = null;
         }
-      }
-    };
 
-    const debouncedFetch = debounce(fetchResults, 320);
+        setLoading(true);
 
-    input.addEventListener('input', (event) => {
-      const value = event.target.value.trim();
-      currentQuery = value;
-      if (value.length < minLength) {
+        try {
+          let requestUrl;
+          try {
+            requestUrl = new URL(endpoint, window.location.origin);
+          } catch (error) {
+            requestUrl = new URL(window.location.origin + endpoint.replace(/^\//, ''));
+          }
+          requestUrl.searchParams.set('q', query);
+          requestUrl.searchParams.set('limit', String(maxItems));
+
+          const response = await fetch(requestUrl.toString(), {
+            headers: { Accept: 'application/json' },
+            signal: controller ? controller.signal : undefined,
+          });
+
+          if (!response.ok) {
+            throw new Error(`Request failed with status ${response.status}`);
+          }
+
+          const payload = await response.json();
+          if (currentQuery !== query) {
+            return;
+          }
+
+          const items = Array.isArray(payload.results) ? payload.results : [];
+          renderResults(items, query);
+        } catch (error) {
+          if (controller && error.name === 'AbortError') {
+            return;
+          }
+          console.error('Pencarian navbar gagal:', error);
+          if (currentQuery === query) {
+            showError();
+          }
+        } finally {
+          if (currentQuery === query) {
+            setLoading(false);
+            controller = null;
+          }
+        }
+      };
+
+      const debouncedFetch = debounce(fetchResults, 320);
+
+      input.addEventListener('input', (event) => {
+        const value = event.target.value.trim();
+        currentQuery = value;
+        if (value.length < minLength) {
+          debouncedFetch.cancel();
+          if (controller) {
+            controller.abort();
+            controller = null;
+          }
+          setLoading(false);
+          clearResults();
+          return;
+        }
+        debouncedFetch(value);
+      });
+
+      input.addEventListener('focus', () => {
+        if (resultsContainer.children.length) {
+          showResults();
+        }
+      });
+
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          clearResults();
+        }
+      });
+
+      const handleDocumentClick = (event) => {
+        if (!form.contains(event.target)) {
+          clearResults();
+        }
+      };
+
+      document.addEventListener('click', handleDocumentClick);
+
+      resultsContainer.addEventListener('click', () => {
+        clearResults();
+      });
+
+      form.addEventListener('submit', () => {
         debouncedFetch.cancel();
         if (controller) {
           controller.abort();
@@ -489,41 +589,7 @@
         }
         setLoading(false);
         clearResults();
-        return;
-      }
-      debouncedFetch(value);
-    });
-
-    input.addEventListener('focus', () => {
-      if (resultsContainer.children.length) {
-        showResults();
-      }
-    });
-
-    input.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        clearResults();
-      }
-    });
-
-    document.addEventListener('click', (event) => {
-      if (!form.contains(event.target)) {
-        clearResults();
-      }
-    });
-
-    resultsContainer.addEventListener('click', () => {
-      clearResults();
-    });
-
-    form.addEventListener('submit', () => {
-      debouncedFetch.cancel();
-      if (controller) {
-        controller.abort();
-        controller = null;
-      }
-      setLoading(false);
-      clearResults();
+      });
     });
   };
 
@@ -675,11 +741,13 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       initCarousels();
+      initNavToggle();
       initNavSearch();
       initContactForm();
     });
   } else {
     initCarousels();
+    initNavToggle();
     initNavSearch();
     initContactForm();
   }

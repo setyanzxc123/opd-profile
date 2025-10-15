@@ -19,62 +19,67 @@
       $zoomLevel = 16;
   }
 ?>
-<footer class="public-footer mt-5 pt-5 pb-4" aria-labelledby="footer-heading">
-  <div class="container">
-    <div class="row g-4 align-items-start">
-      <div class="col-12 col-lg-4">
-        <h2 class="fw-semibold mb-3 text-white" id="footer-heading"><?= esc($footerName) ?></h2>
-        <?php if ($footerDesc !== ''): ?>
-          <p class="text-white-50 mb-3"><?= esc($footerDesc) ?></p>
-        <?php endif; ?>
-
-        <dl class="text-white-50 small mb-0 footer-contact-list">
+<footer class="border-t border-base-200 bg-base-200/70 text-base-content/80" aria-labelledby="footer-heading">
+  <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="grid gap-10 lg:grid-cols-[2.2fr,1.2fr,1.6fr]">
+      <div class="space-y-4">
+        <div>
+          <h2 class="text-xl font-semibold text-base-content" id="footer-heading"><?= esc($footerName) ?></h2>
+          <?php if ($footerDesc !== ''): ?>
+            <p class="mt-2 max-w-xl text-sm leading-relaxed text-base-content/70"><?= esc($footerDesc) ?></p>
+          <?php endif; ?>
+        </div>
+        <dl class="space-y-3 text-sm text-base-content/80">
           <?php if ($footerAddress !== ''): ?>
-            <div class="mb-2">
-              <dt class="text-uppercase text-white-50 fw-semibold small">Alamat</dt>
-              <dd class="mb-0"><?= nl2br(esc($footerAddress)) ?></dd>
+            <div>
+              <dt class="text-xs font-semibold uppercase tracking-widest text-base-content/60">Alamat</dt>
+              <dd class="mt-1 whitespace-pre-line"><?= esc($footerAddress) ?></dd>
             </div>
           <?php endif; ?>
           <?php if ($footerPhone !== ''): ?>
-            <div class="mb-2">
-              <dt class="text-uppercase text-white-50 fw-semibold small">Telepon</dt>
-              <dd class="mb-0"><a class="link-light text-decoration-none" href="tel:<?= esc(preg_replace('/[^0-9+]/', '', $footerPhone)) ?>"><?= esc($footerPhone) ?></a></dd>
+            <div>
+              <dt class="text-xs font-semibold uppercase tracking-widest text-base-content/60">Telepon</dt>
+              <dd class="mt-1">
+                <a class="font-medium text-base-content hover:text-primary" href="tel:<?= esc(preg_replace('/[^0-9+]/', '', $footerPhone)) ?>"><?= esc($footerPhone) ?></a>
+              </dd>
             </div>
           <?php endif; ?>
           <?php if ($footerEmail !== ''): ?>
             <div>
-              <dt class="text-uppercase text-white-50 fw-semibold small">Email</dt>
-              <dd class="mb-0"><a class="link-light text-decoration-none" href="mailto:<?= esc($footerEmail) ?>"><?= esc($footerEmail) ?></a></dd>
+              <dt class="text-xs font-semibold uppercase tracking-widest text-base-content/60">Email</dt>
+              <dd class="mt-1">
+                <a class="font-medium text-base-content hover:text-primary" href="mailto:<?= esc($footerEmail) ?>"><?= esc($footerEmail) ?></a>
+              </dd>
             </div>
           <?php endif; ?>
         </dl>
       </div>
-      <div class="col-6 col-lg-3">
-        <div class="mb-4">
-          <h3 class="text-white mb-3 h6 text-uppercase">Navigasi</h3>
-          <ul class="list-unstyled footer-links">
-            <li><a href="<?= site_url('profil') ?>">Profil</a></li>
-            <li><a href="<?= site_url('layanan') ?>">Layanan</a></li>
-            <li><a href="<?= site_url('berita') ?>">Berita</a></li>
-            <li><a href="<?= site_url('dokumen') ?>">Dokumen</a></li>
-            <li><a href="<?= site_url('kontak') ?>">Kontak</a></li>
+      <div class="grid gap-6 text-sm">
+        <div>
+          <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-base-content/60">Navigasi</h3>
+          <ul class="mt-3 space-y-2">
+            <li><a class="hover:text-primary" href="<?= site_url('profil') ?>">Profil</a></li>
+            <li><a class="hover:text-primary" href="<?= site_url('layanan') ?>">Layanan</a></li>
+            <li><a class="hover:text-primary" href="<?= site_url('berita') ?>">Berita</a></li>
+            <li><a class="hover:text-primary" href="<?= site_url('dokumen') ?>">Dokumen</a></li>
+            <li><a class="hover:text-primary" href="<?= site_url('kontak') ?>">Kontak</a></li>
           </ul>
         </div>
         <div>
-          <h3 class="text-white mb-3 h6 text-uppercase">Layanan Cepat</h3>
-          <ul class="list-unstyled footer-links">
-            <li><a href="<?= site_url('kontak') ?>">Status Pengaduan</a></li>
-            <li><a href="<?= site_url('layanan') ?>">Antrean &amp; Reservasi</a></li>
-            <li><a href="<?= site_url('dokumen') ?>">Portal Dokumen</a></li>
-            <li><a href="<?= site_url('kontak') ?>#form-kontak">Pengaduan WBS</a></li>
+          <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-base-content/60">Layanan cepat</h3>
+          <ul class="mt-3 space-y-2">
+            <li><a class="hover:text-primary" href="<?= site_url('kontak') ?>">Status Pengaduan</a></li>
+            <li><a class="hover:text-primary" href="<?= site_url('layanan') ?>">Antrean &amp; Reservasi</a></li>
+            <li><a class="hover:text-primary" href="<?= site_url('dokumen') ?>">Portal Dokumen</a></li>
+            <li><a class="hover:text-primary" href="<?= site_url('kontak') ?>#form-kontak">Pengaduan WBS</a></li>
           </ul>
         </div>
       </div>
-      <div class="col-12 col-lg-5">
-        <h3 class="text-white mb-3 h6 text-uppercase">Lokasi Kami</h3>
+      <div class="space-y-4">
+        <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-base-content/60">Lokasi kami</h3>
         <?php if ($shouldShowMap): ?>
           <div id="footer-map"
-               class="footer-map rounded-3 overflow-hidden"
+               class="h-64 w-full overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-inner"
                data-lat="<?= esc((string) $latitude) ?>"
                data-lng="<?= esc((string) $longitude) ?>"
                data-zoom="<?= esc((string) $zoomLevel) ?>"
@@ -82,17 +87,16 @@
                data-address="<?= esc($footerAddress) ?>">
           </div>
         <?php else: ?>
-          <div class="footer-map-placeholder text-white-50 small border border-light border-opacity-25 rounded-3 p-4 h-100 d-flex align-items-center justify-content-center text-center">
-            <div>
-              <p class="mb-1 fw-semibold text-white">Peta belum diaktifkan</p>
-              <p class="mb-0">Perbarui koordinat dan aktifkan tampilan peta melalui panel admin.</p>
+          <div class="flex h-64 w-full items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 text-center text-sm text-base-content/60">
+            <div class="space-y-1">
+              <p class="font-semibold text-base-content">Peta belum diaktifkan</p>
+              <p>Perbarui koordinat dan aktifkan tampilan peta melalui panel admin.</p>
             </div>
           </div>
         <?php endif; ?>
       </div>
     </div>
-
-    <div class="border-top border-light border-opacity-25 mt-4 pt-3 text-center text-white-50 small">
+    <div class="mt-10 border-t border-base-300 pt-6 text-center text-xs text-base-content/60">
       &copy; <?= date('Y') ?> <?= esc($footerName) ?>. Seluruh hak cipta dilindungi.
     </div>
   </div>

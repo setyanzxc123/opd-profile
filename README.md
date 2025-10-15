@@ -28,8 +28,14 @@ to your `app` folder. The affected files can be copied or merged from
 Copy `env` to `.env` and tailor for your app, specifically the baseURL
 and any database settings.
 
-For this project’s specific setup, asset structure, and rebuild checklist,
+For this project's specific setup, asset structure, and rebuild checklist,
 see `docs/SETUP.md`.
+
+## Tailwind & DaisyUI Pipeline
+
+- Entry stylesheet: `resources/css/app.css` memuat `@tailwind base`, `@tailwind components`, dan `@tailwind utilities`.
+- Tambahkan utilitas atau komponen kustom dengan `@layer` pada file yang sama, misalnya untuk override Cropper atau Leaflet.
+- Build output Tailwind sebelum deploy, sehingga CSS terkompilasi tersedia di `public/assets/css/`.
 
 ## Important Change with index.php
 

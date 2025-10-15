@@ -1,0 +1,32 @@
+{
+  "name": "opd-profile",
+  "version": "1.0.0",
+  "description": "CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.\r More information can be found at the [official site](https://codeigniter.com).",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "dev": "tailwindcss -i ./resources/css/app.css -o ./public/assets/css/tailwind.css --watch",
+    "build": "tailwindcss -i ./resources/css/app.css -o ./public/assets/css/tailwind.css --minify",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/setyanzxc123/opd-profile.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/setyanzxc123/opd-profile/issues"
+  },
+  "homepage": "https://github.com/setyanzxc123/opd-profile#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "daisyui": "^5.3.2",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.14"
+  }
+}
