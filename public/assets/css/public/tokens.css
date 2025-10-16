@@ -37,7 +37,7 @@
   --border-soft: color-mix(in sRGB, var(--public-primary) 18%, transparent);
 }
 body.public-body {
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Public Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--public-neutral-900);
   background-color: var(--surface-base);
   margin: 0;

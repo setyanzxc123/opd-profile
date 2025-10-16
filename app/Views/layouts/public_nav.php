@@ -21,8 +21,14 @@
   }
 
   $profileName = trim((string) ($profileData['name'] ?? ''));
+  $profileTagline = trim((string) ($profileData['tagline_public'] ?? ($profileData['tagline'] ?? '')));
   $logoPublicPath = trim((string) ($profileData['logo_public_path'] ?? ''));
   $logoPublicUrl = $logoPublicPath !== '' ? base_url($logoPublicPath) : null;
+  $brandLabel = $profileName !== '' ? $profileName : 'OPD Pemerintah';
+  $metaLinks = [
+    ['label' => 'Press Room', 'href' => site_url('berita')],
+  ];
+  $languageLabel = 'English';
 
   $navItems = [
     ['label' => 'Beranda', 'href' => site_url('/') . '#beranda', 'active' => $isHome],
@@ -34,31 +40,67 @@
     ['label' => 'Kontak', 'href' => site_url('kontak'), 'active' => strpos($path, 'kontak') === 0],
   ];
 ?>
-<nav class="navbar navbar-expand-lg navbar-light sticky-top shadow-sm public-navbar" aria-label="Navigasi utama">
-  <div class="container">
-    <a class="navbar-brand fw-bold d-flex align-items-center" href="<?= base_url('/') ?>">
-      <?php if ($logoPublicUrl): ?>
-        <img src="<?= esc($logoPublicUrl) ?>" alt="<?= esc($profileName !== '' ? $profileName : 'Logo OPD') ?>" class="navbar-brand-logo">
-      <?php else: ?>
-        <span class="me-2 rounded-circle d-inline-flex align-items-center justify-content-center brand-circle text-white fs-6" aria-hidden="true"></span>
-      <?php endif; ?>
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNavbar" aria-controls="publicNavbar" aria-expanded="false" aria-label="Tampilkan navigasi">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="publicNavbar">
-      <ul class="navbar-nav ms-auto ms-lg-0 me-lg-4 mb-2 mb-lg-0 align-items-lg-center gap-lg-3">
-        <?php foreach ($navItems as $item): ?>
-          <li class="nav-item">
-            <a class="nav-link<?= $item['active'] ? ' active' : '' ?>" href="<?= esc($item['href']) ?>"<?= $item['active'] ? ' aria-current="page"' : '' ?>><?= esc($item['label']) ?></a>
-          </li>
+<nav class="public-navbar navbar navbar-expand-lg sticky-top shadow-sm" aria-label="Navigasi utama">
+  <div class="public-navbar-top">
+    <div class="container d-flex align-items-center">
+      <a class="public-navbar-brand d-flex align-items-center text-decoration-none" href="<?= base_url('/') ?>">
+        <?php if ($logoPublicUrl): ?>
+          <img src="<?= esc($logoPublicUrl) ?>" alt="<?= esc($profileName !== '' ? $profileName : 'Logo OPD') ?>" class="navbar-brand-logo flex-shrink-0">
+        <?php else: ?>
+          <span class="me-3 rounded-circle d-inline-flex align-items-center justify-content-center brand-circle text-white fs-6 flex-shrink-0" aria-hidden="true"></span>
+        <?php endif; ?>
+        <span class="public-navbar-brand-copy">
+          <span class="public-navbar-brand-name"><?= esc($brandLabel) ?></span>
+          <?php if ($profileTagline !== ''): ?>
+            <span class="public-navbar-brand-tagline"><?= esc($profileTagline) ?></span>
+          <?php endif; ?>
+        </span>
+      </a>
+      <div class="public-navbar-meta public-navbar-top-meta d-none d-lg-flex ms-auto">
+        <?php foreach ($metaLinks as $metaLink): ?>
+          <a class="public-navbar-meta-link" href="<?= esc($metaLink['href']) ?>"><?= esc($metaLink['label']) ?></a>
         <?php endforeach; ?>
-      </ul>
-      <div class="nav-actions d-flex flex-column flex-lg-row align-items-lg-center gap-3 mt-3 mt-lg-0">
-        <form class="public-search" action="<?= site_url('berita') ?>" method="get" role="search" data-nav-search-form data-nav-search-url="<?= site_url('search/berita') ?>">
+        <span class="public-navbar-meta-divider" aria-hidden="true"></span>
+        <button class="public-navbar-language" type="button" aria-label="Ganti bahasa">
+          <?= esc($languageLabel) ?>
+          <span class="public-navbar-language-icon" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="public-navbar-bottom">
+    <div class="container">
+      <div class="public-navbar-bottom-inner d-flex align-items-center">
+        <button class="navbar-toggler d-lg-none ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#publicNavbar" aria-controls="publicNavbar" aria-expanded="false" aria-label="Tampilkan navigasi">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="publicNavbar">
+          <ul class="public-navbar-links navbar-nav flex-column flex-lg-row align-items-start align-items-lg-center mb-0">
+            <?php foreach ($navItems as $item): ?>
+              <li class="nav-item">
+                <a class="nav-link<?= $item['active'] ? ' active' : '' ?>" href="<?= esc($item['href']) ?>"<?= $item['active'] ? ' aria-current="page"' : '' ?>><?= esc($item['label']) ?></a>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+          <div class="public-navbar-meta public-navbar-meta--mobile d-lg-none">
+            <?php foreach ($metaLinks as $metaLink): ?>
+              <a class="public-navbar-meta-link" href="<?= esc($metaLink['href']) ?>"><?= esc($metaLink['label']) ?></a>
+            <?php endforeach; ?>
+            <button class="public-navbar-language" type="button" aria-label="Ganti bahasa">
+              <?= esc($languageLabel) ?>
+              <span class="public-navbar-language-icon" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+        <form class="public-search public-navbar-search" action="<?= site_url('berita') ?>" method="get" role="search" data-nav-search-form data-nav-search-url="<?= site_url('search/berita') ?>">
           <div class="public-search-field">
             <label class="visually-hidden" for="navSearch">Cari informasi</label>
             <input id="navSearch" class="public-search-input" type="search" name="q" placeholder="Cari berita" aria-label="Cari berita" value="<?= esc($path === 'berita' ? ($request->getGet('q') ?? '') : '') ?>" autocomplete="off" data-nav-search-input aria-autocomplete="list" aria-controls="navSearchResults">
+            <span class="public-search-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false" role="img">
+                <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5L20.49 19l-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z" fill="currentColor"/>
+              </svg>
+            </span>
           </div>
           <div class="public-search-results" id="navSearchResults" role="listbox" aria-label="Hasil pencarian berita" hidden data-nav-search-results></div>
         </form>
