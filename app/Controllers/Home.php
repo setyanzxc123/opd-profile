@@ -48,6 +48,7 @@ class Home extends BaseController
     {
         $sliderItems = [];
         foreach ($newsItems as $index => $item) {
+            $primaryCategory = $item['primary_category'] ?? null;
             $sliderItems[] = [
                 'title'     => (string) ($item['title'] ?? ''),
                 'excerpt'   => $this->limitText($item['content'] ?? '', 200),
@@ -55,6 +56,8 @@ class Home extends BaseController
                 'slug'      => (string) ($item['slug'] ?? ''),
                 'isActive'  => $index === 0,
                 'published' => $this->formatDate($item['published_at'] ?? null),
+                'category'      => $primaryCategory['name'] ?? null,
+                'category_slug' => $primaryCategory['slug'] ?? null,
             ];
         }
 
@@ -108,12 +111,15 @@ class Home extends BaseController
 
         $formatted = [];
         foreach ($newsItems as $item) {
+            $primaryCategory = $item['primary_category'] ?? null;
             $formatted[] = [
                 'title'     => (string) ($item['title'] ?? ''),
                 'excerpt'   => $this->limitText($item['content'] ?? '', 200),
                 'thumbnail' => $this->resolveMediaUrl($item['thumbnail'] ?? ''),
                 'slug'      => (string) ($item['slug'] ?? ''),
                 'published' => $this->formatDate($item['published_at'] ?? null),
+                'category'      => $primaryCategory['name'] ?? null,
+                'category_slug' => $primaryCategory['slug'] ?? null,
             ];
         }
 

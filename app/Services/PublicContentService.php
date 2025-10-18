@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Models\DocumentModel;
 use App\Models\GalleryModel;
+use App\Models\NewsCategoryModel;
 use App\Models\NewsModel;
+use App\Models\NewsTagModel;
 use App\Models\OpdProfileModel;
 use App\Models\ServiceModel;
 use CodeIgniter\Cache\CacheInterface;
@@ -91,10 +93,12 @@ class PublicContentService
         return $this->cache->remember($cacheKey, $this->ttl, function () use ($limit) {
             try {
                 $model = model(NewsModel::class);
-                return $model
+                $items = $model
                     ->orderBy('published_at', 'desc')
                     ->orderBy('created_at', 'desc')
                     ->findAll($limit) ?: [];
+
+                return $this->hydrateNewsRelations($items);
             } catch (Throwable $throwable) {
                 log_message('warning', 'Failed to fetch recent news: {error}', ['error' => $throwable->getMessage()]);
 
@@ -103,21 +107,35 @@ class PublicContentService
         });
     }
 
-    public function paginatedNews(int $perPage = 6, ?string $search = null): array
+    public function paginatedNews(int $perPage = 6, ?string $search = null, ?int $categoryId = null, ?int $tagId = null): array
     {
         $perPage = max(1, $perPage);
 
         try {
             $model = model(NewsModel::class);
-            $model->orderBy('published_at', 'desc')
+            $model->select('news.*')
+                  ->orderBy('published_at', 'desc')
                   ->orderBy('created_at', 'desc');
+
+            if ($categoryId) {
+                $model->join('news_category_map', 'news_category_map.news_id = news.id', 'inner')
+                      ->where('news_category_map.category_id', $categoryId);
+            }
+
+            if ($tagId) {
+                $model->join('news_tag_map', 'news_tag_map.news_id = news.id', 'inner')
+                      ->where('news_tag_map.tag_id', $tagId);
+            }
 
             if ($search !== null && $search !== '') {
                 $model->like('title', $search)
                       ->orLike('content', $search);
             }
 
+            $model->groupBy('news.id');
+
             $articles = $model->paginate($perPage);
+            $articles = $this->hydrateNewsRelations($articles ?: []);
 
             return [
                 'articles' => $articles ?: [],
@@ -146,7 +164,7 @@ class PublicContentService
         try {
             $model = model(NewsModel::class);
 
-            return $model
+            $items = $model
                 ->orderBy('published_at', 'desc')
                 ->orderBy('created_at', 'desc')
                 ->groupStart()
@@ -154,8 +172,135 @@ class PublicContentService
                     ->orLike('content', $keyword)
                 ->groupEnd()
                 ->findAll($limit) ?: [];
+
+            return $this->hydrateNewsRelations($items);
         } catch (Throwable $throwable) {
             log_message('warning', 'Failed to search news: {error}', ['error' => $throwable->getMessage()]);
+
+            return [];
+        }
+    }
+
+    public function newsCategories(bool $onlyActive = true): array
+    {
+        $cacheKey = $onlyActive ? 'public_news_categories_active' : 'public_news_categories_all';
+
+        return $this->cache->remember($cacheKey, $this->ttl, function () use ($onlyActive) {
+            try {
+                $model = model(NewsCategoryModel::class);
+                $builder = $model->orderBy('sort_order', 'asc')
+                                 ->orderBy('name', 'asc');
+
+                if ($onlyActive) {
+                    $builder->where('is_active', 1);
+                }
+
+                return $builder->findAll() ?: [];
+            } catch (Throwable $throwable) {
+                log_message('warning', 'Failed to fetch news categories: {error}', ['error' => $throwable->getMessage()]);
+
+                return [];
+            }
+        });
+    }
+
+    public function newsTags(): array
+    {
+        return $this->cache->remember('public_news_tags_all', $this->ttl, static function () {
+            try {
+                return model(NewsTagModel::class)
+                    ->orderBy('name', 'asc')
+                    ->findAll() ?: [];
+            } catch (Throwable $throwable) {
+                log_message('warning', 'Failed to fetch news tags: {error}', ['error' => $throwable->getMessage()]);
+
+                return [];
+            }
+        });
+    }
+
+    public function findNewsCategoryBySlug(string $slug): ?array
+    {
+        if ($slug === '') {
+            return null;
+        }
+
+        try {
+            return model(NewsCategoryModel::class)
+                ->where('slug', $slug)
+                ->first() ?: null;
+        } catch (Throwable $throwable) {
+            log_message('warning', 'Failed to lookup news category: {error}', ['error' => $throwable->getMessage()]);
+
+            return null;
+        }
+    }
+
+    public function findNewsTagBySlug(string $slug): ?array
+    {
+        if ($slug === '') {
+            return null;
+        }
+
+        try {
+            return model(NewsTagModel::class)
+                ->where('slug', $slug)
+                ->first() ?: null;
+        } catch (Throwable $throwable) {
+            log_message('warning', 'Failed to lookup news tag: {error}', ['error' => $throwable->getMessage()]);
+
+            return null;
+        }
+    }
+
+    public function newsBySlug(string $slug): ?array
+    {
+        if ($slug === '') {
+            return null;
+        }
+
+        try {
+            $item = model(NewsModel::class)
+                ->where('slug', $slug)
+                ->first();
+
+            if (! $item) {
+                return null;
+            }
+
+            $enriched = $this->hydrateNewsRelations([$item]);
+
+            return $enriched[0] ?? null;
+        } catch (Throwable $throwable) {
+            log_message('warning', 'Failed to fetch news by slug: {error}', ['error' => $throwable->getMessage()]);
+
+            return null;
+        }
+    }
+
+    public function relatedNews(int $newsId, ?int $categoryId = null, int $limit = 3): array
+    {
+        $limit = max(1, $limit);
+
+        try {
+            $model = model(NewsModel::class);
+            $model->select('news.*')
+                  ->where('news.id !=', $newsId)
+                  ->orderBy('published_at', 'desc')
+                  ->orderBy('created_at', 'desc');
+
+            if ($categoryId) {
+                $model->join('news_category_map', 'news_category_map.news_id = news.id', 'inner')
+                      ->where('news_category_map.category_id', $categoryId);
+            }
+
+            $model->groupBy('news.id');
+
+            $rows = $model->findAll($limit) ?: [];
+
+            return $this->hydrateNewsRelations($rows);
+        } catch (Throwable $throwable) {
+            log_message('warning', 'Failed to fetch related news: {error}', ['error' => $throwable->getMessage()]);
 
             return [];
         }
@@ -224,5 +369,121 @@ class PublicContentService
 
         return $result;
     }
-}
 
+    /**
+     * @param array<int,int> $newsIds
+     * @return array<int,array<int,array<string,mixed>>>
+     */
+    private function fetchCategoriesForNews(array $newsIds): array
+    {
+        if ($newsIds === []) {
+            return [];
+        }
+
+        $db = db_connect();
+        try {
+            $rows = $db->table('news_category_map')
+                ->select('news_category_map.news_id, news_categories.id, news_categories.name, news_categories.slug, news_categories.description, news_categories.is_active, news_categories.sort_order')
+                ->join('news_categories', 'news_categories.id = news_category_map.category_id', 'inner')
+                ->whereIn('news_category_map.news_id', $newsIds)
+                ->orderBy('news_categories.sort_order', 'asc')
+                ->orderBy('news_categories.name', 'asc')
+                ->get()
+                ->getResultArray();
+        } finally {
+            $db->close();
+        }
+
+        $grouped = [];
+        foreach ($rows as $row) {
+            if ((int) ($row['is_active'] ?? 0) !== 1) {
+                continue;
+            }
+
+            $newsId = (int) $row['news_id'];
+            $grouped[$newsId][] = [
+                'id'          => (int) $row['id'],
+                'name'        => (string) $row['name'],
+                'slug'        => (string) $row['slug'],
+                'description' => (string) ($row['description'] ?? ''),
+            ];
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * @param array<int,int> $newsIds
+     * @return array<int,array<int,array<string,mixed>>>
+     */
+    private function fetchTagsForNews(array $newsIds): array
+    {
+        if ($newsIds === []) {
+            return [];
+        }
+
+        $db = db_connect();
+        try {
+            $rows = $db->table('news_tag_map')
+                ->select('news_tag_map.news_id, news_tags.id, news_tags.name, news_tags.slug')
+                ->join('news_tags', 'news_tags.id = news_tag_map.tag_id', 'inner')
+                ->whereIn('news_tag_map.news_id', $newsIds)
+                ->orderBy('news_tags.name', 'asc')
+                ->get()
+                ->getResultArray();
+        } finally {
+            $db->close();
+        }
+
+        $grouped = [];
+        foreach ($rows as $row) {
+            $newsId = (int) $row['news_id'];
+            $grouped[$newsId][] = [
+                'id'   => (int) $row['id'],
+                'name' => (string) $row['name'],
+                'slug' => (string) $row['slug'],
+            ];
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * @param array<int,array<string,mixed>> $newsItems
+     * @return array<int,array<string,mixed>>
+     */
+    private function hydrateNewsRelations(array $newsItems): array
+    {
+        if ($newsItems === []) {
+            return [];
+        }
+
+        $newsIds = [];
+        foreach ($newsItems as $row) {
+            if (isset($row['id'])) {
+                $newsIds[] = (int) $row['id'];
+            }
+        }
+
+        $categoriesByNews = $this->fetchCategoriesForNews($newsIds);
+        $tagsByNews       = $this->fetchTagsForNews($newsIds);
+
+        $categoryIndex = [];
+        foreach ($categoriesByNews as $categories) {
+            foreach ($categories as $category) {
+                $categoryIndex[$category['id']] = $category;
+            }
+        }
+
+        foreach ($newsItems as &$row) {
+            $newsId = (int) ($row['id'] ?? 0);
+            $row['categories'] = $categoriesByNews[$newsId] ?? [];
+            $row['tags']       = $tagsByNews[$newsId] ?? [];
+            $primaryId         = (int) ($row['primary_category_id'] ?? 0);
+            $row['primary_category'] = $primaryId && isset($categoryIndex[$primaryId]) ? $categoryIndex[$primaryId] : null;
+        }
+        unset($row);
+
+        return $newsItems;
+    }
+}

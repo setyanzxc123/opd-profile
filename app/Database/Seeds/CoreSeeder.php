@@ -74,28 +74,155 @@ class CoreSeeder extends Seeder
             ]);
         }
 
+        // Seed news taxonomy
+        $categoryIdMap = [];
+        $tagIdMap       = [];
+        $nowUtc         = Time::now('UTC')->toDateTimeString();
+
+        if ($this->db->tableExists('news_categories')) {
+            $categoriesTable = $this->db->table('news_categories');
+            if (! $categoriesTable->countAllResults()) {
+                $categoriesTable->insertBatch([
+                    [
+                        'name'        => 'Pengumuman',
+                        'slug'        => 'pengumuman',
+                        'description' => 'Informasi resmi dan pemberitahuan penting untuk masyarakat.',
+                        'sort_order'  => 1,
+                        'created_at'  => $nowUtc,
+                    ],
+                    [
+                        'name'        => 'Program Kegiatan',
+                        'slug'        => 'program-kegiatan',
+                        'description' => 'Liputan program dan kegiatan unggulan OPD.',
+                        'sort_order'  => 2,
+                        'created_at'  => $nowUtc,
+                    ],
+                    [
+                        'name'        => 'Pelayanan Publik',
+                        'slug'        => 'pelayanan-publik',
+                        'description' => 'Perubahan kebijakan serta pengumuman layanan publik.',
+                        'sort_order'  => 3,
+                        'created_at'  => $nowUtc,
+                    ],
+                ]);
+            }
+
+            $categoryIdMap = array_column(
+                $categoriesTable->select('id, slug')->get()->getResultArray(),
+                'id',
+                'slug'
+            );
+        }
+
+        if ($this->db->tableExists('news_tags')) {
+            $tagsTable = $this->db->table('news_tags');
+            if (! $tagsTable->countAllResults()) {
+                $tagsTable->insertBatch([
+                    [
+                        'name'       => 'Digitalisasi',
+                        'slug'       => 'digitalisasi',
+                        'created_at' => $nowUtc,
+                    ],
+                    [
+                        'name'       => 'Transparansi',
+                        'slug'       => 'transparansi',
+                        'created_at' => $nowUtc,
+                    ],
+                    [
+                        'name'       => 'Pelayanan Prima',
+                        'slug'       => 'pelayanan-prima',
+                        'created_at' => $nowUtc,
+                    ],
+                ]);
+            }
+
+            $tagIdMap = array_column(
+                $tagsTable->select('id, slug')->get()->getResultArray(),
+                'id',
+                'slug'
+            );
+        }
+
         // Seed news samples
         if (! $this->db->table('news')->countAllResults()) {
-            $this->db->table('news')->insertBatch([
+            $newsTable        = $this->db->table('news');
+            $categoryMapTable = $this->db->tableExists('news_category_map') ? $this->db->table('news_category_map') : null;
+            $tagMapTable      = $this->db->tableExists('news_tag_map') ? $this->db->table('news_tag_map') : null;
+
+            $newsSeed = [
                 [
-                    'title'        => 'Peluncuran Portal OPD Baru',
-                    'slug'         => 'peluncuran-portal-opd-baru',
-                    'content'      => '<p>Portal resmi OPD kini hadir dengan tampilan dan fitur terbaru.</p>',
-                    'thumbnail'    => null,
-                    'published_at' => Time::now('UTC')->subDays(2)->toDateTimeString(),
-                    'author_id'    => $adminId ?: null,
-                    'created_at'   => Time::now('UTC')->subDays(2)->toDateTimeString(),
+                    'title'       => 'Peluncuran Portal OPD Baru',
+                    'slug'        => 'peluncuran-portal-opd-baru',
+                    'content'     => '<p>Portal resmi OPD kini hadir dengan tampilan dan fitur terbaru.</p>',
+                    'thumbnail'   => null,
+                    'publishedAt' => Time::now('UTC')->subDays(2)->toDateTimeString(),
+                    'createdAt'   => Time::now('UTC')->subDays(2)->toDateTimeString(),
+                    'categories'  => ['pengumuman'],
+                    'tags'        => ['digitalisasi', 'transparansi'],
                 ],
                 [
-                    'title'        => 'Workshop Literasi Digital',
-                    'slug'         => 'workshop-literasi-digital',
-                    'content'      => '<p>OPD menyelenggarakan workshop untuk meningkatkan literasi digital masyarakat.</p>',
-                    'thumbnail'    => null,
-                    'published_at' => Time::now('UTC')->subDays(5)->toDateTimeString(),
-                    'author_id'    => $adminId ?: null,
-                    'created_at'   => Time::now('UTC')->subDays(5)->toDateTimeString(),
+                    'title'       => 'Workshop Literasi Digital',
+                    'slug'        => 'workshop-literasi-digital',
+                    'content'     => '<p>OPD menyelenggarakan workshop untuk meningkatkan literasi digital masyarakat.</p>',
+                    'thumbnail'   => null,
+                    'publishedAt' => Time::now('UTC')->subDays(5)->toDateTimeString(),
+                    'createdAt'   => Time::now('UTC')->subDays(5)->toDateTimeString(),
+                    'categories'  => ['program-kegiatan'],
+                    'tags'        => ['digitalisasi', 'pelayanan-prima'],
                 ],
-            ]);
+            ];
+
+            foreach ($newsSeed as $item) {
+                $primarySlug = $item['categories'][0] ?? null;
+                $primaryId   = $primarySlug && isset($categoryIdMap[$primarySlug]) ? (int) $categoryIdMap[$primarySlug] : null;
+
+                $newsTable->insert([
+                    'title'               => $item['title'],
+                    'slug'                => $item['slug'],
+                    'content'             => $item['content'],
+                    'thumbnail'           => $item['thumbnail'],
+                    'published_at'        => $item['publishedAt'],
+                    'author_id'           => $adminId ?: null,
+                    'created_at'          => $item['createdAt'],
+                    'primary_category_id' => $primaryId,
+                ]);
+
+                $newsId = (int) $this->db->insertID();
+
+                if ($newsId && $categoryMapTable && $categoryIdMap) {
+                    $batch = [];
+                    foreach ($item['categories'] as $slug) {
+                        if (! isset($categoryIdMap[$slug])) {
+                            continue;
+                        }
+                        $batch[] = [
+                            'news_id'     => $newsId,
+                            'category_id' => (int) $categoryIdMap[$slug],
+                        ];
+                    }
+
+                    if ($batch !== []) {
+                        $categoryMapTable->insertBatch($batch);
+                    }
+                }
+
+                if ($newsId && $tagMapTable && $tagIdMap) {
+                    $batch = [];
+                    foreach ($item['tags'] as $slug) {
+                        if (! isset($tagIdMap[$slug])) {
+                            continue;
+                        }
+                        $batch[] = [
+                            'news_id' => $newsId,
+                            'tag_id'  => (int) $tagIdMap[$slug],
+                        ];
+                    }
+
+                    if ($batch !== []) {
+                        $tagMapTable->insertBatch($batch);
+                    }
+                }
+            }
         }
 
         // Seed gallery samples

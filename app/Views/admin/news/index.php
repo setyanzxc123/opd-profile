@@ -24,6 +24,7 @@
               <th>#</th>
               <th>Judul</th>
               <th>Slug URL</th>
+              <th>Kategori Utama</th>
               <th>Tanggal Terbit</th>
               <th>Gambar Sampul</th>
               <th class="text-end">Aksi</th>
@@ -35,6 +36,7 @@
               <td><?= $i + 1 ?></td>
               <td><?= esc($n['title']) ?></td>
               <td><small class="text-muted"><?= esc($n['slug']) ?></small></td>
+              <td><?= esc($categoryLookup[$n['primary_category_id'] ?? 0] ?? '-') ?></td>
               <td><?= esc($n['published_at'] ?: '-') ?></td>
               <td>
                 <?php if (!empty($n['thumbnail'])): ?>
@@ -105,8 +107,8 @@
       columnDefs: [
         { targets: 0, responsivePriority: 5 },
         { targets: 1, responsivePriority: 1 },
-        { targets: -1, orderable: false, searchable: false, responsivePriority: 2 },
-        { targets: 4, orderable: false, responsivePriority: 3 }
+        { targets: 4, orderable: false, responsivePriority: 3 },
+        { targets: -1, orderable: false, searchable: false, responsivePriority: 2 }
       ]
     });
   });

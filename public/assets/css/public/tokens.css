@@ -45,8 +45,8 @@ body.public-body {
 
 .public-navbar {
   background-color: var(--surface-card);
-  border-bottom: 1px solid rgba(34, 48, 62, 0.08);
-  box-shadow: 0 0.75rem 2rem rgba(34, 48, 62, 0.08);
+  border-bottom: 0;
+  box-shadow: none;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 

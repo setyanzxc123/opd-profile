@@ -2,7 +2,9 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Models\NewsCategoryModel;
 use App\Models\NewsModel;
+use App\Models\NewsTagModel;
 use CodeIgniter\HTTP\Files\UploadedFile;
 
 class News extends BaseController
@@ -152,31 +154,167 @@ class News extends BaseController
         return $relativePath;
     }
 
+    private function taxonomyOptions(): array
+    {
+        $categories = model(NewsCategoryModel::class)
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('name', 'asc')
+            ->findAll();
+        $tags = model(NewsTagModel::class)->getAllOrdered();
+
+        return [
+            'categories' => $categories,
+            'tags'       => $tags,
+        ];
+    }
+
+    /**
+     * @return array<int,int>
+     */
+    private function parseCategoryInput(): array
+    {
+        $input = $this->request->getPost('categories');
+        if (! is_array($input)) {
+            $input = $input ? [$input] : [];
+        }
+
+        $ids = [];
+        foreach ($input as $value) {
+            $id = (int) $value;
+            if ($id > 0) {
+                $ids[] = $id;
+            }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    private function determinePrimaryCategory(array $categoryIds): ?int
+    {
+        if ($categoryIds === []) {
+            return null;
+        }
+
+        $primary = (int) $this->request->getPost('primary_category');
+        if ($primary > 0 && in_array($primary, $categoryIds, true)) {
+            return $primary;
+        }
+
+        return $categoryIds[0] ?? null;
+    }
+
+    /**
+     * @return array<int,int>
+     */
+    private function parseExistingTagInput(): array
+    {
+        $input = $this->request->getPost('tags');
+        if (! is_array($input)) {
+            $input = $input ? [$input] : [];
+        }
+
+        $ids = [];
+        foreach ($input as $value) {
+            $id = (int) $value;
+            if ($id > 0) {
+                $ids[] = $id;
+            }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * @return array<int,int>
+     */
+    private function createTagsFromInput(string $rawInput): array
+    {
+        helper('text');
+
+        $chunks = preg_split('/[,;\n]+/', $rawInput) ?: [];
+        if ($chunks === []) {
+            return [];
+        }
+
+        $tagModel = model(NewsTagModel::class);
+        $result   = [];
+
+        foreach ($chunks as $chunk) {
+            $clean = trim(sanitize_plain_text((string) $chunk));
+            if ($clean === '') {
+                continue;
+            }
+
+            $slug = url_title($clean, '-', true);
+            if ($slug === '') {
+                continue;
+            }
+
+            $existing = $tagModel->where('slug', $slug)->first();
+            if ($existing) {
+                $result[] = (int) $existing['id'];
+                continue;
+            }
+
+            $tagModel->insert([
+                'name' => $clean,
+                'slug' => $slug,
+            ]);
+
+            $result[] = (int) $tagModel->getInsertID();
+        }
+
+        return array_values(array_unique($result));
+    }
+
     public function index()
     {
         $model = new NewsModel();
         $items = $model->orderBy('id', 'DESC')->findAll(50);
 
+        $categoryLookup = [];
+        if ($items !== []) {
+            $categoryIds = array_unique(array_filter(array_map(static function (array $item) {
+                return (int) ($item['primary_category_id'] ?? 0);
+            }, $items)));
+
+            if ($categoryIds !== []) {
+                $categories = model(NewsCategoryModel::class)->whereIn('id', $categoryIds)->findAll();
+                foreach ($categories as $category) {
+                    $categoryLookup[(int) $category['id']] = $category['name'];
+                }
+            }
+        }
+
         return view('admin/news/index', [
-            'title' => 'Berita',
-            'items' => $items,
+            'title'          => 'Berita',
+            'items'          => $items,
+            'categoryLookup' => $categoryLookup,
         ]);
     }
 
     public function create()
     {
+        $taxonomy = $this->taxonomyOptions();
+
         return view('admin/news/form', [
-            'title' => 'Tambah Berita',
-            'item'  => [
-                'id'           => 0,
-                'title'        => '',
-                'slug'         => '',
-                'content'      => '',
-                'thumbnail'    => '',
-                'published_at' => '',
+            'title'              => 'Tambah Berita',
+            'item'               => [
+                'id'                 => 0,
+                'title'              => '',
+                'slug'               => '',
+                'content'            => '',
+                'thumbnail'          => '',
+                'published_at'       => '',
+                'primary_category_id'=> null,
             ],
-            'validation' => \Config\Services::validation(),
-            'mode'       => 'create',
+            'validation'         => \Config\Services::validation(),
+            'mode'               => 'create',
+            'categories'         => $taxonomy['categories'],
+            'tags'               => $taxonomy['tags'],
+            'selectedCategories' => [],
+            'selectedTags'       => [],
+            'primaryCategory'    => null,
         ]);
     }
 
@@ -195,12 +333,25 @@ class News extends BaseController
             return redirect()->back()->withInput()->with('error', 'Periksa kembali data yang diisi.');
         }
 
-        $model       = new NewsModel();
-        $titleInput  = sanitize_plain_text($this->request->getPost('title'));
-        $slug        = $this->uniqueSlug($titleInput);
-        $contentRaw  = (string) $this->request->getPost('content');
-        $content     = sanitize_rich_text($contentRaw);
-        $publishedAt = $this->normalizePublishedAt($this->request->getPost('published_at'));
+        $model          = new NewsModel();
+        $titleInput     = sanitize_plain_text($this->request->getPost('title'));
+        $slug           = $this->uniqueSlug($titleInput);
+        $contentRaw     = (string) $this->request->getPost('content');
+        $content        = sanitize_rich_text($contentRaw);
+        $publishedAt    = $this->normalizePublishedAt($this->request->getPost('published_at'));
+        $categoryIds    = $this->parseCategoryInput();
+        if ($categoryIds !== []) {
+            $validCategoryIds = model(NewsCategoryModel::class)->whereIn('id', $categoryIds)->findColumn('id') ?? [];
+            $categoryIds      = array_values(array_unique(array_map('intval', $validCategoryIds)));
+        }
+        $primaryCategory = $this->determinePrimaryCategory($categoryIds);
+        $existingTagIds  = $this->parseExistingTagInput();
+        if ($existingTagIds !== []) {
+            $validTags     = model(NewsTagModel::class)->whereIn('id', $existingTagIds)->findColumn('id') ?? [];
+            $existingTagIds= array_values(array_unique(array_map('intval', $validTags)));
+        }
+        $newTagIds      = $this->createTagsFromInput((string) $this->request->getPost('new_tags'));
+        $allTagIds      = array_values(array_unique(array_merge($existingTagIds, $newTagIds)));
 
         $thumbPath = null;
         $file      = $this->request->getFile('thumbnail');
@@ -216,13 +367,20 @@ class News extends BaseController
         }
 
         $model->insert([
-            'title'        => $titleInput,
-            'slug'         => $slug,
-            'content'      => $content,
-            'thumbnail'    => $thumbPath,
-            'published_at' => $publishedAt,
-            'author_id'    => (int) session('user_id'),
+            'title'               => $titleInput,
+            'slug'                => $slug,
+            'content'             => $content,
+            'thumbnail'           => $thumbPath,
+            'published_at'        => $publishedAt,
+            'author_id'           => (int) session('user_id'),
+            'primary_category_id' => $primaryCategory,
         ]);
+
+        $newsId = (int) $model->getInsertID();
+        if ($newsId > 0) {
+            $model->syncCategories($newsId, $categoryIds);
+            $model->syncTags($newsId, $allTagIds);
+        }
 
         log_activity('news.create', 'Menambah berita: ' . $titleInput);
 
@@ -237,11 +395,20 @@ class News extends BaseController
             return redirect()->to(site_url('admin/news'))->with('error', 'Data berita tidak ditemukan.');
         }
 
+        $taxonomy           = $this->taxonomyOptions();
+        $selectedCategories = $model->getCategoryIds($id);
+        $selectedTags       = $model->getTagIds($id);
+
         return view('admin/news/form', [
-            'title'      => 'Ubah Berita',
-            'item'       => $item,
-            'validation' => \Config\Services::validation(),
-            'mode'       => 'edit',
+            'title'              => 'Ubah Berita',
+            'item'               => $item,
+            'validation'         => \Config\Services::validation(),
+            'mode'               => 'edit',
+            'categories'         => $taxonomy['categories'],
+            'tags'               => $taxonomy['tags'],
+            'selectedCategories' => $selectedCategories,
+            'selectedTags'       => $selectedTags,
+            'primaryCategory'    => $item['primary_category_id'] ?? null,
         ]);
     }
 
@@ -266,17 +433,31 @@ class News extends BaseController
             return redirect()->back()->withInput()->with('error', 'Periksa kembali data yang diisi.');
         }
 
-        $titleInput  = sanitize_plain_text($this->request->getPost('title'));
-        $slug        = $this->uniqueSlug($titleInput, $id);
-        $contentRaw  = (string) $this->request->getPost('content');
-        $content     = sanitize_rich_text($contentRaw);
-        $publishedAt = $this->normalizePublishedAt($this->request->getPost('published_at'));
+        $titleInput     = sanitize_plain_text($this->request->getPost('title'));
+        $slug           = $this->uniqueSlug($titleInput, $id);
+        $contentRaw     = (string) $this->request->getPost('content');
+        $content        = sanitize_rich_text($contentRaw);
+        $publishedAt    = $this->normalizePublishedAt($this->request->getPost('published_at'));
+        $categoryIds    = $this->parseCategoryInput();
+        if ($categoryIds !== []) {
+            $validCategoryIds = model(NewsCategoryModel::class)->whereIn('id', $categoryIds)->findColumn('id') ?? [];
+            $categoryIds      = array_values(array_unique(array_map('intval', $validCategoryIds)));
+        }
+        $primaryCategory = $this->determinePrimaryCategory($categoryIds);
+        $existingTagIds  = $this->parseExistingTagInput();
+        if ($existingTagIds !== []) {
+            $validTagIds   = model(NewsTagModel::class)->whereIn('id', $existingTagIds)->findColumn('id') ?? [];
+            $existingTagIds= array_values(array_unique(array_map('intval', $validTagIds)));
+        }
+        $newTagIds      = $this->createTagsFromInput((string) $this->request->getPost('new_tags'));
+        $allTagIds      = array_values(array_unique(array_merge($existingTagIds, $newTagIds)));
 
         $data = [
-            'title'        => $titleInput,
-            'slug'         => $slug,
-            'content'      => $content,
-            'published_at' => $publishedAt,
+            'title'               => $titleInput,
+            'slug'                => $slug,
+            'content'             => $content,
+            'published_at'        => $publishedAt,
+            'primary_category_id' => $primaryCategory,
         ];
 
         $file = $this->request->getFile('thumbnail');
@@ -294,6 +475,8 @@ class News extends BaseController
         }
 
         $model->update($id, $data);
+        $model->syncCategories($id, $categoryIds);
+        $model->syncTags($id, $allTagIds);
 
         log_activity('news.update', 'Mengubah berita: ' . $titleInput);
 

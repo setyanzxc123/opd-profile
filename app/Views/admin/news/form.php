@@ -1,4 +1,27 @@
 <?= $this->extend('layouts/admin') ?>
+<?php
+  $categoryOptions     = $categories ?? [];
+  $tagOptions          = $tags ?? [];
+  $selectedCategoryIds = old('categories', $selectedCategories ?? []);
+  if (! is_array($selectedCategoryIds)) {
+      $selectedCategoryIds = $selectedCategoryIds ? [$selectedCategoryIds] : [];
+  }
+  $selectedCategoryIds = array_values(array_unique(array_map(static fn ($value) => (int) $value, $selectedCategoryIds)));
+
+  $primaryCategoryId = old('primary_category', $primaryCategory ?? null);
+  $primaryCategoryId = $primaryCategoryId !== null ? (int) $primaryCategoryId : null;
+  if ($primaryCategoryId && ! in_array($primaryCategoryId, $selectedCategoryIds, true)) {
+      $primaryCategoryId = $selectedCategoryIds[0] ?? null;
+  }
+
+  $selectedTagIds = old('tags', $selectedTags ?? []);
+  if (! is_array($selectedTagIds)) {
+      $selectedTagIds = $selectedTagIds ? [$selectedTagIds] : [];
+  }
+  $selectedTagIds = array_values(array_unique(array_map(static fn ($value) => (int) $value, $selectedTagIds)));
+
+  $newTagsInput = (string) old('new_tags', '');
+?>
 
 <?= $this->section('pageStyles') ?>
 <?= $this->endSection() ?>
@@ -114,6 +137,84 @@
                   </div>
                 </div>
               </div>
+              <div class="news-side-section mt-4 mt-md-3">
+                <div class="card shadow-sm h-100">
+                  <div class="card-body p-4">
+                    <h5 class="fw-semibold mb-3">Kategorisasi &amp; Tag</h5>
+
+                    <div class="mb-4">
+                      <label class="form-label fw-semibold">Kategori Berita</label>
+                      <?php if ($categoryOptions): ?>
+                        <p class="form-text mb-2">Pilih kategori yang relevan lalu tandai kategori utama.</p>
+                        <div class="taxonomy-category-list">
+                          <?php foreach ($categoryOptions as $category): ?>
+                            <?php
+                              $categoryId  = (int) ($category['id'] ?? 0);
+                              $isChecked   = in_array($categoryId, $selectedCategoryIds, true);
+                              $isPrimary   = $primaryCategoryId !== null ? $primaryCategoryId === $categoryId : false;
+                              $description = trim((string) ($category['description'] ?? ''));
+                            ?>
+                            <div class="border rounded p-2 mb-2">
+                              <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="categories[]"
+                                       value="<?= $categoryId ?>"
+                                       id="categoryCheckbox<?= $categoryId ?>"
+                                       data-category-checkbox
+                                       data-category-id="<?= $categoryId ?>"
+                                       <?= $isChecked ? 'checked' : '' ?>>
+                                <label class="form-check-label fw-semibold" for="categoryCheckbox<?= $categoryId ?>">
+                                  <?= esc($category['name'] ?? 'Kategori') ?>
+                                </label>
+                              </div>
+                              <?php if ($description !== ''): ?>
+                                <p class="form-text mb-2 ms-4"><?= esc($description) ?></p>
+                              <?php endif; ?>
+                              <div class="form-check ms-4">
+                                <input class="form-check-input" type="radio" name="primary_category"
+                                       value="<?= $categoryId ?>"
+                                       id="primaryCategory<?= $categoryId ?>"
+                                       data-primary-radio
+                                       data-primary-for="<?= $categoryId ?>"
+                                       <?= $isPrimary ? 'checked' : '' ?>
+                                       <?= $isChecked ? '' : 'disabled' ?>>
+                                <label class="form-check-label small text-muted" for="primaryCategory<?= $categoryId ?>">
+                                  Jadikan kategori utama
+                                </label>
+                              </div>
+                            </div>
+                          <?php endforeach; ?>
+                        </div>
+                      <?php else: ?>
+                        <p class="text-muted small mb-0">Belum ada kategori. Tambahkan kategori terlebih dahulu dari manajemen data.</p>
+                      <?php endif; ?>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold" for="newsTags">Tag Konten</label>
+                      <?php if ($tagOptions): ?>
+                        <?php $selectSize = max(3, min(8, count($tagOptions))); ?>
+                        <select id="newsTags" name="tags[]" class="form-select" multiple size="<?= $selectSize ?>">
+                          <?php foreach ($tagOptions as $tag): ?>
+                            <?php $tagId = (int) ($tag['id'] ?? 0); ?>
+                            <option value="<?= $tagId ?>" <?= in_array($tagId, $selectedTagIds, true) ? 'selected' : '' ?>>
+                              <?= esc($tag['name'] ?? '') ?>
+                            </option>
+                          <?php endforeach; ?>
+                        </select>
+                        <div class="form-text">Gunakan Ctrl (Windows) atau Command (Mac) untuk memilih lebih dari satu tag.</div>
+                      <?php else: ?>
+                        <p class="text-muted small mb-0">Belum ada tag tersimpan. Anda dapat menambahkan tag baru di bawah.</p>
+                      <?php endif; ?>
+                    </div>
+
+                    <div>
+                      <label class="form-label" for="newTags">Tambah Tag Baru</label>
+                      <textarea id="newTags" name="new_tags" class="form-control" rows="2" placeholder="Contoh: Data Terbuka, Smart City"><?= esc($newTagsInput) ?></textarea>
+                      <div class="form-text">Pisahkan setiap tag dengan koma atau baris baru.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="col">
@@ -166,6 +267,8 @@
     const readingTimeEl = document.getElementById('readingTime');
     const lastUpdatedEl = document.getElementById('lastUpdated');
     const editorLanguageSelect = document.getElementById('editorLanguage');
+    const categoryCheckboxes = document.querySelectorAll('[data-category-checkbox]');
+    const primaryCategoryRadios = document.querySelectorAll('[data-primary-radio]');
     const slugPreviewInitial = slugPreview ? slugPreview.dataset.initialSlug || 'slug-otomatis' : 'slug-otomatis';
     let lastUpdateTimer;
     const safeStorage = (() => {
@@ -306,6 +409,32 @@
         }
       });
     });
+
+    const syncPrimaryCategoryState = () => {
+      if (primaryCategoryRadios.length === 0) {
+        return;
+      }
+
+      primaryCategoryRadios.forEach((radio) => {
+        const categoryId = radio.dataset.primaryFor;
+        const relatedCheckbox = document.querySelector(`[data-category-checkbox][data-category-id="${categoryId}"]`);
+        const enabled = relatedCheckbox ? relatedCheckbox.checked : false;
+        radio.disabled = !enabled;
+      });
+
+      const activeRadio = Array.from(primaryCategoryRadios).find((radio) => radio.checked && !radio.disabled);
+      if (!activeRadio) {
+        const firstEnabled = Array.from(primaryCategoryRadios).find((radio) => !radio.disabled);
+        if (firstEnabled) {
+          firstEnabled.checked = true;
+        }
+      }
+    };
+
+    categoryCheckboxes.forEach((checkbox) => {
+      checkbox.addEventListener('change', syncPrimaryCategoryState);
+    });
+    syncPrimaryCategoryState();
 
     const initTinyMCE = (languageCode) => {
       currentEditorLanguage = languageCode === 'en' ? 'en' : DEFAULT_EDITOR_LANGUAGE;

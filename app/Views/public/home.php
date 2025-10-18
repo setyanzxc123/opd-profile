@@ -19,6 +19,12 @@
                 </figure>
                 <div class="hero-cover-overlay">
                   <div class="hero-cover-copy">
+                    <?php if (! empty($slide['category'])): ?>
+                      <a class="hero-eyebrow hero-eyebrow-light d-inline-block" href="<?= site_url('berita/kategori/' . esc($slide['category_slug'], 'url')) ?>">Kategori <?= esc($slide['category']) ?></a>
+                    <?php endif; ?>
+                    <?php if ($slide['published']): ?>
+                      <span class="hero-eyebrow hero-eyebrow-light d-inline-block">Terbit <?= esc($slide['published']) ?></span>
+                    <?php endif; ?>
                     <h2 class="hero-cover-title"><?= esc($slide['title']) ?></h2>
                     <div class="hero-cover-actions">
                       <a class="btn btn-public-primary" href="<?= site_url('berita/' . esc($slide['slug'], 'url')) ?>">Baca selengkapnya</a>
@@ -147,9 +153,16 @@
               <img class="news-featured__media" src="<?= esc($featuredNews['thumbnail']) ?>" alt="<?= esc($featuredNews['title']) ?>" loading="lazy">
             <?php endif; ?>
             <div class="news-featured__body">
-              <?php if ($featuredNews['published']): ?>
-                <span class="news-meta"><?= esc($featuredNews['published']) ?></span>
-              <?php endif; ?>
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <?php if (! empty($featuredNews['category'])): ?>
+                  <a class="badge bg-primary-subtle text-primary" href="<?= site_url('berita/kategori/' . esc($featuredNews['category_slug'], 'url')) ?>">
+                    <?= esc($featuredNews['category']) ?>
+                  </a>
+                <?php endif; ?>
+                <?php if ($featuredNews['published']): ?>
+                  <span class="news-meta mb-0"><?= esc($featuredNews['published']) ?></span>
+                <?php endif; ?>
+              </div>
               <h3><a class="surface-link" href="<?= site_url('berita/' . esc($featuredNews['slug'], 'url')) ?>"><?= esc($featuredNews['title']) ?></a></h3>
               <?php if ($featuredNews['excerpt']): ?>
                 <p class="text-muted"><?= esc($featuredNews['excerpt']) ?></p>
@@ -162,9 +175,16 @@
           <?php foreach ($otherNews as $news): ?>
             <article class="news-list-item card-base" role="listitem">
               <div>
-                <?php if ($news['published']): ?>
-                  <span class="news-meta"><?= esc($news['published']) ?></span>
-                <?php endif; ?>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                  <?php if (! empty($news['category'])): ?>
+                    <a class="badge bg-primary-subtle text-primary" href="<?= site_url('berita/kategori/' . esc($news['category_slug'], 'url')) ?>">
+                      <?= esc($news['category']) ?>
+                    </a>
+                  <?php endif; ?>
+                  <?php if ($news['published']): ?>
+                    <span class="news-meta mb-0"><?= esc($news['published']) ?></span>
+                  <?php endif; ?>
+                </div>
                 <h3><a class="surface-link" href="<?= site_url('berita/' . esc($news['slug'], 'url')) ?>"><?= esc($news['title']) ?></a></h3>
                 <?php if ($news['excerpt']): ?>
                   <p class="text-muted small mb-0"><?= esc($news['excerpt']) ?></p>

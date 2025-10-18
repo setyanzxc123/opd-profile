@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Models\NewsModel;
 use App\Services\PublicContentService;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -53,20 +52,56 @@ class Pages extends BaseController
         ]);
     }
 
-    public function berita(): string
+    private function renderBeritaArchive(?string $categorySlug = null, ?string $tagSlug = null): string
     {
-        $search = trim((string) $this->request->getGet('q'));
-        $news   = $this->contentService->paginatedNews(6, $search);
-        $profile = $this->contentService->latestProfile();
+        $searchParam    = trim((string) $this->request->getGet('q'));
+        $categoryParam  = $categorySlug ?? trim((string) $this->request->getGet('kategori'));
+        $tagParam       = $tagSlug ?? trim((string) $this->request->getGet('tag'));
+
+        $activeCategory = $categoryParam !== '' ? $this->contentService->findNewsCategoryBySlug($categoryParam) : null;
+        $activeTag      = $tagParam !== '' ? $this->contentService->findNewsTagBySlug($tagParam) : null;
+
+        $news    = $this->contentService->paginatedNews(
+            6,
+            $searchParam,
+            $activeCategory['id'] ?? null,
+            $activeTag['id'] ?? null
+        );
+        $profile    = $this->contentService->latestProfile();
+        $categories = $this->contentService->newsCategories();
+        $tags       = $this->contentService->newsTags();
 
         return view('public/news/index', [
-            'title'         => 'Berita Terbaru',
-            'articles'      => $news['articles'],
-            'pager'         => $news['pager'],
-            'search'        => $search,
-            'footerProfile' => $profile,
-            'profile'       => $profile,
+            'title'          => 'Berita Terbaru',
+            'articles'       => $news['articles'],
+            'pager'          => $news['pager'],
+            'search'         => $searchParam,
+            'categories'     => $categories,
+            'tags'           => $tags,
+            'activeCategory' => $activeCategory,
+            'activeTag'      => $activeTag,
+            'filters'        => [
+                'category' => $activeCategory['slug'] ?? null,
+                'tag'      => $activeTag['slug'] ?? null,
+            ],
+            'footerProfile'  => $profile,
+            'profile'        => $profile,
         ]);
+    }
+
+    public function berita(): string
+    {
+        return $this->renderBeritaArchive();
+    }
+
+    public function beritaKategori(string $slug): string
+    {
+        return $this->renderBeritaArchive($slug, null);
+    }
+
+    public function beritaTag(string $slug): string
+    {
+        return $this->renderBeritaArchive(null, $slug);
     }
 
     public function beritaSearch(): ResponseInterface
@@ -114,9 +149,7 @@ class Pages extends BaseController
 
     public function beritaDetail(string $slug): string
     {
-        $article = model(NewsModel::class)
-            ->where('slug', $slug)
-            ->first();
+        $article = $this->contentService->newsBySlug($slug);
 
         if (! $article) {
             throw PageNotFoundException::forPageNotFound('Berita tidak ditemukan.');
@@ -127,12 +160,37 @@ class Pages extends BaseController
             $publishedAt = Time::parse($article['published_at']);
         }
 
-        $profile = $this->contentService->latestProfile();
+        $profile     = $this->contentService->latestProfile();
+        $breadcrumbs = [
+            [
+                'label' => 'Beranda',
+                'url'   => site_url('/'),
+            ],
+            [
+                'label' => 'Berita',
+                'url'   => site_url('berita'),
+            ],
+        ];
+
+        if (! empty($article['primary_category'])) {
+            $breadcrumbs[] = [
+                'label' => (string) $article['primary_category']['name'],
+                'url'   => site_url('berita/kategori/' . ($article['primary_category']['slug'] ?? '')),
+            ];
+        }
+
+        $related = $this->contentService->relatedNews(
+            (int) $article['id'],
+            isset($article['primary_category']['id']) ? (int) $article['primary_category']['id'] : null,
+            3
+        );
 
         return view('public/news/show', [
-            'title'         => $article['title'],
+            'title'         => $article['title'] ?? 'Berita Terbaru',
             'article'       => $article,
             'published_at'  => $publishedAt,
+            'breadcrumbs'   => $breadcrumbs,
+            'relatedNews'   => $related,
             'footerProfile' => $profile,
             'profile'       => $profile,
         ]);
