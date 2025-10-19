@@ -90,23 +90,20 @@
     <?php if ($hasFilter || $query !== ''): ?>
       <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start mb-4">
         <?php if ($query !== ''): ?>
-          <span class="badge rounded-pill bg-info-subtle text-info d-inline-flex align-items-center gap-2">
-            <span class="chip-icon" aria-hidden="true">[Q]</span>
-            <span>Pencarian: "<?= esc($query) ?>"</span>
+          <span class="badge rounded-pill bg-info-subtle text-info">
+            Pencarian: "<?= esc($query) ?>"
           </span>
         <?php endif; ?>
         <?php if ($activeCategory): ?>
-          <a class="badge rounded-pill bg-primary-subtle text-primary d-inline-flex align-items-center gap-2 text-decoration-none"
+          <a class="badge rounded-pill bg-primary-subtle text-primary text-decoration-none"
              href="<?= esc($buildUrl(site_url('berita'), ['tag' => $activeTagSlug])) ?>">
-            <span class="chip-icon" aria-hidden="true">[K]</span>
-            <span>Kategori: <?= esc($activeCategory['name']) ?></span>
+            Kategori: <?= esc($activeCategory['name']) ?>
           </a>
         <?php endif; ?>
         <?php if ($activeTag): ?>
-          <a class="badge rounded-pill bg-secondary-subtle text-secondary d-inline-flex align-items-center gap-2 text-decoration-none"
+          <a class="badge rounded-pill bg-secondary-subtle text-secondary text-decoration-none"
              href="<?= esc($buildUrl($activeCategory ? site_url('berita/kategori/' . $activeCategory['slug']) : site_url('berita'))) ?>">
-            <span class="chip-icon" aria-hidden="true">[T]</span>
-            <span>Tag: <?= esc($activeTag['name']) ?></span>
+            Tag: <?= esc($activeTag['name']) ?>
           </a>
         <?php endif; ?>
       </div>
@@ -125,8 +122,7 @@
             <div class="d-flex flex-wrap gap-2">
               <a class="btn btn-chip <?= $activeCategory ? 'btn-outline-secondary' : 'btn-chip-primary' ?>"
                  href="<?= esc($categoryResetUrl) ?>">
-                <span class="chip-icon" aria-hidden="true">[K]</span>
-                <span>Semua Kategori</span>
+                Semua Kategori
               </a>
               <?php foreach ($categoryOptions as $category): ?>
                 <?php
@@ -136,8 +132,7 @@
                 ?>
                 <a class="btn btn-chip <?= $isActive ? 'btn-chip-primary' : 'btn-outline-secondary' ?>"
                    href="<?= esc($categoryUrl) ?>">
-                  <span class="chip-icon" aria-hidden="true"><?= $isActive ? '[K]' : '[C]' ?></span>
-                  <span><?= esc($category['name'] ?? 'Kategori') ?></span>
+                  <?= esc($category['name'] ?? 'Kategori') ?>
                 </a>
               <?php endforeach; ?>
             </div>
@@ -150,8 +145,7 @@
             <div class="d-flex flex-wrap gap-2">
               <a class="btn btn-chip <?= $activeTag ? 'btn-outline-secondary' : 'btn-chip-secondary' ?>"
                  href="<?= esc($tagResetUrl) ?>">
-                <span class="chip-icon" aria-hidden="true">[T]</span>
-                <span>Semua Tag</span>
+                Semua Tag
               </a>
               <?php foreach ($tagOptions as $tag): ?>
                 <?php
@@ -161,8 +155,7 @@
                 ?>
                 <a class="btn btn-chip <?= $isActive ? 'btn-chip-secondary' : 'btn-outline-secondary' ?>"
                    href="<?= esc($tagUrl) ?>">
-                  <span class="chip-icon" aria-hidden="true"><?= $isActive ? '[T]' : '[G]' ?></span>
-                  <span><?= esc($tag['name'] ?? 'Tag') ?></span>
+                  <?= esc($tag['name'] ?? 'Tag') ?>
                 </a>
               <?php endforeach; ?>
             </div>
@@ -191,17 +184,15 @@
                 <div class="d-flex flex-wrap gap-2 mb-2">
                   <?php if (! empty($article['primary_category'])): ?>
                     <?php $category = $article['primary_category']; ?>
-                    <a class="badge bg-primary-subtle text-primary d-inline-flex align-items-center gap-1"
+                    <a class="badge bg-primary-subtle text-primary"
                        href="<?= esc($buildUrl(site_url('berita/kategori/' . $category['slug']), ['tag' => $activeTagSlug])) ?>">
-                      <span class="chip-icon" aria-hidden="true">[K]</span>
-                      <span><?= esc($category['name']) ?></span>
+                      <?= esc($category['name']) ?>
                     </a>
                   <?php endif; ?>
                   <?php if (! empty($article['published_at'])): ?>
                     <?php $time = Time::parse($article['published_at']); ?>
-                    <span class="badge bg-light text-primary d-inline-flex align-items-center gap-1">
-                      <span class="chip-icon" aria-hidden="true">[D]</span>
-                      <span><?= esc($time->toLocalizedString('d MMMM yyyy')) ?></span>
+                    <span class="badge bg-light text-primary">
+                      <?= esc($time->toLocalizedString('d MMMM yyyy')) ?>
                     </span>
                   <?php endif; ?>
                 </div>
@@ -225,13 +216,13 @@
                 <?php if (! empty($article['public_author']) || ! empty($article['source'])): ?>
                   <p class="text-muted small mb-3">
                     <?php if (! empty($article['public_author'])): ?>
-                      <span><span class="chip-icon" aria-hidden="true">[P]</span>Penulis: <span class="fw-semibold"><?= esc($article['public_author']) ?></span></span>
+                      <span>Penulis: <span class="fw-semibold"><?= esc($article['public_author']) ?></span></span>
                     <?php endif; ?>
                     <?php if (! empty($article['public_author']) && ! empty($article['source'])): ?>
                       <span class="mx-1">&bull;</span>
                     <?php endif; ?>
                     <?php if (! empty($article['source'])): ?>
-                      <span><span class="chip-icon" aria-hidden="true">[S]</span>Sumber: <span class="fw-semibold"><?= esc($article['source']) ?></span></span>
+                      <span>Sumber: <span class="fw-semibold"><?= esc($article['source']) ?></span></span>
                     <?php endif; ?>
                   </p>
                 <?php endif; ?>
@@ -239,14 +230,14 @@
                   <div class="d-flex flex-wrap gap-1 mb-3">
                     <?php foreach ($article['tags'] as $tag): ?>
                       <?php $tagUrl = $buildUrl(site_url('berita/tag/' . $tag['slug']), ['kategori' => $article['primary_category']['slug'] ?? $activeCategorySlug]); ?>
-                      <a class="badge bg-light text-secondary d-inline-flex align-items-center gap-1" href="<?= esc($tagUrl) ?>">
-                        <span class="chip-icon" aria-hidden="true">[#]</span><?= esc($tag['name']) ?>
+                      <a class="badge bg-light text-secondary" href="<?= esc($tagUrl) ?>">
+                        #<?= esc($tag['name']) ?>
                       </a>
                     <?php endforeach; ?>
                   </div>
                 <?php endif; ?>
-                <a class="btn btn-public-ghost btn-sm d-inline-flex align-items-center gap-2" href="<?= site_url('berita/' . esc($article['slug'], 'url')) ?>">
-                  Baca Selengkapnya<span aria-hidden="true">>></span>
+                <a class="btn btn-public-ghost btn-sm" href="<?= site_url('berita/' . esc($article['slug'], 'url')) ?>">
+                  Baca Selengkapnya &rarr;
                 </a>
               </div>
             </article>

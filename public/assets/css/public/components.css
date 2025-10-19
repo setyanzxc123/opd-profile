@@ -29,12 +29,6 @@
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-.btn-chip .chip-icon,
-.chip-icon {
-  font-size: 0.75rem;
-  opacity: 0.75;
-}
-
 .btn-chip-primary {
   background-color: var(--public-surface-primary, #0d6efd);
   color: #fff;
