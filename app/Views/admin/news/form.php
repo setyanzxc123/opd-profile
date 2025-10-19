@@ -21,6 +21,21 @@
   $selectedTagIds = array_values(array_unique(array_map(static fn ($value) => (int) $value, $selectedTagIds)));
 
   $newTagsInput = (string) old('new_tags', '');
+
+  $excerptValue         = (string) old('excerpt', $item['excerpt'] ?? '');
+  $publicAuthorValue    = (string) old('public_author', $item['public_author'] ?? '');
+  $sourceValue          = (string) old('source', $item['source'] ?? '');
+  $metaTitleValue       = (string) old('meta_title', $item['meta_title'] ?? '');
+  $metaDescriptionValue = (string) old('meta_description', $item['meta_description'] ?? '');
+  $metaKeywordsValue    = (string) old('meta_keywords', $item['meta_keywords'] ?? '');
+
+  $countChars = static function (string $value): int {
+      return function_exists('mb_strlen') ? mb_strlen($value) : strlen($value);
+  };
+
+  $excerptLength         = $countChars($excerptValue);
+  $metaTitleLength       = $countChars($metaTitleValue);
+  $metaDescriptionLength = $countChars($metaDescriptionValue);
 ?>
 
 <?= $this->section('pageStyles') ?>
@@ -91,6 +106,79 @@
                       <dd id="lastUpdated" role="status" aria-live="polite">Belum ada perubahan</dd>
                     </div>
                   </dl>
+
+                  <div class="border-top pt-4 mt-4">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3 mb-3">
+                      <div>
+                        <h5 class="fw-semibold mb-1">Metadata &amp; SEO</h5>
+                        <p class="form-text mb-0">Isi ringkasan dan meta tag agar berita tampil optimal di pencarian.</p>
+                      </div>
+                    </div>
+
+                    <div class="mb-4">
+                      <label class="form-label fw-semibold" for="excerptField">Ringkasan Publik (Excerpt)</label>
+                      <textarea id="excerptField" name="excerpt" class="form-control" rows="3" maxlength="300" data-counter-target="#excerptCounter" data-counter-limit="160" placeholder="Tuliskan ringkasan singkat berita (maksimal 160 karakter ideal)."><?= esc($excerptValue) ?></textarea>
+                      <div class="d-flex flex-column flex-lg-row justify-content-between gap-1 form-text mt-1">
+                        <span id="excerptCounter" role="status" aria-live="polite"><?= $excerptLength ?>/160 karakter disarankan</span>
+                        <span class="text-muted">Kosongkan bila ingin memakai potongan otomatis dari isi berita.</span>
+                      </div>
+                      <?php if (isset($validation) && $validation->hasError('excerpt')): ?>
+                        <div class="form-text text-danger mt-1"><?= esc($validation->getError('excerpt')) ?></div>
+                      <?php endif; ?>
+                    </div>
+
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label class="form-label" for="publicAuthorField">Nama Penulis Publik</label>
+                        <input type="text" id="publicAuthorField" name="public_author" class="form-control" maxlength="255" value="<?= esc($publicAuthorValue) ?>" placeholder="Contoh: Tim Humas OPD">
+                        <div class="form-text">Ditampilkan pada halaman berita. Gunakan nama tim atau jabatan.</div>
+                        <?php if (isset($validation) && $validation->hasError('public_author')): ?>
+                          <div class="form-text text-danger mt-1"><?= esc($validation->getError('public_author')) ?></div>
+                        <?php endif; ?>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="sourceField">Sumber Berita</label>
+                        <input type="text" id="sourceField" name="source" class="form-control" maxlength="255" value="<?= esc($sourceValue) ?>" placeholder="Contoh: Dinas Kominfo">
+                        <div class="form-text">Opsional, tampil sebagai sumber di halaman publik.</div>
+                        <?php if (isset($validation) && $validation->hasError('source')): ?>
+                          <div class="form-text text-danger mt-1"><?= esc($validation->getError('source')) ?></div>
+                        <?php endif; ?>
+                      </div>
+                    </div>
+
+                    <div class="mt-4">
+                      <label class="form-label" for="metaTitleField">Meta Title</label>
+                      <input type="text" id="metaTitleField" name="meta_title" class="form-control" maxlength="70" value="<?= esc($metaTitleValue) ?>" placeholder="Judul SEO (maks. 70 karakter)" data-counter-target="#metaTitleCounter" data-counter-limit="70">
+                      <div class="d-flex flex-column flex-lg-row justify-content-between gap-1 form-text mt-1">
+                        <span id="metaTitleCounter" role="status" aria-live="polite"><?= $metaTitleLength ?>/70 karakter</span>
+                        <span class="text-muted">Kosongkan jika ingin memakai judul berita.</span>
+                      </div>
+                      <?php if (isset($validation) && $validation->hasError('meta_title')): ?>
+                        <div class="form-text text-danger mt-1"><?= esc($validation->getError('meta_title')) ?></div>
+                      <?php endif; ?>
+                    </div>
+
+                    <div class="mt-4">
+                      <label class="form-label" for="metaDescriptionField">Meta Description</label>
+                      <textarea id="metaDescriptionField" name="meta_description" class="form-control" rows="3" maxlength="160" data-counter-target="#metaDescriptionCounter" data-counter-limit="160" placeholder="Deskripsi singkat untuk mesin pencari (maks. 160 karakter)."><?= esc($metaDescriptionValue) ?></textarea>
+                      <div class="d-flex flex-column flex-lg-row justify-content-between gap-1 form-text mt-1">
+                        <span id="metaDescriptionCounter" role="status" aria-live="polite"><?= $metaDescriptionLength ?>/160 karakter</span>
+                        <span class="text-muted">Boleh dikosongkan untuk menggunakan ringkasan otomatis.</span>
+                      </div>
+                      <?php if (isset($validation) && $validation->hasError('meta_description')): ?>
+                        <div class="form-text text-danger mt-1"><?= esc($validation->getError('meta_description')) ?></div>
+                      <?php endif; ?>
+                    </div>
+
+                    <div class="mt-4">
+                      <label class="form-label" for="metaKeywordsField">Meta Keywords</label>
+                      <input type="text" id="metaKeywordsField" name="meta_keywords" class="form-control" maxlength="500" value="<?= esc($metaKeywordsValue) ?>" placeholder="Contoh: layanan publik, digitalisasi, inovasi">
+                      <div class="form-text">Opsional. Pisahkan kata kunci dengan koma.</div>
+                      <?php if (isset($validation) && $validation->hasError('meta_keywords')): ?>
+                        <div class="form-text text-danger mt-1"><?= esc($validation->getError('meta_keywords')) ?></div>
+                      <?php endif; ?>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -270,6 +358,7 @@
     const categoryCheckboxes = document.querySelectorAll('[data-category-checkbox]');
     const primaryCategoryRadios = document.querySelectorAll('[data-primary-radio]');
     const slugPreviewInitial = slugPreview ? slugPreview.dataset.initialSlug || 'slug-otomatis' : 'slug-otomatis';
+    const counterFields = document.querySelectorAll('[data-counter-target]');
     let lastUpdateTimer;
     const safeStorage = (() => {
       if (typeof window === 'undefined') return null;
@@ -495,7 +584,37 @@
     }
 
     initTinyMCE(initialEditorLanguage);
+    attachCounters();
   });
 </script>
 <?= $this->endSection() ?>
 
+    const attachCounters = () => {
+      counterFields.forEach((field) => {
+        const targetSelector = field.getAttribute('data-counter-target');
+        if (!targetSelector) {
+          return;
+        }
+        const limitAttr = field.getAttribute('data-counter-limit');
+        const limit = limitAttr ? parseInt(limitAttr, 10) : 0;
+        const target = document.querySelector(targetSelector);
+        if (!target) {
+          return;
+        }
+
+        const update = () => {
+          const value = field.value || '';
+          const length = value.length;
+          const base = limit ? `${length}/${limit}` : `${length}`;
+          target.textContent = limit ? `${base} karakter` : `${base} karakter`;
+          if (limit && length > limit) {
+            target.classList.add('text-danger');
+          } else {
+            target.classList.remove('text-danger');
+          }
+        };
+
+        update();
+        field.addEventListener('input', update);
+      });
+    };

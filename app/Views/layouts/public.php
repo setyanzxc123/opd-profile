@@ -1,7 +1,20 @@
 <?php
+  helper('url');
+
   $footerProfileData = $footerProfile ?? ($profile ?? null);
   $headerProfileData = is_array($profile ?? null) ? $profile : (is_array($footerProfileData) ? $footerProfileData : null);
   $footerMapEnabled  = false;
+
+  $metaData = is_array($meta ?? null) ? $meta : [];
+
+  $metaTitle       = trim((string) ($metaData['title'] ?? ''));
+  $pageTitle       = $metaTitle !== '' ? $metaTitle : (string) ($title ?? 'Situs Resmi OPD');
+  $metaDescription = trim((string) ($metaData['description'] ?? ''));
+  $metaKeywords    = trim((string) ($metaData['keywords'] ?? ''));
+  $metaAuthor      = trim((string) ($metaData['author'] ?? ''));
+  $metaType        = trim((string) ($metaData['type'] ?? 'website'));
+  $metaUrl         = trim((string) ($metaData['url'] ?? current_url()));
+  $metaImage       = trim((string) ($metaData['image'] ?? ''));
 
   if (is_array($footerProfileData)) {
       $lat = $footerProfileData['latitude'] ?? null;
@@ -11,14 +24,33 @@
           $footerMapEnabled = true;
       }
   }
-
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title><?= esc($title ?? 'Situs Resmi OPD') ?></title>
+  <title><?= esc($pageTitle) ?></title>
+  <?php if ($metaDescription !== ''): ?>
+    <meta name="description" content="<?= esc($metaDescription, 'attr') ?>" />
+  <?php endif; ?>
+  <?php if ($metaKeywords !== ''): ?>
+    <meta name="keywords" content="<?= esc($metaKeywords, 'attr') ?>" />
+  <?php endif; ?>
+  <?php if ($metaAuthor !== ''): ?>
+    <meta name="author" content="<?= esc($metaAuthor, 'attr') ?>" />
+  <?php endif; ?>
+  <meta property="og:title" content="<?= esc($pageTitle, 'attr') ?>" />
+  <?php if ($metaDescription !== ''): ?>
+    <meta property="og:description" content="<?= esc($metaDescription, 'attr') ?>" />
+  <?php endif; ?>
+  <meta property="og:type" content="<?= esc($metaType !== '' ? $metaType : 'website', 'attr') ?>" />
+  <?php if ($metaUrl !== ''): ?>
+    <meta property="og:url" content="<?= esc($metaUrl, 'attr') ?>" />
+  <?php endif; ?>
+  <?php if ($metaImage !== ''): ?>
+    <meta property="og:image" content="<?= esc($metaImage, 'attr') ?>" />
+  <?php endif; ?>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />

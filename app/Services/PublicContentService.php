@@ -458,6 +458,8 @@ class PublicContentService
             return [];
         }
 
+        helper(['news', 'content']);
+
         $newsIds = [];
         foreach ($newsItems as $row) {
             if (isset($row['id'])) {
@@ -481,6 +483,15 @@ class PublicContentService
             $row['tags']       = $tagsByNews[$newsId] ?? [];
             $primaryId         = (int) ($row['primary_category_id'] ?? 0);
             $row['primary_category'] = $primaryId && isset($categoryIndex[$primaryId]) ? $categoryIndex[$primaryId] : null;
+
+            $row['public_author']    = sanitize_plain_text($row['public_author'] ?? '');
+            $row['source']           = sanitize_plain_text($row['source'] ?? '');
+            $row['excerpt']          = news_trim_excerpt($row['excerpt'] ?? null, (string) ($row['content'] ?? ''));
+            $row['meta_title']       = news_resolve_meta_title($row['meta_title'] ?? null, (string) ($row['title'] ?? ''));
+            $row['meta_description'] = news_resolve_meta_description($row['meta_description'] ?? null, $row['excerpt'], (string) ($row['content'] ?? ''));
+            $row['meta_keywords']    = isset($row['meta_keywords']) && $row['meta_keywords'] !== null
+                ? sanitize_plain_text($row['meta_keywords'])
+                : '';
         }
         unset($row);
 
