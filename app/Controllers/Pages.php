@@ -54,6 +54,8 @@ class Pages extends BaseController
 
     private function renderBeritaArchive(?string $categorySlug = null, ?string $tagSlug = null): string
     {
+        helper(['url', 'news']);
+
         $searchParam    = trim((string) $this->request->getGet('q'));
         $categoryParam  = $categorySlug ?? trim((string) $this->request->getGet('kategori'));
         $tagParam       = $tagSlug ?? trim((string) $this->request->getGet('tag'));
@@ -67,13 +69,95 @@ class Pages extends BaseController
             $activeCategory['id'] ?? null,
             $activeTag['id'] ?? null
         );
+        $articles   = array_map(static function (array $article): array {
+            $article['excerpt'] = news_trim_excerpt($article['excerpt'] ?? null, (string) ($article['content'] ?? ''));
+
+            return $article;
+        }, $news['articles'] ?? []);
         $profile    = $this->contentService->latestProfile();
         $categories = $this->contentService->newsCategories();
         $tags       = $this->contentService->newsTags();
 
+        $pageTitle   = 'Berita Terbaru';
+        $description = 'Kumpulan berita resmi terbaru dari OPD lengkap dengan kategori dan tag.';
+        $keywords    = ['berita resmi', 'OPD', 'informasi publik'];
+
+        if ($activeCategory) {
+            $pageTitle   = sprintf('Berita %s', $activeCategory['name']);
+            $description = sprintf('Daftar berita OPD dalam kategori %s.', $activeCategory['name']);
+            $keywords[]  = (string) $activeCategory['name'];
+        }
+
+        if ($activeTag) {
+            $pageTitle   = sprintf('Berita dengan Tag %s', $activeTag['name']);
+            $description = sprintf('Kumpulan berita OPD dengan tag %s.', $activeTag['name']);
+            $keywords[]  = (string) $activeTag['name'];
+        }
+
+        if ($activeCategory && $activeTag) {
+            $pageTitle   = sprintf('Berita %s dengan Tag %s', $activeCategory['name'], $activeTag['name']);
+            $description = sprintf('Berita OPD pada kategori %s yang ditandai dengan %s.', $activeCategory['name'], $activeTag['name']);
+        }
+
+        if ($searchParam !== '') {
+            $pageTitle   = sprintf('Hasil Pencarian Berita "%s"', $searchParam);
+            $description = sprintf('Hasil pencarian berita OPD untuk kata kunci "%s".', $searchParam);
+            $keywords[]  = $searchParam;
+        }
+
+        $breadcrumbs = [
+            [
+                'label' => 'Beranda',
+                'url'   => site_url('/'),
+            ],
+            [
+                'label'  => 'Berita',
+                'url'    => site_url('berita'),
+                'active' => ! $activeCategory && ! $activeTag && $searchParam === '',
+            ],
+        ];
+
+        if ($activeCategory) {
+            $breadcrumbs[] = [
+                'label' => (string) $activeCategory['name'],
+                'url'   => site_url('berita/kategori/' . ($activeCategory['slug'] ?? '')),
+                'active'=> ! $activeTag && $searchParam === '',
+            ];
+        }
+
+        if ($activeTag) {
+            $breadcrumbs[] = [
+                'label' => (string) $activeTag['name'],
+                'url'   => site_url('berita/tag/' . ($activeTag['slug'] ?? '')),
+                'active'=> $searchParam === '',
+            ];
+        }
+
+        if ($searchParam !== '') {
+            $breadcrumbs[] = [
+                'label'  => sprintf('Pencarian "%s"', $searchParam),
+                'url'    => '',
+                'active' => true,
+            ];
+        } else {
+            $lastIndex = array_key_last($breadcrumbs);
+            if ($lastIndex !== null) {
+                $breadcrumbs[$lastIndex]['active'] = true;
+            }
+        }
+
+        $meta = [
+            'title'       => $pageTitle,
+            'description' => $description,
+            'keywords'    => implode(', ', array_unique(array_filter($keywords))),
+            'url'         => (string) $this->request->getUri(),
+            'type'        => 'website',
+        ];
+
         return view('public/news/index', [
-            'title'          => 'Berita Terbaru',
-            'articles'       => $news['articles'],
+            'title'          => $pageTitle,
+            'meta'           => $meta,
+            'articles'       => $articles,
             'pager'          => $news['pager'],
             'search'         => $searchParam,
             'categories'     => $categories,
@@ -84,6 +168,7 @@ class Pages extends BaseController
                 'category' => $activeCategory['slug'] ?? null,
                 'tag'      => $activeTag['slug'] ?? null,
             ],
+            'breadcrumbs'   => $breadcrumbs,
             'footerProfile'  => $profile,
             'profile'        => $profile,
         ]);
@@ -149,11 +234,20 @@ class Pages extends BaseController
 
     public function beritaDetail(string $slug): string
     {
+        helper(['url', 'news']);
+
         $article = $this->contentService->newsBySlug($slug);
 
         if (! $article) {
             throw PageNotFoundException::forPageNotFound('Berita tidak ditemukan.');
         }
+
+        $article['excerpt']          = news_trim_excerpt($article['excerpt'] ?? null, (string) ($article['content'] ?? ''));
+        $article['meta_title']       = news_resolve_meta_title($article['meta_title'] ?? null, (string) ($article['title'] ?? ''));
+        $article['meta_description'] = news_resolve_meta_description($article['meta_description'] ?? null, $article['excerpt'], (string) ($article['content'] ?? ''));
+        $article['meta_keywords']    = isset($article['meta_keywords']) && $article['meta_keywords'] !== ''
+            ? $article['meta_keywords']
+            : implode(', ', array_filter(array_map(static fn (array $category): string => (string) ($category['name'] ?? ''), $article['categories'] ?? [])));
 
         $publishedAt = null;
         if (! empty($article['published_at'])) {
@@ -179,14 +273,34 @@ class Pages extends BaseController
             ];
         }
 
+        $breadcrumbs[] = [
+            'label'  => (string) ($article['title'] ?? 'Berita'),
+            'url'    => '',
+            'active' => true,
+        ];
+
         $related = $this->contentService->relatedNews(
             (int) $article['id'],
             isset($article['primary_category']['id']) ? (int) $article['primary_category']['id'] : null,
             3
         );
 
+        $meta = [
+            'title'       => $article['meta_title'] ?: ($article['title'] ?? 'Berita Terbaru'),
+            'description' => $article['meta_description'],
+            'keywords'    => (string) $article['meta_keywords'],
+            'author'      => (string) ($article['public_author'] ?? ''),
+            'url'         => (string) $this->request->getUri(),
+            'type'        => 'article',
+        ];
+
+        if (! empty($article['thumbnail'])) {
+            $meta['image'] = base_url($article['thumbnail']);
+        }
+
         return view('public/news/show', [
             'title'         => $article['title'] ?? 'Berita Terbaru',
+            'meta'          => $meta,
             'article'       => $article,
             'published_at'  => $publishedAt,
             'breadcrumbs'   => $breadcrumbs,

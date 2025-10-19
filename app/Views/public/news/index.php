@@ -1,8 +1,7 @@
-<?php use CodeIgniter\I18n\Time; ?>
-<?= $this->extend('layouts/public') ?>
-
-<?= $this->section('content') ?>
 <?php
+  use CodeIgniter\I18n\Time;
+
+  $breadcrumbs     = $breadcrumbs ?? [];
   $query           = trim((string) ($search ?? ''));
   $categoryOptions = $categories ?? [];
   $tagOptions      = $tags ?? [];
@@ -21,8 +20,19 @@
       return $params !== [] ? $base . '?' . http_build_query($params) : $base;
   };
 ?>
+
+<?= $this->extend('layouts/public') ?>
+
+<?= $this->section('content') ?>
 <section class="public-section" aria-labelledby="news-archive-heading">
   <div class="container public-container py-5">
+    <div class="mb-4">
+      <?= view('public/components/breadcrumb', [
+        'trail'     => $breadcrumbs,
+        'ariaLabel' => 'Navigasi halaman berita',
+      ]) ?>
+    </div>
+
     <div class="text-center mb-5">
       <span class="hero-badge text-uppercase" id="news-archive-heading">
         <?php if ($activeCategory && $activeTag): ?>
@@ -31,15 +41,21 @@
           Kategori <?= esc($activeCategory['name']) ?>
         <?php elseif ($activeTag): ?>
           Tag <?= esc($activeTag['name']) ?>
+        <?php elseif ($query !== ''): ?>
+          Hasil Pencarian
         <?php else: ?>
           Berita Resmi
         <?php endif; ?>
       </span>
       <h1 class="display-5 fw-bold mt-3 mb-3">
-        <?php if ($activeCategory): ?>
+        <?php if ($activeCategory && $activeTag): ?>
+          Arsip Berita <?= esc($activeCategory['name']) ?> dengan Tag <?= esc($activeTag['name']) ?>
+        <?php elseif ($activeCategory): ?>
           Arsip Berita <?= esc($activeCategory['name']) ?>
         <?php elseif ($activeTag): ?>
           Artikel dengan Tag <?= esc($activeTag['name']) ?>
+        <?php elseif ($query !== ''): ?>
+          Hasil untuk "<?= esc($query) ?>"
         <?php else: ?>
           Informasi &amp; Kabar Terbaru
         <?php endif; ?>
@@ -62,21 +78,38 @@
       </form>
       <p class="lead text-muted mb-0">
         <?php if ($activeCategory || $activeTag): ?>
-          Temukan berita resmi yang sudah dipilah berdasarkan kategori dan tag pilihan Anda.
+          Temukan berita resmi yang sudah dipilah berdasarkan kategori atau tag pilihan Anda.
+        <?php elseif ($query !== ''): ?>
+          Menampilkan daftar berita yang relevan dengan pencarian Anda.
         <?php else: ?>
           Update kegiatan, kebijakan, dan layanan terbaru dari Dinas Pelayanan Publik.
         <?php endif; ?>
       </p>
     </div>
 
-    <?php if ($query !== ''): ?>
-      <p class="text-muted">Menampilkan hasil untuk kata kunci <strong><?= esc($query) ?></strong>.</p>
-    <?php endif; ?>
-    <?php if ($activeCategory): ?>
-      <p class="text-muted mb-1">Kategori aktif: <strong><?= esc($activeCategory['name']) ?></strong></p>
-    <?php endif; ?>
-    <?php if ($activeTag): ?>
-      <p class="text-muted">Tag aktif: <strong><?= esc($activeTag['name']) ?></strong></p>
+    <?php if ($hasFilter || $query !== ''): ?>
+      <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start mb-4">
+        <?php if ($query !== ''): ?>
+          <span class="badge rounded-pill bg-info-subtle text-info d-inline-flex align-items-center gap-2">
+            <span class="chip-icon" aria-hidden="true">[Q]</span>
+            <span>Pencarian: "<?= esc($query) ?>"</span>
+          </span>
+        <?php endif; ?>
+        <?php if ($activeCategory): ?>
+          <a class="badge rounded-pill bg-primary-subtle text-primary d-inline-flex align-items-center gap-2 text-decoration-none"
+             href="<?= esc($buildUrl(site_url('berita'), ['tag' => $activeTagSlug])) ?>">
+            <span class="chip-icon" aria-hidden="true">[K]</span>
+            <span>Kategori: <?= esc($activeCategory['name']) ?></span>
+          </a>
+        <?php endif; ?>
+        <?php if ($activeTag): ?>
+          <a class="badge rounded-pill bg-secondary-subtle text-secondary d-inline-flex align-items-center gap-2 text-decoration-none"
+             href="<?= esc($buildUrl($activeCategory ? site_url('berita/kategori/' . $activeCategory['slug']) : site_url('berita'))) ?>">
+            <span class="chip-icon" aria-hidden="true">[T]</span>
+            <span>Tag: <?= esc($activeTag['name']) ?></span>
+          </a>
+        <?php endif; ?>
+      </div>
     <?php endif; ?>
 
     <?php if ($categoryOptions || $tagOptions): ?>
@@ -90,17 +123,21 @@
           <div class="news-filter-group mb-3">
             <span class="fw-semibold d-block mb-2">Kategori</span>
             <div class="d-flex flex-wrap gap-2">
-              <a class="btn btn-sm <?= $activeCategory ? 'btn-outline-secondary' : 'btn-public-primary' ?>"
-                 href="<?= esc($categoryResetUrl) ?>">Semua Kategori</a>
+              <a class="btn btn-chip <?= $activeCategory ? 'btn-outline-secondary' : 'btn-chip-primary' ?>"
+                 href="<?= esc($categoryResetUrl) ?>">
+                <span class="chip-icon" aria-hidden="true">[K]</span>
+                <span>Semua Kategori</span>
+              </a>
               <?php foreach ($categoryOptions as $category): ?>
                 <?php
                   $slug      = (string) ($category['slug'] ?? '');
                   $isActive  = $activeCategorySlug === $slug;
                   $categoryUrl = $buildUrl(site_url('berita/kategori/' . $slug), ['tag' => $activeTagSlug]);
                 ?>
-                <a class="btn btn-sm <?= $isActive ? 'btn-public-primary' : 'btn-outline-secondary' ?>"
+                <a class="btn btn-chip <?= $isActive ? 'btn-chip-primary' : 'btn-outline-secondary' ?>"
                    href="<?= esc($categoryUrl) ?>">
-                  <?= esc($category['name'] ?? 'Kategori') ?>
+                  <span class="chip-icon" aria-hidden="true"><?= $isActive ? '[K]' : '[C]' ?></span>
+                  <span><?= esc($category['name'] ?? 'Kategori') ?></span>
                 </a>
               <?php endforeach; ?>
             </div>
@@ -111,17 +148,21 @@
           <div class="news-filter-group">
             <span class="fw-semibold d-block mb-2">Tag Konten</span>
             <div class="d-flex flex-wrap gap-2">
-              <a class="btn btn-sm <?= $activeTag ? 'btn-outline-secondary' : 'btn-public-primary' ?>"
-                 href="<?= esc($tagResetUrl) ?>">Semua Tag</a>
+              <a class="btn btn-chip <?= $activeTag ? 'btn-outline-secondary' : 'btn-chip-secondary' ?>"
+                 href="<?= esc($tagResetUrl) ?>">
+                <span class="chip-icon" aria-hidden="true">[T]</span>
+                <span>Semua Tag</span>
+              </a>
               <?php foreach ($tagOptions as $tag): ?>
                 <?php
                   $slug     = (string) ($tag['slug'] ?? '');
                   $isActive = $activeTagSlug === $slug;
                   $tagUrl   = $buildUrl(site_url('berita/tag/' . $slug), ['kategori' => $activeCategorySlug]);
                 ?>
-                <a class="btn btn-sm <?= $isActive ? 'btn-public-primary' : 'btn-outline-secondary' ?>"
+                <a class="btn btn-chip <?= $isActive ? 'btn-chip-secondary' : 'btn-outline-secondary' ?>"
                    href="<?= esc($tagUrl) ?>">
-                  <?= esc($tag['name'] ?? 'Tag') ?>
+                  <span class="chip-icon" aria-hidden="true"><?= $isActive ? '[T]' : '[G]' ?></span>
+                  <span><?= esc($tag['name'] ?? 'Tag') ?></span>
                 </a>
               <?php endforeach; ?>
             </div>
@@ -150,29 +191,63 @@
                 <div class="d-flex flex-wrap gap-2 mb-2">
                   <?php if (! empty($article['primary_category'])): ?>
                     <?php $category = $article['primary_category']; ?>
-                    <a class="badge bg-primary-subtle text-primary" href="<?= esc($buildUrl(site_url('berita/kategori/' . $category['slug']), ['tag' => $activeTagSlug])) ?>">
-                      <?= esc($category['name']) ?>
+                    <a class="badge bg-primary-subtle text-primary d-inline-flex align-items-center gap-1"
+                       href="<?= esc($buildUrl(site_url('berita/kategori/' . $category['slug']), ['tag' => $activeTagSlug])) ?>">
+                      <span class="chip-icon" aria-hidden="true">[K]</span>
+                      <span><?= esc($category['name']) ?></span>
                     </a>
                   <?php endif; ?>
                   <?php if (! empty($article['published_at'])): ?>
                     <?php $time = Time::parse($article['published_at']); ?>
-                    <span class="badge bg-light text-primary"><?= esc($time->toLocalizedString('d MMMM yyyy')) ?></span>
+                    <span class="badge bg-light text-primary d-inline-flex align-items-center gap-1">
+                      <span class="chip-icon" aria-hidden="true">[D]</span>
+                      <span><?= esc($time->toLocalizedString('d MMMM yyyy')) ?></span>
+                    </span>
                   <?php endif; ?>
                 </div>
-                <h2 class="h5 fw-semibold"><a class="text-decoration-none text-dark" href="<?= site_url('berita/' . esc($article['slug'], 'url')) ?>"><?= esc($article['title']) ?></a></h2>
-                <?php if (! empty($article['content'])): ?>
-                  <?php $excerpt = strip_tags($article['content']); ?>
-                  <p class="text-muted mb-3"><?= esc(mb_strimwidth($excerpt, 0, 140, '...')) ?></p>
+                <h2 class="h5 fw-semibold">
+                  <a class="text-decoration-none text-dark" href="<?= site_url('berita/' . esc($article['slug'], 'url')) ?>">
+                    <?= esc($article['title']) ?>
+                  </a>
+                </h2>
+                <?php
+                  $cardExcerpt = (string) ($article['excerpt'] ?? '');
+                  if ($cardExcerpt === '' && ! empty($article['content'])) {
+                      $rawContent = strip_tags((string) $article['content']);
+                      $cardExcerpt = function_exists('mb_strimwidth')
+                          ? trim(mb_strimwidth($rawContent, 0, 160, ''))
+                          : trim(substr($rawContent, 0, 160));
+                  }
+                ?>
+                <?php if ($cardExcerpt !== ''): ?>
+                  <p class="text-muted mb-2"><?= esc($cardExcerpt) ?></p>
+                <?php endif; ?>
+                <?php if (! empty($article['public_author']) || ! empty($article['source'])): ?>
+                  <p class="text-muted small mb-3">
+                    <?php if (! empty($article['public_author'])): ?>
+                      <span><span class="chip-icon" aria-hidden="true">[P]</span>Penulis: <span class="fw-semibold"><?= esc($article['public_author']) ?></span></span>
+                    <?php endif; ?>
+                    <?php if (! empty($article['public_author']) && ! empty($article['source'])): ?>
+                      <span class="mx-1">&bull;</span>
+                    <?php endif; ?>
+                    <?php if (! empty($article['source'])): ?>
+                      <span><span class="chip-icon" aria-hidden="true">[S]</span>Sumber: <span class="fw-semibold"><?= esc($article['source']) ?></span></span>
+                    <?php endif; ?>
+                  </p>
                 <?php endif; ?>
                 <?php if (! empty($article['tags'])): ?>
                   <div class="d-flex flex-wrap gap-1 mb-3">
                     <?php foreach ($article['tags'] as $tag): ?>
                       <?php $tagUrl = $buildUrl(site_url('berita/tag/' . $tag['slug']), ['kategori' => $article['primary_category']['slug'] ?? $activeCategorySlug]); ?>
-                      <a class="badge bg-light text-secondary" href="<?= esc($tagUrl) ?>">#<?= esc($tag['name']) ?></a>
+                      <a class="badge bg-light text-secondary d-inline-flex align-items-center gap-1" href="<?= esc($tagUrl) ?>">
+                        <span class="chip-icon" aria-hidden="true">[#]</span><?= esc($tag['name']) ?>
+                      </a>
                     <?php endforeach; ?>
                   </div>
                 <?php endif; ?>
-                <a class="btn btn-public-ghost btn-sm" href="<?= site_url('berita/' . esc($article['slug'], 'url')) ?>">Baca Selengkapnya</a>
+                <a class="btn btn-public-ghost btn-sm d-inline-flex align-items-center gap-2" href="<?= site_url('berita/' . esc($article['slug'], 'url')) ?>">
+                  Baca Selengkapnya<span aria-hidden="true">>></span>
+                </a>
               </div>
             </article>
           </div>
@@ -196,4 +271,3 @@
   </div>
 </section>
 <?= $this->endSection() ?>
-

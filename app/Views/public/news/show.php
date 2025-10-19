@@ -8,26 +8,17 @@
   $primaryCategory = $article['primary_category'] ?? null;
   $tags            = $article['tags'] ?? [];
   $relatedNews     = $relatedNews ?? [];
+  $excerpt         = (string) ($article['excerpt'] ?? '');
+  $publicAuthor    = (string) ($article['public_author'] ?? '');
+  $sourceInfo      = (string) ($article['source'] ?? '');
 ?>
 <section class="public-section">
   <div class="container public-container py-5">
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
-      <?php if ($breadcrumbs): ?>
-        <nav aria-label="Lintasan navigasi" class="flex-grow-1">
-          <ol class="breadcrumb mb-0">
-            <?php foreach ($breadcrumbs as $index => $crumb): ?>
-              <?php $isLast = $index === array_key_last($breadcrumbs); ?>
-              <li class="breadcrumb-item<?= $isLast ? ' active' : '' ?>"<?= $isLast ? ' aria-current="page"' : '' ?>>
-                <?php if (! $isLast && ! empty($crumb['url'])): ?>
-                  <a href="<?= esc($crumb['url']) ?>"><?= esc($crumb['label'] ?? '') ?></a>
-                <?php else: ?>
-                  <?= esc($crumb['label'] ?? '') ?>
-                <?php endif; ?>
-              </li>
-            <?php endforeach; ?>
-          </ol>
-        </nav>
-      <?php endif; ?>
+      <?= view('public/components/breadcrumb', [
+        'trail'     => $breadcrumbs,
+        'ariaLabel' => 'Lintasan navigasi berita',
+      ]) ?>
       <a class="btn btn-link text-decoration-none px-0" href="<?= site_url('berita') ?>">&larr; Kembali ke daftar berita</a>
     </div>
     <article class="surface-card news-article">
@@ -48,6 +39,19 @@
           <?php endif; ?>
         </div>
         <h1 class="fw-bold mb-4"><?= esc($article['title']) ?></h1>
+        <?php if ($excerpt !== ''): ?>
+          <p class="lead text-muted fst-italic border-start border-4 ps-3"><?= esc($excerpt) ?></p>
+        <?php endif; ?>
+        <?php if ($publicAuthor !== '' || $sourceInfo !== ''): ?>
+          <div class="alert alert-light border mt-3" role="note">
+            <?php if ($publicAuthor !== ''): ?>
+              <div><strong>Penulis:</strong> <?= esc($publicAuthor) ?></div>
+            <?php endif; ?>
+            <?php if ($sourceInfo !== ''): ?>
+              <div><strong>Sumber:</strong> <?= esc($sourceInfo) ?></div>
+            <?php endif; ?>
+          </div>
+        <?php endif; ?>
         <div class="news-content text-muted lead">
           <?= esc($article['content'], 'raw') ?>
         </div>
