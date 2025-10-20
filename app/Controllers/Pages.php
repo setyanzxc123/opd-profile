@@ -74,9 +74,10 @@ class Pages extends BaseController
 
             return $article;
         }, $news['articles'] ?? []);
-        $profile    = $this->contentService->latestProfile();
-        $categories = $this->contentService->newsCategories();
-        $tags       = $this->contentService->newsTags();
+        $profile     = $this->contentService->latestProfile();
+        $categories  = $this->contentService->newsCategories();
+        $tags        = $this->contentService->newsTags();
+        $popularNews = $this->contentService->popularNews(5);
 
         $pageTitle   = 'Berita Terbaru';
         $description = 'Kumpulan berita resmi terbaru dari OPD lengkap dengan kategori dan tag.';
@@ -168,7 +169,8 @@ class Pages extends BaseController
                 'category' => $activeCategory['slug'] ?? null,
                 'tag'      => $activeTag['slug'] ?? null,
             ],
-            'breadcrumbs'   => $breadcrumbs,
+            'breadcrumbs'    => $breadcrumbs,
+            'popularNews'    => $popularNews,
             'footerProfile'  => $profile,
             'profile'        => $profile,
         ]);
@@ -282,8 +284,21 @@ class Pages extends BaseController
         $related = $this->contentService->relatedNews(
             (int) $article['id'],
             isset($article['primary_category']['id']) ? (int) $article['primary_category']['id'] : null,
-            3
+            array_map(
+                static fn (array $tag): int => (int) ($tag['id'] ?? 0),
+                $article['tags'] ?? []
+            ),
+            4
         );
+
+        $shareTitle = (string) ($article['title'] ?? '');
+        $shareUrl   = (string) $this->request->getUri();
+        $shareText  = trim($shareTitle !== '' ? $shareTitle . ' - ' . $shareUrl : $shareUrl);
+        $shareLinks = [
+            'whatsapp' => 'https://api.whatsapp.com/send?text=' . rawurlencode($shareText),
+            'telegram' => 'https://t.me/share/url?url=' . rawurlencode($shareUrl) . '&text=' . rawurlencode($shareTitle),
+            'facebook' => 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode($shareUrl),
+        ];
 
         $meta = [
             'title'       => $article['meta_title'] ?: ($article['title'] ?? 'Berita Terbaru'),
@@ -305,6 +320,7 @@ class Pages extends BaseController
             'published_at'  => $publishedAt,
             'breadcrumbs'   => $breadcrumbs,
             'relatedNews'   => $related,
+            'shareLinks'    => $shareLinks,
             'footerProfile' => $profile,
             'profile'       => $profile,
         ]);

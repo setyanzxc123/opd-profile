@@ -10,8 +10,9 @@
   $filters         = $filters ?? ['category' => null, 'tag' => null];
   $activeCategorySlug = $filters['category'] ?? null;
   $activeTagSlug      = $filters['tag'] ?? null;
-  $hasFilter      = $query !== '' || $activeCategory || $activeTag;
-  $searchParams   = $query !== '' ? ['q' => $query] : [];
+  $hasFilter        = $query !== '' || $activeCategory || $activeTag;
+  $searchParams     = $query !== '' ? ['q' => $query] : [];
+  $popularNewsItems = $popularNews ?? [];
 
   $buildUrl = static function (string $base, array $extra = []) use ($searchParams): string {
       $params = array_merge($searchParams, $extra);
@@ -170,95 +171,147 @@
       </div>
     <?php endif; ?>
 
-    <?php if ($articles): ?>
-      <div class="row row-cols-1 row-cols-md-2 g-4 mb-5" role="list">
-        <?php foreach ($articles as $article): ?>
-          <div class="col" role="listitem">
-            <article class="surface-card news-card h-100">
-              <?php if (! empty($article['thumbnail'])): ?>
-                <div class="news-card__media">
-                  <img src="<?= esc(base_url($article['thumbnail'])) ?>" alt="<?= esc($article['title']) ?>" loading="lazy">
-                </div>
-              <?php endif; ?>
-              <div class="news-card__body">
-                <div class="d-flex flex-wrap gap-2 mb-2">
-                  <?php if (! empty($article['primary_category'])): ?>
-                    <?php $category = $article['primary_category']; ?>
-                    <a class="badge bg-primary-subtle text-primary"
-                       href="<?= esc($buildUrl(site_url('berita/kategori/' . $category['slug']), ['tag' => $activeTagSlug])) ?>">
-                      <?= esc($category['name']) ?>
-                    </a>
+    <div class="row g-5 align-items-start">
+      <div class="col-12 col-lg-8">
+        <?php if ($articles): ?>
+          <div class="row row-cols-1 row-cols-md-2 g-4 mb-5" role="list">
+            <?php foreach ($articles as $article): ?>
+              <div class="col" role="listitem">
+                <article class="surface-card news-card h-100">
+                  <?php if (! empty($article['thumbnail'])): ?>
+                    <div class="news-card__media">
+                      <img src="<?= esc(base_url($article['thumbnail'])) ?>" alt="<?= esc($article['title']) ?>" loading="lazy">
+                    </div>
                   <?php endif; ?>
-                  <?php if (! empty($article['published_at'])): ?>
-                    <?php $time = Time::parse($article['published_at']); ?>
-                    <span class="badge bg-light text-primary">
-                      <?= esc($time->toLocalizedString('d MMMM yyyy')) ?>
-                    </span>
-                  <?php endif; ?>
-                </div>
-                <h2 class="h5 fw-semibold">
-                  <a class="text-decoration-none text-dark" href="<?= site_url('berita/' . esc($article['slug'], 'url')) ?>">
-                    <?= esc($article['title']) ?>
-                  </a>
-                </h2>
-                <?php
-                  $cardExcerpt = (string) ($article['excerpt'] ?? '');
-                  if ($cardExcerpt === '' && ! empty($article['content'])) {
-                      $rawContent = strip_tags((string) $article['content']);
-                      $cardExcerpt = function_exists('mb_strimwidth')
-                          ? trim(mb_strimwidth($rawContent, 0, 160, ''))
-                          : trim(substr($rawContent, 0, 160));
-                  }
-                ?>
-                <?php if ($cardExcerpt !== ''): ?>
-                  <p class="text-muted mb-2"><?= esc($cardExcerpt) ?></p>
-                <?php endif; ?>
-                <?php if (! empty($article['public_author']) || ! empty($article['source'])): ?>
-                  <p class="text-muted small mb-3">
-                    <?php if (! empty($article['public_author'])): ?>
-                      <span>Penulis: <span class="fw-semibold"><?= esc($article['public_author']) ?></span></span>
-                    <?php endif; ?>
-                    <?php if (! empty($article['public_author']) && ! empty($article['source'])): ?>
-                      <span class="mx-1">&bull;</span>
-                    <?php endif; ?>
-                    <?php if (! empty($article['source'])): ?>
-                      <span>Sumber: <span class="fw-semibold"><?= esc($article['source']) ?></span></span>
-                    <?php endif; ?>
-                  </p>
-                <?php endif; ?>
-                <?php if (! empty($article['tags'])): ?>
-                  <div class="d-flex flex-wrap gap-1 mb-3">
-                    <?php foreach ($article['tags'] as $tag): ?>
-                      <?php $tagUrl = $buildUrl(site_url('berita/tag/' . $tag['slug']), ['kategori' => $article['primary_category']['slug'] ?? $activeCategorySlug]); ?>
-                      <a class="badge bg-light text-secondary" href="<?= esc($tagUrl) ?>">
-                        #<?= esc($tag['name']) ?>
+                  <div class="news-card__body">
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                      <?php if (! empty($article['primary_category'])): ?>
+                        <?php $category = $article['primary_category']; ?>
+                        <a class="badge bg-primary-subtle text-primary"
+                           href="<?= esc($buildUrl(site_url('berita/kategori/' . $category['slug']), ['tag' => $activeTagSlug])) ?>">
+                          <?= esc($category['name']) ?>
+                        </a>
+                      <?php endif; ?>
+                      <?php if (! empty($article['published_at'])): ?>
+                        <?php $time = Time::parse($article['published_at']); ?>
+                        <span class="badge bg-light text-primary">
+                          <?= esc($time->toLocalizedString('d MMMM yyyy')) ?>
+                        </span>
+                      <?php endif; ?>
+                    </div>
+                    <h2 class="h5 fw-semibold">
+                      <a class="text-decoration-none text-dark" href="<?= site_url('berita/' . esc($article['slug'], 'url')) ?>">
+                        <?= esc($article['title']) ?>
                       </a>
-                    <?php endforeach; ?>
+                    </h2>
+                    <?php
+                      $cardExcerpt = (string) ($article['excerpt'] ?? '');
+                      if ($cardExcerpt === '' && ! empty($article['content'])) {
+                          $rawContent = strip_tags((string) $article['content']);
+                          $cardExcerpt = function_exists('mb_strimwidth')
+                              ? trim(mb_strimwidth($rawContent, 0, 160, ''))
+                              : trim(substr($rawContent, 0, 160));
+                      }
+                    ?>
+                    <?php if ($cardExcerpt !== ''): ?>
+                      <p class="text-muted mb-2"><?= esc($cardExcerpt) ?></p>
+                    <?php endif; ?>
+                    <?php if (! empty($article['public_author']) || ! empty($article['source'])): ?>
+                      <p class="text-muted small mb-3">
+                        <?php if (! empty($article['public_author'])): ?>
+                          <span>Penulis: <span class="fw-semibold"><?= esc($article['public_author']) ?></span></span>
+                        <?php endif; ?>
+                        <?php if (! empty($article['public_author']) && ! empty($article['source'])): ?>
+                          <span class="mx-1">&bull;</span>
+                        <?php endif; ?>
+                        <?php if (! empty($article['source'])): ?>
+                          <span>Sumber: <span class="fw-semibold"><?= esc($article['source']) ?></span></span>
+                        <?php endif; ?>
+                      </p>
+                    <?php endif; ?>
+                    <?php if (! empty($article['tags'])): ?>
+                      <div class="d-flex flex-wrap gap-1 mb-3">
+                        <?php foreach ($article['tags'] as $tag): ?>
+                          <?php $tagUrl = $buildUrl(site_url('berita/tag/' . $tag['slug']), ['kategori' => $article['primary_category']['slug'] ?? $activeCategorySlug]); ?>
+                          <a class="badge bg-light text-secondary" href="<?= esc($tagUrl) ?>">
+                            #<?= esc($tag['name']) ?>
+                          </a>
+                        <?php endforeach; ?>
+                      </div>
+                    <?php endif; ?>
+                    <a class="btn btn-public-ghost btn-sm" href="<?= site_url('berita/' . esc($article['slug'], 'url')) ?>">
+                      Baca Selengkapnya &rarr;
+                    </a>
                   </div>
-                <?php endif; ?>
-                <a class="btn btn-public-ghost btn-sm" href="<?= site_url('berita/' . esc($article['slug'], 'url')) ?>">
-                  Baca Selengkapnya &rarr;
-                </a>
+                </article>
               </div>
-            </article>
+            <?php endforeach; ?>
           </div>
-        <?php endforeach; ?>
-      </div>
-      <?php if ($pager !== null): ?>
-        <div class="d-flex justify-content-center">
-          <?= $pager->only(['q', 'kategori', 'tag'])->links('default', 'default_full') ?>
-        </div>
-      <?php endif; ?>
-    <?php else: ?>
-      <div class="text-center py-5">
-        <p class="text-muted mb-3">Belum ada berita yang cocok<?= $query !== '' ? ' dengan pencarian Anda' : '' ?>.</p>
-        <?php if ($query !== ''): ?>
-          <p class="text-muted">Coba gunakan kata kunci lain atau lihat arsip berita tanpa filter.</p>
-        <?php elseif ($hasFilter): ?>
-          <p class="text-muted">Cobalah mengatur ulang filter kategori atau tag untuk melihat daftar berita lainnya.</p>
+          <?php if ($pager !== null): ?>
+            <div class="d-flex justify-content-center">
+              <?= $pager->only(['q', 'kategori', 'tag'])->links('default', 'default_full') ?>
+            </div>
+          <?php endif; ?>
+        <?php else: ?>
+          <div class="text-center py-5">
+            <p class="text-muted mb-3">Belum ada berita yang cocok<?= $query !== '' ? ' dengan pencarian Anda' : '' ?>.</p>
+            <?php if ($query !== ''): ?>
+              <p class="text-muted">Coba gunakan kata kunci lain atau lihat arsip berita tanpa filter.</p>
+            <?php elseif ($hasFilter): ?>
+              <p class="text-muted">Cobalah mengatur ulang filter kategori atau tag untuk melihat daftar berita lainnya.</p>
+            <?php endif; ?>
+          </div>
         <?php endif; ?>
       </div>
-    <?php endif; ?>
+      <div class="col-12 col-lg-4">
+        <aside class="news-sidebar">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <h2 class="h5 fw-semibold mb-4">Berita Populer</h2>
+              <?php if ($popularNewsItems): ?>
+                <ol class="list-unstyled news-popular-list mb-0">
+                  <?php foreach ($popularNewsItems as $index => $popular): ?>
+                    <?php
+                      $isLast = $index === array_key_last($popularNewsItems);
+                      $popularCategory = $popular['primary_category'] ?? null;
+                    ?>
+                    <li class="<?= $isLast ? '' : 'border-bottom pb-4 mb-4' ?>">
+                      <div class="d-flex gap-3 position-relative">
+                        <span class="badge rounded-pill bg-primary-subtle text-primary fw-semibold mt-1">
+                          <?= esc($index + 1) ?>
+                        </span>
+                        <div class="flex-grow-1">
+                          <?php if ($popularCategory): ?>
+                            <a class="badge bg-light text-secondary mb-2"
+                               href="<?= esc(site_url('berita/kategori/' . $popularCategory['slug'])) ?>">
+                              <?= esc($popularCategory['name']) ?>
+                            </a>
+                          <?php endif; ?>
+                          <h3 class="h6 mb-1">
+                            <a class="text-decoration-none text-dark stretched-link"
+                               href="<?= site_url('berita/' . esc($popular['slug'], 'url')) ?>">
+                              <?= esc($popular['title']) ?>
+                            </a>
+                          </h3>
+                          <?php if (! empty($popular['published_at'])): ?>
+                            <?php $popularTime = Time::parse($popular['published_at']); ?>
+                            <span class="text-muted small d-block">
+                              <?= esc($popularTime->toLocalizedString('d MMM yyyy')) ?>
+                            </span>
+                          <?php endif; ?>
+                        </div>
+                      </div>
+                    </li>
+                  <?php endforeach; ?>
+                </ol>
+              <?php else: ?>
+                <p class="text-muted mb-0">Belum ada data populer yang dapat ditampilkan.</p>
+              <?php endif; ?>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
   </div>
 </section>
 <?= $this->endSection() ?>

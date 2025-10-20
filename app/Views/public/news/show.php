@@ -8,6 +8,7 @@
   $primaryCategory = $article['primary_category'] ?? null;
   $tags            = $article['tags'] ?? [];
   $relatedNews     = $relatedNews ?? [];
+  $shareLinks      = $shareLinks ?? [];
   $excerpt         = (string) ($article['excerpt'] ?? '');
   $publicAuthor    = (string) ($article['public_author'] ?? '');
   $sourceInfo      = (string) ($article['source'] ?? '');
@@ -52,6 +53,28 @@
             <?php endif; ?>
           </div>
         <?php endif; ?>
+        <?php if ($shareLinks): ?>
+          <div class="d-flex flex-wrap align-items-center gap-2 mt-4 mb-4">
+            <span class="fw-semibold text-muted me-2">Bagikan:</span>
+            <div class="d-flex flex-wrap gap-2">
+              <?php if (! empty($shareLinks['whatsapp'])): ?>
+                <a class="btn btn-outline-success btn-sm" href="<?= esc($shareLinks['whatsapp']) ?>" target="_blank" rel="noopener noreferrer" aria-label="Bagikan ke WhatsApp">
+                  <i class="bx bxl-whatsapp"></i>
+                </a>
+              <?php endif; ?>
+              <?php if (! empty($shareLinks['telegram'])): ?>
+                <a class="btn btn-outline-primary btn-sm" href="<?= esc($shareLinks['telegram']) ?>" target="_blank" rel="noopener noreferrer" aria-label="Bagikan ke Telegram">
+                  <i class="bx bxl-telegram"></i>
+                </a>
+              <?php endif; ?>
+              <?php if (! empty($shareLinks['facebook'])): ?>
+                <a class="btn btn-outline-secondary btn-sm" href="<?= esc($shareLinks['facebook']) ?>" target="_blank" rel="noopener noreferrer" aria-label="Bagikan ke Facebook">
+                  <i class="bx bxl-facebook"></i>
+                </a>
+              <?php endif; ?>
+            </div>
+          </div>
+        <?php endif; ?>
         <div class="news-content text-muted lead">
           <?= esc($article['content'], 'raw') ?>
         </div>
@@ -82,8 +105,8 @@
 
     <?php if ($relatedNews): ?>
       <div class="mt-5">
-        <h2 class="h4 fw-semibold mb-3">Berita Terkait</h2>
-        <div class="row row-cols-1 row-cols-md-3 g-4">
+        <h2 class="h4 fw-semibold mb-3">Baca Juga</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
           <?php foreach ($relatedNews as $related): ?>
             <div class="col">
               <article class="card h-100 border-0 shadow-sm">
@@ -95,7 +118,11 @@
                     <?php $time = Time::parse($related['published_at']); ?>
                     <span class="badge bg-light text-primary mb-2"><?= esc($time->toLocalizedString('d MMM yyyy')) ?></span>
                   <?php endif; ?>
-                  <h3 class="h6"><a class="text-decoration-none" href="<?= site_url('berita/' . esc($related['slug'], 'url')) ?>"><?= esc($related['title']) ?></a></h3>
+                  <h3 class="h6">
+                    <a class="text-decoration-none stretched-link" href="<?= site_url('berita/' . esc($related['slug'], 'url')) ?>">
+                      <?= esc($related['title']) ?>
+                    </a>
+                  </h3>
                   <?php if (! empty($related['primary_category'])): ?>
                     <a class="badge bg-primary-subtle text-primary mt-2 d-inline-block" href="<?= site_url('berita/kategori/' . esc($related['primary_category']['slug'], 'url')) ?>">
                       <?= esc($related['primary_category']['name']) ?>
