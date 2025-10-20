@@ -128,8 +128,10 @@ class PublicContentService
             }
 
             if ($search !== null && $search !== '') {
-                $model->like('title', $search)
-                      ->orLike('content', $search);
+                $model->groupStart()
+                      ->like('title', $search)
+                      ->orLike('content', $search)
+                      ->groupEnd();
             }
 
             $model->groupBy('news.id');

@@ -6,8 +6,101 @@ namespace Tests\Unit\Services;
 
 use App\Models\NewsModel;
 use App\Services\PublicContentService;
+use CodeIgniter\Config\Factories;
 use CodeIgniter\Test\CIUnitTestCase;
-use Config\Factories;
+
+final class RecordingNewsModel extends NewsModel
+{
+    public array $joins = [];
+    public array $wheres = [];
+    public array $ordered = [];
+    public array $selected = [];
+    public array $paginateParams = [];
+    public array $groupByCalls = [];
+    public array $searchCalls = [];
+    private array $result;
+
+    public function __construct(array $result = [['id' => 1]])
+    {
+        $this->result = $result;
+    }
+
+    public function setResult(array $result): void
+    {
+        $this->result = $result;
+    }
+
+    public function select($fields, ?bool $escape = null)
+    {
+        $this->selected[] = $fields;
+
+        return $this;
+    }
+
+    public function orderBy($orderBy, $direction = '', $escape = null)
+    {
+        $this->ordered[] = [$orderBy, $direction];
+
+        return $this;
+    }
+
+    public function join($table, $cond, $type = '', $escape = null)
+    {
+        $this->joins[] = [$table, $cond, $type];
+
+        return $this;
+    }
+
+    public function where($key, $value = null, $escape = null)
+    {
+        $this->wheres[] = [$key, $value];
+
+        return $this;
+    }
+
+    public function groupStart()
+    {
+        $this->searchCalls[] = 'groupStart';
+
+        return $this;
+    }
+
+    public function like($field, $match = null, $side = 'both', ?bool $escape = null)
+    {
+        $this->searchCalls[] = ['like', $field, $match];
+
+        return $this;
+    }
+
+    public function orLike($field, $match = null, $side = 'both', ?bool $escape = null)
+    {
+        $this->searchCalls[] = ['orLike', $field, $match];
+
+        return $this;
+    }
+
+    public function groupEnd()
+    {
+        $this->searchCalls[] = 'groupEnd';
+
+        return $this;
+    }
+
+    public function groupBy($by, ?bool $escape = null)
+    {
+        $this->groupByCalls[] = $by;
+
+        return $this;
+    }
+
+    public function paginate(?int $perPage = null, string $group = 'default', ?int $page = null, int $segment = 0)
+    {
+        $effectivePerPage     = $perPage ?? 20;
+        $this->paginateParams = [$effectivePerPage, $group];
+
+        return $this->result;
+    }
+}
 
 final class PublicContentServiceTest extends CIUnitTestCase
 {
@@ -19,50 +112,7 @@ final class PublicContentServiceTest extends CIUnitTestCase
 
     public function testPaginatedNewsAppliesCategoryFilter(): void
     {
-        $mock = new class extends NewsModel {
-            public array $joins = [];
-            public array $wheres = [];
-            public array $ordered = [];
-            public array $selected = [];
-            public array $paginateParams = [];
-            public mixed $pager = null;
-            private array $result;
-
-            public function __construct()
-            {
-                $this->result = [['id' => 1]];
-            }
-
-            public function select($fields, ?bool $escape = null)
-            {
-                $this->selected[] = $fields;
-                return $this;
-            }
-
-            public function orderBy($orderBy, $direction = '', $escape = null)
-            {
-                $this->ordered[] = [$orderBy, $direction];
-                return $this;
-            }
-
-            public function join($table, $cond, $type = '', $escape = null)
-            {
-                $this->joins[] = [$table, $cond, $type];
-                return $this;
-            }
-
-            public function where($key, $value = null, $escape = null)
-            {
-                $this->wheres[] = [$key, $value];
-                return $this;
-            }
-
-            public function paginate(int $perPage = 20, string $group = 'default', int $page = 1, ?int $segment = null)
-            {
-                $this->paginateParams = [$perPage, $group];
-                return $this->result;
-            }
-        };
+        $mock = new RecordingNewsModel([['id' => 1]]);
 
         Factories::injectMock('models', NewsModel::class, $mock);
 
@@ -76,50 +126,7 @@ final class PublicContentServiceTest extends CIUnitTestCase
 
     public function testPaginatedNewsAppliesTagFilter(): void
     {
-        $mock = new class extends NewsModel {
-            public array $joins = [];
-            public array $wheres = [];
-            public array $ordered = [];
-            public array $selected = [];
-            public array $paginateParams = [];
-            public mixed $pager = null;
-            private array $result;
-
-            public function __construct()
-            {
-                $this->result = [['id' => 5]];
-            }
-
-            public function select($fields, ?bool $escape = null)
-            {
-                $this->selected[] = $fields;
-                return $this;
-            }
-
-            public function orderBy($orderBy, $direction = '', $escape = null)
-            {
-                $this->ordered[] = [$orderBy, $direction];
-                return $this;
-            }
-
-            public function join($table, $cond, $type = '', $escape = null)
-            {
-                $this->joins[] = [$table, $cond, $type];
-                return $this;
-            }
-
-            public function where($key, $value = null, $escape = null)
-            {
-                $this->wheres[] = [$key, $value];
-                return $this;
-            }
-
-            public function paginate(int $perPage = 20, string $group = 'default', int $page = 1, ?int $segment = null)
-            {
-                $this->paginateParams = [$perPage, $group];
-                return $this->result;
-            }
-        };
+        $mock = new RecordingNewsModel([['id' => 5]]);
 
         Factories::injectMock('models', NewsModel::class, $mock);
 
@@ -132,5 +139,22 @@ final class PublicContentServiceTest extends CIUnitTestCase
         );
         $this->assertContains(['news_tag_map.tag_id', 7], $mock->wheres);
         $this->assertSame([10, 'default'], $mock->paginateParams);
+    }
+
+    public function testPaginatedNewsGroupsSearchConditionsWithFilters(): void
+    {
+        $mock = new RecordingNewsModel([['id' => 9]]);
+
+        Factories::injectMock('models', NewsModel::class, $mock);
+
+        $service = new PublicContentService();
+        $service->paginatedNews(6, 'layanan', 3, null);
+
+        $this->assertSame(
+            ['groupStart', ['like', 'title', 'layanan'], ['orLike', 'content', 'layanan'], 'groupEnd'],
+            $mock->searchCalls
+        );
+        $this->assertContains(['news_category_map.category_id', 3], $mock->wheres);
+        $this->assertSame([6, 'default'], $mock->paginateParams);
     }
 }
