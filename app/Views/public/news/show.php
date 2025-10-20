@@ -9,6 +9,10 @@
   $tags            = $article['tags'] ?? [];
   $relatedNews     = $relatedNews ?? [];
   $shareLinks      = $shareLinks ?? [];
+  $mediaItems      = $article['media'] ?? [];
+  $imageMedia      = array_values(array_filter($mediaItems, static fn (array $media): bool => ($media['media_type'] ?? '') === 'image' && ! empty($media['file_path'])));
+  $videoMedia      = array_values(array_filter($mediaItems, static fn (array $media): bool => ($media['media_type'] ?? '') === 'video' && ! empty($media['external_url'])));
+  $carouselId      = 'newsMediaCarousel-' . ($article['id'] ?? uniqid('media-', false));
   $excerpt         = (string) ($article['excerpt'] ?? '');
   $publicAuthor    = (string) ($article['public_author'] ?? '');
   $sourceInfo      = (string) ($article['source'] ?? '');
@@ -23,9 +27,57 @@
       <a class="btn btn-link text-decoration-none px-0" href="<?= site_url('berita') ?>">&larr; Kembali ke daftar berita</a>
     </div>
     <article class="surface-card news-article">
-      <?php if (! empty($article['thumbnail'])): ?>
-        <div class="news-article__media">
-          <img src="<?= esc(base_url($article['thumbnail'])) ?>" alt="<?= esc($article['title']) ?>" loading="lazy">
+      <?php if ($imageMedia || ! empty($article['thumbnail'])): ?>
+        <div class="news-article__media mb-4">
+          <?php if ($imageMedia): ?>
+            <?php if (count($imageMedia) > 1): ?>
+              <div id="<?= esc($carouselId, 'attr') ?>" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                  <?php foreach ($imageMedia as $index => $media): ?>
+                    <?php
+                      $isActive    = $index === 0 ? 'active' : '';
+                      $imagePath   = base_url($media['file_path']);
+                      $captionText = (string) ($media['caption'] ?? '');
+                    ?>
+                    <div class="carousel-item <?= $isActive ?>">
+                      <figure class="mb-0">
+                        <img src="<?= esc($imagePath, 'attr') ?>" class="d-block w-100 rounded" alt="<?= esc($captionText !== '' ? $captionText : ($article['title'] ?? 'Gambar Berita')) ?>" loading="lazy">
+                        <?php if ($captionText !== ''): ?>
+                          <figcaption class="carousel-caption d-none d-md-block">
+                            <p class="mb-0"><?= esc($captionText) ?></p>
+                          </figcaption>
+                        <?php endif; ?>
+                      </figure>
+                    </div>
+                  <?php endforeach; ?>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#<?= esc($carouselId, 'attr') ?>" data-bs-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Sebelumnya</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#<?= esc($carouselId, 'attr') ?>" data-bs-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Selanjutnya</span>
+                </button>
+              </div>
+            <?php else: ?>
+              <?php
+                $singleMedia = $imageMedia[0];
+                $captionText = (string) ($singleMedia['caption'] ?? '');
+                $imagePath   = base_url($singleMedia['file_path']);
+              ?>
+              <figure class="mb-0">
+                <img src="<?= esc($imagePath, 'attr') ?>" class="img-fluid rounded" alt="<?= esc($captionText !== '' ? $captionText : ($article['title'] ?? 'Gambar Berita')) ?>" loading="lazy">
+                <?php if ($captionText !== ''): ?>
+                  <figcaption class="text-muted small mt-2"><?= esc($captionText) ?></figcaption>
+                <?php endif; ?>
+              </figure>
+            <?php endif; ?>
+          <?php else: ?>
+            <figure class="mb-0">
+              <img src="<?= esc(base_url($article['thumbnail'])) ?>" alt="<?= esc($article['title']) ?>" loading="lazy" class="img-fluid rounded">
+            </figure>
+          <?php endif; ?>
         </div>
       <?php endif; ?>
       <div class="news-article__body">
@@ -78,6 +130,23 @@
         <div class="news-content text-muted lead">
           <?= esc($article['content'], 'raw') ?>
         </div>
+        <?php if ($videoMedia): ?>
+          <div class="news-video-section mt-4">
+            <h2 class="h5 fw-semibold mb-3">Video Terkait</h2>
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+              <?php foreach ($videoMedia as $video): ?>
+                <div class="col">
+                  <div class="ratio ratio-16x9 border rounded overflow-hidden">
+                    <iframe src="<?= esc($video['external_url'], 'attr') ?>" title="Video terkait" loading="lazy" allowfullscreen></iframe>
+                  </div>
+                  <?php if (! empty($video['caption'])): ?>
+                    <p class="small text-muted mt-2 mb-0"><?= esc($video['caption']) ?></p>
+                  <?php endif; ?>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          </div>
+        <?php endif; ?>
         <?php if ($categories): ?>
           <div class="mt-4">
             <span class="fw-semibold me-2">Kategori:</span>

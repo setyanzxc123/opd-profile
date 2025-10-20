@@ -29,6 +29,10 @@
   $metaDescriptionValue = (string) old('meta_description', $item['meta_description'] ?? '');
   $metaKeywordsValue    = (string) old('meta_keywords', $item['meta_keywords'] ?? '');
 
+  $mediaItems = $mediaItems ?? [];
+  $mediaItems = array_values($mediaItems);
+  $mediaCountInitial = count($mediaItems);
+
   $countChars = static function (string $value): int {
       return function_exists('mb_strlen') ? mb_strlen($value) : strlen($value);
   };
@@ -39,6 +43,40 @@
 ?>
 
 <?= $this->section('pageStyles') ?>
+<style>
+  .news-media-manager .news-media-item {
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    transition: border-color 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+  }
+
+  .news-media-manager .news-media-item .news-media-preview figure,
+  .news-media-manager .news-media-item .news-media-preview .ratio {
+    width: 260px;
+    max-width: 100%;
+  }
+
+  .news-media-manager .news-media-item .news-media-preview img {
+    max-height: 160px;
+    object-fit: cover;
+  }
+
+  .news-media-manager .news-media-item.is-media-deleted {
+    opacity: 0.6;
+    border-color: rgba(220, 53, 69, 0.4);
+    background-color: rgba(220, 53, 69, 0.05);
+  }
+
+  .news-media-manager .placeholder {
+    min-height: 150px;
+  }
+
+  @media (max-width: 767.98px) {
+    .news-media-manager .news-media-item .news-media-preview figure,
+    .news-media-manager .news-media-item .news-media-preview .ratio {
+      width: 100%;
+    }
+  }
+</style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -218,17 +256,181 @@
                       <?php if (!empty($item['thumbnail'])): ?>
                         <div class="form-text mt-1">Saat ini: <a target="_blank" href="<?= esc(base_url($item['thumbnail']), 'attr') ?>">lihat gambar</a></div>
                       <?php endif; ?>
-                      <?php if (isset($validation) && $validation->hasError('thumbnail')): ?>
-                        <div class="form-text text-danger mt-1"><?= esc($validation->getError('thumbnail')) ?></div>
-                      <?php endif; ?>
-                    </div>
+                    <?php if (isset($validation) && $validation->hasError('thumbnail')): ?>
+                      <div class="form-text text-danger mt-1"><?= esc($validation->getError('thumbnail')) ?></div>
+                    <?php endif; ?>
                   </div>
                 </div>
               </div>
-              <div class="news-side-section mt-4 mt-md-3">
-                <div class="card shadow-sm h-100">
-                  <div class="card-body p-4">
-                    <h5 class="fw-semibold mb-3">Kategorisasi &amp; Tag</h5>
+            </div>
+            <div class="card shadow-sm mt-4">
+              <div class="card-body p-4">
+                <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
+                  <div>
+                    <h5 class="fw-semibold mb-1">Galeri &amp; Multimedia</h5>
+                    <p class="text-muted small mb-0">Tambahkan gambar aktivitas atau sematkan video pendukung. Tandai salah satu sebagai cover untuk tampil pada halaman publik.</p>
+                  </div>
+                  <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="addImageMediaBtn"><i class="bx bx-image-add"></i> Tambah Gambar</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="addVideoMediaBtn"><i class="bx bx-video-plus"></i> Tambah Video</button>
+                  </div>
+                </div>
+
+                <div id="mediaItemsContainer" class="news-media-manager" data-initial-counter="<?= (int) $mediaCountInitial ?>">
+                  <?php if ($mediaItems): ?>
+                    <?php foreach ($mediaItems as $media): ?>
+                      <?php
+                        $mediaId      = (int) ($media['id'] ?? 0);
+                        $mediaType    = (string) ($media['media_type'] ?? 'image');
+                        $mediaCaption = (string) ($media['caption'] ?? '');
+                        $mediaSort    = (int) ($media['sort_order'] ?? 0);
+                        $mediaCover   = (int) ($media['is_cover'] ?? 0) === 1;
+                        $mediaFile    = (string) ($media['file_path'] ?? '');
+                        $mediaUrl     = (string) ($media['source_url'] ?? $media['external_url'] ?? '');
+                        $mediaEmbed   = (string) ($media['external_url'] ?? '');
+                      ?>
+                      <div class="news-media-item card mb-3" data-existing-id="<?= $mediaId ?>" data-type="<?= esc($mediaType, 'attr') ?>">
+                        <div class="card-body">
+                          <div class="d-flex flex-column flex-md-row gap-3">
+                            <div class="news-media-preview flex-shrink-0">
+                              <?php if ($mediaType === 'image' && $mediaFile !== ''): ?>
+                                <figure class="mb-0 text-center">
+                                  <img src="<?= esc(base_url($mediaFile), 'attr') ?>" alt="<?= esc($mediaCaption !== '' ? $mediaCaption : ($item['title'] ?? 'Gambar Berita')) ?>" class="img-fluid rounded border" loading="lazy">
+                                </figure>
+                              <?php elseif ($mediaType === 'video' && $mediaEmbed !== ''): ?>
+                                <div class="ratio ratio-16x9">
+                                  <iframe src="<?= esc($mediaEmbed, 'attr') ?>" title="Video terkait" allowfullscreen loading="lazy"></iframe>
+                                </div>
+                              <?php else: ?>
+                                <div class="placeholder bg-light border rounded d-flex align-items-center justify-content-center text-muted">
+                                  <span>Tidak ada pratinjau</span>
+                                </div>
+                              <?php endif; ?>
+                            </div>
+                            <div class="flex-grow-1">
+                              <?php if ($mediaType === 'image'): ?>
+                                <div class="mb-3">
+                                  <label class="form-label">Caption Gambar</label>
+                                  <input type="text" class="form-control media-caption-input" name="media_existing[<?= $mediaId ?>][caption]" value="<?= esc($mediaCaption) ?>" placeholder="Judul atau deskripsi singkat">
+                                </div>
+                              <?php else: ?>
+                                <div class="mb-3">
+                                  <label class="form-label">URL Video (YouTube/Vimeo)</label>
+                                  <input type="url" class="form-control media-video-url-input" name="media_existing[<?= $mediaId ?>][external_url]" value="<?= esc($mediaUrl) ?>" placeholder="https://www.youtube.com/watch?v=...">
+                                  <div class="form-text">URL harus mengarah ke video publik.</div>
+                                </div>
+                                <div class="mb-3">
+                                  <label class="form-label">Caption Video</label>
+                                  <input type="text" class="form-control media-caption-input" name="media_existing[<?= $mediaId ?>][caption]" value="<?= esc($mediaCaption) ?>" placeholder="Keterangan singkat">
+                                </div>
+                              <?php endif; ?>
+
+                              <input type="hidden" name="media_existing[<?= $mediaId ?>][sort_order]" class="media-sort-order-field" value="<?= $mediaSort ?>">
+
+                              <div class="d-flex flex-wrap gap-3 align-items-center">
+                                <div class="form-check">
+                                  <input class="form-check-input" type="radio" name="media_cover" value="existing:<?= $mediaId ?>" id="mediaCoverExisting<?= $mediaId ?>" data-role="cover-radio" <?= $mediaCover ? 'checked' : '' ?>>
+                                  <label class="form-check-label small" for="mediaCoverExisting<?= $mediaId ?>">Jadikan cover</label>
+                                </div>
+                                <div class="form-check">
+                                  <input class="form-check-input media-delete-checkbox" type="checkbox" name="media_existing[<?= $mediaId ?>][delete]" value="1" id="mediaDelete<?= $mediaId ?>" data-role="delete-checkbox">
+                                  <label class="form-check-label text-danger small" for="mediaDelete<?= $mediaId ?>">Hapus media ini</label>
+                                </div>
+                                <div class="ms-auto d-flex flex-wrap gap-2">
+                                  <button type="button" class="btn btn-outline-secondary btn-sm media-move-up" title="Naikkan"><i class="bx bx-up-arrow-alt"></i></button>
+                                  <button type="button" class="btn btn-outline-secondary btn-sm media-move-down" title="Turunkan"><i class="bx bx-down-arrow-alt"></i></button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    <?php endforeach; ?>
+                  <?php endif; ?>
+
+                  <p id="mediaEmptyState" class="text-muted small<?= $mediaItems ? ' d-none' : '' ?>">Belum ada media tambahan. Gunakan tombol di atas untuk mulai menambahkan gambar atau video.</p>
+                </div>
+
+                <template id="media-image-template">
+                  <div class="news-media-item card mb-3" data-type="image">
+                    <div class="card-body">
+                      <div class="d-flex flex-column flex-md-row gap-3">
+                        <div class="news-media-preview flex-shrink-0">
+                          <figure class="mb-0 text-center">
+                            <img src="" alt="" class="img-fluid rounded border d-none" data-role="preview-img">
+                            <div class="placeholder bg-light border rounded d-flex align-items-center justify-content-center text-muted" data-role="preview-placeholder">
+                              <span>Belum ada pratinjau</span>
+                            </div>
+                          </figure>
+                        </div>
+                        <div class="flex-grow-1">
+                          <div class="mb-3">
+                            <label class="form-label">Gambar <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" accept="image/*" name="media_new_images_files[]" data-role="file-input" required>
+                            <div class="form-text">Gunakan resolusi tinggi agar tampilan publik tetap tajam.</div>
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label">Caption</label>
+                            <input type="text" class="form-control media-caption-input" name="media_new_images_caption[]" data-role="caption-input" placeholder="Judul atau deskripsi singkat">
+                          </div>
+                          <input type="hidden" name="media_new_images_uid[]" data-role="uid-input" value="">
+                          <input type="hidden" name="media_new_images_sort[]" class="media-sort-order-field" value="0">
+                          <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <div class="form-check">
+                              <input class="form-check-input" type="radio" name="media_cover" value="" data-role="cover-radio">
+                              <label class="form-check-label small" data-role="cover-label">Jadikan cover</label>
+                            </div>
+                            <button type="button" class="btn btn-outline-secondary btn-sm media-move-up" title="Naikkan"><i class="bx bx-up-arrow-alt"></i></button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm media-move-down" title="Turunkan"><i class="bx bx-down-arrow-alt"></i></button>
+                            <button type="button" class="btn btn-outline-danger btn-sm media-remove"><i class="bx bx-trash"></i> Hapus</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+
+                <template id="media-video-template">
+                  <div class="news-media-item card mb-3" data-type="video">
+                    <div class="card-body">
+                      <div class="d-flex flex-column flex-md-row gap-3">
+                        <div class="news-media-preview flex-shrink-0">
+                          <div class="ratio ratio-16x9 bg-light border rounded d-flex align-items-center justify-content-center text-muted">
+                            <i class="bx bx-play-circle fs-3"></i>
+                          </div>
+                        </div>
+                        <div class="flex-grow-1">
+                          <div class="mb-3">
+                            <label class="form-label">URL Video (YouTube/Vimeo)</label>
+                            <input type="url" class="form-control media-video-url-input" name="media_new_videos_url[]" data-role="video-url-input" placeholder="https://www.youtube.com/watch?v=..." required>
+                            <div class="form-text">URL harus mengarah ke video publik YouTube atau Vimeo.</div>
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label">Caption</label>
+                            <input type="text" class="form-control media-caption-input" name="media_new_videos_caption[]" data-role="caption-input" placeholder="Keterangan singkat">
+                          </div>
+                          <input type="hidden" name="media_new_videos_uid[]" data-role="uid-input" value="">
+                          <input type="hidden" name="media_new_videos_sort[]" class="media-sort-order-field" value="0">
+                          <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <div class="form-check">
+                              <input class="form-check-input" type="radio" name="media_cover" value="" data-role="cover-radio">
+                              <label class="form-check-label small" data-role="cover-label">Jadikan cover</label>
+                            </div>
+                            <button type="button" class="btn btn-outline-secondary btn-sm media-move-up" title="Naikkan"><i class="bx bx-up-arrow-alt"></i></button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm media-move-down" title="Turunkan"><i class="bx bx-down-arrow-alt"></i></button>
+                            <button type="button" class="btn btn-outline-danger btn-sm media-remove"><i class="bx bx-trash"></i> Hapus</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+            <div class="news-side-section mt-4 mt-md-3">
+              <div class="card shadow-sm h-100">
+                <div class="card-body p-4">
+                  <h5 class="fw-semibold mb-3">Kategorisasi &amp; Tag</h5>
 
                     <div class="mb-4">
                       <label class="form-label fw-semibold">Kategori Berita</label>
@@ -371,6 +573,35 @@
     const LANGUAGE_STORAGE_KEY = 'newsEditorLanguage';
     const DEFAULT_EDITOR_LANGUAGE = 'id';
     let currentEditorLanguage = DEFAULT_EDITOR_LANGUAGE;
+    const attachCounters = () => {
+      counterFields.forEach((field) => {
+        const targetSelector = field.getAttribute('data-counter-target');
+        if (!targetSelector) {
+          return;
+        }
+        const limitAttr = field.getAttribute('data-counter-limit');
+        const limit = limitAttr ? parseInt(limitAttr, 10) : 0;
+        const target = document.querySelector(targetSelector);
+        if (!target) {
+          return;
+        }
+
+        const update = () => {
+          const value = field.value || '';
+          const length = value.length;
+          const base = limit ? `${length}/${limit}` : `${length}`;
+          target.textContent = limit ? `${base} karakter` : `${base} karakter`;
+          if (limit && length > limit) {
+            target.classList.add('text-danger');
+          } else {
+            target.classList.remove('text-danger');
+          }
+        };
+
+        update();
+        field.addEventListener('input', update);
+      });
+    };
 
     const slugify = (value) => {
       const raw = value ? value.toString() : '';
@@ -525,6 +756,242 @@
     });
     syncPrimaryCategoryState();
 
+    const mediaContainer = document.getElementById('mediaItemsContainer');
+    if (mediaContainer) {
+      const emptyState = document.getElementById('mediaEmptyState');
+      const addImageBtn = document.getElementById('addImageMediaBtn');
+      const addVideoBtn = document.getElementById('addVideoMediaBtn');
+      const imageTemplate = document.getElementById('media-image-template');
+      const videoTemplate = document.getElementById('media-video-template');
+      const formElement = document.querySelector('form');
+      let mediaUidCounter = Number(mediaContainer.dataset.initialCounter || 0);
+
+      const getMediaItems = () => Array.from(mediaContainer.querySelectorAll('.news-media-item'));
+
+      const updateSortOrders = () => {
+        getMediaItems().forEach((item, index) => {
+          const sortField = item.querySelector('.media-sort-order-field');
+          if (sortField) {
+            sortField.value = (index + 1) * 10;
+          }
+        });
+      };
+
+      const updateEmptyState = () => {
+        if (!emptyState) return;
+        emptyState.classList.toggle('d-none', getMediaItems().length > 0);
+      };
+
+      const ensureCoverSelection = () => {
+        const radios = Array.from(document.querySelectorAll('input[name="media_cover"]')).filter((radio) => !radio.disabled);
+        if (radios.length === 0) {
+          return;
+        }
+        const hasActive = radios.some((radio) => radio.checked && !radio.disabled);
+        if (!hasActive) {
+          radios[0].checked = true;
+        }
+      };
+
+      const moveItem = (item, direction) => {
+        const items = getMediaItems();
+        const index = items.indexOf(item);
+        if (index === -1) {
+          return;
+        }
+
+        if (direction === 'up' && index > 0) {
+          mediaContainer.insertBefore(item, items[index - 1]);
+        } else if (direction === 'down' && index < items.length - 1) {
+          mediaContainer.insertBefore(items[index + 1], item);
+        }
+
+        updateSortOrders();
+      };
+
+      const handleDeleteToggle = (item, checked) => {
+        item.classList.toggle('is-media-deleted', checked);
+        item.querySelectorAll('.media-caption-input, .media-video-url-input').forEach((input) => {
+          input.disabled = checked;
+        });
+
+        const coverRadio = item.querySelector('[data-role="cover-radio"]');
+        if (coverRadio) {
+          coverRadio.disabled = checked;
+          if (checked && coverRadio.checked) {
+            coverRadio.checked = false;
+            ensureCoverSelection();
+          }
+        }
+      };
+
+      const handleImagePreview = (input) => {
+        if (!input) return;
+        const wrapper = input.closest('.news-media-item');
+        const previewImg = wrapper ? wrapper.querySelector('[data-role="preview-img"]') : null;
+        const placeholder = wrapper ? wrapper.querySelector('[data-role="preview-placeholder"]') : null;
+        const file = input.files && input.files[0] ? input.files[0] : null;
+
+        if (!previewImg || !placeholder) {
+          return;
+        }
+
+        if (!file) {
+          previewImg.src = '';
+          previewImg.classList.add('d-none');
+          placeholder.classList.remove('d-none');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          previewImg.src = reader.result;
+          previewImg.classList.remove('d-none');
+          placeholder.classList.add('d-none');
+        };
+        reader.readAsDataURL(file);
+      };
+
+      const attachMediaItemEvents = (item, { isExisting = false } = {}) => {
+        const moveUpBtn = item.querySelector('.media-move-up');
+        const moveDownBtn = item.querySelector('.media-move-down');
+        const removeBtn = item.querySelector('.media-remove');
+        const deleteCheckbox = item.querySelector('[data-role="delete-checkbox"]');
+        const fileInput = item.querySelector('[data-role="file-input"]');
+        const coverRadio = item.querySelector('[data-role="cover-radio"]');
+
+        if (moveUpBtn) {
+          moveUpBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            moveItem(item, 'up');
+          });
+        }
+
+        if (moveDownBtn) {
+          moveDownBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            moveItem(item, 'down');
+          });
+        }
+
+        if (removeBtn && !isExisting) {
+          removeBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            item.remove();
+            updateSortOrders();
+            updateEmptyState();
+            ensureCoverSelection();
+          });
+        }
+
+        if (fileInput) {
+          fileInput.addEventListener('change', () => handleImagePreview(fileInput));
+        }
+
+        if (deleteCheckbox) {
+          deleteCheckbox.addEventListener('change', () => {
+            handleDeleteToggle(item, deleteCheckbox.checked);
+          });
+          handleDeleteToggle(item, deleteCheckbox.checked);
+        }
+
+        if (coverRadio) {
+          coverRadio.addEventListener('change', () => ensureCoverSelection());
+        }
+      };
+
+      const buildImageItem = () => {
+        if (!imageTemplate) return;
+        mediaUidCounter += 1;
+        const uid = `img${mediaUidCounter}`;
+
+        const fragment = imageTemplate.content.cloneNode(true);
+        const item = fragment.querySelector('.news-media-item');
+        if (!item) return;
+
+        const uidInput = item.querySelector('[data-role="uid-input"]');
+        const coverRadio = item.querySelector('[data-role="cover-radio"]');
+        const coverLabel = item.querySelector('[data-role="cover-label"]');
+        const fileInput = item.querySelector('[data-role="file-input"]');
+
+        if (uidInput) {
+          uidInput.value = uid;
+        }
+        if (coverRadio) {
+          coverRadio.value = `new-image|${uid}`;
+          coverRadio.id = `mediaCoverNew${uid}`;
+        }
+        if (coverLabel && coverRadio) {
+          coverLabel.setAttribute('for', coverRadio.id);
+        }
+        if (fileInput) {
+          fileInput.addEventListener('change', () => handleImagePreview(fileInput));
+        }
+
+        mediaContainer.appendChild(item);
+        attachMediaItemEvents(item, { isExisting: false });
+        updateSortOrders();
+        updateEmptyState();
+        ensureCoverSelection();
+      };
+
+      const buildVideoItem = () => {
+        if (!videoTemplate) return;
+        mediaUidCounter += 1;
+        const uid = `vid${mediaUidCounter}`;
+
+        const fragment = videoTemplate.content.cloneNode(true);
+        const item = fragment.querySelector('.news-media-item');
+        if (!item) return;
+
+        const uidInput = item.querySelector('[data-role="uid-input"]');
+        const coverRadio = item.querySelector('[data-role="cover-radio"]');
+        const coverLabel = item.querySelector('[data-role="cover-label"]');
+
+        if (uidInput) {
+          uidInput.value = uid;
+        }
+        if (coverRadio) {
+          coverRadio.value = `new-video|${uid}`;
+          coverRadio.id = `mediaCoverNew${uid}`;
+        }
+        if (coverLabel && coverRadio) {
+          coverLabel.setAttribute('for', coverRadio.id);
+        }
+
+        mediaContainer.appendChild(item);
+        attachMediaItemEvents(item, { isExisting: false });
+        updateSortOrders();
+        updateEmptyState();
+        ensureCoverSelection();
+      };
+
+      if (addImageBtn) {
+        addImageBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          buildImageItem();
+        });
+      }
+
+      if (addVideoBtn) {
+        addVideoBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          buildVideoItem();
+        });
+      }
+
+      getMediaItems().forEach((item) => attachMediaItemEvents(item, { isExisting: true }));
+      updateSortOrders();
+      updateEmptyState();
+      ensureCoverSelection();
+
+      if (formElement) {
+        formElement.addEventListener('submit', () => {
+          updateSortOrders();
+        });
+      }
+    }
+
     const initTinyMCE = (languageCode) => {
       currentEditorLanguage = languageCode === 'en' ? 'en' : DEFAULT_EDITOR_LANGUAGE;
       tinymce.remove('#newsContent');
@@ -588,33 +1055,3 @@
   });
 </script>
 <?= $this->endSection() ?>
-
-    const attachCounters = () => {
-      counterFields.forEach((field) => {
-        const targetSelector = field.getAttribute('data-counter-target');
-        if (!targetSelector) {
-          return;
-        }
-        const limitAttr = field.getAttribute('data-counter-limit');
-        const limit = limitAttr ? parseInt(limitAttr, 10) : 0;
-        const target = document.querySelector(targetSelector);
-        if (!target) {
-          return;
-        }
-
-        const update = () => {
-          const value = field.value || '';
-          const length = value.length;
-          const base = limit ? `${length}/${limit}` : `${length}`;
-          target.textContent = limit ? `${base} karakter` : `${base} karakter`;
-          if (limit && length > limit) {
-            target.classList.add('text-danger');
-          } else {
-            target.classList.remove('text-danger');
-          }
-        };
-
-        update();
-        field.addEventListener('input', update);
-      });
-    };

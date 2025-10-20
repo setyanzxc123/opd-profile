@@ -593,6 +593,62 @@ class PublicContentService
     }
 
     /**
+     * @param array<int,int> $newsIds
+     * @return array<int,array<int,array<string,mixed>>>
+     */
+    private function fetchMediaForNews(array $newsIds): array
+    {
+        if ($newsIds === []) {
+            return [];
+        }
+
+        $db = db_connect();
+        try {
+            $rows = $db->table('news_media')
+                ->select('id, news_id, media_type, file_path, external_url, caption, metadata, is_cover, sort_order')
+                ->whereIn('news_id', $newsIds)
+                ->orderBy('sort_order', 'asc')
+                ->orderBy('id', 'asc')
+                ->get()
+                ->getResultArray();
+        } finally {
+            $db->close();
+        }
+
+        $grouped = [];
+        foreach ($rows as $row) {
+            $newsId = (int) ($row['news_id'] ?? 0);
+            if ($newsId === 0) {
+                continue;
+            }
+
+            $metadata = [];
+            if (! empty($row['metadata'])) {
+                $decoded = json_decode((string) $row['metadata'], true);
+                if (is_array($decoded)) {
+                    $metadata = $decoded;
+                }
+            }
+
+            $caption = sanitize_plain_text((string) ($row['caption'] ?? ''));
+            $caption = $caption !== '' ? $caption : '';
+
+            $grouped[$newsId][] = [
+                'id'           => (int) ($row['id'] ?? 0),
+                'media_type'   => (string) ($row['media_type'] ?? 'image'),
+                'file_path'    => (string) ($row['file_path'] ?? ''),
+                'external_url' => (string) ($row['external_url'] ?? ''),
+                'caption'      => $caption,
+                'metadata'     => $metadata,
+                'is_cover'     => (int) ($row['is_cover'] ?? 0),
+                'sort_order'   => (int) ($row['sort_order'] ?? 0),
+            ];
+        }
+
+        return $grouped;
+    }
+
+    /**
      * @param array<int,array<string,mixed>> $newsItems
      * @return array<int,array<string,mixed>>
      */
@@ -613,6 +669,7 @@ class PublicContentService
 
         $categoriesByNews = $this->fetchCategoriesForNews($newsIds);
         $tagsByNews       = $this->fetchTagsForNews($newsIds);
+        $mediaByNews      = $this->fetchMediaForNews($newsIds);
 
         $categoryIndex = [];
         foreach ($categoriesByNews as $categories) {
@@ -627,6 +684,7 @@ class PublicContentService
             $row['tags']       = $tagsByNews[$newsId] ?? [];
             $primaryId         = (int) ($row['primary_category_id'] ?? 0);
             $row['primary_category'] = $primaryId && isset($categoryIndex[$primaryId]) ? $categoryIndex[$primaryId] : null;
+            $row['media']      = $mediaByNews[$newsId] ?? [];
 
             $row['public_author']    = sanitize_plain_text($row['public_author'] ?? '');
             $row['source']           = sanitize_plain_text($row['source'] ?? '');
