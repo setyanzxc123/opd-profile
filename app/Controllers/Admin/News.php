@@ -698,11 +698,6 @@ class News extends BaseController
                 'slug'               => '',
                 'content'            => '',
                 'excerpt'            => '',
-                'public_author'      => '',
-                'source'             => '',
-                'meta_title'         => '',
-                'meta_description'   => '',
-                'meta_keywords'      => '',
                 'thumbnail'          => '',
                 'published_at'       => '',
                 'primary_category_id'=> null,
@@ -723,16 +718,11 @@ class News extends BaseController
         helper(['activity', 'content', 'news']);
 
         $rules = [
-            'title'            => 'required|min_length[3]|max_length[200]',
-            'content'          => 'required',
-            'excerpt'          => 'permit_empty|max_length[300]',
-            'public_author'    => 'permit_empty|max_length[255]',
-            'source'           => 'permit_empty|max_length[255]',
-            'meta_title'       => 'permit_empty|max_length[70]',
-            'meta_description' => 'permit_empty|max_length[160]',
-            'meta_keywords'    => 'permit_empty|max_length[500]',
-            'published_at'     => 'permit_empty',
-            'thumbnail'        => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]|mime_in[thumbnail,image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,image/gif]',
+            'title'        => 'required|min_length[3]|max_length[200]',
+            'content'      => 'required',
+            'excerpt'      => 'permit_empty|max_length[300]',
+            'published_at' => 'permit_empty',
+            'thumbnail'    => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]|mime_in[thumbnail,image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,image/gif]',
         ];
 
         if (! $this->validate($rules)) {
@@ -759,17 +749,8 @@ class News extends BaseController
         $newTagIds      = $this->createTagsFromInput((string) $this->request->getPost('new_tags'));
         $allTagIds      = array_values(array_unique(array_merge($existingTagIds, $newTagIds)));
 
-        $rawExcerpt      = $this->request->getPost('excerpt');
-        $excerpt         = news_trim_excerpt(is_string($rawExcerpt) ? $rawExcerpt : null, $content);
-        $publicAuthor    = sanitize_plain_text($this->request->getPost('public_author'));
-        $sourceInput     = sanitize_plain_text($this->request->getPost('source'));
-        $metaTitleRaw    = $this->request->getPost('meta_title');
-        $metaTitle       = news_resolve_meta_title(is_string($metaTitleRaw) ? $metaTitleRaw : null, $titleInput);
-        $metaDescRaw     = $this->request->getPost('meta_description');
-        $metaDescription = news_resolve_meta_description(is_string($metaDescRaw) ? $metaDescRaw : null, $excerpt, $content);
-        $metaKeywordsRaw = $this->request->getPost('meta_keywords');
-        $metaKeywords    = $metaKeywordsRaw !== null ? sanitize_plain_text((string) $metaKeywordsRaw) : '';
-        $metaKeywords    = $metaKeywords !== '' ? $metaKeywords : null;
+        $rawExcerpt = $this->request->getPost('excerpt');
+        $excerpt    = news_trim_excerpt(is_string($rawExcerpt) ? $rawExcerpt : null, $content);
 
         $thumbPath = null;
         $file      = $this->request->getFile('thumbnail');
@@ -808,11 +789,6 @@ class News extends BaseController
             'slug'                => $slug,
             'content'             => $content,
             'excerpt'             => $excerpt,
-            'public_author'       => $publicAuthor,
-            'source'              => $sourceInput,
-            'meta_title'          => $metaTitle,
-            'meta_description'    => $metaDescription,
-            'meta_keywords'       => $metaKeywords,
             'thumbnail'           => $thumbPath,
             'published_at'        => $publishedAt,
             'author_id'           => (int) session('user_id'),
@@ -898,16 +874,11 @@ class News extends BaseController
         }
 
         $rules = [
-            'title'            => 'required|min_length[3]|max_length[200]',
-            'content'          => 'required',
-            'excerpt'          => 'permit_empty|max_length[300]',
-            'public_author'    => 'permit_empty|max_length[255]',
-            'source'           => 'permit_empty|max_length[255]',
-            'meta_title'       => 'permit_empty|max_length[70]',
-            'meta_description' => 'permit_empty|max_length[160]',
-            'meta_keywords'    => 'permit_empty|max_length[500]',
-            'published_at'     => 'permit_empty',
-            'thumbnail'        => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]|mime_in[thumbnail,image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,image/gif]',
+            'title'        => 'required|min_length[3]|max_length[200]',
+            'content'      => 'required',
+            'excerpt'      => 'permit_empty|max_length[300]',
+            'published_at' => 'permit_empty',
+            'thumbnail'    => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]|mime_in[thumbnail,image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,image/gif]',
         ];
 
         if (! $this->validate($rules)) {
@@ -933,28 +904,14 @@ class News extends BaseController
         $newTagIds = $this->createTagsFromInput((string) $this->request->getPost('new_tags'));
         $allTagIds = array_values(array_unique(array_merge($existingTagIds, $newTagIds)));
 
-        $rawExcerpt      = $this->request->getPost('excerpt');
-        $excerpt         = news_trim_excerpt(is_string($rawExcerpt) ? $rawExcerpt : null, $content);
-        $publicAuthor    = sanitize_plain_text($this->request->getPost('public_author'));
-        $sourceInput     = sanitize_plain_text($this->request->getPost('source'));
-        $metaTitleRaw    = $this->request->getPost('meta_title');
-        $metaTitle       = news_resolve_meta_title(is_string($metaTitleRaw) ? $metaTitleRaw : null, $titleInput);
-        $metaDescRaw     = $this->request->getPost('meta_description');
-        $metaDescription = news_resolve_meta_description(is_string($metaDescRaw) ? $metaDescRaw : null, $excerpt, $content);
-        $metaKeywordsRaw = $this->request->getPost('meta_keywords');
-        $metaKeywords    = $metaKeywordsRaw !== null ? sanitize_plain_text((string) $metaKeywordsRaw) : '';
-        $metaKeywords    = $metaKeywords !== '' ? $metaKeywords : null;
+        $rawExcerpt = $this->request->getPost('excerpt');
+        $excerpt    = news_trim_excerpt(is_string($rawExcerpt) ? $rawExcerpt : null, $content);
 
         $data = [
             'title'               => $titleInput,
             'slug'                => $slug,
             'content'             => $content,
             'excerpt'             => $excerpt,
-            'public_author'       => $publicAuthor,
-            'source'              => $sourceInput,
-            'meta_title'          => $metaTitle,
-            'meta_description'    => $metaDescription,
-            'meta_keywords'       => $metaKeywords,
             'published_at'        => $publishedAt,
             'primary_category_id' => $primaryCategory,
         ];
@@ -1053,6 +1010,7 @@ class News extends BaseController
         return redirect()->to(site_url('admin/news'))->with('message', 'Berita berhasil dihapus.');
     }
 }
+
 
 
 
