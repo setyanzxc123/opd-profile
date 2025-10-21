@@ -1,5 +1,22 @@
+<?php
+  helper(['url', 'theme']);
+
+  $loginThemeProfile = cache('public_profile_latest');
+  if (! is_array($loginThemeProfile)) {
+      try {
+          $loginThemeProfile = model(\App\Models\OpdProfileModel::class)
+              ->orderBy('id', 'desc')
+              ->first();
+      } catch (\Throwable $throwable) {
+          log_message('debug', 'Failed to fetch profile for login theme: {error}', ['error' => $throwable->getMessage()]);
+          $loginThemeProfile = [];
+      }
+  }
+  $loginThemeProfile   = is_array($loginThemeProfile) ? $loginThemeProfile : [];
+  $loginThemeVariables = $loginThemeProfile !== [] ? theme_admin_variables($loginThemeProfile) : [];
+?>
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-template="vertical-menu-template-free">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,6 +26,9 @@
   <link href="<?= base_url('assets/vendor/fonts/iconify-icons.css') ?>" rel="stylesheet">
   <link href="<?= base_url('assets/css/demo.css') ?>" rel="stylesheet">
   <link href="<?= base_url('assets/css/custom.css') ?>" rel="stylesheet">
+  <?php if ($loginThemeVariables !== []): ?>
+    <?= theme_render_style($loginThemeVariables, ':root[data-template="vertical-menu-template-free"]') ?>
+  <?php endif; ?>
 </head>
 <body>
   <div class="container-xxl">

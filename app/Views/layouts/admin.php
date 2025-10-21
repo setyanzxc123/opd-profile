@@ -1,3 +1,20 @@
+<?php
+  helper(['url', 'theme']);
+
+  $adminThemeProfile = cache('public_profile_latest');
+  if (! is_array($adminThemeProfile)) {
+      try {
+          $adminThemeProfile = model(\App\Models\OpdProfileModel::class)
+              ->orderBy('id', 'desc')
+              ->first();
+      } catch (\Throwable $throwable) {
+          log_message('debug', 'Failed to fetch profile for admin theme: {error}', ['error' => $throwable->getMessage()]);
+          $adminThemeProfile = [];
+      }
+  }
+  $adminThemeProfile   = is_array($adminThemeProfile) ? $adminThemeProfile : [];
+  $adminThemeVariables = $adminThemeProfile !== [] ? theme_admin_variables($adminThemeProfile) : [];
+?>
 <!DOCTYPE html>
 <html
   lang="id"
@@ -21,6 +38,9 @@
   <link rel="stylesheet" href="<?= base_url('assets/css/demo.css') ?>" />
   <link rel="stylesheet" href="<?= base_url('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') ?>" />
   <link rel="stylesheet" href="<?= base_url('assets/css/custom.css') ?>" />
+  <?php if ($adminThemeVariables !== []): ?>
+    <?= theme_render_style($adminThemeVariables, ':root[data-template="vertical-menu-template-free"]') ?>
+  <?php endif; ?>
   <?= $this->renderSection('pageStyles') ?>
 
   <script src="<?= base_url('assets/vendor/js/helpers.js') ?>"></script>
@@ -48,17 +68,7 @@
         if ($initial === '') {
           $initial = 'P';
         }
-        $profileData = cache('public_profile_latest');
-        if (! is_array($profileData)) {
-          try {
-            $profileData = model(\App\Models\OpdProfileModel::class)
-              ->orderBy('id', 'desc')
-              ->first();
-          } catch (\Throwable $throwable) {
-            log_message('debug', 'Failed to fetch profile for admin layout: {error}', ['error' => $throwable->getMessage()]);
-            $profileData = [];
-          }
-        }
+        $profileData = $adminThemeProfile;
         $profileData = is_array($profileData) ? $profileData : [];
         $profileSiteName = trim((string) ($profileData['name'] ?? ''));
         $adminLogoPath   = trim((string) ($profileData['logo_admin_path'] ?? ($profileData['logo_public_path'] ?? '')));

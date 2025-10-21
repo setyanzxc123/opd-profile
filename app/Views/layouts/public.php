@@ -1,9 +1,11 @@
 <?php
-  helper('url');
+  helper(['url', 'theme']);
 
   $footerProfileData = $footerProfile ?? ($profile ?? null);
   $headerProfileData = is_array($profile ?? null) ? $profile : (is_array($footerProfileData) ? $footerProfileData : null);
   $footerMapEnabled  = false;
+  $themeProfileData  = is_array($headerProfileData) ? $headerProfileData : (is_array($footerProfileData) ? $footerProfileData : null);
+  $publicThemeVariables = is_array($themeProfileData) ? theme_public_variables($themeProfileData) : [];
 
   $metaData = is_array($meta ?? null) ? $meta : [];
 
@@ -59,6 +61,9 @@
   <link href="<?= base_url('assets/css/public/layout.css') ?>" rel="stylesheet" />
   <link href="<?= base_url('assets/css/public/components.css') ?>" rel="stylesheet" />
   <link href="<?= base_url('assets/css/public/pages.css') ?>" rel="stylesheet" />
+  <?php if ($publicThemeVariables !== []): ?>
+    <?= theme_render_style($publicThemeVariables) ?>
+  <?php endif; ?>
   <?php if ($footerMapEnabled): ?>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <?php endif; ?>

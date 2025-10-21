@@ -1,0 +1,109 @@
+.theme-color-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.theme-color-card .theme-color-swatch {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+.theme-color-picker {
+  width: 52px;
+  height: 52px;
+}
+
+.theme-color-picker .pcr-button {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.12);
+}
+
+.theme-color-card .theme-color-input {
+  font-family: ui-monospace, SFMono-Regular, SFMono, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  text-transform: uppercase;
+}
+
+.theme-preview-card {
+  --theme-primary: #05A5A8;
+  --theme-primary-dark: #036C6E;
+  --theme-primary-soft: rgba(5, 165, 168, 0.12);
+  --theme-accent: #03C3EC;
+  --theme-surface: #F5F5F9;
+  --theme-neutral: #22303E;
+  --theme-neutral-subtle: rgba(34, 48, 62, 0.7);
+  background: linear-gradient(145deg, rgba(5, 165, 168, 0.08), rgba(3, 195, 236, 0.06));
+}
+
+.theme-preview-hero {
+  background: var(--theme-primary);
+  border-radius: 18px;
+}
+
+.theme-preview-hero .btn-light,
+.theme-preview-hero .btn-outline-light {
+  border-radius: 999px;
+}
+
+.theme-preview-hero .btn-light {
+  color: var(--theme-primary);
+}
+
+.theme-preview-hero .btn-outline-light {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.theme-preview-surface {
+  background: var(--theme-surface);
+  border-radius: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  box-shadow: 0 0.5rem 1.5rem rgba(34, 48, 62, 0.08);
+}
+
+.theme-preview-badge {
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
+  background: var(--theme-accent);
+  box-shadow: 0 0.5rem 1.25rem rgba(3, 195, 236, 0.35);
+}
+
+.theme-preview-card [data-theme-preview-heading] {
+  color: var(--theme-neutral);
+}
+
+.theme-preview-card [data-theme-preview-text] {
+  color: var(--theme-neutral-subtle);
+}
+
+.theme-preview-card .btn-primary {
+  background-color: var(--theme-primary);
+  border-color: var(--theme-primary);
+}
+
+.theme-preview-card .btn-outline-primary {
+  color: var(--theme-primary);
+  border-color: var(--theme-primary);
+}
+
+.theme-preview-card .btn-outline-secondary {
+  color: var(--theme-neutral);
+  border-color: color-mix(in srgb, var(--theme-neutral) 28%, transparent);
+}
+
+@media (max-width: 575.98px) {
+  .theme-color-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .theme-color-card .theme-color-swatch,
+  .theme-color-picker {
+    width: 48px;
+    height: 48px;
+  }
+}
+

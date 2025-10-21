@@ -12,21 +12,21 @@
 }
 
 .btn-primary {
-  --bs-btn-bg: #05a5a8;
-  --bs-btn-border-color: #05a5a8;
-  --bs-btn-hover-bg: #048f92;
-  --bs-btn-hover-border-color: #048689;
-  --bs-btn-active-bg: #037a7d;
-  --bs-btn-active-border-color: #037a7d;
+  --bs-btn-bg: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: var(--theme-admin-btn-hover, var(--bs-primary));
+  --bs-btn-hover-border-color: var(--theme-admin-btn-hover, var(--bs-primary));
+  --bs-btn-active-bg: var(--theme-admin-btn-active, var(--bs-primary));
+  --bs-btn-active-border-color: var(--theme-admin-btn-active, var(--bs-primary));
 }
 
 .btn-outline-primary {
-  --bs-btn-color: #05a5a8;
-  --bs-btn-border-color: #05a5a8;
-  --bs-btn-hover-bg: #05a5a8;
-  --bs-btn-hover-border-color: #05a5a8;
-  --bs-btn-active-bg: #037a7d;
-  --bs-btn-active-border-color: #037a7d;
+  --bs-btn-color: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: var(--bs-primary);
+  --bs-btn-hover-border-color: var(--bs-primary);
+  --bs-btn-active-bg: var(--theme-admin-btn-active, var(--bs-primary));
+  --bs-btn-active-border-color: var(--theme-admin-btn-active, var(--bs-primary));
 }
 /* Ensure brand toggle always visible */
 #layout-menu .app-brand .layout-menu-toggle {
@@ -72,9 +72,7 @@
   gap: 1.25rem;
   padding: 1.25rem;
   border-radius: 0.75rem;
-  border: 1px solid rgba(5, 165, 168, 0.2);
   border: 1px solid color-mix(in sRGB, var(--bs-primary) 20%, transparent);
-  background: #d4f2f3;
   background: var(--bs-primary-bg-subtle);
 }
 
@@ -123,7 +121,6 @@
   border: 1px solid color-mix(in sRGB, var(--bs-info) 18%, transparent);
   background: rgba(13, 110, 253, 0.08);
   background: var(--bs-info-bg-subtle);
-  color: #05a5a8;
   color: var(--bs-info);
   padding: 0.75rem;
   font-size: 0.82rem;
@@ -204,8 +201,8 @@
 
 .profile-logo-preview-wrapper.has-image {
   border-style: solid;
-  border-color: rgba(5, 165, 168, 0.35);
-  background: rgba(5, 165, 168, 0.08);
+  border-color: color-mix(in sRGB, var(--bs-primary) 35%, transparent);
+  background: color-mix(in sRGB, var(--bs-primary) 10%, rgba(255, 255, 255, 0.95));
 }
 
 .profile-logo-preview-wrapper .profile-logo-preview {

@@ -5,10 +5,12 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\OpdProfileModel;
 use App\Services\ProfileLogoService;
+use App\Services\ThemeStyleService;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class Profile extends BaseController
 {
+    private const DEFAULT_THEME_SETTINGS = ThemeStyleService::DEFAULT_THEME;
 
     // Purpose: display edit form for the single OPD profile
     public function index()
@@ -36,14 +38,17 @@ class Profile extends BaseController
                 'email'       => null,
                 'logo_public_path' => null,
                 'logo_admin_path'  => null,
+                'theme_settings'   => json_encode(self::DEFAULT_THEME_SETTINGS),
             ]);
             $profile = $model->orderBy('id', 'ASC')->first();
         }
 
         return view('admin/profile/edit', [
-            'title'      => 'Profil',
-            'profile'    => $profile,
-            'validation' => \Config\Services::validation(),
+            'title'          => 'Profil',
+            'profile'        => $profile,
+            'themeSettings'  => $this->mergeThemeSettings($profile['theme_settings'] ?? null),
+            'themeDefaults'  => self::DEFAULT_THEME_SETTINGS,
+            'validation'     => \Config\Services::validation(),
         ]);
     }
 
@@ -62,6 +67,10 @@ class Profile extends BaseController
             'map_zoom'    => 'permit_empty|integer|greater_than_equal_to[1]|less_than_equal_to[20]',
             'map_display' => 'permit_empty|in_list[0,1]',
             'logo_public' => 'permit_empty|max_size[logo_public,3072]|is_image[logo_public]|ext_in[logo_public,jpg,jpeg,png,webp,gif]|mime_in[logo_public,image/jpeg,image/jpg,image/png,image/webp,image/gif]',
+            'theme_primary_color' => 'permit_empty|regex_match[/^#?(?:[0-9A-Fa-f]{3}){1,2}$/]',
+            'theme_accent_color'  => 'permit_empty|regex_match[/^#?(?:[0-9A-Fa-f]{3}){1,2}$/]',
+            'theme_surface_color' => 'permit_empty|regex_match[/^#?(?:[0-9A-Fa-f]{3}){1,2}$/]',
+            'theme_neutral_color' => 'permit_empty|regex_match[/^#?(?:[0-9A-Fa-f]{3}){1,2}$/]',
         ];
 
         if (! $this->validate($rules)) {
@@ -100,6 +109,35 @@ class Profile extends BaseController
             'phone'       => sanitize_plain_text($this->request->getPost('phone')),
             'email'       => sanitize_plain_text($this->request->getPost('email')),
         ];
+
+        $currentTheme = $this->mergeThemeSettings($currentProfile['theme_settings'] ?? null);
+        $incomingTheme = [
+            'primary' => $this->normalizeHexColor($this->request->getPost('theme_primary_color')),
+            'accent'  => $this->normalizeHexColor($this->request->getPost('theme_accent_color')),
+            'surface' => $this->normalizeHexColor($this->request->getPost('theme_surface_color')),
+            'neutral' => $this->normalizeHexColor($this->request->getPost('theme_neutral_color')),
+        ];
+
+        $themeReset = $this->isAffirmative($this->request->getPost('theme_reset'));
+        $finalTheme = $themeReset ? self::DEFAULT_THEME_SETTINGS : $currentTheme;
+
+        if (! $themeReset) {
+            foreach ($incomingTheme as $key => $value) {
+                if ($value !== null) {
+                    $finalTheme[$key] = $value;
+                }
+            }
+        }
+
+        try {
+            $data['theme_settings'] = json_encode($finalTheme, JSON_THROW_ON_ERROR);
+        } catch (\Throwable $exception) {
+            log_message('error', 'Failed to encode theme settings: {error}', ['error' => $exception->getMessage()]);
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal menyimpan pengaturan tema.');
+        }
 
         $logoPublicFile = $this->request->getFile('logo_public');
         if ($logoPublicFile && $logoPublicFile->isValid() && ! $logoPublicFile->hasMoved()) {
@@ -288,6 +326,50 @@ class Profile extends BaseController
         }
 
         return $this->response->setJSON(['data' => $results]);
+    }
+
+    private function mergeThemeSettings($raw): array
+    {
+        return ThemeStyleService::mergeSettings($raw);
+    }
+
+    private function normalizeHexColor($value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_array($value)) {
+            return null;
+        }
+
+        $candidate = trim((string) $value);
+
+        if ($candidate === '') {
+            return null;
+        }
+
+        if ($candidate[0] !== '#') {
+            $candidate = '#' . $candidate;
+        }
+
+        if (! preg_match('/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/', $candidate)) {
+            return null;
+        }
+
+        if (strlen($candidate) === 4) {
+            $candidate = sprintf(
+                '#%s%s%s%s%s%s',
+                $candidate[1],
+                $candidate[1],
+                $candidate[2],
+                $candidate[2],
+                $candidate[3],
+                $candidate[3]
+            );
+        }
+
+        return strtoupper($candidate);
     }
 
     private function isAffirmative($value): bool

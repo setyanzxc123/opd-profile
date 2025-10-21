@@ -3,12 +3,80 @@
   $publicLogoPath  = $profile['logo_public_path'] ?? null;
   $publicLogoUrl   = $publicLogoPath ? base_url($publicLogoPath) : null;
   $removePublicOld = old('remove_logo_public');
+  $themeSettings   = is_array($themeSettings ?? null) ? $themeSettings : [];
+  $themeDefaults   = is_array($themeDefaults ?? null) ? $themeDefaults : [
+    'primary' => '#05A5A8',
+    'accent'  => '#03C3EC',
+    'neutral' => '#22303E',
+    'surface' => '#F5F5F9',
+  ];
+  $normalizeThemeValue = static function ($value, string $fallback) {
+    $candidate = is_string($value) ? trim($value) : '';
+    $fallbackValue = trim($fallback) !== '' ? $fallback : '#05A5A8';
+
+    if ($candidate === '') {
+      $candidate = $fallbackValue;
+    }
+
+    if ($candidate !== '' && $candidate[0] !== '#') {
+      $candidate = '#' . $candidate;
+    }
+
+    if (preg_match('/^#([0-9A-Fa-f]{3})$/', $candidate, $matches)) {
+      $candidate = sprintf('#%1$s%1$s%2$s%2$s%3$s%3$s', $matches[1][0], $matches[1][1], $matches[1][2]);
+    }
+
+    if (! preg_match('/^#[0-9A-Fa-f]{6}$/', $candidate)) {
+      $candidate = $fallbackValue;
+      if ($candidate !== '' && $candidate[0] !== '#') {
+        $candidate = '#' . $candidate;
+      }
+      if (preg_match('/^#([0-9A-Fa-f]{3})$/', $candidate, $matches)) {
+        $candidate = sprintf('#%1$s%1$s%2$s%2$s%3$s%3$s', $matches[1][0], $matches[1][1], $matches[1][2]);
+      }
+    }
+
+    return strtoupper($candidate);
+  };
+
+  $themeFieldConfig = [
+    'primary' => [
+      'name'    => 'theme_primary_color',
+      'label'   => 'Warna Utama',
+      'helper'  => 'Dipakai untuk tombol primer, tautan aktif, dan elemen sorotan utama.',
+      'value'   => $normalizeThemeValue(old('theme_primary_color'), $themeSettings['primary'] ?? ($themeDefaults['primary'] ?? '#05A5A8')),
+      'default' => $normalizeThemeValue($themeDefaults['primary'] ?? '#05A5A8', '#05A5A8'),
+    ],
+    'accent' => [
+      'name'    => 'theme_accent_color',
+      'label'   => 'Warna Aksen',
+      'helper'  => 'Digunakan untuk badge, ikon aksen, serta elemen interaktif sekunder.',
+      'value'   => $normalizeThemeValue(old('theme_accent_color'), $themeSettings['accent'] ?? ($themeDefaults['accent'] ?? '#03C3EC')),
+      'default' => $normalizeThemeValue($themeDefaults['accent'] ?? '#03C3EC', '#03C3EC'),
+    ],
+    'surface' => [
+      'name'    => 'theme_surface_color',
+      'label'   => 'Warna Latar Permukaan',
+      'helper'  => 'Menentukan warna latar belakang halaman dan kartu permukaan.',
+      'value'   => $normalizeThemeValue(old('theme_surface_color'), $themeSettings['surface'] ?? ($themeDefaults['surface'] ?? '#F5F5F9')),
+      'default' => $normalizeThemeValue($themeDefaults['surface'] ?? '#F5F5F9', '#F5F5F9'),
+    ],
+    'neutral' => [
+      'name'    => 'theme_neutral_color',
+      'label'   => 'Warna Teks Utama',
+      'helper'  => 'Menjadi warna utama untuk teks dan judul agar tetap kontras.',
+      'value'   => $normalizeThemeValue(old('theme_neutral_color'), $themeSettings['neutral'] ?? ($themeDefaults['neutral'] ?? '#22303E')),
+      'default' => $normalizeThemeValue($themeDefaults['neutral'] ?? '#22303E', '#22303E'),
+    ],
+  ];
 ?>
 <?= $this->extend('layouts/admin') ?>
 <?= $this->section('pageStyles') ?>
   <link rel="stylesheet" href="<?= base_url('assets/vendor/cropperjs/cropper.min.css') ?>">
   <link rel="stylesheet" href="<?= base_url('assets/vendor/leaflet/leaflet.css') ?>">
   <link rel="stylesheet" href="<?= base_url('assets/css/admin/profile-map.css') ?>">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css">
+  <link rel="stylesheet" href="<?= base_url('assets/css/admin/profile-theme.css') ?>">
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
 
@@ -60,6 +128,9 @@
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="tab-kontak-tab" data-bs-toggle="tab" data-bs-target="#tab-kontak" type="button" role="tab" aria-controls="tab-kontak" aria-selected="false">Kontak & Lokasi</button>
             </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-theme-tab" data-bs-toggle="tab" data-bs-target="#tab-theme" type="button" role="tab" aria-controls="tab-theme" aria-selected="false">Tampilan & Warna</button>
+            </li>
           </ul>
 
           <div class="tab-content border border-top-0 p-3">
@@ -107,7 +178,7 @@
                   <?php if ($validation && $validation->hasError('logo_public')): ?>
                     <div class="form-text text-danger"><?= esc($validation->getError('logo_public')) ?></div>
                   <?php else: ?>
-                    <div class="form-text text-muted">Gunakan logo berkualitas; sisi terpanjang maksimal 512 piksel dan sisi terpendek minimal ±96 piksel. Rasio akan dipertahankan otomatis.</div>
+                    <div class="form-text text-muted">Gunakan logo berkualitas; sisi terpanjang maksimal 512 piksel dan sisi terpendek minimal Â±96 piksel. Rasio akan dipertahankan otomatis.</div>
                   <?php endif; ?>
                   <div class="form-text text-muted">Format yang didukung: JPG, PNG, WEBP, GIF (maksimal 3 MB).</div>
                   <div class="form-check mt-2">
@@ -247,6 +318,94 @@
                 </div>
               </div>
             </div>
+
+            <div class="tab-pane fade" id="tab-theme" role="tabpanel" aria-labelledby="tab-theme-tab">
+              <div class="row g-4">
+                <div class="col-12 col-xl-7">
+                  <input type="hidden" name="theme_reset" value="<?= esc(old('theme_reset', '0')) ?>" data-theme-reset-flag>
+                  <div class="d-grid gap-4 theme-color-grid" data-theme-config>
+                    <?php foreach ($themeFieldConfig as $key => $config): ?>
+                      <div class="card border-0 shadow-sm theme-color-card" data-theme-item="<?= esc($key) ?>" data-default-color="<?= esc($config['default']) ?>">
+                        <div class="card-body d-flex flex-column gap-3">
+                          <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                            <div>
+                              <h6 class="fw-semibold mb-1"><?= esc($config['label']) ?></h6>
+                              <p class="text-muted small mb-0"><?= esc($config['helper']) ?></p>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary theme-color-default" data-theme-default-trigger="<?= esc($key) ?>">
+                              <i class="bx bx-reset me-1" aria-hidden="true"></i><span>Default</span>
+                            </button>
+                          </div>
+                          <div class="d-flex flex-wrap align-items-center gap-3">
+                            <span class="theme-color-swatch rounded-3" data-theme-swatch="<?= esc($key) ?>" style="background-color: <?= esc($config['value']) ?>;" aria-hidden="true"></span>
+                            <div class="flex-grow-1">
+                              <label for="field-<?= esc($config['name']) ?>" class="visually-hidden"><?= esc($config['label']) ?></label>
+                              <input
+                                type="text"
+                                class="form-control theme-color-input"
+                                id="field-<?= esc($config['name']) ?>"
+                                name="<?= esc($config['name']) ?>"
+                                value="<?= esc($config['value']) ?>"
+                                inputmode="text"
+                                pattern="^#?[0-9A-Fa-f]{6}$"
+                                placeholder="<?= esc($config['default']) ?>"
+                                data-theme-input="<?= esc($key) ?>"
+                                autocomplete="off"
+                                spellcheck="false"
+                              >
+                            </div>
+                            <div class="theme-color-picker" data-theme-picker="<?= esc($key) ?>"></div>
+                          </div>
+                          <?php if ($validation && $validation->hasError($config['name'])): ?>
+                            <div class="form-text text-danger"><?= esc($validation->getError($config['name'])) ?></div>
+                          <?php else: ?>
+                            <div class="form-text text-muted">Masukkan kode warna HEX enam digit, contoh <?= esc($config['default']) ?>.</div>
+                          <?php endif; ?>
+                        </div>
+                      </div>
+                    <?php endforeach; ?>
+                  </div>
+                  <div class="d-flex flex-wrap gap-2 mt-3">
+                    <button type="button" class="btn btn-outline-secondary btn-sm theme-reset-all" data-theme-reset-all>
+                      <i class="bx bx-undo me-1" aria-hidden="true"></i>Gunakan Tema Default
+                    </button>
+                  </div>
+                  <p class="text-muted small mt-3 mb-0">
+                    <i class="bx bx-info-circle me-1" aria-hidden="true"></i>
+                    Perubahan warna akan berlaku untuk tampilan admin dan publik. Pastikan kontras tetap nyaman dibaca.
+                  </p>
+                </div>
+                <div class="col-12 col-xl-5">
+                  <div class="card border-0 shadow-sm theme-preview-card" data-theme-preview>
+                    <div class="card-body">
+                      <div class="theme-preview-hero mb-3 rounded-4 p-4 text-white" data-theme-preview-hero>
+                        <span class="text-uppercase small fw-semibold opacity-75 d-block mb-2">Pratinjau</span>
+                        <h5 class="fw-bold mb-2">Judul Halaman</h5>
+                        <p class="mb-3 text-white-50 small">Contoh hero dengan warna utama saat diterapkan.</p>
+                        <div class="d-flex flex-wrap gap-2">
+                          <button type="button" class="btn btn-light btn-sm fw-semibold" data-theme-preview-hero-cta>Mulai</button>
+                          <button type="button" class="btn btn-outline-light btn-sm fw-semibold" data-theme-preview-hero-outline>Pelajari</button>
+                        </div>
+                      </div>
+                      <div class="theme-preview-surface rounded-4 p-3" data-theme-preview-surface>
+                        <div class="d-flex align-items-start gap-3 mb-3">
+                          <div class="theme-preview-badge rounded-circle flex-shrink-0" data-theme-preview-accent></div>
+                          <div class="flex-grow-1">
+                            <h6 class="fw-semibold mb-1" data-theme-preview-heading>Judul Kartu</h6>
+                            <p class="mb-0 small" data-theme-preview-text>Contoh teks isi untuk melihat keterbacaan warna netral.</p>
+                          </div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                          <button type="button" class="btn btn-primary btn-sm" disabled data-theme-preview-button-primary>Utama</button>
+                          <button type="button" class="btn btn-outline-primary btn-sm" disabled data-theme-preview-button-outline>Sorotan</button>
+                          <button type="button" class="btn btn-outline-secondary btn-sm" disabled data-theme-preview-button-muted>Latar</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div> 
 
           <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4">
@@ -292,6 +451,8 @@
   <script src="<?= base_url('assets/vendor/leaflet/leaflet.js') ?>" defer></script>
   <script src="<?= base_url('assets/js/admin/profile-map.js') ?>" defer></script>
   <script src="<?= base_url('assets/js/admin/profile-logos.js') ?>" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js" defer></script>
+  <script src="<?= base_url('assets/js/admin/profile-theme.js') ?>" defer></script>
 <?= $this->endSection() ?>
 
 
