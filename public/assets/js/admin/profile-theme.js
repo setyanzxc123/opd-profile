@@ -16,6 +16,16 @@
 
     const controllers = new Map();
     const defaultColors = {};
+    let recommendationButtons = [];
+
+    const clearRecommendationSelection = function () {
+      if (!recommendationButtons.length) {
+        return;
+      }
+      recommendationButtons.forEach(function (button) {
+        button.classList.remove('is-selected');
+      });
+    };
 
     const previewElements = previewCard
       ? {
@@ -106,6 +116,10 @@
       return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
     };
 
+    const deriveAccent = function (primary) {
+      return lighten(primary, 0.35);
+    };
+
     const readCurrentColor = function (key) {
       const controller = controllers.get(key);
       if (!controller) {
@@ -121,7 +135,7 @@
       }
 
       const primary = readCurrentColor('primary');
-      const accent = readCurrentColor('accent');
+      const accent = controllers.has('accent') ? readCurrentColor('accent') : deriveAccent(primary);
       const surface = readCurrentColor('surface');
       const neutral = readCurrentColor('neutral');
 
@@ -163,7 +177,7 @@
       }
 
       if (previewElements.heading) {
-        previewElements.heading.style.color = neutral;
+        previewElements.heading.style.color = primary;
       }
 
       if (previewElements.text) {
@@ -195,14 +209,14 @@
       const settings = options || {};
       const normalized = normalizeColor(value, controller.defaultColor);
 
+      if (!settings.preserveRecommendation) {
+        clearRecommendationSelection();
+      }
+
       controller.color = normalized;
 
       if (controller.input && controller.input.value !== normalized) {
         controller.input.value = normalized;
-      }
-
-      if (controller.swatch) {
-        controller.swatch.style.backgroundColor = normalized;
       }
 
       if (controller.pickr && !settings.skipPickr) {
@@ -230,7 +244,6 @@
       defaultColors[key] = defaultColor;
 
       const input = item.querySelector('[data-theme-input="' + key + '"]');
-      const swatch = item.querySelector('[data-theme-swatch="' + key + '"]');
       const pickerEl = item.querySelector('[data-theme-picker="' + key + '"]');
       const defaultTrigger = item.querySelector('[data-theme-default-trigger="' + key + '"]');
 
@@ -239,7 +252,6 @@
       const controller = {
         key: key,
         input: input,
-        swatch: swatch,
         pickerEl: pickerEl,
         defaultColor: defaultColor,
         color: initialValue,
@@ -261,16 +273,6 @@
         });
       }
 
-      if (swatch) {
-        swatch.style.backgroundColor = initialValue;
-        swatch.style.cursor = 'pointer';
-        swatch.addEventListener('click', function () {
-          if (controller.pickr) {
-            controller.pickr.show();
-          }
-        });
-      }
-
       if (defaultTrigger) {
         defaultTrigger.addEventListener('click', function () {
           setColor(key, controller.defaultColor);
@@ -283,7 +285,26 @@
       }
 
       if (pickerEl && pickrAvailable) {
-        const recommendedSwatches = [controller.defaultColor, '#0EA5E9', '#22C55E', '#F97316', '#EF4444', '#0F172A', '#F5F5F9'];
+        const recommendedSwatches = [
+          controller.defaultColor,
+          '#0EA5E9',
+          '#38BDF8',
+          '#2563EB',
+          '#6366F1',
+          '#A855F7',
+          '#22C55E',
+          '#10B981',
+          '#FACC15',
+          '#F97316',
+          '#EF4444',
+          '#E11D48',
+          '#93370D',
+          '#1E293B',
+          '#0F172A',
+          '#64748B',
+          '#E2E8F0',
+          '#F5F5F9'
+        ];
         const swatches = recommendedSwatches.filter(function (color, index, arr) {
           return arr.indexOf(color) === index;
         });
@@ -331,12 +352,48 @@
       }
     });
 
+    recommendationButtons = Array.from(document.querySelectorAll('[data-theme-recommendation]'));
+    if (recommendationButtons.length) {
+      recommendationButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+          const payload = button.getAttribute('data-theme-recommendation');
+          if (!payload) {
+            return;
+          }
+
+          let recommendation;
+          try {
+            recommendation = JSON.parse(payload);
+          } catch (error) {
+            console.warn('Gagal membaca rekomendasi tema:', error);
+            return;
+          }
+
+          Object.entries(recommendation).forEach(function (entry) {
+            const key = entry[0];
+            const value = entry[1];
+            if (!controllers.has(key)) {
+              return;
+            }
+            setColor(key, value, { skipPickr: false, silent: true, preserveRecommendation: true });
+          });
+
+          clearRecommendationSelection();
+          button.classList.add('is-selected');
+          updatePreview();
+          markResetFlag(false);
+          button.blur();
+        });
+      });
+    }
+
     const resetAllButton = document.querySelector('[data-theme-reset-all]');
     if (resetAllButton) {
       resetAllButton.addEventListener('click', function () {
         controllers.forEach(function (controller) {
           setColor(controller.key, controller.defaultColor, { skipPickr: false, silent: true });
         });
+        clearRecommendationSelection();
         updatePreview();
         markResetFlag(true);
       });
