@@ -9,79 +9,6 @@
     'neutral' => '#22303E',
     'surface' => '#F5F5F9',
   ];
-  $themeRecommendations = [
-    'solid' => [
-      [
-        'label'   => 'Azure Bold',
-        'primary' => '#1D4ED8',
-        'surface' => '#E8F1FF',
-        'neutral' => '#0F172A',
-      ],
-      [
-        'label'   => 'Emerald Focus',
-        'primary' => '#047857',
-        'surface' => '#ECFDF5',
-        'neutral' => '#064E3B',
-      ],
-      [
-        'label'   => 'Crimson Pulse',
-        'primary' => '#DC2626',
-        'surface' => '#FEF2F2',
-        'neutral' => '#111827',
-      ],
-    ],
-    'soft' => [
-      [
-        'label'   => 'Mist Blue',
-        'primary' => '#4C6EF5',
-        'surface' => '#F5F7FF',
-        'neutral' => '#1B254B',
-      ],
-      [
-        'label'   => 'Blush Calm',
-        'primary' => '#F973A1',
-        'surface' => '#FFF5F8',
-        'neutral' => '#422B3A',
-      ],
-      [
-        'label'   => 'Citrus Breeze',
-        'primary' => '#F59E0B',
-        'surface' => '#FFF8EB',
-        'neutral' => '#3B3030',
-      ],
-    ],
-    'daisyui' => [
-      [
-        'label'   => 'DaisyUI Light',
-        'primary' => '#570DF8',
-        'surface' => '#F9FAFB',
-        'neutral' => '#3D4451',
-      ],
-      [
-        'label'   => 'DaisyUI Cupcake',
-        'primary' => '#65C3C8',
-        'surface' => '#F5F5F5',
-        'neutral' => '#291334',
-      ],
-      [
-        'label'   => 'DaisyUI Emerald',
-        'primary' => '#66CC8A',
-        'surface' => '#F3F4F6',
-        'neutral' => '#1F2937',
-      ],
-      [
-        'label'   => 'DaisyUI Corporate',
-        'primary' => '#4B6BFB',
-        'surface' => '#F2F5FF',
-        'neutral' => '#1C1E24',
-      ],
-    ],
-  ];
-  $themeRecommendationLabels = [
-    'solid'   => 'Rekomendasi Warna Solid',
-    'soft'    => 'Rekomendasi Warna Soft',
-    'daisyui' => 'Palet DaisyUI',
-  ];
   $normalizeThemeValue = static function ($value, string $fallback) {
     $candidate = is_string($value) ? trim($value) : '';
     $fallbackValue = trim($fallback) !== '' ? $fallback : '#05A5A8';
@@ -434,46 +361,6 @@
                     <i class="bx bx-undo me-1" aria-hidden="true"></i>Gunakan Tema Default
                   </button>
                 </div>
-                <?php if ($themeRecommendations !== []): ?>
-                  <div class="theme-recommendations mt-4">
-                    <?php foreach ($themeRecommendations as $groupName => $palettes): ?>
-                      <?php if ($palettes === []) { continue; } ?>
-                      <div class="theme-recommendation-group">
-                        <?php
-                          $groupLabel = $themeRecommendationLabels[$groupName] ?? ('Palet ' . ucfirst($groupName));
-                        ?>
-                        <h6 class="fw-semibold small text-uppercase text-muted mb-2">
-                          <?= esc($groupLabel) ?>
-                        </h6>
-                        <div class="theme-recommendation-list" role="list">
-                          <?php foreach ($palettes as $palette): ?>
-                            <?php
-                              $payload = json_encode([
-                                'primary' => strtoupper($palette['primary']),
-                                'surface' => strtoupper($palette['surface']),
-                                'neutral' => strtoupper($palette['neutral']),
-                              ], JSON_THROW_ON_ERROR);
-                            ?>
-                            <button
-                              type="button"
-                              class="theme-recommendation-item"
-                              role="listitem"
-                              data-theme-recommendation="<?= esc($payload, 'attr') ?>"
-                              aria-label="Gunakan palet <?= esc($palette['label']) ?>"
-                            >
-                              <span class="theme-recommendation-swatches" aria-hidden="true">
-                                <span class="theme-recommendation-swatch" style="background-color: <?= esc(strtoupper($palette['primary'])) ?>" data-theme-recommendation-color="primary"></span>
-                                <span class="theme-recommendation-swatch" style="background-color: <?= esc(strtoupper($palette['surface'])) ?>" data-theme-recommendation-color="surface"></span>
-                                <span class="theme-recommendation-swatch" style="background-color: <?= esc(strtoupper($palette['neutral'])) ?>" data-theme-recommendation-color="neutral"></span>
-                              </span>
-                              <span class="theme-recommendation-label"><?= esc($palette['label']) ?></span>
-                            </button>
-                          <?php endforeach; ?>
-                        </div>
-                      </div>
-                    <?php endforeach; ?>
-                  </div>
-                <?php endif; ?>
                 <p class="text-muted small mt-3 mb-0">
                   <i class="bx bx-info-circle me-1" aria-hidden="true"></i>
                   Perubahan warna akan berlaku untuk tampilan admin dan publik. Pastikan kontras tetap nyaman dibaca.

@@ -6,7 +6,6 @@ class ThemeStyleService
 {
     public const DEFAULT_THEME = [
         'primary' => '#05A5A8',
-        'accent'  => '#03C3EC',
         'neutral' => '#22303E',
         'surface' => '#F5F5F9',
     ];
@@ -31,9 +30,9 @@ class ThemeStyleService
     public static function compilePublicVariables(array $theme): array
     {
         $primary = self::normalizeHex($theme['primary'] ?? null, self::DEFAULT_THEME['primary']);
-        $accent  = self::normalizeHex($theme['accent'] ?? null, self::DEFAULT_THEME['accent']);
         $neutral = self::normalizeHex($theme['neutral'] ?? null, self::DEFAULT_THEME['neutral']);
         $surface = self::normalizeHex($theme['surface'] ?? null, self::DEFAULT_THEME['surface']);
+        $accent  = self::deriveAccent($primary);
 
         $primaryRgb = self::toRgbString($primary);
         $neutralRgb = self::toRgbString($neutral);
@@ -144,6 +143,11 @@ class ThemeStyleService
         }
 
         return sprintf('%s { %s }', $selector, implode(' ', $lines));
+    }
+
+    private static function deriveAccent(string $primary): string
+    {
+        return self::mix($primary, '#FFFFFF', 0.35);
     }
 
     private static function decode($raw): array

@@ -68,7 +68,6 @@ class Profile extends BaseController
             'map_display' => 'permit_empty|in_list[0,1]',
             'logo_public' => 'permit_empty|max_size[logo_public,3072]|is_image[logo_public]|ext_in[logo_public,jpg,jpeg,png,webp,gif]|mime_in[logo_public,image/jpeg,image/jpg,image/png,image/webp,image/gif]',
             'theme_primary_color' => 'permit_empty|regex_match[/^#?(?:[0-9A-Fa-f]{3}){1,2}$/]',
-            'theme_accent_color'  => 'permit_empty|regex_match[/^#?(?:[0-9A-Fa-f]{3}){1,2}$/]',
             'theme_surface_color' => 'permit_empty|regex_match[/^#?(?:[0-9A-Fa-f]{3}){1,2}$/]',
             'theme_neutral_color' => 'permit_empty|regex_match[/^#?(?:[0-9A-Fa-f]{3}){1,2}$/]',
         ];
@@ -113,7 +112,6 @@ class Profile extends BaseController
         $currentTheme = $this->mergeThemeSettings($currentProfile['theme_settings'] ?? null);
         $incomingTheme = [
             'primary' => $this->normalizeHexColor($this->request->getPost('theme_primary_color')),
-            'accent'  => $this->normalizeHexColor($this->request->getPost('theme_accent_color')),
             'surface' => $this->normalizeHexColor($this->request->getPost('theme_surface_color')),
             'neutral' => $this->normalizeHexColor($this->request->getPost('theme_neutral_color')),
         ];

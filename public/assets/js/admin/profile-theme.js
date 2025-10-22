@@ -16,16 +16,6 @@
 
     const controllers = new Map();
     const defaultColors = {};
-    let recommendationButtons = [];
-
-    const clearRecommendationSelection = function () {
-      if (!recommendationButtons.length) {
-        return;
-      }
-      recommendationButtons.forEach(function (button) {
-        button.classList.remove('is-selected');
-      });
-    };
 
     const previewElements = previewCard
       ? {
@@ -209,10 +199,6 @@
       const settings = options || {};
       const normalized = normalizeColor(value, controller.defaultColor);
 
-      if (!settings.preserveRecommendation) {
-        clearRecommendationSelection();
-      }
-
       controller.color = normalized;
 
       if (controller.input && controller.input.value !== normalized) {
@@ -290,19 +276,30 @@
           '#0EA5E9',
           '#38BDF8',
           '#2563EB',
+          '#1D4ED8',
           '#6366F1',
           '#A855F7',
+          '#C084FC',
           '#22C55E',
           '#10B981',
+          '#14B8A6',
           '#FACC15',
+          '#FBBF24',
           '#F97316',
+          '#FB7185',
           '#EF4444',
           '#E11D48',
+          '#BE123C',
           '#93370D',
+          '#78350F',
           '#1E293B',
           '#0F172A',
+          '#334155',
+          '#475569',
           '#64748B',
+          '#CBD5F5',
           '#E2E8F0',
+          '#F1F5F9',
           '#F5F5F9'
         ];
         const swatches = recommendedSwatches.filter(function (color, index, arr) {
@@ -352,48 +349,12 @@
       }
     });
 
-    recommendationButtons = Array.from(document.querySelectorAll('[data-theme-recommendation]'));
-    if (recommendationButtons.length) {
-      recommendationButtons.forEach(function (button) {
-        button.addEventListener('click', function () {
-          const payload = button.getAttribute('data-theme-recommendation');
-          if (!payload) {
-            return;
-          }
-
-          let recommendation;
-          try {
-            recommendation = JSON.parse(payload);
-          } catch (error) {
-            console.warn('Gagal membaca rekomendasi tema:', error);
-            return;
-          }
-
-          Object.entries(recommendation).forEach(function (entry) {
-            const key = entry[0];
-            const value = entry[1];
-            if (!controllers.has(key)) {
-              return;
-            }
-            setColor(key, value, { skipPickr: false, silent: true, preserveRecommendation: true });
-          });
-
-          clearRecommendationSelection();
-          button.classList.add('is-selected');
-          updatePreview();
-          markResetFlag(false);
-          button.blur();
-        });
-      });
-    }
-
     const resetAllButton = document.querySelector('[data-theme-reset-all]');
     if (resetAllButton) {
       resetAllButton.addEventListener('click', function () {
         controllers.forEach(function (controller) {
           setColor(controller.key, controller.defaultColor, { skipPickr: false, silent: true });
         });
-        clearRecommendationSelection();
         updatePreview();
         markResetFlag(true);
       });
