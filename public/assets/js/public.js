@@ -296,6 +296,120 @@
     });
   };
 
+  const initNavbarScroll = () => {
+    const navbar = document.querySelector('.public-navbar');
+    if (!navbar) {
+      return;
+    }
+
+    const topBar = navbar.querySelector('.public-navbar-top');
+    if (!topBar) {
+      return;
+    }
+
+    const getScrollY = () => window.scrollY || window.pageYOffset || 0;
+    let isCompact = false;
+    let rafId = null;
+    let isAdjustingScroll = false;
+    const hideThreshold = 8;
+    const showThreshold = 0;
+    let lastMeasuredHeight = null;
+
+    const measureTopHeight = () => {
+      const measured = Math.round(topBar.scrollHeight);
+      if (Number.isFinite(measured) && measured > 0) {
+        lastMeasuredHeight = measured;
+        return measured;
+      }
+      return lastMeasuredHeight ?? 0;
+    };
+
+    const setTopHeight = () => {
+      const height = measureTopHeight();
+      if (isCompact || height === 0) {
+        return;
+      }
+      const currentValue = navbar.style.getPropertyValue('--public-navbar-top-height');
+      if (currentValue !== `${height}px`) {
+        navbar.style.setProperty('--public-navbar-top-height', `${height}px`);
+      }
+    };
+
+    setTopHeight();
+
+    if (typeof ResizeObserver === 'function') {
+      const observer = new ResizeObserver(() => {
+        setTopHeight();
+      });
+      observer.observe(topBar);
+    } else {
+      window.addEventListener('resize', setTopHeight);
+    }
+
+    const applyCompact = (compact, currentY) => {
+      if (compact === isCompact) {
+        return;
+      }
+
+      const topHeight = measureTopHeight();
+      isCompact = compact;
+      navbar.classList.toggle('public-navbar--compact', isCompact);
+
+      if (isCompact) {
+        if (Number.isFinite(topHeight) && topHeight > 0) {
+          const doc = document.documentElement;
+          const body = document.body;
+          const maxScroll =
+            Math.max(0, Math.max(body ? body.scrollHeight : 0, doc ? doc.scrollHeight : 0) - window.innerHeight);
+          const baseY = currentY ?? getScrollY();
+          const targetY = Math.min(baseY + topHeight, maxScroll);
+          if (targetY > baseY) {
+            isAdjustingScroll = true;
+            window.scrollTo(0, targetY);
+            if (typeof window.requestAnimationFrame === 'function') {
+              window.requestAnimationFrame(() => {
+                isAdjustingScroll = false;
+              });
+            } else {
+              isAdjustingScroll = false;
+            }
+          }
+        }
+      } else {
+        setTopHeight();
+      }
+    };
+
+    const updateState = () => {
+      if (isAdjustingScroll) {
+        return;
+      }
+      const currentY = Math.max(0, getScrollY());
+      if (currentY <= showThreshold) {
+        applyCompact(false, currentY);
+      } else if (currentY > hideThreshold) {
+        applyCompact(true, currentY);
+      }
+    };
+
+    const scheduleUpdate = () => {
+      if (typeof window.requestAnimationFrame === 'function') {
+        if (rafId !== null) {
+          return;
+        }
+        rafId = window.requestAnimationFrame(() => {
+          rafId = null;
+          updateState();
+        });
+      } else {
+        updateState();
+      }
+    };
+
+    window.addEventListener('scroll', scheduleUpdate, { passive: true });
+    updateState();
+  };
+
   const initNavSearch = () => {
     const form = document.querySelector('[data-nav-search-form]');
     if (!form) {
@@ -675,11 +789,13 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       initCarousels();
+      initNavbarScroll();
       initNavSearch();
       initContactForm();
     });
   } else {
     initCarousels();
+    initNavbarScroll();
     initNavSearch();
     initContactForm();
   }

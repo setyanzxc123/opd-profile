@@ -3,22 +3,51 @@
 
 /* Sticky navbar look */
 .public-navbar {
+  --public-navbar-top-height: 60px;
   display: block;
   backdrop-filter: none;
   padding: 0;
   background-color: transparent;
+  border-bottom: 0;
+  transition: box-shadow 0.25s ease;
+  overflow: hidden;
 }
 
 .public-navbar-top {
+  position: relative;
+  display: block;
   background-color: #ffffff;
   border-bottom: 1px solid rgba(34, 48, 62, 0.08);
   padding: 0.4rem 0;
   color: var(--public-navbar-link, var(--public-neutral-700));
+  overflow: hidden;
+  max-height: var(--public-navbar-top-height, 60px);
+}
+
+.public-navbar--compact .public-navbar-top {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  border-bottom: 0;
+  pointer-events: none;
+}
+
+.public-navbar--compact .public-navbar-bottom {
+  border-top: 0;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
 }
 
 .public-navbar-brand {
   min-height: 44px;
   gap: 0.65rem;
+}
+
+.public-navbar-brand--compact {
+  display: none;
+  align-items: center;
+  gap: 0.65rem;
+  color: inherit;
 }
 
 .public-navbar-brand-logo {
@@ -49,6 +78,18 @@
   text-transform: uppercase;
   font-weight: 600;
   color: color-mix(in sRGB, var(--public-navbar-link-hover, var(--public-primary)) 70%, #ffffff 30%);
+}
+
+.public-navbar-brand--compact .public-navbar-brand-tagline {
+  display: none;
+}
+
+.public-navbar--compact .public-navbar-brand--compact {
+  display: inline-flex;
+}
+
+.public-navbar--compact .public-navbar-brand--compact .public-navbar-brand-name {
+  font-size: clamp(1rem, 1.7vw, 1.15rem);
 }
 
 .public-navbar-meta {
@@ -118,7 +159,9 @@
   background-color: var(--public-primary, #0b3c73);
   color: var(--public-navbar-link-contrast, #ffffff);
   box-shadow: var(--public-navbar-shadow, none);
-  border-top: 1px solid color-mix(in sRGB, currentColor 12%, transparent);
+  border-top: 0;
+  position: relative;
+  overflow: hidden;
 }
 
 .public-navbar-bottom-inner {
@@ -127,6 +170,10 @@
   justify-content: space-between;
   gap: 1.1rem;
   min-height: 46px;
+}
+
+.public-navbar--compact .public-navbar-bottom-inner {
+  min-height: 44px;
 }
 
 .public-navbar-links {
@@ -195,6 +242,18 @@
   box-shadow: none;
   outline: 2px solid color-mix(in sRGB, var(--public-navbar-link-contrast, #ffffff) 65%, transparent);
   outline-offset: 3px;
+}
+
+.public-body #konten-utama > *:first-child {
+  margin-top: 0;
+}
+
+.public-body #konten-utama > .public-section:first-of-type {
+  padding-top: clamp(1.35rem, 4vw, 2.5rem);
+}
+
+.public-body #konten-utama > .public-section:first-of-type .container {
+  padding-top: clamp(1.35rem, 4vw, 2.5rem) !important;
 }
 
 .public-navbar .brand-circle {
@@ -375,7 +434,7 @@
 
 @media (min-width: 992px) {
   .public-navbar-bottom {
-    border-top: 1px solid color-mix(in sRGB, var(--public-navbar-link-contrast, #ffffff) 12%, transparent);
+    border-top: 0;
   }
 
   .public-navbar-bottom-inner {
