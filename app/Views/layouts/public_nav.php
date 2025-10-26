@@ -109,7 +109,7 @@
               </svg>
             </span>
           </div>
-          <div class="public-search-results" id="navSearchResults" role="listbox" aria-label="Hasil pencarian berita" aria-live="polite" aria-relevant="additions" hidden data-nav-search-results></div>
+          <div class="public-search-results" id="navSearchResults" aria-label="Hasil pencarian berita" aria-live="polite" aria-relevant="additions" hidden data-nav-search-results></div>
         </form>
       </div>
     </div>

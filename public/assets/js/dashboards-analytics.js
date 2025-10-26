@@ -5,6 +5,7 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', function (e) {
+  const prefersReduced = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let cardColor, headingColor, legendColor, labelColor, shadeColor, borderColor, fontFamily;
   cardColor = config.colors.cardColor;
   headingColor = config.colors.headingColor;
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
       chart: {
         height: 80,
         type: 'area',
+        animations: { enabled: !prefersReduced },
         toolbar: {
           show: false
         },
@@ -101,7 +103,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
         show: false
       }
     };
-  if (typeof orderAreaChartEl !== undefined && orderAreaChartEl !== null) {
+  if (orderAreaChartEl) {
+    orderAreaChartEl.setAttribute('aria-hidden', 'true');
     const orderAreaChart = new ApexCharts(orderAreaChartEl, orderAreaChartConfig);
     orderAreaChart.render();
   }
@@ -124,6 +127,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         height: 300,
         stacked: true,
         type: 'bar',
+        animations: { enabled: !prefersReduced },
         toolbar: { show: false }
       },
       plotOptions: {
@@ -341,7 +345,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
         }
       }
     };
-  if (typeof totalRevenueChartEl !== undefined && totalRevenueChartEl !== null) {
+  if (totalRevenueChartEl) {
+    totalRevenueChartEl.setAttribute('aria-hidden', 'true');
     const totalRevenueChart = new ApexCharts(totalRevenueChartEl, totalRevenueChartOptions);
     totalRevenueChart.render();
   }
@@ -354,7 +359,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
       labels: ['Growth'],
       chart: {
         height: 200,
-        type: 'radialBar'
+        type: 'radialBar',
+        animations: { enabled: !prefersReduced }
       },
       plotOptions: {
         radialBar: {
@@ -422,7 +428,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
         }
       }
     };
-  if (typeof growthChartEl !== undefined && growthChartEl !== null) {
+  if (growthChartEl) {
+    growthChartEl.setAttribute('aria-hidden', 'true');
     const growthChart = new ApexCharts(growthChartEl, growthChartOptions);
     growthChart.render();
   }
@@ -434,6 +441,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
       chart: {
         height: 95,
         type: 'bar',
+        animations: { enabled: !prefersReduced },
         toolbar: {
           show: false
         }
@@ -498,7 +506,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
         }
       }
     };
-  if (typeof revenueBarChartEl !== undefined && revenueBarChartEl !== null) {
+  if (revenueBarChartEl) {
+    revenueBarChartEl.setAttribute('aria-hidden', 'true');
     const revenueBarChart = new ApexCharts(revenueBarChartEl, revenueBarChartConfig);
     revenueBarChart.render();
   }
@@ -511,6 +520,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         height: 75,
         width: 240,
         type: 'line',
+        animations: { enabled: !prefersReduced },
         toolbar: {
           show: false
         },
@@ -603,7 +613,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
         }
       ]
     };
-  if (typeof profileReportChartEl !== undefined && profileReportChartEl !== null) {
+  if (profileReportChartEl) {
+    profileReportChartEl.setAttribute('aria-hidden', 'true');
     const profileReportChart = new ApexCharts(profileReportChartEl, profileReportChartConfig);
     profileReportChart.render();
   }
@@ -683,7 +694,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
         }
       }
     };
-  if (typeof chartOrderStatistics !== undefined && chartOrderStatistics !== null) {
+  if (chartOrderStatistics) {
+    chartOrderStatistics.setAttribute('aria-hidden', 'true');
     const statisticsChart = new ApexCharts(chartOrderStatistics, orderChartConfig);
     statisticsChart.render();
   }
@@ -701,6 +713,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         height: 200,
         parentHeightOffset: 0,
         parentWidthOffset: 0,
+        animations: { enabled: !prefersReduced },
         toolbar: {
           show: false
         },
@@ -783,7 +796,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
         tickAmount: 4
       }
     };
-  if (typeof incomeChartEl !== undefined && incomeChartEl !== null) {
+  if (incomeChartEl) {
+    incomeChartEl.setAttribute('aria-hidden', 'true');
     const incomeChart = new ApexCharts(incomeChartEl, incomeChartConfig);
     incomeChart.render();
   }
@@ -796,7 +810,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
       chart: {
         width: 60,
         height: 60,
-        type: 'radialBar'
+        type: 'radialBar',
+        animations: { enabled: !prefersReduced }
       },
       plotOptions: {
         radialBar: {
@@ -856,7 +871,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
         }
       }
     };
-  if (typeof weeklyExpensesEl !== undefined && weeklyExpensesEl !== null) {
+  if (weeklyExpensesEl) {
+    weeklyExpensesEl.setAttribute('aria-hidden', 'true');
     const weeklyExpenses = new ApexCharts(weeklyExpensesEl, weeklyExpensesConfig);
     weeklyExpenses.render();
   }

@@ -36,6 +36,7 @@
   };
 
   // Carousel: minimal next/prev/dots + optional auto-advance
+  const carouselsRegistry = [];
   const initCarousels = () => {
     const carousels = document.querySelectorAll('[data-carousel]');
     if (!carousels.length) return;
@@ -93,6 +94,7 @@
       if (toggleBtn) toggleBtn.addEventListener('click', () => paused ? resume() : pause());
 
       resume();
+      carouselsRegistry.push({ pause, resume });
     });
   };
 
@@ -133,7 +135,6 @@
       if (!list.length) {
         const empty = document.createElement('div');
         empty.className = 'public-search-result public-search-result--empty';
-        empty.setAttribute('role', 'option');
         empty.textContent = `Tidak ada hasil untuk "${q}".`;
         frag.appendChild(empty);
       } else {
@@ -141,7 +142,6 @@
           if (!item || !item.url) return;
           const a = document.createElement('a');
           a.className = 'public-search-result public-search-result--link';
-          a.setAttribute('role', 'option');
           a.href = allowUrl(item.url);
 
           const title = document.createElement('span');
@@ -268,4 +268,15 @@
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready);
   else ready();
+
+  // Pause/resume carousels when tab visibility changes
+  if (typeof document.addEventListener === 'function') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        carouselsRegistry.forEach(c => { try { c.pause(); } catch (_) {} });
+      } else {
+        carouselsRegistry.forEach(c => { try { c.resume(); } catch (_) {} });
+      }
+    });
+  }
 })();
