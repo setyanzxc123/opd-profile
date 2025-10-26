@@ -21,6 +21,23 @@
     const topBar = navbar ? navbar.querySelector('.public-navbar-top') : null;
     if (!navbar || !topBar) return;
 
+    if (typeof window.Headroom === 'function') {
+      const headroom = new window.Headroom(navbar, {
+        offset: 0,
+        tolerance: { up: 8, down: 0 },
+        onTop: () => {
+          requestAnimationFrame(() => {
+            if ((window.scrollY || window.pageYOffset || 0) <= 0) {
+              navbar.classList.remove('public-navbar--compact');
+            }
+          });
+        },
+        onNotTop: () => navbar.classList.add('public-navbar--compact')
+      });
+      headroom.init();
+      return;
+    }
+
     let compact = false;
     const threshold = 8;
     const onScroll = () => {
