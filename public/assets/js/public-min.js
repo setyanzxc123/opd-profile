@@ -1,7 +1,6 @@
 (() => {
   'use strict';
 
-  const toArray = (v) => Array.prototype.slice.call(v || []);
   const debounce = (fn, delay = 300) => {
     let id = null;
     const d = (...args) => {
@@ -52,67 +51,96 @@
     onScroll();
   };
 
-  // Carousel: minimal next/prev/dots + optional auto-advance
-  const carouselsRegistry = [];
-  const initCarousels = () => {
-    const carousels = document.querySelectorAll('[data-carousel]');
-    if (!carousels.length) return;
+  // Hero slider: Swiper-based with graceful fallback
+  const heroSwiperRegistry = [];
+  const initHeroSwiper = () => {
+    const slider = document.querySelector('[data-hero-swiper]');
+    if (!slider) return;
 
+    const slideCount = slider.querySelectorAll('[data-hero-slide]').length;
+    if (!slideCount) return;
+
+    const interval = Number(slider.getAttribute('data-autoplay-interval')) || 6500;
     const reduce = prefersReducedMotion();
+    const prevEl = slider.querySelector('.swiper-button-prev');
+    const nextEl = slider.querySelector('.swiper-button-next');
+    const paginationEl = slider.querySelector('.swiper-pagination');
 
-    carousels.forEach((carousel) => {
-      const slides = toArray(carousel.querySelectorAll('[data-carousel-slide]'));
-      if (!slides.length) return;
+    const applyAria = (sw) => {
+      if (!sw || !sw.slides || typeof sw.slides.forEach !== 'function') return;
+      sw.slides.forEach((slide) => {
+        if (!slide || !slide.hasAttribute('data-hero-slide')) return;
+        const isDuplicate = slide.classList.contains('swiper-slide-duplicate');
+        if (isDuplicate) {
+          slide.setAttribute('aria-hidden', 'true');
+          return;
+        }
+        const active = slide.classList.contains('swiper-slide-active');
+        slide.setAttribute('aria-hidden', active ? 'false' : 'true');
+      });
+    };
 
-      const dots = toArray(carousel.querySelectorAll('[data-carousel-dot]'));
-      const prevBtn = carousel.querySelector('[data-carousel-prev]');
-      const nextBtn = carousel.querySelector('[data-carousel-next]');
-      const toggleBtn = carousel.querySelector('[data-carousel-toggle]');
-      const interval = Number(carousel.getAttribute('data-carousel-interval')) || 6500;
+    const setup = () => {
+      if (typeof window.Swiper !== 'function') return false;
 
-      let index = Math.max(0, slides.findIndex(s => s.classList.contains('is-active')));
-      if (index >= slides.length) index = 0;
-      let timer = null;
-      let paused = false;
+      const swiper = new window.Swiper(slider, {
+        loop: slideCount > 1,
+        slidesPerView: 1,
+        allowTouchMove: slideCount > 1,
+        speed: reduce ? 0 : 600,
+        autoplay: !reduce && slideCount > 1
+          ? {
+              delay: interval,
+              disableOnInteraction: false,
+              pauseOnMouseEnter: true
+            }
+          : false,
+        navigation: slideCount > 1 && prevEl && nextEl ? { prevEl, nextEl } : undefined,
+        pagination: slideCount > 1 && paginationEl
+          ? {
+              el: paginationEl,
+              clickable: true
+            }
+          : undefined,
+        on: {
+          init(sw) {
+            applyAria(sw);
+          },
+          slideChange(sw) {
+            applyAria(sw);
+          }
+        }
+      });
 
-      const apply = (i) => {
-        slides.forEach((s, idx) => {
-          const active = idx === i;
-          s.classList.toggle('is-active', active);
-          s.setAttribute('aria-hidden', active ? 'false' : 'true');
-        });
-        dots.forEach((d, idx) => {
-          const active = idx === i;
-          d.classList.toggle('is-active', active);
-          d.setAttribute('aria-pressed', active ? 'true' : 'false');
-        });
-      };
-      apply(index);
+      if (swiper.autoplay) {
+        const controller = {
+          pause() {
+            if (swiper.autoplay && typeof swiper.autoplay.stop === 'function') {
+              swiper.autoplay.stop();
+            }
+          },
+          resume() {
+            if (swiper.autoplay && typeof swiper.autoplay.start === 'function') {
+              swiper.autoplay.start();
+            }
+          }
+        };
+        heroSwiperRegistry.push(controller);
+      }
 
-      const go = (i) => {
-        const next = (i + slides.length) % slides.length;
-        if (next === index) return;
-        index = next;
-        apply(index);
-      };
+      return true;
+    };
 
-      const start = () => {
-        if (reduce || paused || slides.length <= 1) return;
-        stop();
-        timer = setInterval(() => go(index + 1), interval);
-      };
-      const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
-      const pause = () => { paused = true; stop(); if (toggleBtn) { toggleBtn.setAttribute('aria-pressed', 'true'); toggleBtn.textContent = 'Putar'; } };
-      const resume = () => { paused = false; if (toggleBtn) { toggleBtn.setAttribute('aria-pressed', 'false'); toggleBtn.textContent = 'Jeda'; } start(); };
+    if (setup()) return;
 
-      if (prevBtn) prevBtn.addEventListener('click', () => { go(index - 1); start(); });
-      if (nextBtn) nextBtn.addEventListener('click', () => { go(index + 1); start(); });
-      dots.forEach((dot, i) => dot.addEventListener('click', () => { go(i); start(); dot.focus(); }));
-      if (toggleBtn) toggleBtn.addEventListener('click', () => paused ? resume() : pause());
-
-      resume();
-      carouselsRegistry.push({ pause, resume });
-    });
+    let attempts = 0;
+    const maxAttempts = 40;
+    const timer = setInterval(() => {
+      attempts += 1;
+      if (setup() || attempts >= maxAttempts) {
+        clearInterval(timer);
+      }
+    }, 120);
   };
 
   // Search: progressive enhancement with safe URL handling
@@ -279,7 +307,7 @@
 
   const ready = () => {
     initNavbar();
-    initCarousels();
+    initHeroSwiper();
     initNavSearch();
     initContactForm();
   };
@@ -290,9 +318,9 @@
   if (typeof document.addEventListener === 'function') {
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
-        carouselsRegistry.forEach(c => { try { c.pause(); } catch (_) {} });
+        heroSwiperRegistry.forEach((entry) => { try { entry.pause(); } catch (_) {} });
       } else {
-        carouselsRegistry.forEach(c => { try { c.resume(); } catch (_) {} });
+        heroSwiperRegistry.forEach((entry) => { try { entry.resume(); } catch (_) {} });
       }
     });
   }

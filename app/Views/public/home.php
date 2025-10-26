@@ -1,15 +1,25 @@
 <?= $this->extend('layouts/public') ?>
 
+<?= $this->section('pageStyles') ?>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<?= $this->endSection() ?>
+
+<?= $this->section('pageScripts') ?>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
+<?= $this->endSection() ?>
+
 <?= $this->section('content') ?>
 <div class="public-home">
   <section class="hero-section hero-shell hero-soft" id="beranda" aria-labelledby="beranda-heading">
     <div class="container public-container">
       <?php if ($hero['hasSlider']): ?>
-        <div class="hero-slider" data-carousel data-carousel-interval="6500">
-          <header class="visually-hidden" id="beranda-heading">Berita Terbaru</header>
-          <div class="hero-slides" role="list">
+        <?php $heroSlideCount = is_array($hero['slides']) ? count($hero['slides']) : 0; ?>
+        <?php $heroHasMultipleSlides = $heroSlideCount > 1; ?>
+        <header class="visually-hidden" id="beranda-heading">Berita Terbaru</header>
+        <div class="hero-slider swiper" data-hero-swiper data-autoplay-interval="6500">
+          <div class="hero-slides swiper-wrapper" role="list">
             <?php foreach ($hero['slides'] as $index => $slide): ?>
-              <article class="hero-slide hero-slide-cover<?= $slide['isActive'] ? ' is-active' : '' ?>" role="listitem" data-carousel-slide data-index="<?= $index ?>">
+              <article class="hero-slide hero-slide-cover swiper-slide" role="listitem" data-hero-slide>
                 <figure class="hero-cover-media">
                   <?php if ($slide['thumbnail']): ?>
                     <img src="<?= esc($slide['thumbnail']) ?>" alt="<?= esc($slide['title']) ?>" loading="lazy">
@@ -34,21 +44,11 @@
               </article>
             <?php endforeach; ?>
           </div>
-          <div class="hero-slider-controls">
-            <button class="hero-slide-btn prev" type="button" data-carousel-prev aria-label="Berita sebelumnya">&#8592;</button>
-            <button class="hero-slide-btn next" type="button" data-carousel-next aria-label="Berita selanjutnya">&#8594;</button>
-          </div>
-          <div class="hero-slider-dots" aria-label="Pilih slide berita">
-            <?php foreach ($hero['slides'] as $index => $slide): ?>
-              <button type="button"
-                      class="hero-slide-dot<?= $slide['isActive'] ? ' is-active' : '' ?>"
-                      data-carousel-dot
-                      aria-pressed="<?= $slide['isActive'] ? 'true' : 'false' ?>"
-                      aria-label="Slide berita <?= $index + 1 ?>"
-                      data-index="<?= $index ?>"></button>
-            <?php endforeach; ?>
-          </div>
-          <button type="button" class="hero-slider-toggle" data-carousel-toggle aria-pressed="false" aria-label="Jeda putar otomatis">Jeda</button>
+          <?php if ($heroHasMultipleSlides): ?>
+            <div class="swiper-button-prev" aria-label="Slide sebelumnya"></div>
+            <div class="swiper-button-next" aria-label="Slide selanjutnya"></div>
+            <div class="swiper-pagination" aria-label="Pilih slide berita"></div>
+          <?php endif; ?>
         </div>
       <?php else: ?>
         <div class="hero-fallback-wrap">
