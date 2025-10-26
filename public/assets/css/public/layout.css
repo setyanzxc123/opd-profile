@@ -9,8 +9,13 @@
   padding: 0;
   background-color: transparent;
   border-bottom: 0;
-  transition: box-shadow 0.25s ease;
+  transition: box-shadow 0.25s ease, transform 0.24s ease;
   overflow: hidden;
+  will-change: transform;
+}
+
+.public-navbar--compact {
+  transform: translateY(calc(-1 * var(--public-navbar-top-height, 60px)));
 }
 
 .public-navbar-top {
@@ -22,14 +27,11 @@
   color: var(--public-navbar-link, var(--public-neutral-700));
   overflow: hidden;
   max-height: var(--public-navbar-top-height, 60px);
+  transition: opacity 0.24s ease;
 }
 
 .public-navbar--compact .public-navbar-top {
-  max-height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
   opacity: 0;
-  border-bottom: 0;
   pointer-events: none;
 }
 
