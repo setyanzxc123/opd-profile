@@ -115,8 +115,8 @@
     let controller = null;
 
     const setLoading = (v) => v ? form.setAttribute('aria-busy', 'true') : form.removeAttribute('aria-busy');
-    const clear = () => { results.innerHTML = ''; results.setAttribute('hidden', 'hidden'); input.setAttribute('aria-expanded', 'false'); };
-    const show = () => { results.removeAttribute('hidden'); input.setAttribute('aria-expanded', 'true'); };
+    const clear = () => { results.innerHTML = ''; results.setAttribute('hidden', 'hidden'); };
+    const show = () => { results.removeAttribute('hidden'); };
 
     const allowUrl = (u) => {
       try {

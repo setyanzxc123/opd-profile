@@ -102,7 +102,7 @@
         <form class="public-search public-navbar-search" action="<?= site_url('berita') ?>" method="get" role="search" data-nav-search-form data-nav-search-url="<?= site_url('search/berita') ?>">
           <div class="public-search-field">
             <label class="visually-hidden" for="navSearch">Cari informasi</label>
-            <input id="navSearch" class="public-search-input" type="search" name="q" placeholder="Cari berita" aria-label="Cari berita" value="<?= esc($path === 'berita' ? ($request->getGet('q') ?? '') : '') ?>" autocomplete="off" data-nav-search-input aria-autocomplete="list" aria-controls="navSearchResults">
+            <input id="navSearch" class="public-search-input" type="search" name="q" placeholder="Cari berita" aria-label="Cari berita" value="<?= esc($path === 'berita' ? ($request->getGet('q') ?? '') : '') ?>" autocomplete="off" data-nav-search-input aria-controls="navSearchResults">
             <span class="public-search-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" focusable="false" role="img">
                 <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5L20.49 19l-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z" fill="currentColor"/>
