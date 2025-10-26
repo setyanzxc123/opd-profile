@@ -1,4 +1,4 @@
-<?php
+﻿<?php
   $validation      = $validation ?? null;
   $publicLogoPath  = $profile['logo_public_path'] ?? null;
   $publicLogoUrl   = $publicLogoPath ? base_url($publicLogoPath) : null;
@@ -100,11 +100,6 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
           </div>
         <?php endif; ?>
-
-        <div class="alert alert-info" role="alert">
-          <i class="bx bx-bulb me-2"></i>
-          <span>Gunakan konten yang ringkas dan mudah dibaca. Perubahan akan langsung terlihat oleh pengunjung.</span>
-        </div>
 
         <form method="post" action="<?= site_url('admin/profile') ?>" class="pt-2" enctype="multipart/form-data">
           <?= csrf_field() ?>
