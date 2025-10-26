@@ -75,45 +75,21 @@
   z-index: 2;
 }
 
-.hero-slide.is-transitioning {
-  position: absolute;
-  visibility: visible;
-  opacity: 1;
-  z-index: 1;
-}
-
-.hero-slide.is-transitioning.is-entering-from-right {
-  transform: translateX(100%);
-  z-index: 2;
-}
-
-.hero-slide.is-transitioning.is-entering-from-left {
-  transform: translateX(-100%);
-  z-index: 2;
-}
-
-.hero-slide.is-transitioning.is-exiting-to-left {
-  transform: translateX(-100%);
-  opacity: 0;
-}
-
-.hero-slide.is-transitioning.is-exiting-to-right {
-  transform: translateX(100%);
-  opacity: 0;
-}
-
-.hero-slide.is-transitioning.is-active {
-  transform: translateX(0);
-  opacity: 1;
-  z-index: 2;
-  position: relative;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .hero-slide,
-  .hero-slide.is-transitioning {
+  .hero-slide {
     transition: none;
     transform: none;
+  }
+}
+
+/* Additional reduced motion: disable non-essential UI transitions */
+@media (prefers-reduced-motion: reduce) {
+  .public-navbar,
+  .public-navbar .nav-link::after,
+  .public-search-field,
+  .public-search-result--link,
+  .hero-slide-btn {
+    transition: none !important;
   }
 }
 

@@ -34,17 +34,16 @@
               </article>
             <?php endforeach; ?>
           </div>
-          <div class="hero-slider-controls" aria-hidden="true">
+          <div class="hero-slider-controls">
             <button class="hero-slide-btn prev" type="button" data-carousel-prev aria-label="Berita sebelumnya">&#8592;</button>
             <button class="hero-slide-btn next" type="button" data-carousel-next aria-label="Berita selanjutnya">&#8594;</button>
           </div>
-          <div class="hero-slider-dots" role="tablist" aria-label="Pilih slide berita">
+          <div class="hero-slider-dots" aria-label="Pilih slide berita">
             <?php foreach ($hero['slides'] as $index => $slide): ?>
               <button type="button"
                       class="hero-slide-dot<?= $slide['isActive'] ? ' is-active' : '' ?>"
-                      role="tab"
                       data-carousel-dot
-                      aria-selected="<?= $slide['isActive'] ? 'true' : 'false' ?>"
+                      aria-pressed="<?= $slide['isActive'] ? 'true' : 'false' ?>"
                       aria-label="Slide berita <?= $index + 1 ?>"
                       data-index="<?= $index ?>"></button>
             <?php endforeach; ?>
