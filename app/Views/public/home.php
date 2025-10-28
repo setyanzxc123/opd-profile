@@ -1,11 +1,11 @@
 <?= $this->extend('layouts/public') ?>
 
 <?= $this->section('pageStyles') ?>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<link rel="stylesheet" href="<?= base_url('assets/vendor/swiper/swiper-bundle.min.css') ?>">
 <?= $this->endSection() ?>
 
 <?= $this->section('pageScripts') ?>
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
+<script src="<?= base_url('assets/vendor/swiper/swiper-bundle.min.js') ?>" defer></script>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
