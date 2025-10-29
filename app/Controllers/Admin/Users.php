@@ -3,6 +3,8 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\UserModel;
+use CodeIgniter\Shield\Entities\User;
+use Config\Services;
 
 class Users extends BaseController
 {
@@ -10,13 +12,20 @@ class Users extends BaseController
 
     public function __construct()
     {
-        helper('activity');
-        $this->users = new UserModel();
+        helper(['activity', 'auth']);
+        $this->users = model(UserModel::class);
     }
 
     protected function ensureAdmin()
     {
-        if (session('role') !== 'admin') {
+        $auth = auth('session');
+        if (! $auth->loggedIn()) {
+            return redirect()->to(site_url('login'))->with('error', 'Sesi berakhir. Silakan login kembali.');
+        }
+
+        $user = $auth->user();
+        $isAdmin = strtolower((string) ($user->role ?? '')) === 'admin' || $user->inGroup('admin');
+        if (! $isAdmin) {
             return redirect()->to(site_url('admin'))->with('error', 'Hanya admin yang boleh mengakses kelola pengguna.');
         }
 
@@ -29,7 +38,9 @@ class Users extends BaseController
             return $response;
         }
 
-        $users = $this->users->orderBy('id', 'DESC')->findAll(200);
+        /** @var list<User> $records */
+        $records = $this->users->withIdentities()->orderBy('id', 'DESC')->findAll(200);
+        $users   = array_map(fn (User $user) => $this->presentUser($user), $records);
 
         return view('admin/users/index', [
             'title' => 'Pengguna',
@@ -55,7 +66,7 @@ class Users extends BaseController
                 'is_active' => 1,
             ],
             'roles'      => UserModel::ROLES,
-            'validation' => session()->getFlashdata('validation') ?? \Config\Services::validation(),
+            'validation' => session()->getFlashdata('validation') ?? Services::validation(),
             'formErrors' => session()->getFlashdata('formErrors') ?? [],
         ]);
     }
@@ -82,16 +93,35 @@ class Users extends BaseController
                 ->with('validation', $this->validator);
         }
 
-        $this->users->insert([
-            'username'      => $this->request->getPost('username'),
-            'email'         => $this->request->getPost('email'),
-            'name'          => $this->request->getPost('name'),
-            'role'          => $this->request->getPost('role'),
-            'is_active'     => 1,
-            'password_hash' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
+        $username = sanitize_plain_text($this->request->getPost('username'));
+        $email    = sanitize_plain_text($this->request->getPost('email'));
+        $name     = sanitize_plain_text($this->request->getPost('name'));
+        $role     = $this->request->getPost('role');
+        $password = (string) $this->request->getPost('password');
+
+        $user = new User([
+            'username'       => $username,
+            'name'           => $name !== '' ? $name : null,
+            'role'           => $role,
+            'status'         => 'active',
+            'status_message' => null,
+            'active'         => 1,
+            'is_active'      => 1,
         ]);
 
-        log_activity('user.create', 'Menambah pengguna: ' . $this->request->getPost('username'));
+        $user->email = $email;
+        $user->setEmail($email);
+        $this->users->withPassword($user, $password);
+
+        $this->users->save($user);
+        $userId = (int) $this->users->getInsertID();
+
+        /** @var User $persisted */
+        $persisted = $this->users->withIdentities()->find($userId);
+        $persisted->syncGroups([$role === 'admin' ? 'admin' : 'editor']);
+        $this->users->save($persisted);
+
+        log_activity('user.create', 'Menambah pengguna: ' . $username);
 
         return redirect()->to(site_url('admin/users'))->with('message', 'Pengguna ditambahkan.');
     }
@@ -102,7 +132,8 @@ class Users extends BaseController
             return $response;
         }
 
-        $user = $this->users->find($id);
+        /** @var User|null $user */
+        $user = $this->users->withIdentities()->find($id);
         if (! $user) {
             return redirect()->to(site_url('admin/users'))->with('error', 'Data tidak ditemukan.');
         }
@@ -110,9 +141,9 @@ class Users extends BaseController
         return view('admin/users/form', [
             'title'      => 'Ubah Pengguna',
             'mode'       => 'edit',
-            'user'       => $user,
+            'user'       => $this->presentUser($user),
             'roles'      => UserModel::ROLES,
-            'validation' => session()->getFlashdata('validation') ?? \Config\Services::validation(),
+            'validation' => session()->getFlashdata('validation') ?? Services::validation(),
             'formErrors' => session()->getFlashdata('formErrors') ?? [],
         ]);
     }
@@ -123,7 +154,8 @@ class Users extends BaseController
             return $response;
         }
 
-        $user = $this->users->find($id);
+        /** @var User|null $user */
+        $user = $this->users->withIdentities()->find($id);
         if (! $user) {
             return redirect()->to(site_url('admin/users'))->with('error', 'Data tidak ditemukan.');
         }
@@ -145,38 +177,50 @@ class Users extends BaseController
                 ->with('validation', $this->validator);
         }
 
-        $data = [
-            'username'  => $this->request->getPost('username'),
-            'email'     => $this->request->getPost('email'),
-            'name'      => $this->request->getPost('name'),
-            'role'      => $this->request->getPost('role'),
-            'is_active' => (int) ($this->request->getPost('is_active') ? 1 : 0),
-        ];
+        $username = sanitize_plain_text($this->request->getPost('username'));
+        $email    = sanitize_plain_text($this->request->getPost('email'));
+        $name     = sanitize_plain_text($this->request->getPost('name'));
+        $role     = $this->request->getPost('role');
+        $isActive = (int) ($this->request->getPost('is_active') ? 1 : 0);
+        $password = (string) $this->request->getPost('password');
 
-        $password = $this->request->getPost('password');
-        if ($password) {
-            $data['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
-        }
+        $originalRole   = strtolower((string) ($user->role ?? 'editor'));
+        $originalActive = (bool) $user->active;
 
-        if ((int) $id === (int) session('user_id') && $data['is_active'] === 0) {
+        if ((int) $id === (int) auth('session')->user()->id && $isActive === 0) {
             return redirect()->back()->withInput()->with('error', 'Tidak dapat menonaktifkan akun sendiri.');
         }
 
-        $adminCount = $this->users->where('role', 'admin')->where('is_active', 1)->countAllResults();
-
-        if ($user['role'] === 'admin' && (int) $user['is_active'] === 1) {
-            if ($data['is_active'] === 0 && $adminCount <= 1) {
-                return redirect()->back()->withInput()->with('error', 'Minimal satu admin harus aktif.');
-            }
-
-            if ($data['role'] !== 'admin' && $adminCount <= 1) {
+        if ($originalRole === 'admin' && $originalActive) {
+            if (($isActive === 0 || $role !== 'admin') && $this->countActiveAdmins($id) <= 1) {
                 return redirect()->back()->withInput()->with('error', 'Minimal satu admin harus aktif.');
             }
         }
 
-        $this->users->update($id, $data);
+        $user->username  = $username;
+        $user->name      = $name !== '' ? $name : null;
+        $user->role      = $role;
+        $user->email     = $email;
+        $user->setEmail($email);
+        $user->active    = $isActive;
+        $user->is_active = $isActive;
+        $user->status    = $isActive ? 'active' : 'inactive';
 
-        log_activity('user.update', 'Memperbarui pengguna: ' . $user['username']);
+        if ($password !== '') {
+            $this->users->withPassword($user, $password);
+        }
+
+        try {
+            $user->syncGroups([$role === 'admin' ? 'admin' : 'editor']);
+            $this->users->save($user);
+        } catch (\Throwable $throwable) {
+            return redirect()->back()->withInput()
+                ->with('error', 'Gagal memperbarui pengguna.')
+                ->with('formErrors', ['general' => $throwable->getMessage()])
+                ->with('validation', Services::validation());
+        }
+
+        log_activity('user.update', 'Memperbarui pengguna: ' . $username);
 
         return redirect()->to(site_url('admin/users'))->with('message', 'Perubahan disimpan.');
     }
@@ -187,24 +231,31 @@ class Users extends BaseController
             return $response;
         }
 
-        $user = $this->users->find($id);
+        /** @var User|null $user */
+        $user = $this->users->withIdentities()->find($id);
         if (! $user) {
             return redirect()->to(site_url('admin/users'))->with('error', 'Data tidak ditemukan.');
         }
 
-        if ((int) $id === (int) session('user_id')) {
+        if ((int) $id === (int) auth('session')->user()->id) {
             return redirect()->to(site_url('admin/users'))->with('error', 'Tidak dapat menonaktifkan akun sendiri.');
         }
 
-        $adminCount = $this->users->where('role', 'admin')->where('is_active', 1)->countAllResults();
-        if ($user['role'] === 'admin' && (int) $user['is_active'] === 1 && $adminCount <= 1) {
+        $isActive = $user->active ? 0 : 1;
+        $role     = strtolower((string) ($user->role ?? 'editor'));
+
+        if ($role === 'admin' && $user->active && $this->countActiveAdmins($id) <= 1) {
             return redirect()->to(site_url('admin/users'))->with('error', 'Minimal satu admin harus aktif.');
         }
 
-        $this->users->update($id, ['is_active' => $user['is_active'] ? 0 : 1]);
+        $user->active    = $isActive;
+        $user->is_active = $isActive;
+        $user->status    = $isActive ? 'active' : 'inactive';
 
-        $statusText = $user['is_active'] ? 'Menonaktifkan' : 'Mengaktifkan';
-        log_activity('user.toggle', $statusText . ' pengguna: ' . $user['username']);
+        $this->users->save($user);
+
+        $statusText = $isActive ? 'Mengaktifkan' : 'Menonaktifkan';
+        log_activity('user.toggle', $statusText . ' pengguna: ' . $user->username);
 
         return redirect()->to(site_url('admin/users'))->with('message', 'Status pengguna diperbarui.');
     }
@@ -215,19 +266,54 @@ class Users extends BaseController
             return $response;
         }
 
-        $user = $this->users->find($id);
+        /** @var User|null $user */
+        $user = $this->users->withIdentities()->find($id);
         if (! $user) {
             return redirect()->to(site_url('admin/users'))->with('error', 'Data tidak ditemukan.');
         }
 
         $newPassword = bin2hex(random_bytes(4));
+        $this->users->withPassword($user, $newPassword);
+        $this->users->save($user);
 
-        $this->users->update($id, ['password_hash' => password_hash($newPassword, PASSWORD_DEFAULT)]);
+        log_activity('user.reset_password', 'Reset password untuk ' . $user->username);
 
-        log_activity('user.reset_password', 'Reset password untuk ' . $user['username']);
-
-        return redirect()->to(site_url('admin/users'))->with('message', "Password baru untuk {$user['username']}: {$newPassword}");
+        return redirect()->to(site_url('admin/users'))->with('message', "Password baru untuk {$user->username}: {$newPassword}");
     }
 
-}
+    private function presentUser(User $user): array
+    {
+        $identity  = $user->getEmailIdentity();
+        $email     = $user->email ?? ($identity?->secret ?? '');
+        $lastLogin = $user->last_login_at ?? null;
 
+        if ($lastLogin instanceof \CodeIgniter\I18n\Time) {
+            $lastLogin = $lastLogin->toDateTimeString();
+        }
+
+        $role = strtolower((string) ($user->role ?? ($user->inGroup('admin') ? 'admin' : 'editor')));
+
+        return [
+            'id'            => $user->id,
+            'username'      => $user->username,
+            'email'         => $email,
+            'name'          => $user->name,
+            'role'          => $role,
+            'is_active'     => (int) ($user->is_active ?? ($user->active ? 1 : 0)),
+            'last_login_at' => $lastLogin,
+        ];
+    }
+
+    private function countActiveAdmins(?int $excludeId = null): int
+    {
+        $builder = $this->users->builder();
+        $builder->where('role', 'admin')
+            ->where('active', 1);
+
+        if ($excludeId !== null) {
+            $builder->where('id <>', $excludeId);
+        }
+
+        return (int) $builder->countAllResults();
+    }
+}

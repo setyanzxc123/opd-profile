@@ -4,29 +4,15 @@ namespace App\Database\Seeds;
 
 use CodeIgniter\Database\Seeder;
 use CodeIgniter\I18n\Time;
+use function password_hash;
 
 class CoreSeeder extends Seeder
 {
     public function run()
     {
-        // Ensure admin user exists
-        $usersBuilder = $this->db->table('users');
-        $admin        = $usersBuilder->where('username', 'admin')->get()->getRow();
-        if (! $admin) {
-            $now = Time::now('UTC')->toDateTimeString();
-            $usersBuilder->insert([
-                'username'      => 'admin',
-                'email'         => 'admin@example.com',
-                'password_hash' => password_hash('Admin123!', PASSWORD_DEFAULT),
-                'name'          => 'Administrator',
-                'role'          => 'admin',
-                'is_active'     => 1,
-                'created_at'    => $now,
-            ]);
-            $adminId = (int) $this->db->insertID();
-        } else {
-            $adminId = (int) $admin->id;
-        }
+        helper('auth');
+
+        $adminId = $this->ensureAdminUser();
 
         // Seed OPD profile if empty
         if (! $this->db->table('opd_profile')->countAllResults()) {
@@ -295,7 +281,7 @@ class CoreSeeder extends Seeder
         }
 
         // Optional initial activity log
-        if ($adminId) {
+        if ($adminId !== null) {
             $logBuilder = $this->db->table('activity_logs');
             if (! $logBuilder->where('action', 'system.seed')->get()->getRow()) {
                 $logBuilder->insert([
@@ -306,5 +292,132 @@ class CoreSeeder extends Seeder
                 ]);
             }
         }
+    }
+
+    private function ensureAdminUser(): ?int
+    {
+        $usersTable = $this->db->table('users');
+        $admin      = $usersTable->where('username', 'admin')->get()->getRow();
+
+        $now = Time::now('UTC')->toDateTimeString();
+
+        if ($admin) {
+            $userId = (int) ($admin->id ?? 0);
+
+            $updates = [];
+            if ($this->db->fieldExists('status', 'users') && ($admin->status ?? '') !== 'active') {
+                $updates['status'] = 'active';
+            }
+            if ($this->db->fieldExists('active', 'users') && (int) ($admin->active ?? 0) === 0) {
+                $updates['active'] = 1;
+            }
+            if ($this->db->fieldExists('is_active', 'users')) {
+                $updates['is_active'] = 1;
+            }
+            if ($this->db->fieldExists('name', 'users') && empty($admin->name)) {
+                $updates['name'] = 'Administrator';
+            }
+            if ($this->db->fieldExists('role', 'users')) {
+                $updates['role'] = 'admin';
+            }
+            if ($this->db->fieldExists('email', 'users') && empty($admin->email)) {
+                $updates['email'] = 'admin@example.com';
+            }
+            if ($this->db->fieldExists('password_hash', 'users') && empty($admin->password_hash)) {
+                $updates['password_hash'] = password_hash('Admin123!', PASSWORD_DEFAULT);
+            }
+            if ($this->db->fieldExists('updated_at', 'users')) {
+                $updates['updated_at'] = $now;
+            }
+
+            if ($updates !== []) {
+                $usersTable->where('id', $userId)->update($updates);
+            }
+
+            $identities = $this->db->table('auth_identities');
+            if ($identities->where('user_id', $userId)->where('type', 'email_password')->countAllResults() === 0) {
+                $identities->insert([
+                    'user_id'      => $userId,
+                    'type'         => 'email_password',
+                    'secret'       => 'admin@example.com',
+                    'secret2'      => password_hash('Admin123!', PASSWORD_DEFAULT),
+                    'created_at'   => $now,
+                    'updated_at'   => $now,
+                ]);
+            }
+
+            $groups = $this->db->table('auth_groups_users');
+            if ($groups->where('user_id', $userId)->where('group', 'admin')->countAllResults() === 0) {
+                $groups->insert([
+                    'user_id'    => $userId,
+                    'group'      => 'admin',
+                    'created_at' => $now,
+                ]);
+            }
+
+            return $userId ?: null;
+        }
+
+        $userData = [
+            'username'   => 'admin',
+            'status'     => 'active',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
+
+        if ($this->db->fieldExists('active', 'users')) {
+            $userData['active'] = 1;
+        }
+
+        if ($this->db->fieldExists('is_active', 'users')) {
+            $userData['is_active'] = 1;
+        }
+
+        if ($this->db->fieldExists('name', 'users')) {
+            $userData['name'] = 'Administrator';
+        }
+
+        if ($this->db->fieldExists('role', 'users')) {
+            $userData['role'] = 'admin';
+        }
+
+        if ($this->db->fieldExists('email', 'users')) {
+            $userData['email'] = 'admin@example.com';
+        }
+
+        if ($this->db->fieldExists('password_hash', 'users')) {
+            $userData['password_hash'] = password_hash('Admin123!', PASSWORD_DEFAULT);
+        }
+
+        $usersTable->insert($userData);
+        $userId = (int) $this->db->insertID();
+
+        if ($userId === 0) {
+            return null;
+        }
+
+        $identities = $this->db->table('auth_identities');
+
+        if ($identities->where('user_id', $userId)->where('type', 'email_password')->countAllResults() === 0) {
+            $identities->insert([
+                'user_id'      => $userId,
+                'type'         => 'email_password',
+                'secret'       => 'admin@example.com',
+                'secret2'      => password_hash('Admin123!', PASSWORD_DEFAULT),
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ]);
+        }
+
+        $groups = $this->db->table('auth_groups_users');
+        if ($groups->where('user_id', $userId)->where('group', 'admin')->countAllResults() === 0) {
+            $groups->insert([
+                'user_id'    => $userId,
+                'group'      => 'admin',
+                'created_at' => $now,
+            ]);
+        }
+
+        return $userId;
     }
 }

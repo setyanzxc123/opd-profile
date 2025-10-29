@@ -184,7 +184,7 @@ $openContacts = $canSeeContacts
                 <?php
                   $logTime   = $parseTime($log['created_at'] ?? null);
                   $timeLabel = $logTime ? $logTime->humanize() : 'Baru';
-                  $actor     = $log['name'] ?: ($log['username'] ?? 'Sistem');
+                  $actor     = $log['actor_name'] ?? $log['actor_username'] ?? $log['name'] ?? $log['username'] ?? 'Sistem';
                 ?>
                 <li class="py-2">
                   <div class="d-flex justify-content-between align-items-start gap-3">

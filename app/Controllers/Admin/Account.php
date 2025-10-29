@@ -4,6 +4,8 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\UserModel;
+use CodeIgniter\Shield\Entities\User;
+use Config\Services;
 
 class Account extends BaseController
 {
@@ -11,8 +13,8 @@ class Account extends BaseController
 
     public function __construct()
     {
-        helper(['activity', 'content']);
-        $this->users = new UserModel();
+        helper(['activity', 'content', 'auth']);
+        $this->users = model(UserModel::class);
     }
 
     public function index()
@@ -22,20 +24,14 @@ class Account extends BaseController
 
     public function edit(): string
     {
-        $userId = (int) session('user_id');
-        if ($userId <= 0) {
-            return redirect()->to(site_url('login'))->with('error', 'Sesi berakhir. Silakan login kembali.');
-        }
-
-        $user = $this->users->find($userId);
+        $user = $this->currentUser();
         if (! $user) {
-            session()->destroy();
-            return redirect()->to(site_url('login'))->with('error', 'Akun tidak ditemukan. Silakan login.');
+            return redirect()->to(site_url('login'))->with('error', 'Sesi berakhir. Silakan login kembali.');
         }
 
         return view('admin/account/settings', [
             'title'      => 'Pengaturan Akun',
-            'user'       => $user,
+            'user'       => $this->presentUser($user),
             'validation' => session()->getFlashdata('validation') ?? \Config\Services::validation(),
             'formErrors' => session()->getFlashdata('formErrors') ?? [],
         ]);
@@ -43,20 +39,14 @@ class Account extends BaseController
 
     public function update()
     {
-        $userId = (int) session('user_id');
-        if ($userId <= 0) {
-            return redirect()->to(site_url('login'))->with('error', 'Sesi berakhir. Silakan login kembali.');
-        }
-
-        $user = $this->users->find($userId);
+        $user = $this->currentUser();
         if (! $user) {
-            session()->destroy();
-            return redirect()->to(site_url('login'))->with('error', 'Akun tidak ditemukan. Silakan login.');
+            return redirect()->to(site_url('login'))->with('error', 'Sesi berakhir. Silakan login kembali.');
         }
 
         $rules = [
             'name'              => 'permit_empty|max_length[100]',
-            'email'             => "required|valid_email|max_length[150]|is_unique[users.email,id,{$userId}]",
+            'email'             => "required|valid_email|max_length[150]|is_unique[users.email,id,{$user->id}]",
             'current_password'  => 'permit_empty',
             'password'          => 'permit_empty|min_length[8]',
             'password_confirm'  => 'permit_empty|matches[password]',
@@ -74,19 +64,18 @@ class Account extends BaseController
         $currentPassword  = (string) $this->request->getPost('current_password');
         $newPassword      = (string) $this->request->getPost('password');
 
-        $data = [
-            'name'  => $name,
-            'email' => $email,
-        ];
+        $user->name  = $name !== '' ? $name : null;
+        $user->email = $email;
+        $user->setEmail($email);
 
         $formErrors = [];
         if ($newPassword !== '') {
             if ($currentPassword === '') {
                 $formErrors['current_password'] = 'Isi password saat ini sebelum mengganti password.';
-            } elseif (! password_verify($currentPassword, $user['password_hash'])) {
+            } elseif (! service('passwords')->verify($currentPassword, (string) $user->password_hash)) {
                 $formErrors['current_password'] = 'Password saat ini tidak sesuai.';
             } else {
-                $data['password_hash'] = password_hash($newPassword, PASSWORD_DEFAULT);
+                $this->users->withPassword($user, $newPassword);
             }
         }
 
@@ -97,13 +86,46 @@ class Account extends BaseController
                 ->with('formErrors', $formErrors);
         }
 
-        $this->users->update($userId, $data);
+        try {
+            $this->users->save($user);
+        } catch (\Throwable $throwable) {
+            return redirect()->back()->withInput()
+                ->with('error', 'Gagal memperbarui akun.')
+                ->with('validation', Services::validation()->setError('general', $throwable->getMessage()));
+        }
 
         $message = $newPassword !== '' ? 'Memperbarui profil dan password sendiri' : 'Memperbarui profil sendiri';
-        log_activity('account.update', $message, $userId);
+        log_activity('account.update', $message, (int) $user->id);
 
         return redirect()->to(site_url('admin/settings'))
             ->with('message', 'Pengaturan akun berhasil diperbarui.');
+    }
+
+    private function currentUser(): ?User
+    {
+        $auth = auth('session');
+        if (! $auth->loggedIn()) {
+            session()->destroy();
+
+            return null;
+        }
+
+        /** @var User $identity */
+        $identity = $auth->user();
+
+        return $this->users->withIdentities()->find($identity->id);
+    }
+
+    private function presentUser(User $user): array
+    {
+        $identity = $user->getEmailIdentity();
+
+        return [
+            'id'       => $user->id,
+            'username' => $user->username,
+            'name'     => $user->name,
+            'email'    => $user->email ?? ($identity?->secret ?? ''),
+        ];
     }
 }
 

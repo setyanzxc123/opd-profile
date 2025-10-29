@@ -6,6 +6,13 @@ if (! function_exists('log_activity')) {
     function log_activity(string $action, string $description = '', ?int $userId = null): void
     {
         try {
+            if ($userId === null && function_exists('auth')) {
+                $auth = auth('session');
+                if ($auth->loggedIn()) {
+                    $userId = (int) ($auth->user()->id ?? 0);
+                }
+            }
+
             $userId = $userId ?? (int) session('user_id');
 
             if (! $userId) {

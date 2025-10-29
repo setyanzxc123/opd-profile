@@ -15,6 +15,7 @@ class Contacts extends BaseController
 
     public function __construct()
     {
+        helper('auth');
         $this->messages = model(ContactMessageModel::class);
     }
 
@@ -125,12 +126,12 @@ class Contacts extends BaseController
 
         $status    = (string) $this->request->getPost('status');
         $adminNote = trim((string) $this->request->getPost('admin_note'));
-        $userId    = (int) session('user_id');
+        $userId    = $this->currentUserId();
 
         $updateData = [
             'status'     => $status,
             'admin_note' => $adminNote !== '' ? $adminNote : null,
-            'handled_by' => $userId ?: null,
+            'handled_by' => $userId,
         ];
 
         if ($status === 'closed') {
@@ -171,7 +172,7 @@ class Contacts extends BaseController
 
         $updateData = [
             'status'     => $status,
-            'handled_by' => session('user_id') ?: null,
+            'handled_by' => $this->currentUserId(),
         ];
 
         if ($status === 'closed') {
@@ -201,5 +202,15 @@ class Contacts extends BaseController
             'in_progress' => 'Diproses',
             'closed'      => 'Selesai',
         ];
+    }
+
+    private function currentUserId(): ?int
+    {
+        $auth = auth('session');
+        if (! $auth->loggedIn()) {
+            return null;
+        }
+
+        return (int) ($auth->user()->id ?? 0) ?: null;
     }
 }

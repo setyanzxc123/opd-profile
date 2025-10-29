@@ -13,7 +13,7 @@ class Dashboard extends BaseController
 {
     public function index(): string
     {
-        helper('url');
+        helper(['url', 'auth']);
 
         $access = $this->resolveAccess();
         /** @var callable(string): bool $canAccess */
@@ -167,8 +167,25 @@ class Dashboard extends BaseController
 
     private function collectActivityFeed(): array
     {
-        return model(ActivityLogModel::class)->builder()
-            ->select('activity_logs.action, activity_logs.description, activity_logs.created_at, users.name, users.username')
+        $builder = model(ActivityLogModel::class)->builder();
+        $db      = $builder->db();
+
+        $select = [
+            'activity_logs.action',
+            'activity_logs.description',
+            'activity_logs.created_at',
+        ];
+
+        if ($this->tableHasColumn($db, 'users', 'name')) {
+            $select[] = 'users.name AS actor_name';
+        }
+
+        if ($this->tableHasColumn($db, 'users', 'username')) {
+            $select[] = 'users.username AS actor_username';
+        }
+
+        return $builder
+            ->select(implode(', ', $select))
             ->join('users', 'users.id = activity_logs.user_id', 'left')
             ->orderBy('activity_logs.created_at', 'DESC')
             ->orderBy('activity_logs.id', 'DESC')
@@ -183,7 +200,7 @@ class Dashboard extends BaseController
     private function resolveAccess(): array
     {
         $config = config('AdminAccess');
-        $role   = strtolower((string) (session('role') ?? ''));
+        $role   = $this->currentRole();
         $roleConfig = $config->roles[$role] ?? ['allowedSections' => ['*']];
 
         $allowed = array_map(
@@ -210,5 +227,44 @@ class Dashboard extends BaseController
             'hasFullAccess'   => $hasFullAccess,
             'canAccess'       => $canAccess,
         ];
+    }
+
+    private function tableHasColumn($db, string $table, string $column): bool
+    {
+        static $cache = [];
+        $tableKey  = $table;
+        $columnKey = strtolower($column);
+
+        if (isset($cache[$tableKey][$columnKey])) {
+            return $cache[$tableKey][$columnKey];
+        }
+
+        $exists = $db->fieldExists($column, $table);
+        $cache[$tableKey][$columnKey] = $exists;
+
+        return $exists;
+    }
+
+    private function currentRole(): string
+    {
+        $auth = auth('session');
+
+        if ($auth->loggedIn()) {
+            /** @var \CodeIgniter\Shield\Entities\User $user */
+            $user = $auth->user();
+            $role = strtolower((string) ($user->role ?? ''));
+
+            if ($role === '' && $user->inGroup('admin')) {
+                $role = 'admin';
+            }
+
+            if ($role === '') {
+                $role = 'editor';
+            }
+
+            return $role;
+        }
+
+        return strtolower((string) (session('role') ?? 'editor'));
     }
 }

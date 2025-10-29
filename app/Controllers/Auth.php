@@ -4,16 +4,25 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\UserModel;
+use CodeIgniter\Shield\Result;
 
 class Auth extends BaseController
 {
     public function login()
     {
+        helper('auth');
+
+        if (auth('session')->loggedIn()) {
+            return redirect()->to(site_url('admin'));
+        }
+
         return view('auth/login');
     }
 
     public function attempt()
     {
+        helper(['activity', 'auth']);
+
         $rules = ['username' => 'required', 'password' => 'required'];
         if (! $this->validate($rules)) {
             return redirect()->back()->withInput()->with('error', 'Lengkapi data.');
@@ -38,47 +47,43 @@ class Auth extends BaseController
             return redirect()->back()->withInput()->with('error', 'Terlalu banyak percobaan untuk username ini. Coba lagi dalam ' . $wait . ' detik.');
         }
 
-        $user = (new UserModel())->where('username', $usernameInput)->first();
-        if (! $user || ! password_verify($this->request->getPost('password'), $user['password_hash'])) {
-            return redirect()->back()->withInput()->with('error', 'Username atau password salah.');
+        $credentials = [
+            'username' => $usernameInput,
+            'password' => (string) $this->request->getPost('password'),
+        ];
+
+        $auth   = auth('session');
+        $result = $auth->attempt($credentials);
+
+        if (! $result instanceof Result || ! $result->isOK()) {
+            return redirect()->back()->withInput()->with('error', $result->reason() ?? 'Username atau password salah.');
         }
 
-        if (isset($user['is_active']) && ! $user['is_active']) {
-            return redirect()->back()->withInput()->with('error', 'Akun dinonaktifkan.');
-        }
+        /** @var \CodeIgniter\Shield\Entities\User $userEntity */
+        $userEntity = $auth->user();
+        $userModel  = model(UserModel::class);
+        $userModel->update($userEntity->id, ['last_login_at' => date('Y-m-d H:i:s')]);
 
-        helper('activity');
-
-        session()->regenerate();
-        session()->set([
-            'user_id'   => $user['id'],
-            'username'  => $user['username'],
-            'role'      => $user['role'],
-            'logged_in' => true,
-        ]);
-
-        try {
-            if (array_key_exists('last_login_at', $user)) {
-                (new UserModel())->update($user['id'], ['last_login_at' => date('Y-m-d H:i:s')]);
-            }
-        } catch (\Throwable $e) {
-            // abaikan kegagalan pencatatan login
-        }
-
-        log_activity('auth.login', 'Login berhasil', $user['id']);
+        log_activity('auth.login', 'Login berhasil', (int) $userEntity->id);
 
         return redirect()->to(site_url('admin'));
     }
 
     public function logout()
     {
-        helper('activity');
-        $userId = session()->get('user_id');
-        if ($userId) {
-            log_activity('auth.logout', 'Logout manual', $userId);
+        helper(['activity', 'auth']);
+
+        $auth = auth('session');
+        if ($auth->loggedIn()) {
+            /** @var \CodeIgniter\Shield\Entities\User $user */
+            $user = $auth->user();
+            log_activity('auth.logout', 'Logout manual', (int) $user->id);
         }
 
+        $auth->logout();
+
         session()->destroy();
+
         return redirect()->to(site_url('login'))->with('message', 'Anda telah logout.');
     }
 }
