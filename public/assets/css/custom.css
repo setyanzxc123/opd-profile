@@ -55,11 +55,28 @@
 @media (min-width: 1200px) {
   .layout-page {
     padding-inline-start: var(--bs-menu-width);
-    transition: padding-inline-start 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: none;
   }
   .layout-menu-collapsed .layout-page {
     padding-inline-start: var(--bs-menu-collapsed-width) !important;
   }
+}
+
+.layout-menu-toggle,
+.layout-menu-toggle i {
+  transition: none !important;
+}
+
+.layout-menu .menu-link,
+.layout-menu .menu-link > *,
+.layout-menu .menu-header,
+.layout-menu .menu-block,
+.layout-menu .menu-header-text {
+  transition: none !important;
+}
+
+.menu:not(.menu-no-animation) .menu-link > :not(.menu-icon) {
+  transition: none !important;
 }
 /* News module ------------------------------------------------------------- */
 .news-form-header {

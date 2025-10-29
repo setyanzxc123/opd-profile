@@ -62,6 +62,7 @@
   }
 
   function applyState() {
+    body.classList.add('layout-no-transition');
     if (mqDesktop.matches) {
       body.classList.toggle('layout-menu-collapsed', state.desktopCollapsed);
       body.classList.remove('layout-menu-expanded');
@@ -72,6 +73,9 @@
     }
     syncToggleAffordances();
     queueResizeEvent();
+    win.requestAnimationFrame(function () {
+      body.classList.remove('layout-no-transition');
+    });
   }
 
   function setDesktopCollapsed(collapsed) {
