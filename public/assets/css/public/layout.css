@@ -4,13 +4,14 @@
 /* Sticky navbar look */
 .public-navbar {
   --public-navbar-top-height: 60px;
+  --public-navbar-search-width: clamp(240px, 24vw, 320px);
   display: block;
   backdrop-filter: none;
   padding: 0;
   background-color: transparent;
   border-bottom: 0;
   transition: box-shadow 0.25s ease, transform 0.24s ease;
-  overflow: hidden;
+  overflow: visible;
   will-change: transform;
 }
 
@@ -163,7 +164,7 @@
   box-shadow: var(--public-navbar-shadow, none);
   border-top: 0;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .public-navbar-bottom-inner {
@@ -176,6 +177,14 @@
 
 .public-navbar--compact .public-navbar-bottom-inner {
   min-height: 44px;
+}
+
+.public-navbar--compact .public-navbar-links {
+  gap: clamp(0.55rem, 1.6vw, 0.95rem);
+}
+
+.public-navbar--compact .public-navbar-brand--compact {
+  margin-right: clamp(0.5rem, 1.4vw, 0.85rem);
 }
 
 .public-navbar-links {
@@ -268,12 +277,17 @@
   position: relative;
   display: flex;
   align-items: center;
+  flex: 0 1 var(--public-navbar-search-width, 260px);
+  width: 100%;
+  max-width: var(--public-navbar-search-width, 260px);
+  min-width: 200px;
 }
 
 .public-navbar .public-search-field {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
   border-radius: 999px;
   border: 1px solid transparent;
   padding: 0.2rem 2.1rem 0.2rem 0.6rem;
@@ -321,7 +335,7 @@
 .public-navbar-search:focus-within .public-search-input {
   position: relative;
   flex: 1;
-  max-width: 220px;
+  max-width: 100%;
   inset: auto;
   opacity: 1;
   padding: 0 0.4rem 0 0;
@@ -400,9 +414,11 @@
   }
 
   .public-navbar-search {
-    flex-basis: 100%;
+    flex: 1 1 100%;
     margin-top: 1.25rem;
     order: 3;
+    width: 100%;
+    max-width: none;
   }
 
   .public-navbar .public-search-field {
