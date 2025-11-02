@@ -2,6 +2,10 @@
 
 namespace Config;
 
+use App\Services\DashboardAdminService;
+use App\Services\NewsMediaService;
+use App\Services\ProfileAdminService;
+use App\Services\ProfileLocationService;
 use CodeIgniter\Config\BaseService;
 
 /**
@@ -19,6 +23,42 @@ use CodeIgniter\Config\BaseService;
  */
 class Services extends BaseService
 {
+    public static function dashboardAdmin(bool $getShared = true): DashboardAdminService
+    {
+        if ($getShared) {
+            return static::getSharedInstance('dashboardAdmin');
+        }
+
+        return new DashboardAdminService();
+    }
+
+    public static function profileAdmin(bool $getShared = true): ProfileAdminService
+    {
+        if ($getShared) {
+            return static::getSharedInstance('profileAdmin');
+        }
+
+        return new ProfileAdminService();
+    }
+
+    public static function profileLocation(bool $getShared = true): ProfileLocationService
+    {
+        if ($getShared) {
+            return static::getSharedInstance('profileLocation');
+        }
+
+        return new ProfileLocationService();
+    }
+
+    public static function newsMedia(bool $getShared = true): NewsMediaService
+    {
+        if ($getShared) {
+            return static::getSharedInstance('newsMedia');
+        }
+
+        return new NewsMediaService();
+    }
+
     /*
      * public static function example($getShared = true)
      * {

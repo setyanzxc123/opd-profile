@@ -39,7 +39,7 @@ class Contacts extends BaseController
         }
 
         $query = $this->messages
-            ->select('contact_messages.*, handler.name AS handler_name')
+            ->select($this->selectHandlerColumns())
             ->join('users AS handler', 'handler.id = contact_messages.handled_by', 'left')
             ->orderBy('contact_messages.created_at', 'DESC');
 
@@ -93,7 +93,7 @@ class Contacts extends BaseController
     public function show(int $id): string
     {
         $message = $this->messages
-            ->select('contact_messages.*, handler.name AS handler_name, handler.email AS handler_email')
+            ->select($this->selectHandlerColumns(true))
             ->join('users AS handler', 'handler.id = contact_messages.handled_by', 'left')
             ->find($id);
 
@@ -212,5 +212,23 @@ class Contacts extends BaseController
         }
 
         return (int) ($auth->user()->id ?? 0) ?: null;
+    }
+
+    private function selectHandlerColumns(bool $includeEmail = false): string
+    {
+        $db = $this->messages->db;
+        $columns = ['contact_messages.*'];
+
+        if ($db->fieldExists('name', 'users')) {
+            $columns[] = 'handler.name AS handler_name';
+        } else {
+            $columns[] = 'handler.username AS handler_name';
+        }
+
+        if ($includeEmail && $db->fieldExists('email', 'users')) {
+            $columns[] = 'handler.email AS handler_email';
+        }
+
+        return implode(', ', $columns);
     }
 }

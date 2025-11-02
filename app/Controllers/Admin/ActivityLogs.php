@@ -46,7 +46,20 @@ class ActivityLogs extends BaseController
 
         $logs = $builder->get(200)->getResultArray();
 
-        $users = $this->users->orderBy('username')->findAll();
+        $userEntities = $this->users->orderBy('username')->findAll();
+        $users        = array_map(static function ($user) {
+            if (is_array($user)) {
+                return [
+                    'id'       => $user['id'] ?? null,
+                    'username' => $user['username'] ?? '',
+                ];
+            }
+
+            return [
+                'id'       => $user->id ?? null,
+                'username' => $user->username ?? '',
+            ];
+        }, $userEntities);
 
         return view('admin/activity_logs/index', [
             'title'   => 'Activity Logs',
