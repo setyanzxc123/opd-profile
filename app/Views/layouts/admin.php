@@ -14,6 +14,12 @@
   }
   $adminThemeProfile   = is_array($adminThemeProfile) ? $adminThemeProfile : [];
   $adminThemeVariables = $adminThemeProfile !== [] ? theme_admin_variables($adminThemeProfile) : [];
+  $profileData = $adminThemeProfile;
+  $profileData = is_array($profileData) ? $profileData : [];
+  $profileSiteName = trim((string) ($profileData['name'] ?? ''));
+  $adminLogoPath   = trim((string) ($profileData['logo_admin_path'] ?? ($profileData['logo_public_path'] ?? '')));
+  $adminLogoUrl    = $adminLogoPath !== '' ? base_url($adminLogoPath) : null;
+  $faviconUrl      = $adminLogoUrl ?? base_url('favicon.ico');
 ?>
 <!DOCTYPE html>
 <html
@@ -25,7 +31,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title><?= esc($title ?? 'Admin OPD') ?></title>
-  <link rel="icon" type="image/x-icon" href="<?= base_url('favicon.ico') ?>" />
+  <link rel="icon" type="image/x-icon" href="<?= esc($faviconUrl) ?>" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -68,11 +74,6 @@
         if ($initial === '') {
           $initial = 'P';
         }
-        $profileData = $adminThemeProfile;
-        $profileData = is_array($profileData) ? $profileData : [];
-        $profileSiteName = trim((string) ($profileData['name'] ?? ''));
-        $adminLogoPath   = trim((string) ($profileData['logo_admin_path'] ?? ($profileData['logo_public_path'] ?? '')));
-        $adminLogoUrl    = $adminLogoPath !== '' ? base_url($adminLogoPath) : null;
         $sessionRole = trim((string) (session('role') ?? ''));
         $roleLabel   = $sessionRole !== '' ? ucfirst(strtolower($sessionRole)) : '-';
         $accessConfig = config('AdminAccess');
@@ -106,7 +107,6 @@
                 </span>
               <?php endif; ?>
             </span>
-            <span class="app-brand-text demo menu-text fw-bold ms-2">Admin</span>
           </a>
           <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
             <i class="bx bx-chevron-left bx-sm align-middle"></i>
