@@ -58,10 +58,10 @@ class DashboardAdminService
             [
                 'label'   => 'Layanan Aktif',
                 'value'   => $activeServices,
-                'url'     => site_url('admin/profile'),
+                'url'     => site_url('admin/services'),
                 'icon'    => 'bx-git-branch',
                 'variant' => 'success',
-                'section' => 'profile',
+                'section' => 'services',
             ],
             [
                 'label'   => 'Pesan Terbuka',
@@ -239,4 +239,3 @@ class DashboardAdminService
         return strtolower((string) (session('role') ?? 'editor'));
     }
 }
-

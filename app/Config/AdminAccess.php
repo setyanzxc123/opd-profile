@@ -32,6 +32,7 @@ class AdminAccess extends BaseConfig
                 'dashboard',
                 'profile',
                 'news',
+                'services',
                 'galleries',
                 'documents',
                 'contacts',

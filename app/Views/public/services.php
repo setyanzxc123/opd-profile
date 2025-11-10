@@ -1,37 +1,41 @@
 <?= $this->extend('layouts/public') ?>
 
 <?= $this->section('content') ?>
-<section class="public-section">
+<section class="public-section services-archive">
   <div class="container public-container py-5">
     <div class="text-center mb-5">
       <span class="hero-badge text-uppercase">Layanan Publik</span>
-      <h1 class="display-5 fw-bold mt-3 mb-3">Daftar Layanan</h1>
-      <p class="lead text-muted">Temukan informasi lengkap mengenai persyaratan, biaya, dan estimasi waktu proses dari layanan kami.</p>
+      <h1 class="display-5 fw-bold mt-3 mb-3">Informasi Layanan</h1>
+      <p class="lead text-muted">Jelajahi layanan yang tersedia lengkap dengan penjelasan singkat dan visual yang memudahkan Anda mengenalinya.</p>
     </div>
     <?php if ($services): ?>
-      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        <?php foreach ($services as $index => $service): ?>
-          <div class="col">
-            <article id="<?= esc($service['slug'], 'attr') ?>" class="surface-card service-card h-100">
-              <span class="service-icon"><?= str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) ?></span>
-              <h2 class="h5 fw-semibold mt-3 mb-2"><a class="text-decoration-none text-dark" href="<?= site_url('layanan#' . esc($service['slug'], 'url')) ?>"><?= esc($service['title']) ?></a></h2>
-              <?php if (! empty($service['description'])): ?>
-                <p class="text-muted"><?= esc($service['description']) ?></p>
+      <div class="row g-4 service-article-grid">
+        <?php foreach ($services as $service): ?>
+          <div class="col-md-6 col-lg-4">
+            <article <?php if (! empty($service['slug'])): ?>id="<?= esc($service['slug'], 'attr') ?>" <?php endif; ?>class="service-article-card h-100 position-relative">
+              <?php if (! empty($service['thumbnail'])): ?>
+                <div class="ratio ratio-16x9 service-article-media">
+                  <img src="<?= esc($service['thumbnail'], 'attr') ?>"
+                       alt="Ilustrasi layanan <?= esc($service['title']) ?>"
+                       loading="lazy">
+                </div>
               <?php endif; ?>
-              <dl class="text-muted small mb-0">
-                <?php if (! empty($service['requirements'])): ?>
-                  <dt class="text-uppercase text-dark">Persyaratan</dt>
-                  <dd><?= nl2br(esc($service['requirements'])) ?></dd>
+              <div class="service-article-body">
+                <span class="service-chip text-uppercase">Layanan</span>
+                <h2 class="h5 fw-semibold mt-2 mb-2">
+                  <?php if (! empty($service['url'])): ?>
+                    <a href="<?= esc($service['url']) ?>" class="stretched-link text-decoration-none text-dark"><?= esc($service['title']) ?></a>
+                  <?php else: ?>
+                    <span><?= esc($service['title']) ?></span>
+                  <?php endif; ?>
+                </h2>
+                <?php if (! empty($service['summary'])): ?>
+                  <p class="service-summary text-muted mb-2"><?= esc($service['summary']) ?></p>
                 <?php endif; ?>
-                <?php if (! empty($service['fees'])): ?>
-                  <dt class="text-uppercase text-dark">Biaya</dt>
-                  <dd><?= esc($service['fees']) ?></dd>
+                <?php if (! empty($service['body']) && $service['body'] !== $service['summary']): ?>
+                  <p class="service-body mb-0"><?= esc($service['body']) ?></p>
                 <?php endif; ?>
-                <?php if (! empty($service['processing_time'])): ?>
-                  <dt class="text-uppercase text-dark">Waktu Proses</dt>
-                  <dd><?= esc($service['processing_time']) ?></dd>
-                <?php endif; ?>
-              </dl>
+              </div>
             </article>
           </div>
         <?php endforeach; ?>

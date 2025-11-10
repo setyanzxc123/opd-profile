@@ -132,7 +132,7 @@
           </li>
           <?php endif; ?>
 
-          <?php $hasContentAccess = $canAccess('news') || $canAccess('galleries') || $canAccess('documents') || $canAccess('contacts'); ?>
+          <?php $hasContentAccess = $canAccess('news') || $canAccess('services') || $canAccess('galleries') || $canAccess('documents') || $canAccess('contacts'); ?>
           <?php if ($hasContentAccess): ?>
           <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Konten</span>
@@ -142,6 +142,14 @@
             <a href="<?= site_url('admin/news') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-news"></i>
               <div class="text-truncate">Berita</div>
+            </a>
+          </li>
+          <?php endif; ?>
+          <?php if ($canAccess('services')): ?>
+          <li class="menu-item<?= $section === 'services' ? ' active' : '' ?>">
+            <a href="<?= site_url('admin/services') ?>" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-git-branch"></i>
+              <div class="text-truncate">Layanan</div>
             </a>
           </li>
           <?php endif; ?>

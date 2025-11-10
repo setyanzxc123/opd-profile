@@ -41,6 +41,13 @@ $routes->group('admin', [
     $routes->get('news/edit/(:num)', 'News::edit/$1');
     $routes->post('news/update/(:num)', 'News::update/$1');
     $routes->post('news/delete/(:num)', 'News::delete/$1');
+    // Services CMS
+    $routes->get('services', 'Services::index');
+    $routes->get('services/create', 'Services::create');
+    $routes->post('services', 'Services::store');
+    $routes->get('services/edit/(:num)', 'Services::edit/$1');
+    $routes->post('services/update/(:num)', 'Services::update/$1');
+    $routes->post('services/delete/(:num)', 'Services::delete/$1');
     // Galleries CMS
     $routes->get('galleries', 'Galleries::index');
     $routes->get('galleries/create', 'Galleries::create');

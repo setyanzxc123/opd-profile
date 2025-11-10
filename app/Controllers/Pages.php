@@ -41,7 +41,7 @@ class Pages extends BaseController
 
     public function layanan(): string
     {
-        $services = $this->contentService->allActiveServices();
+        $services = $this->transformServicesForPublic($this->contentService->allActiveServices());
         $profile  = $this->contentService->latestProfile();
 
         return view('public/services', [
@@ -324,6 +324,52 @@ class Pages extends BaseController
             'footerProfile' => $profile,
             'profile'       => $profile,
         ]);
+    }
+
+    /**
+     * @param array<int,array<string,mixed>> $services
+     * @return array<int,array<string,mixed>>
+     */
+    private function transformServicesForPublic(array $services): array
+    {
+        $items = [];
+        foreach ($services as $service) {
+            $title         = trim((string) ($service['title'] ?? ''));
+            $slug          = trim((string) ($service['slug'] ?? ''));
+            $description   = trim((string) ($service['description'] ?? ''));
+            $plainContent  = trim(strip_tags((string) ($service['content'] ?? '')));
+            $summarySource = $description !== '' ? $description : $plainContent;
+            $summary       = $this->limitPlainText($summarySource, 220);
+            $body          = $plainContent !== '' ? $this->limitPlainText($plainContent, 360) : '';
+            $thumbnailPath = trim((string) ($service['thumbnail'] ?? ''));
+
+            $items[] = [
+                'title'     => $title,
+                'slug'      => $slug,
+                'summary'   => $summary,
+                'body'      => $body,
+                'thumbnail' => $thumbnailPath !== '' ? base_url($thumbnailPath) : null,
+                'url'       => $slug !== '' ? site_url('layanan') . '#' . rawurlencode($slug) : site_url('layanan'),
+            ];
+        }
+
+        return $items;
+    }
+
+    private function limitPlainText(?string $text, int $limit = 200): string
+    {
+        $plain = trim(strip_tags((string) $text));
+        if ($plain === '') {
+            return '';
+        }
+
+        if (function_exists('mb_strimwidth')) {
+            return mb_strimwidth($plain, 0, $limit, '...', 'UTF-8');
+        }
+
+        $excerpt = substr($plain, 0, $limit);
+
+        return strlen($plain) > $limit ? $excerpt . '...' : $excerpt;
     }
 
     public function galeri(): string
