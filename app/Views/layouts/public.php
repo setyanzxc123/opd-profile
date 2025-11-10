@@ -3,7 +3,6 @@
 
   $footerProfileData = $footerProfile ?? ($profile ?? null);
   $headerProfileData = is_array($profile ?? null) ? $profile : (is_array($footerProfileData) ? $footerProfileData : null);
-  $footerMapEnabled  = false;
   $themeProfileData  = is_array($headerProfileData) ? $headerProfileData : (is_array($footerProfileData) ? $footerProfileData : null);
   $publicThemeVariables = is_array($themeProfileData) ? theme_public_variables($themeProfileData) : [];
 
@@ -18,14 +17,6 @@
   $metaUrl         = trim((string) ($metaData['url'] ?? current_url()));
   $metaImage       = trim((string) ($metaData['image'] ?? ''));
 
-  if (is_array($footerProfileData)) {
-      $lat = $footerProfileData['latitude'] ?? null;
-      $lng = $footerProfileData['longitude'] ?? null;
-      $display = (int) ($footerProfileData['map_display'] ?? 0) === 1;
-      if ($display && $lat !== null && $lat !== '' && $lng !== null && $lng !== '') {
-          $footerMapEnabled = true;
-      }
-  }
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -64,9 +55,6 @@
   <?php if ($publicThemeVariables !== []): ?>
     <?= theme_render_style($publicThemeVariables) ?>
   <?php endif; ?>
-  <?php if ($footerMapEnabled): ?>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <?php endif; ?>
   <?= $this->renderSection('pageStyles') ?>
 </head>
 <body class="d-flex flex-column min-vh-100 public-body">
@@ -79,10 +67,6 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   <script src="<?= base_url('assets/vendor/js/headroom.min.js') ?>" defer></script>
   <script src="<?= base_url('assets/js/public-min.js') ?>" defer></script>
-  <?php if ($footerMapEnabled): ?>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
-    <script src="<?= base_url('assets/js/footer-map.js') ?>" defer></script>
-  <?php endif; ?>
   <?= $this->renderSection('pageScripts') ?>
 </body>
 </html>

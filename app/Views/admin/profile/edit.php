@@ -65,8 +65,6 @@
 <?= $this->extend('layouts/admin') ?>
 <?= $this->section('pageStyles') ?>
   <link rel="stylesheet" href="<?= base_url('assets/vendor/cropperjs/cropper.min.css') ?>">
-  <link rel="stylesheet" href="<?= base_url('assets/vendor/leaflet/leaflet.css') ?>">
-  <link rel="stylesheet" href="<?= base_url('assets/css/admin/profile-map.css') ?>">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css">
   <link rel="stylesheet" href="<?= base_url('assets/css/admin/profile-theme.css') ?>">
 <?= $this->endSection() ?>
@@ -265,9 +263,26 @@
                           </div>
                         </div>
                         <div class="col-12">
+                          <?php
+                            $mapDisplayOld     = old('map_display', (string) ($profile['map_display'] ?? '0'));
+                            $latPreviewValue   = old('latitude', $profile['latitude'] ?? '');
+                            $lngPreviewValue   = old('longitude', $profile['longitude'] ?? '');
+                            $zoomPreviewValue  = old('map_zoom', $profile['map_zoom'] ?? '');
+                            $latIsNumeric      = is_numeric($latPreviewValue);
+                            $lngIsNumeric      = is_numeric($lngPreviewValue);
+                            $hasMapPreview     = $latIsNumeric && $lngIsNumeric;
+                            $mapZoomValue      = is_numeric($zoomPreviewValue) ? (int) $zoomPreviewValue : 16;
+                            if ($mapZoomValue < 1 || $mapZoomValue > 20) {
+                              $mapZoomValue = 16;
+                            }
+                            $mapPreviewUrl = '';
+                            if ($hasMapPreview) {
+                              $coordinateQuery = rawurlencode(trim((string) $latPreviewValue) . ',' . trim((string) $lngPreviewValue));
+                              $mapPreviewUrl = 'https://www.google.com/maps?q=' . $coordinateQuery . '&z=' . rawurlencode((string) $mapZoomValue) . '&output=embed';
+                            }
+                          ?>
                           <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                            <h6 class="fw-semibold mb-0">Peta Interaktif</h6>
-                            <?php $mapDisplayOld = old('map_display', (string) ($profile['map_display'] ?? '0')); ?>
+                            <h6 class="fw-semibold mb-0">Pratinjau Peta Google Maps</h6>
                             <div class="form-check form-switch mb-0">
                               <input class="form-check-input" type="checkbox" id="field-map-display" name="map_display" value="1" <?= $mapDisplayOld === '1' ? 'checked' : '' ?>>
                               <label class="form-check-label small" for="field-map-display">Tampilkan di situs publik</label>
@@ -276,27 +291,32 @@
                           <?php if ($validation && $validation->hasError('map_display')): ?>
                             <div class="form-text text-danger mb-2"><?= esc($validation->getError('map_display')) ?></div>
                           <?php else: ?>
-                            <div class="form-text text-muted mb-3">Aktifkan agar marker lokasi muncul pada halaman publik.</div>
+                            <div class="form-text text-muted mb-3">Aktifkan agar peta iframe muncul pada footer halaman publik.</div>
                           <?php endif; ?>
-                          <div class="profile-map-wrapper" data-map-wrapper>
-                            <div class="profile-map-search-area mb-2" data-map-search-area>
-                              <div class="input-group">
-                                <span class="input-group-text" id="map-search-addon">
-                                  <i class="bx bx-map-pin" aria-hidden="true"></i>
-                                </span>
-                                <input type="search" class="form-control" placeholder="Cari nama tempat atau alamat (minimal 3 karakter)" aria-label="Cari lokasi" aria-describedby="map-search-addon" data-map-search-input>
-                                <button class="btn btn-outline-secondary" type="button" data-map-search-clear>
-                                  <span class="d-none d-lg-inline">Bersihkan</span>
-                                  <span class="d-inline d-lg-none"><i class="bx bx-x" aria-hidden="true"></i></span>
-                                </button>
-                              </div>
-                              <div class="profile-map-search-results list-group shadow-sm d-none" data-map-search-results role="listbox" aria-label="Hasil pencarian lokasi"></div>
-                            </div>
-                            <div class="alert alert-warning py-2 px-3 profile-map-alert small" role="alert" data-map-feedback></div>
-                            <div id="profile-map" data-search-url="<?= site_url('admin/profile/search-location') ?>" data-default-lat="-2.548926" data-default-lng="118.0148634" data-default-zoom="5" aria-label="Pratinjau peta lokasi OPD"></div>
+                          <div class="alert alert-info small">
+                            <p class="mb-2 fw-semibold text-info">Cara mendapatkan koordinat:</p>
+                            <ol class="ps-3 mb-2">
+                              <li>Buka Google Maps, klik kanan lokasi kantor OPD.</li>
+                              <li>Pilih <strong>Salin koordinat</strong>, lalu tempel ke kolom Latitude dan Longitude.</li>
+                              <li>Atur level zoom sesuai kebutuhan tampilan embed (1 = jauh, 20 = sangat dekat).</li>
+                            </ol>
+                            <p class="mb-0">Nilai yang disimpan hanya dipakai untuk iframe sederhana di situs publik sehingga panel admin tetap ringan.</p>
                           </div>
-                          <div class="form-text text-muted mt-3">
-                            Geser marker atau klik peta untuk memperbarui koordinat. Gunakan pencarian di atas untuk menemukan titik dengan cepat.
+                          <div class="ratio ratio-4x3 rounded-3 border bg-light overflow-hidden mt-3">
+                            <?php if ($hasMapPreview): ?>
+                              <iframe
+                                src="<?= esc($mapPreviewUrl) ?>"
+                                title="Pratinjau lokasi Google Maps"
+                                loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade"
+                                allowfullscreen>
+                              </iframe>
+                            <?php else: ?>
+                              <div class="d-flex flex-column justify-content-center align-items-center text-center px-3">
+                                <i class="bx bx-map-pin display-6 text-muted mb-2" aria-hidden="true"></i>
+                                <p class="mb-0 text-muted small">Isi koordinat untuk melihat pratinjau embed Google Maps.</p>
+                              </div>
+                            <?php endif; ?>
                           </div>
                         </div>
                       </div>
@@ -434,8 +454,6 @@
 
 <?= $this->section('pageScripts') ?>
   <script src="<?= base_url('assets/vendor/cropperjs/cropper.min.js') ?>"></script>
-  <script src="<?= base_url('assets/vendor/leaflet/leaflet.js') ?>" defer></script>
-  <script src="<?= base_url('assets/js/admin/profile-map.js') ?>" defer></script>
   <script src="<?= base_url('assets/js/admin/profile-logos.js') ?>" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js" defer></script>
   <script src="<?= base_url('assets/js/admin/profile-theme.js') ?>" defer></script>

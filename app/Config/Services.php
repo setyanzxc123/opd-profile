@@ -5,7 +5,6 @@ namespace Config;
 use App\Services\DashboardAdminService;
 use App\Services\NewsMediaService;
 use App\Services\ProfileAdminService;
-use App\Services\ProfileLocationService;
 use CodeIgniter\Config\BaseService;
 
 /**
@@ -39,15 +38,6 @@ class Services extends BaseService
         }
 
         return new ProfileAdminService();
-    }
-
-    public static function profileLocation(bool $getShared = true): ProfileLocationService
-    {
-        if ($getShared) {
-            return static::getSharedInstance('profileLocation');
-        }
-
-        return new ProfileLocationService();
     }
 
     public static function newsMedia(bool $getShared = true): NewsMediaService

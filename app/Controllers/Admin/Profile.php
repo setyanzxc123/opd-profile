@@ -5,22 +5,18 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\OpdProfileModel;
 use App\Services\ProfileAdminService;
-use App\Services\ProfileLocationService;
 use App\Services\ProfileLogoService;
 use App\Services\ThemeStyleService;
-use CodeIgniter\HTTP\ResponseInterface;
 
 class Profile extends BaseController
 {
     private const DEFAULT_THEME_SETTINGS = ThemeStyleService::DEFAULT_THEME;
 
     private ProfileAdminService $profileService;
-    private ProfileLocationService $locationService;
 
     public function __construct()
     {
-        $this->profileService  = service('profileAdmin');
-        $this->locationService = service('profileLocation');
+        $this->profileService = service('profileAdmin');
     }
 
     // Purpose: display edit form for the single OPD profile
@@ -206,36 +202,6 @@ class Profile extends BaseController
 
         return redirect()->to(site_url('admin/profile'))
             ->with('message', 'Profil berhasil disimpan.');
-    }
-
-    public function searchLocation(): ResponseInterface
-    {
-        if (! $this->request->isAJAX()) {
-            return $this->response->setStatusCode(ResponseInterface::HTTP_METHOD_NOT_ALLOWED)
-                ->setJSON(['message' => 'Metode tidak diizinkan.']);
-        }
-
-        $query = trim((string) $this->request->getGet('q'));
-        $length = function_exists('mb_strlen') ? mb_strlen($query) : strlen($query);
-
-        if ($length < 3) {
-            return $this->response->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
-                ->setJSON(['message' => 'Masukkan minimal 3 karakter untuk pencarian.']);
-        }
-
-        try {
-            $results = $this->locationService->search($query);
-        } catch (\RuntimeException $exception) {
-            $status = $exception->getCode();
-            if (! is_int($status) || $status < 400 || $status > 599) {
-                $status = ResponseInterface::HTTP_BAD_GATEWAY;
-            }
-
-            return $this->response->setStatusCode($status)
-                ->setJSON(['message' => $exception->getMessage()]);
-        }
-
-        return $this->response->setJSON(['data' => $results]);
     }
 }
 

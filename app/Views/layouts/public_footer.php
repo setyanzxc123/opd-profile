@@ -73,14 +73,29 @@
       <div class="col-12 col-lg-5">
         <h3 class="text-white mb-3 h6 text-uppercase">Lokasi Kami</h3>
         <?php if ($shouldShowMap): ?>
-          <div id="footer-map"
-               class="footer-map rounded-3 overflow-hidden"
-               data-lat="<?= esc((string) $latitude) ?>"
-               data-lng="<?= esc((string) $longitude) ?>"
-               data-zoom="<?= esc((string) $zoomLevel) ?>"
-               data-title="<?= esc($footerName) ?>"
-               data-address="<?= esc($footerAddress) ?>">
+          <?php
+            $coordinateString = trim((string) $latitude) . ',' . trim((string) $longitude);
+            $mapZoomValue     = is_numeric($zoomLevel) ? (int) $zoomLevel : 16;
+            if ($mapZoomValue < 1 || $mapZoomValue > 20) {
+                $mapZoomValue = 16;
+            }
+            $mapEmbedUrl = 'https://www.google.com/maps?q=' . rawurlencode($coordinateString) . '&z=' . rawurlencode((string) $mapZoomValue) . '&output=embed';
+            $mapExternalUrl = 'https://www.google.com/maps?q=' . rawurlencode($coordinateString);
+          ?>
+          <div class="footer-map ratio ratio-4x3 rounded-3 overflow-hidden border border-light border-opacity-25">
+            <iframe
+              src="<?= esc($mapEmbedUrl) ?>"
+              title="Lokasi <?= esc($footerName) ?>"
+              loading="lazy"
+              allowfullscreen
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
           </div>
+          <p class="mt-2 mb-0">
+            <a class="link-light text-decoration-none small" href="<?= esc($mapExternalUrl) ?>" target="_blank" rel="noopener">
+              Buka di Google Maps
+            </a>
+          </p>
         <?php else: ?>
           <div class="footer-map-placeholder text-white-50 small border border-light border-opacity-25 rounded-3 p-4 h-100 d-flex align-items-center justify-content-center text-center">
             <div>
