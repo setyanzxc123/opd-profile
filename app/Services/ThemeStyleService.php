@@ -5,9 +5,80 @@ namespace App\Services;
 class ThemeStyleService
 {
     public const DEFAULT_THEME = [
-        'primary' => '#05A5A8',
+        'primary' => '#046C72',
         'neutral' => '#22303E',
         'surface' => '#F5F5F9',
+    ];
+
+    public const DEFAULT_PRESET = 'coastal-teal';
+
+    public const PRESET_THEMES = [
+        'coastal-teal' => [
+            'label'       => 'Coastal Teal',
+            'description' => 'Teal teduh yang terinspirasi warna laut tropis.',
+            'primary'     => '#046C72',
+            'surface'     => '#F1FBFB',
+        ],
+        'sunrise-coral' => [
+            'label'       => 'Sunrise Coral',
+            'description' => 'Oranye koral hangat untuk layanan ramah publik.',
+            'primary'     => '#C2410C',
+            'surface'     => '#FFF4E6',
+        ],
+        'forest-emerald' => [
+            'label'       => 'Forest Emerald',
+            'description' => 'Hijau zamrud untuk citra lingkungan dan kehutanan.',
+            'primary'     => '#046B4E',
+            'surface'     => '#F0FDF4',
+        ],
+        'nusantara-green' => [
+            'label'       => 'Nusantara Green',
+            'description' => 'Hijau terang khas dinas pertanian dan pelayanan publik.',
+            'primary'     => '#166534',
+            'surface'     => '#F2FFF6',
+        ],
+        'royal-indigo' => [
+            'label'       => 'Royal Indigo',
+            'description' => 'Ungu kebiruan elegan untuk tampilan premium.',
+            'primary'     => '#4338CA',
+            'surface'     => '#EEF2FF',
+        ],
+        'merdeka-purple' => [
+            'label'       => 'Merdeka Purple',
+            'description' => 'Ungu cerah untuk event dan komunikasi kreatif.',
+            'primary'     => '#6D28D9',
+            'surface'     => '#F7EEFF',
+        ],
+        'modern-slate' => [
+            'label'       => 'Modern Slate',
+            'description' => 'Biru keabu-abuan modern untuk dashboard data.',
+            'primary'     => '#1E3A8A',
+            'surface'     => '#F8FAFC',
+        ],
+        'heritage-blue' => [
+            'label'       => 'Heritage Blue',
+            'description' => 'Biru tua resmi yang populer di banyak OPD.',
+            'primary'     => '#0F4C81',
+            'surface'     => '#F2F6FF',
+        ],
+        'civic-maroon' => [
+            'label'       => 'Civic Maroon',
+            'description' => 'Merah marun klasik untuk instansi pemerintahan.',
+            'primary'     => '#7F1D1D',
+            'surface'     => '#FFF1F2',
+        ],
+        'garuda-amber' => [
+            'label'       => 'Garuda Amber',
+            'description' => 'Amber keemasan untuk citra dinamis dan energik.',
+            'primary'     => '#92400E',
+            'surface'     => '#FFF8E5',
+        ],
+        'metropolitan-charcoal' => [
+            'label'       => 'Metropolitan Charcoal',
+            'description' => 'Abu gelap profesional dengan permukaan netral.',
+            'primary'     => '#0F172A',
+            'surface'     => '#F5F7FB',
+        ],
     ];
 
     public static function mergeSettings($raw): array
@@ -24,7 +95,64 @@ class ThemeStyleService
             }
         }
 
+        $defaults['neutral'] = self::deriveAccessibleNeutral($defaults['surface'], $defaults['neutral']);
+        $defaults['primary'] = self::ensureAccessiblePrimary($defaults['primary']);
+
         return $defaults;
+    }
+
+    public static function presetThemes(): array
+    {
+        return self::PRESET_THEMES;
+    }
+
+    public static function getPresetTheme(?string $slug): ?array
+    {
+        $key = is_string($slug) ? trim($slug) : '';
+        if ($key === '') {
+            return null;
+        }
+
+        $presets = self::presetThemes();
+
+        return $presets[$key] ?? null;
+    }
+
+    public static function detectPresetSlug(array $theme): ?string
+    {
+        $primary = self::normalizeHex($theme['primary'] ?? null, self::DEFAULT_THEME['primary']);
+        $surface = self::normalizeHex($theme['surface'] ?? null, self::DEFAULT_THEME['surface']);
+
+        foreach (self::PRESET_THEMES as $slug => $preset) {
+            $presetPrimary = self::normalizeHex($preset['primary'], self::DEFAULT_THEME['primary']);
+            $presetSurface = self::normalizeHex($preset['surface'], self::DEFAULT_THEME['surface']);
+
+            if ($primary === $presetPrimary && $surface === $presetSurface) {
+                return $slug;
+            }
+        }
+
+        return null;
+    }
+
+    public static function ensureAccessiblePrimary(string $primary): string
+    {
+        $normalized = self::normalizeHex($primary, self::DEFAULT_THEME['primary']);
+        if (self::passesContrast('#FFFFFF', $normalized, 4.5)) {
+            return $normalized;
+        }
+
+        $current = $normalized;
+        for ($i = 1; $i <= 12; $i++) {
+            $ratio = min($i * 0.08, 0.96);
+            $darker = self::darken($normalized, $ratio);
+            if (self::passesContrast('#FFFFFF', $darker, 4.5)) {
+                return $darker;
+            }
+            $current = $darker;
+        }
+
+        return $current;
     }
 
     public static function compilePublicVariables(array $theme): array
@@ -148,6 +276,64 @@ class ThemeStyleService
     private static function deriveAccent(string $primary): string
     {
         return self::mix($primary, '#FFFFFF', 0.35);
+    }
+
+    public static function deriveAccessibleNeutral(?string $surface, ?string $fallback = null): string
+    {
+        $background = self::normalizeHex($surface, self::DEFAULT_THEME['surface']);
+        $fallbackColor = self::normalizeHex($fallback ?? self::DEFAULT_THEME['neutral'], self::DEFAULT_THEME['neutral']);
+
+        $isLightSurface = self::relativeLuminance($background) >= 0.6;
+
+        $darkPalette = ['#111827', '#162033', '#1E293B', '#22303E', '#2D3748'];
+        $lightPalette = ['#F8FAFC', '#F5F5F9', '#F3F4F6', '#EEF2FF', '#FFFFFF'];
+        $palette = $isLightSurface ? $darkPalette : $lightPalette;
+
+        foreach ($palette as $candidate) {
+            if (self::passesContrast($candidate, $background, 4.5)) {
+                return $candidate;
+            }
+        }
+
+        if (self::passesContrast($fallbackColor, $background, 4.5)) {
+            return $fallbackColor;
+        }
+
+        return $isLightSurface ? '#111111' : '#FFFFFF';
+    }
+
+    public static function passesContrast(string $foreground, string $background, float $minimumRatio = 4.5): bool
+    {
+        return self::contrastRatio($foreground, $background) >= $minimumRatio;
+    }
+
+    public static function contrastRatio(string $colorA, string $colorB): float
+    {
+        $first  = self::normalizeHex($colorA, '#000000');
+        $second = self::normalizeHex($colorB, '#FFFFFF');
+
+        $luminanceA = self::relativeLuminance($first);
+        $luminanceB = self::relativeLuminance($second);
+
+        $lighter = max($luminanceA, $luminanceB);
+        $darker  = min($luminanceA, $luminanceB);
+
+        return ($lighter + 0.05) / ($darker + 0.05);
+    }
+
+    private static function relativeLuminance(string $hex): float
+    {
+        $normalized = self::normalizeHex($hex, '#000000');
+
+        $red   = hexdec(substr($normalized, 1, 2)) / 255;
+        $green = hexdec(substr($normalized, 3, 2)) / 255;
+        $blue  = hexdec(substr($normalized, 5, 2)) / 255;
+
+        $redLinear = $red <= 0.03928 ? $red / 12.92 : pow(($red + 0.055) / 1.055, 2.4);
+        $greenLinear = $green <= 0.03928 ? $green / 12.92 : pow(($green + 0.055) / 1.055, 2.4);
+        $blueLinear = $blue <= 0.03928 ? $blue / 12.92 : pow(($blue + 0.055) / 1.055, 2.4);
+
+        return 0.2126 * $redLinear + 0.7152 * $greenLinear + 0.0722 * $blueLinear;
     }
 
     private static function decode($raw): array

@@ -4,9 +4,64 @@ namespace App\Services;
 
 class ProfileAdminService
 {
+    public const THEME_MODE_PRESET = 'preset';
+    public const THEME_MODE_CUSTOM = 'custom';
+
     public function mergeThemeSettings($raw): array
     {
         return ThemeStyleService::mergeSettings($raw);
+    }
+
+    public function getThemePresets(): array
+    {
+        return ThemeStyleService::presetThemes();
+    }
+
+    public function detectThemePresetSlug(array $theme): ?string
+    {
+        return ThemeStyleService::detectPresetSlug($theme);
+    }
+
+    public function buildThemeFromPreset(?string $slug, array $defaults): array
+    {
+        $preset = ThemeStyleService::getPresetTheme($slug);
+
+        if ($preset) {
+            return ThemeStyleService::mergeSettings([
+                'primary' => $preset['primary'],
+                'surface' => $preset['surface'],
+            ]);
+        }
+
+        return ThemeStyleService::mergeSettings($defaults);
+    }
+
+    public function buildCustomTheme(?string $primary, ?string $surface, array $defaults): array
+    {
+        $basePrimary = $primary ?? ($defaults['primary'] ?? ThemeStyleService::DEFAULT_THEME['primary']);
+        $baseSurface = $surface ?? ($defaults['surface'] ?? ThemeStyleService::DEFAULT_THEME['surface']);
+
+        return ThemeStyleService::mergeSettings([
+            'primary' => $basePrimary,
+            'surface' => $baseSurface,
+        ]);
+    }
+
+    public function normalizeThemeMode($value): string
+    {
+        if (is_string($value)) {
+            $candidate = strtolower(trim($value));
+            if (in_array($candidate, [self::THEME_MODE_PRESET, self::THEME_MODE_CUSTOM], true)) {
+                return $candidate;
+            }
+        }
+
+        return self::THEME_MODE_PRESET;
+    }
+
+    public function getThemeModeOptions(): array
+    {
+        return [self::THEME_MODE_PRESET, self::THEME_MODE_CUSTOM];
     }
 
     public function normalizeHexColor($value): ?string
@@ -138,19 +193,20 @@ class ProfileAdminService
         return (int) ((string) $value === '1' ? 1 : 0);
     }
 
-    public function resolveTheme(array $currentTheme, array $incomingTheme, bool $reset, array $defaults): array
+    public function validateThemeAccessibility(array $theme, float $minimumRatio = 4.5): ?string
     {
-        $finalTheme = $reset ? $defaults : $currentTheme;
+        $primary = $theme['primary'] ?? ThemeStyleService::DEFAULT_THEME['primary'];
+        $surface = $theme['surface'] ?? ThemeStyleService::DEFAULT_THEME['surface'];
+        $neutral = $theme['neutral'] ?? ThemeStyleService::deriveAccessibleNeutral($surface);
 
-        if (! $reset) {
-            foreach ($incomingTheme as $key => $value) {
-                if ($value !== null) {
-                    $finalTheme[$key] = $value;
-                }
-            }
+        if (! ThemeStyleService::passesContrast('#FFFFFF', $primary, $minimumRatio)) {
+            return 'Warna utama harus memiliki kontras yang cukup terhadap teks.';
         }
 
-        return $finalTheme;
+        if (! ThemeStyleService::passesContrast($neutral, $surface, $minimumRatio)) {
+            return 'Kombinasi warna latar dan teks tidak memenuhi standar kontras.';
+        }
+
+        return null;
     }
 }
-

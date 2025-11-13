@@ -1,22 +1,105 @@
-.theme-color-grid {
+.theme-mode-toggle {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.theme-mode-toggle .btn {
+  border-radius: 999px;
+  padding-inline: 1.25rem;
+}
+
+.theme-mode-toggle .btn-check:checked + .btn {
+  color: #ffffff;
+  background-color: var(--bs-primary, #05A5A8);
+  border-color: var(--bs-primary, #05A5A8);
+  box-shadow: 0 0.75rem 1.5rem rgba(5, 165, 168, 0.25);
+}
+
+.theme-preset-grid {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
-.theme-color-picker {
-  width: 52px;
-  height: 52px;
+.theme-preset-card {
+  position: relative;
+  cursor: pointer;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.theme-color-picker .pcr-button {
-  width: 100%;
-  height: 100%;
+.theme-preset-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 1rem 2rem rgba(15, 23, 42, 0.08);
+}
+
+.theme-preset-card input {
+  pointer-events: none;
+}
+
+.theme-preset-card.is-active {
+  border-color: var(--bs-primary, #05A5A8);
+  box-shadow: 0 1rem 2.25rem rgba(5, 165, 168, 0.18);
+}
+
+.theme-preset-swatches {
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.theme-preset-swatch {
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
   border-radius: 16px;
-  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
 }
 
-.theme-color-card .theme-color-input {
+.theme-preset-check {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bs-primary, #05A5A8);
+  color: #ffffff;
+  font-size: 1.25rem;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.theme-preset-card.is-active .theme-preset-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.theme-custom-card {
+  border-radius: 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 0.75rem 1.5rem rgba(15, 23, 42, 0.06);
+}
+
+.theme-hex-picker {
+  width: 100%;
+  height: 200px;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.theme-custom-input {
   font-family: ui-monospace, SFMono-Regular, SFMono, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   text-transform: uppercase;
+}
+
+.theme-custom-grid {
+  --bs-gutter-y: 1.25rem;
 }
 
 .theme-preview-card {
@@ -87,15 +170,100 @@
   border-color: color-mix(in srgb, var(--theme-neutral) 28%, transparent);
 }
 
+/* Standardized spacing for all tabs */
+.tab-content {
+  padding: 1.5rem !important;
+}
+
+.tab-content .card {
+  margin-bottom: 1.5rem;
+}
+
+.tab-content .card:last-child {
+  margin-bottom: 0;
+}
+
+.tab-content .card-body {
+  padding: 1.5rem;
+}
+
+/* Improved responsive design */
 @media (max-width: 575.98px) {
-  .theme-color-grid {
+  .theme-preset-grid {
     grid-template-columns: 1fr;
   }
 
-  .theme-color-card .theme-color-swatch,
-  .theme-color-picker {
-    width: 48px;
-    height: 48px;
+  .theme-hex-picker {
+    height: 160px;
+  }
+
+  .tab-content {
+    padding: 1rem !important;
+  }
+
+  .tab-content .card-body {
+    padding: 1rem;
+  }
+
+  .theme-mode-toggle {
+    justify-content: center;
+  }
+
+  .theme-mode-toggle .btn {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  /* Mobile tab navigation improvements */
+  .nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .nav-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-tabs .nav-item {
+    flex-shrink: 0;
+  }
+
+  .nav-tabs .nav-link {
+    font-size: 0.875rem;
+    padding: 0.75rem 1rem;
+  }
+
+  /* Form improvements for mobile */
+  .form-label {
+    font-size: 0.875rem;
+  }
+
+  .form-control, .form-select {
+    font-size: 0.875rem;
+  }
+
+  .btn {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .tab-content .row {
+    --bs-gutter-x: 1rem;
+    --bs-gutter-y: 1rem;
+  }
+
+  .theme-custom-grid .col-12 {
+    margin-bottom: 1rem;
+  }
+
+  .theme-custom-grid .col-12:last-child {
+    margin-bottom: 0;
   }
 }
 

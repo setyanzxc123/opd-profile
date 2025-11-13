@@ -50,17 +50,42 @@ class Profile extends BaseController
             $profile = $model->orderBy('id', 'ASC')->first();
         }
 
+        $themeSettings = $this->profileService->mergeThemeSettings($profile['theme_settings'] ?? null);
+        $themePresets  = $this->profileService->getThemePresets();
+        $detectedPreset = $this->profileService->detectThemePresetSlug($themeSettings);
+        $activePreset  = $detectedPreset ?? (array_key_first($themePresets) ?? ThemeStyleService::DEFAULT_PRESET);
+        $activeThemeMode = $detectedPreset !== null
+            ? ProfileAdminService::THEME_MODE_PRESET
+            : ProfileAdminService::THEME_MODE_CUSTOM;
+        $customThemeDefaults = [
+            'primary' => $themeSettings['primary'] ?? self::DEFAULT_THEME_SETTINGS['primary'],
+            'surface' => $themeSettings['surface'] ?? self::DEFAULT_THEME_SETTINGS['surface'],
+        ];
+
         return view('admin/profile/edit', [
-            'title'          => 'Profil',
-            'profile'        => $profile,
-            'themeSettings'  => $this->profileService->mergeThemeSettings($profile['theme_settings'] ?? null),
-            'themeDefaults'  => self::DEFAULT_THEME_SETTINGS,
-            'validation'     => \Config\Services::validation(),
+            'title'             => 'Profil',
+            'profile'           => $profile,
+            'themeSettings'     => $themeSettings,
+            'themeDefaults'     => self::DEFAULT_THEME_SETTINGS,
+            'themePresets'      => $themePresets,
+            'activeThemePreset' => $activePreset,
+            'activeThemeMode'   => $activeThemeMode,
+            'themeCustomDefaults' => $customThemeDefaults,
+            'validation'        => \Config\Services::validation(),
         ]);
     }
 
     public function update()
     {
+        $themePresets = ThemeStyleService::presetThemes();
+        $presetKeys   = array_keys($themePresets);
+        $themeModeInput = (string) $this->request->getPost('theme_mode');
+        $themeMode = $this->profileService->normalizeThemeMode($themeModeInput);
+        $modeOptions = $this->profileService->getThemeModeOptions();
+        $modeOptionsRule = implode(',', $modeOptions);
+        $hexRule = 'regex_match[/^#?(?:[0-9A-Fa-f]{3}){1,2}$/]';
+        $presetRule = empty($presetKeys) ? 'permit_empty' : 'permit_empty|in_list[' . implode(',', $presetKeys) . ']';
+
         $rules = [
             'name'        => 'required|min_length[3]|max_length[150]',
             'email'       => 'permit_empty|valid_email|max_length[100]',
@@ -74,10 +99,18 @@ class Profile extends BaseController
             'map_zoom'    => 'permit_empty|integer|greater_than_equal_to[1]|less_than_equal_to[20]',
             'map_display' => 'permit_empty|in_list[0,1]',
             'logo_public' => 'permit_empty|max_size[logo_public,3072]|is_image[logo_public]|ext_in[logo_public,jpg,jpeg,png,webp,gif]|mime_in[logo_public,image/jpeg,image/jpg,image/png,image/webp,image/gif]',
-            'theme_primary_color' => 'permit_empty|regex_match[/^#?(?:[0-9A-Fa-f]{3}){1,2}$/]',
-            'theme_surface_color' => 'permit_empty|regex_match[/^#?(?:[0-9A-Fa-f]{3}){1,2}$/]',
-            'theme_neutral_color' => 'permit_empty|regex_match[/^#?(?:[0-9A-Fa-f]{3}){1,2}$/]',
+            'theme_mode'   => 'required|in_list[' . $modeOptionsRule . ']',
+            'theme_preset' => $presetRule,
+            'theme_primary_color' => 'permit_empty|' . $hexRule,
+            'theme_surface_color' => 'permit_empty|' . $hexRule,
         ];
+
+        if ($themeMode === ProfileAdminService::THEME_MODE_CUSTOM) {
+            $rules['theme_primary_color'] = 'required|' . $hexRule;
+            $rules['theme_surface_color'] = 'required|' . $hexRule;
+        } elseif (! empty($presetKeys)) {
+            $rules['theme_preset'] = 'required|in_list[' . implode(',', $presetKeys) . ']';
+        }
 
         if (! $this->validate($rules)) {
             return redirect()->back()->withInput()->with('error', 'Periksa kembali data yang diisi.');
@@ -116,15 +149,21 @@ class Profile extends BaseController
             'email'       => sanitize_plain_text($this->request->getPost('email')),
         ];
 
-        $currentTheme = $this->profileService->mergeThemeSettings($currentProfile['theme_settings'] ?? null);
-        $incomingTheme = [
-            'primary' => $this->profileService->normalizeHexColor($this->request->getPost('theme_primary_color')),
-            'surface' => $this->profileService->normalizeHexColor($this->request->getPost('theme_surface_color')),
-            'neutral' => $this->profileService->normalizeHexColor($this->request->getPost('theme_neutral_color')),
-        ];
+        if ($themeMode === ProfileAdminService::THEME_MODE_CUSTOM) {
+            $primaryColor = $this->profileService->normalizeHexColor($this->request->getPost('theme_primary_color'));
+            $surfaceColor = $this->profileService->normalizeHexColor($this->request->getPost('theme_surface_color'));
+            $finalTheme = $this->profileService->buildCustomTheme($primaryColor, $surfaceColor, self::DEFAULT_THEME_SETTINGS);
+        } else {
+            $presetSlug = (string) $this->request->getPost('theme_preset');
+            $finalTheme = $this->profileService->buildThemeFromPreset($presetSlug, self::DEFAULT_THEME_SETTINGS);
+        }
 
-        $themeReset = $this->profileService->isAffirmative($this->request->getPost('theme_reset'));
-        $finalTheme = $this->profileService->resolveTheme($currentTheme, $incomingTheme, $themeReset, self::DEFAULT_THEME_SETTINGS);
+        $contrastError = $this->profileService->validateThemeAccessibility($finalTheme);
+        if ($contrastError !== null) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', $contrastError);
+        }
 
         try {
             $data['theme_settings'] = json_encode($finalTheme, JSON_THROW_ON_ERROR);
