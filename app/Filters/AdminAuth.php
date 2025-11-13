@@ -37,14 +37,16 @@ class AdminAuth implements FilterInterface
 
         $role   = $this->resolveRole($user);
         $config = config('AdminAccess');
+        $roleConfig = $config->roles[$role] ?? null;
 
-        if (! isset($config->roles[$role])) {
+        if ($roleConfig === null) {
             $auth->logout();
 
             return redirect()->to(site_url('login'))->with('error', 'Akun tidak memiliki akses.');
         }
 
-        $this->synchronizeSession($user, $role);
+        $allowed = $this->normalizeSections($roleConfig['allowedSections'] ?? []);
+        $this->synchronizeSession($user, $role, $allowed, $roleConfig['label'] ?? null);
 
         $segments = $request->getUri()->getSegments();
         if (($segments[0] ?? '') !== 'admin') {
@@ -53,7 +55,6 @@ class AdminAuth implements FilterInterface
 
         $default = $config->defaultDashboardSection ?? 'dashboard';
         $section = $this->detectSection($segments, $default);
-        $allowed = $config->roles[$role]['allowedSections'] ?? [];
 
         if (! $this->isAllowed($section, $allowed)) {
             $fallback = $config->fallbackRoute ?? 'admin';
@@ -67,14 +68,23 @@ class AdminAuth implements FilterInterface
         // No-op
     }
 
-    private function synchronizeSession(User $user, string $role): void
+    private function synchronizeSession(User $user, string $role, array $allowedSections, ?string $roleLabel = null): void
     {
+        $displayName = $this->resolveDisplayName($user);
+        $initial     = $this->resolveInitial($displayName);
+        $label       = $roleLabel !== null && $roleLabel !== '' ? $roleLabel : ucfirst(strtolower($role));
+
         session()->set([
             'user_id'   => $user->id,
             'username'  => $user->username,
-            'name'      => $user->name ?? $user->username ?? 'Admin',
+            'name'      => $displayName,
             'role'      => $role,
             'logged_in' => true,
+            'admin_display_name'   => $displayName,
+            'admin_initial'        => $initial,
+            'admin_role_label'     => $label,
+            'admin_allowed_sections' => $allowedSections,
+            'admin_has_full_access'  => in_array('*', $allowedSections, true),
         ]);
     }
 
@@ -100,18 +110,56 @@ class AdminAuth implements FilterInterface
         return strtolower($section);
     }
 
-    /**
-     * @param list<string> $allowed
-     */
     private function isAllowed(string $section, array $allowed): bool
     {
-        $normalized = array_map(static fn ($item) => strtolower((string) $item), $allowed);
-
-        if (in_array('*', $normalized, true)) {
+        if (in_array('*', $allowed, true)) {
             return true;
         }
 
-        return in_array(strtolower($section), $normalized, true);
+        return in_array(strtolower($section), $allowed, true);
+    }
+
+    /**
+     * @param array<int, string> $sections
+     *
+     * @return list<string>
+     */
+    private function normalizeSections(array $sections): array
+    {
+        $normalized = array_map(static fn ($item) => strtolower(trim((string) $item)), $sections);
+        $normalized = array_filter($normalized, static fn ($item) => $item !== '');
+
+        return array_values(array_unique($normalized));
+    }
+
+    private function resolveDisplayName(User $user): string
+    {
+        $candidates = [
+            trim((string) ($user->name ?? '')),
+            trim((string) ($user->username ?? '')),
+        ];
+
+        foreach ($candidates as $candidate) {
+            if ($candidate !== '') {
+                return $candidate;
+            }
+        }
+
+        return 'Admin';
+    }
+
+    private function resolveInitial(string $displayName): string
+    {
+        $initial = strtoupper(substr($displayName, 0, 1));
+
+        if (function_exists('mb_substr')) {
+            $candidate = mb_substr($displayName, 0, 1, 'UTF-8');
+            if ($candidate !== false && $candidate !== '') {
+                $initial = mb_strtoupper($candidate, 'UTF-8');
+            }
+        }
+
+        return $initial !== '' ? $initial : 'A';
     }
 
     private function isDeactivated(User $user): bool

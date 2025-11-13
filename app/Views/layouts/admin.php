@@ -1,25 +1,11 @@
 <?php
-  helper(['url', 'theme']);
+  helper(['url', 'theme', 'admin']);
 
-  $adminThemeProfile = cache('public_profile_latest');
-  if (! is_array($adminThemeProfile)) {
-      try {
-          $adminThemeProfile = model(\App\Models\OpdProfileModel::class)
-              ->orderBy('id', 'desc')
-              ->first();
-      } catch (\Throwable $throwable) {
-          log_message('debug', 'Failed to fetch profile for admin theme: {error}', ['error' => $throwable->getMessage()]);
-          $adminThemeProfile = [];
-      }
-  }
-  $adminThemeProfile   = is_array($adminThemeProfile) ? $adminThemeProfile : [];
-  $adminThemeVariables = $adminThemeProfile !== [] ? theme_admin_variables($adminThemeProfile) : [];
-  $profileData = $adminThemeProfile;
-  $profileData = is_array($profileData) ? $profileData : [];
-  $profileSiteName = trim((string) ($profileData['name'] ?? ''));
-  $adminLogoPath   = trim((string) ($profileData['logo_admin_path'] ?? ($profileData['logo_public_path'] ?? '')));
-  $adminLogoUrl    = $adminLogoPath !== '' ? base_url($adminLogoPath) : null;
-  $faviconUrl      = $adminLogoUrl ?? base_url('favicon.ico');
+  $themeContext = admin_theme_context();
+  $adminThemeVariables = $themeContext['variables'] ?? [];
+  $profileSiteName = trim((string) ($themeContext['siteName'] ?? ''));
+  $adminLogoUrl = $themeContext['logoUrl'] ?? null;
+  $faviconUrl = $themeContext['faviconUrl'] ?? base_url('favicon.ico');
 ?>
 <!DOCTYPE html>
 <html
@@ -61,38 +47,11 @@
         $matchedRoute = service('router')->getMatchedRoute();
         $currentRoute = $matchedRoute[0] ?? '';
         $section      = $uri->getSegment(2);
-        $sessionName  = trim((string) (session('name') ?? ''));
-        $sessionUser  = trim((string) (session('username') ?? ''));
-        $displayName  = $sessionName !== '' ? $sessionName : ($sessionUser !== '' ? $sessionUser : 'Pengguna');
-        $initial      = strtoupper(substr($displayName, 0, 1));
-        if (function_exists('mb_substr')) {
-          $mbInitial = mb_substr($displayName, 0, 1, 'UTF-8');
-          if ($mbInitial !== false && $mbInitial !== '') {
-            $initial = mb_strtoupper($mbInitial, 'UTF-8');
-          }
-        }
-        if ($initial === '') {
-          $initial = 'P';
-        }
-        $sessionRole = trim((string) (session('role') ?? ''));
-        $roleLabel   = $sessionRole !== '' ? ucfirst(strtolower($sessionRole)) : '-';
-        $accessConfig = config('AdminAccess');
-        $roleConfig   = ($sessionRole !== '' && isset($accessConfig->roles[$sessionRole])) ? $accessConfig->roles[$sessionRole] : null;
-        $allowedSections = [];
-        if (is_array($roleConfig) && isset($roleConfig['allowedSections'])) {
-          $allowedSections = array_map(
-            static fn ($item) => strtolower((string) $item),
-            $roleConfig['allowedSections']
-          );
-        }
-        $hasFullAccess = in_array('*', $allowedSections, true);
-        $canAccess = static function (string $target) use ($allowedSections, $hasFullAccess): bool {
-          if ($hasFullAccess) {
-            return true;
-          }
-
-          return in_array(strtolower($target), $allowedSections, true);
-        };
+        $identity     = admin_user_identity();
+        $displayName  = $identity['displayName'];
+        $initial      = $identity['initial'];
+        $roleLabel    = $identity['roleLabel'];
+        $canAccess = static fn (string $target): bool => admin_can_access($target);
       ?>
       <!-- Menu -->
       <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">

@@ -16,28 +16,8 @@ class Users extends BaseController
         $this->users = model(UserModel::class);
     }
 
-    protected function ensureAdmin()
-    {
-        $auth = auth('session');
-        if (! $auth->loggedIn()) {
-            return redirect()->to(site_url('login'))->with('error', 'Sesi berakhir. Silakan login kembali.');
-        }
-
-        $user = $auth->user();
-        $isAdmin = strtolower((string) ($user->role ?? '')) === 'admin' || $user->inGroup('admin');
-        if (! $isAdmin) {
-            return redirect()->to(site_url('admin'))->with('error', 'Hanya admin yang boleh mengakses kelola pengguna.');
-        }
-
-        return null;
-    }
-
     public function index()
     {
-        if ($response = $this->ensureAdmin()) {
-            return $response;
-        }
-
         /** @var list<User> $records */
         $records = $this->users->withIdentities()->orderBy('id', 'DESC')->findAll(200);
         $users   = array_map(fn (User $user) => $this->presentUser($user), $records);
@@ -50,10 +30,6 @@ class Users extends BaseController
 
     public function create()
     {
-        if ($response = $this->ensureAdmin()) {
-            return $response;
-        }
-
         return view('admin/users/form', [
             'title'      => 'Tambah Pengguna',
             'mode'       => 'create',
@@ -73,10 +49,6 @@ class Users extends BaseController
 
     public function store()
     {
-        if ($response = $this->ensureAdmin()) {
-            return $response;
-        }
-
         $rules = [
             'username'          => 'required|min_length[3]|max_length[50]|is_unique[users.username]',
             'email'             => 'required|valid_email|is_unique[users.email]',
@@ -128,10 +100,6 @@ class Users extends BaseController
 
     public function edit(int $id)
     {
-        if ($response = $this->ensureAdmin()) {
-            return $response;
-        }
-
         /** @var User|null $user */
         $user = $this->users->withIdentities()->find($id);
         if (! $user) {
@@ -150,10 +118,6 @@ class Users extends BaseController
 
     public function update(int $id)
     {
-        if ($response = $this->ensureAdmin()) {
-            return $response;
-        }
-
         /** @var User|null $user */
         $user = $this->users->withIdentities()->find($id);
         if (! $user) {
@@ -227,10 +191,6 @@ class Users extends BaseController
 
     public function toggle(int $id)
     {
-        if ($response = $this->ensureAdmin()) {
-            return $response;
-        }
-
         /** @var User|null $user */
         $user = $this->users->withIdentities()->find($id);
         if (! $user) {
@@ -262,10 +222,6 @@ class Users extends BaseController
 
     public function resetPassword(int $id)
     {
-        if ($response = $this->ensureAdmin()) {
-            return $response;
-        }
-
         /** @var User|null $user */
         $user = $this->users->withIdentities()->find($id);
         if (! $user) {
