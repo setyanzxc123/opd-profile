@@ -13,71 +13,161 @@ class ThemeStyleService
     public const DEFAULT_PRESET = 'coastal-teal';
 
     public const PRESET_THEMES = [
-        'coastal-teal' => [
-            'label'       => 'Coastal Teal',
-            'description' => 'Teal teduh yang terinspirasi warna laut tropis.',
-            'primary'     => '#046C72',
-            'surface'     => '#F1FBFB',
+        'teal-700' => [
+            'label'   => 'Teal 700',
+            'primary' => '#115E59',
+            'surface' => '#E7FBF8',
+            'tone'    => 'dark',
         ],
-        'sunrise-coral' => [
-            'label'       => 'Sunrise Coral',
-            'description' => 'Oranye koral hangat untuk layanan ramah publik.',
-            'primary'     => '#C2410C',
-            'surface'     => '#FFF4E6',
+        'teal-500' => [
+            'label'   => 'Teal 500',
+            'primary' => '#0D9488',
+            'surface' => '#EBFFFB',
+            'tone'    => 'light',
         ],
-        'forest-emerald' => [
-            'label'       => 'Forest Emerald',
-            'description' => 'Hijau zamrud untuk citra lingkungan dan kehutanan.',
-            'primary'     => '#046B4E',
-            'surface'     => '#F0FDF4',
+        'cyan-700' => [
+            'label'   => 'Cyan 700',
+            'primary' => '#0E7490',
+            'surface' => '#E4F9FF',
+            'tone'    => 'dark',
         ],
-        'nusantara-green' => [
-            'label'       => 'Nusantara Green',
-            'description' => 'Hijau terang khas dinas pertanian dan pelayanan publik.',
-            'primary'     => '#166534',
-            'surface'     => '#F2FFF6',
+        'cyan-500' => [
+            'label'   => 'Cyan 500',
+            'primary' => '#0891B2',
+            'surface' => '#E8F9FF',
+            'tone'    => 'light',
         ],
-        'royal-indigo' => [
-            'label'       => 'Royal Indigo',
-            'description' => 'Ungu kebiruan elegan untuk tampilan premium.',
-            'primary'     => '#4338CA',
-            'surface'     => '#EEF2FF',
+        'emerald-700' => [
+            'label'   => 'Emerald 700',
+            'primary' => '#047857',
+            'surface' => '#E6F7EF',
+            'tone'    => 'dark',
         ],
-        'merdeka-purple' => [
-            'label'       => 'Merdeka Purple',
-            'description' => 'Ungu cerah untuk event dan komunikasi kreatif.',
-            'primary'     => '#6D28D9',
-            'surface'     => '#F7EEFF',
+        'emerald-500' => [
+            'label'   => 'Emerald 500',
+            'primary' => '#059669',
+            'surface' => '#ECFBF4',
+            'tone'    => 'light',
         ],
-        'modern-slate' => [
-            'label'       => 'Modern Slate',
-            'description' => 'Biru keabu-abuan modern untuk dashboard data.',
-            'primary'     => '#1E3A8A',
-            'surface'     => '#F8FAFC',
+        'green-700' => [
+            'label'   => 'Green 700',
+            'primary' => '#15803D',
+            'surface' => '#EBF8EE',
+            'tone'    => 'dark',
         ],
-        'heritage-blue' => [
-            'label'       => 'Heritage Blue',
-            'description' => 'Biru tua resmi yang populer di banyak OPD.',
-            'primary'     => '#0F4C81',
-            'surface'     => '#F2F6FF',
+        'green-500' => [
+            'label'   => 'Green 500',
+            'primary' => '#16A34A',
+            'surface' => '#EDFAEF',
+            'tone'    => 'light',
         ],
-        'civic-maroon' => [
-            'label'       => 'Civic Maroon',
-            'description' => 'Merah marun klasik untuk instansi pemerintahan.',
-            'primary'     => '#7F1D1D',
-            'surface'     => '#FFF1F2',
+        'blue-800' => [
+            'label'   => 'Blue 800',
+            'primary' => '#1E40AF',
+            'surface' => '#EEF3FF',
+            'tone'    => 'dark',
         ],
-        'garuda-amber' => [
-            'label'       => 'Garuda Amber',
-            'description' => 'Amber keemasan untuk citra dinamis dan energik.',
-            'primary'     => '#92400E',
-            'surface'     => '#FFF8E5',
+        'blue-500' => [
+            'label'   => 'Blue 500',
+            'primary' => '#2563EB',
+            'surface' => '#EFF4FF',
+            'tone'    => 'light',
         ],
-        'metropolitan-charcoal' => [
-            'label'       => 'Metropolitan Charcoal',
-            'description' => 'Abu gelap profesional dengan permukaan netral.',
-            'primary'     => '#0F172A',
-            'surface'     => '#F5F7FB',
+        'indigo-700' => [
+            'label'   => 'Indigo 700',
+            'primary' => '#3730A3',
+            'surface' => '#F0F1FF',
+            'tone'    => 'dark',
+        ],
+        'indigo-500' => [
+            'label'   => 'Indigo 500',
+            'primary' => '#4F46E5',
+            'surface' => '#F3F2FF',
+            'tone'    => 'light',
+        ],
+        'purple-700' => [
+            'label'   => 'Purple 700',
+            'primary' => '#581C87',
+            'surface' => '#F8EEFF',
+            'tone'    => 'dark',
+        ],
+        'purple-500' => [
+            'label'   => 'Purple 500',
+            'primary' => '#7C3AED',
+            'surface' => '#F9F0FF',
+            'tone'    => 'light',
+        ],
+        'red-700' => [
+            'label'   => 'Red 700',
+            'primary' => '#B91C1C',
+            'surface' => '#FFF0F1',
+            'tone'    => 'dark',
+        ],
+        'red-500' => [
+            'label'   => 'Red 500',
+            'primary' => '#EF4444',
+            'surface' => '#FFECEC',
+            'tone'    => 'light',
+        ],
+        'orange-700' => [
+            'label'   => 'Orange 700',
+            'primary' => '#C2410C',
+            'surface' => '#FFF2E7',
+            'tone'    => 'dark',
+        ],
+        'orange-500' => [
+            'label'   => 'Orange 500',
+            'primary' => '#F97316',
+            'surface' => '#FFF2E6',
+            'tone'    => 'light',
+        ],
+        'yellow-500' => [
+            'label'   => 'Yellow 500',
+            'primary' => '#EAB308',
+            'surface' => '#FFF8D9',
+            'tone'    => 'light',
+        ],
+        'amber-700' => [
+            'label'   => 'Amber 700',
+            'primary' => '#B45309',
+            'surface' => '#FFF4DF',
+            'tone'    => 'dark',
+        ],
+        'amber-500' => [
+            'label'   => 'Amber 500',
+            'primary' => '#F59E0B',
+            'surface' => '#FFF3D6',
+            'tone'    => 'light',
+        ],
+        'rose-700' => [
+            'label'   => 'Rose 700',
+            'primary' => '#BE123C',
+            'surface' => '#FFEFF3',
+            'tone'    => 'dark',
+        ],
+        'rose-500' => [
+            'label'   => 'Rose 500',
+            'primary' => '#E11D48',
+            'surface' => '#FFEFF5',
+            'tone'    => 'light',
+        ],
+        'charcoal-900' => [
+            'label'   => 'Charcoal 900',
+            'primary' => '#0F172A',
+            'surface' => '#F5F6FB',
+            'tone'    => 'dark',
+        ],
+        'black-900' => [
+            'label'   => 'Black 900',
+            'primary' => '#0B1220',
+            'surface' => '#F4F4F5',
+            'tone'    => 'dark',
+        ],
+        'white-100' => [
+            'label'   => 'White 100',
+            'primary' => '#FFFFFF',
+            'surface' => '#F9FAFB',
+            'tone'    => 'light',
         ],
     ];
 

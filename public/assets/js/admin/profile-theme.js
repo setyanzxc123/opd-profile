@@ -215,6 +215,8 @@
     const panes = Array.from(document.querySelectorAll('[data-theme-pane]'));
     const previewCard = document.querySelector('[data-theme-preview]');
     const defaultPresetSlug = presetGrid ? presetGrid.getAttribute('data-theme-default') || '' : '';
+    const presetFilterButtons = Array.from(document.querySelectorAll('[data-theme-preset-filter]'));
+    let activePresetFilter = presetGrid ? presetGrid.getAttribute('data-theme-active-filter') || 'all' : 'all';
     const resetPresetButton = document.querySelector('[data-theme-preset-reset]');
     const resetCustomButton = document.querySelector('[data-theme-custom-reset]');
     const customInputs = {
@@ -252,16 +254,20 @@
       };
     };
 
+    const findFirstVisibleCard = function () {
+      return presetCards.find(function (card) {
+        return !card.classList.contains('d-none');
+      }) || null;
+    };
+
     const readPresetSelection = function () {
-      if (state.activeCard) {
+      if (state.activeCard && !state.activeCard.classList.contains('d-none')) {
         return readPresetColors(state.activeCard);
       }
 
-      if (presetCards.length > 0) {
-        return readPresetColors(presetCards[0]);
-      }
+      const fallback = findFirstVisibleCard() || presetCards[0];
 
-      return { primary: '#05A5A8', surface: '#F5F5F9' };
+      return fallback ? readPresetColors(fallback) : { primary: '#05A5A8', surface: '#F5F5F9' };
     };
 
     const refreshPreview = function () {
@@ -274,6 +280,10 @@
     };
 
     const setActiveCard = function (card, options) {
+      if (card && card.classList.contains('d-none')) {
+        card = null;
+      }
+
       if (!card || card === state.activeCard) {
         if (!options || !options.silent) {
           refreshPreview();
@@ -318,6 +328,21 @@
       input.addEventListener('change', handleSelection);
     });
 
+    if (presetFilterButtons.length > 0) {
+      presetFilterButtons.forEach(function (button) {
+        button.addEventListener('change', function () {
+          if (!button.checked) {
+            return;
+          }
+          applyPresetFilter(button.value);
+        });
+      });
+
+      if (activePresetFilter !== 'all') {
+        applyPresetFilter(activePresetFilter, { silent: true });
+      }
+    }
+
     if (!state.activeCard && presetCards.length > 0) {
       const fallbackCard = presetCards.find(function (card) {
         return card.getAttribute('data-theme-preset') === defaultPresetSlug;
@@ -330,9 +355,16 @@
     }
 
     const activatePresetSlug = function (slug) {
-      const card = presetCards.find(function (item) {
+      let card = presetCards.find(function (item) {
         return item.getAttribute('data-theme-preset') === slug;
       });
+
+      if (card && card.classList.contains('d-none')) {
+        applyPresetFilter('all', { silent: true });
+        card = presetCards.find(function (item) {
+          return item.getAttribute('data-theme-preset') === slug;
+        });
+      }
 
       if (card) {
         const input = card.querySelector('[data-theme-preset-input]');
@@ -345,8 +377,54 @@
       }
     };
 
+    const applyPresetFilter = function (filterValue, options) {
+      activePresetFilter = filterValue;
+      if (presetGrid) {
+        presetGrid.setAttribute('data-theme-active-filter', filterValue);
+      }
+
+      presetFilterButtons.forEach(function (button) {
+        if (button.value === filterValue) {
+          button.checked = true;
+        }
+      });
+
+      let visibleCount = 0;
+      presetCards.forEach(function (card) {
+        const tone = card.getAttribute('data-theme-tone') || 'dark';
+        const shouldHide = filterValue !== 'all' && tone !== filterValue;
+        card.classList.toggle('d-none', shouldHide);
+        if (!shouldHide) {
+          visibleCount += 1;
+        }
+      });
+
+      if (visibleCount === 0 && filterValue !== 'all') {
+        applyPresetFilter('all', { silent: true });
+        return;
+      }
+
+      if (state.activeCard && state.activeCard.classList.contains('d-none')) {
+        const fallbackCard = findFirstVisibleCard();
+        if (fallbackCard) {
+          setActiveCard(fallbackCard, { silent: true });
+          const fallbackInput = fallbackCard.querySelector('[data-theme-preset-input]');
+          if (fallbackInput) {
+            fallbackInput.checked = true;
+          }
+        } else {
+          state.activeCard = null;
+        }
+      }
+
+      if (!options || !options.silent) {
+        refreshPreview();
+      }
+    };
+
     if (resetPresetButton) {
       resetPresetButton.addEventListener('click', function () {
+        applyPresetFilter('all', { silent: true });
         activatePresetSlug(defaultPresetSlug || (presetCards[0] ? presetCards[0].getAttribute('data-theme-preset') : ''));
         const presetModeInput = modeInputs.find(function (input) {
           return input.value === 'preset';

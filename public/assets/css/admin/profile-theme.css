@@ -16,6 +16,24 @@
   box-shadow: 0 0.75rem 1.5rem rgba(5, 165, 168, 0.25);
 }
 
+.theme-preset-filter {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.theme-preset-filter .btn {
+  border-radius: 999px;
+  padding-inline: 1rem;
+}
+
+.theme-preset-filter .btn-check:checked + .btn {
+  color: #ffffff;
+  background-color: var(--bs-primary, #05A5A8);
+  border-color: var(--bs-primary, #05A5A8);
+  box-shadow: 0 0.65rem 1.25rem rgba(5, 165, 168, 0.2);
+}
+
 .theme-preset-grid {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }

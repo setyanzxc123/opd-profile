@@ -12,8 +12,8 @@
     'neutral' => '#22303E',
     'surface' => '#F5F5F9',
   ];
-  $themePresets    = is_array($themePresets ?? null) ? $themePresets : ThemeStyleService::presetThemes();
-  $defaultPresetSlug = ThemeStyleService::DEFAULT_PRESET;
+  $themePresets    = is_array($themePresets ?? null) ? $themePresets : \App\Services\ThemeStyleService::presetThemes();
+  $defaultPresetSlug = \App\Services\ThemeStyleService::DEFAULT_PRESET;
   $activeThemePreset = old('theme_preset', $activeThemePreset ?? $defaultPresetSlug);
   if (! array_key_exists($activeThemePreset, $themePresets)) {
     $activeThemePreset = array_key_first($themePresets) ?: $defaultPresetSlug;
@@ -389,16 +389,44 @@
                     <div class="card border-0 shadow-sm">
                       <div class="card-body">
                         <h6 class="fw-semibold mb-3">Preset Tema Siap Pakai</h6>
+                        <div class="theme-preset-filter btn-group btn-group-sm mb-3" role="group" aria-label="Filter preset warna" data-theme-preset-filter-group>
+                          <?php
+                            $presetFilters = [
+                              'all'   => 'Semua',
+                              'dark'  => 'Gelap',
+                              'light' => 'Cerah',
+                            ];
+                            $activePresetFilter = old('theme_preset_filter', 'all');
+                            if (! array_key_exists($activePresetFilter, $presetFilters)) {
+                              $activePresetFilter = 'all';
+                            }
+                          ?>
+                          <?php foreach ($presetFilters as $filterValue => $filterLabel): ?>
+                            <?php $filterId = 'theme-preset-filter-' . $filterValue; ?>
+                            <input
+                              type="radio"
+                              class="btn-check"
+                              name="theme_preset_filter"
+                              id="<?= esc($filterId) ?>"
+                              value="<?= esc($filterValue) ?>"
+                              data-theme-preset-filter
+                              <?= $activePresetFilter === $filterValue ? 'checked' : '' ?>
+                            >
+                            <label class="btn btn-outline-secondary" for="<?= esc($filterId) ?>"><?= esc($filterLabel) ?></label>
+                          <?php endforeach; ?>
+                        </div>
                         <div
                           class="d-grid gap-3 theme-preset-grid"
                           data-theme-preset-grid
                           data-theme-default="<?= esc($defaultPresetSlug) ?>"
+                          data-theme-active-filter="<?= esc($activePresetFilter) ?>"
                         >
                           <?php foreach ($themePresets as $slug => $preset): ?>
                             <?php
                               $primary = strtoupper($preset['primary']);
                               $surface = strtoupper($preset['surface']);
                               $isActive = $activeThemePreset === $slug;
+                              $tone    = $preset['tone'] ?? 'dark';
                             ?>
                             <label
                               class="card border-0 shadow-sm theme-preset-card <?= $isActive ? 'is-active' : '' ?>"
@@ -406,6 +434,7 @@
                               data-theme-preset="<?= esc($slug) ?>"
                               data-theme-primary="<?= esc($primary) ?>"
                               data-theme-surface="<?= esc($surface) ?>"
+                              data-theme-tone="<?= esc($tone) ?>"
                             >
                               <input
                                 type="radio"
@@ -419,7 +448,6 @@
                                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
                                   <div>
                                     <h6 class="fw-semibold mb-1"><?= esc($preset['label']) ?></h6>
-                                    <p class="text-muted small mb-0"><?= esc($preset['description']) ?></p>
                                   </div>
                                   <div class="theme-preset-swatches" aria-hidden="true">
                                     <span
