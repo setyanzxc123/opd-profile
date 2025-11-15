@@ -1,6 +1,5 @@
 <?php
   use App\Services\ProfileAdminService;
-  use App\Services\ThemeStyleService;
 
   $validation      = $validation ?? null;
   $publicLogoPath  = $profile['logo_public_path'] ?? null;
@@ -8,61 +7,52 @@
   $removePublicOld = old('remove_logo_public');
   $themeSettings   = is_array($themeSettings ?? null) ? $themeSettings : [];
   $themeDefaults   = is_array($themeDefaults ?? null) ? $themeDefaults : [
-    'primary' => '#05A5A8',
+    'primary' => '#046C72',
     'neutral' => '#22303E',
     'surface' => '#F5F5F9',
   ];
-  $themePresets    = is_array($themePresets ?? null) ? $themePresets : \App\Services\ThemeStyleService::presetThemes();
-  $defaultPresetSlug = \App\Services\ThemeStyleService::DEFAULT_PRESET;
-  $activeThemePreset = old('theme_preset', $activeThemePreset ?? $defaultPresetSlug);
-  if (! array_key_exists($activeThemePreset, $themePresets)) {
-    $activeThemePreset = array_key_first($themePresets) ?: $defaultPresetSlug;
-  }
-  $themeModeOptions = [
+  $themePresets      = is_array($themePresets ?? null) ? $themePresets : [];
+  $themeModeOptions  = [
     ProfileAdminService::THEME_MODE_PRESET => 'Preset Aman',
-    ProfileAdminService::THEME_MODE_CUSTOM => 'Custom Warna OPD',
+    ProfileAdminService::THEME_MODE_CUSTOM => 'Warna OPD',
   ];
-  $activeThemeMode = old('theme_mode', $activeThemeMode ?? ProfileAdminService::THEME_MODE_PRESET);
-  if (! in_array($activeThemeMode, array_keys($themeModeOptions), true)) {
+  $activeThemeMode   = old('theme_mode', $activeThemeMode ?? ProfileAdminService::THEME_MODE_PRESET);
+  if (! array_key_exists($activeThemeMode, $themeModeOptions)) {
     $activeThemeMode = ProfileAdminService::THEME_MODE_PRESET;
+  }
+  if ($themePresets === [] && $activeThemeMode === ProfileAdminService::THEME_MODE_PRESET) {
+    $activeThemeMode = ProfileAdminService::THEME_MODE_CUSTOM;
+  }
+  $activeThemePreset = old('theme_preset', $activeThemePreset ?? array_key_first($themePresets));
+  if ($themePresets !== [] && ! array_key_exists($activeThemePreset, $themePresets)) {
+    $activeThemePreset = array_key_first($themePresets);
   }
   $themeCustomDefaults = is_array($themeCustomDefaults ?? null)
     ? $themeCustomDefaults
     : [
-      'primary' => $themeSettings['primary'] ?? ($themeDefaults['primary'] ?? '#05A5A8'),
+      'primary' => $themeSettings['primary'] ?? ($themeDefaults['primary'] ?? '#046C72'),
       'surface' => $themeSettings['surface'] ?? ($themeDefaults['surface'] ?? '#F5F5F9'),
     ];
-  $normalizeThemeValue = static function ($value, string $fallback) {
+  $normalizeColorValue = static function ($value, string $fallback) {
     $candidate = is_string($value) ? trim($value) : '';
-    $fallbackValue = trim($fallback) !== '' ? $fallback : '#05A5A8';
-
     if ($candidate === '') {
-      $candidate = $fallbackValue;
+      $candidate = $fallback;
     }
-
     if ($candidate !== '' && $candidate[0] !== '#') {
-      $candidate = '#' . $candidate;
+      $candidate = '#' . ltrim($candidate, '#');
     }
-
-    if (preg_match('/^#([0-9A-Fa-f]{3})$/', $candidate, $matches)) {
-      $candidate = sprintf('#%1$s%1$s%2$s%2$s%3$s%3$s', $matches[1][0], $matches[1][1], $matches[1][2]);
+    if (strlen($candidate) === 4) {
+      $candidate = '#' . $candidate[1] . $candidate[1] . $candidate[2] . $candidate[2] . $candidate[3] . $candidate[3];
     }
-
-    if (! preg_match('/^#[0-9A-Fa-f]{6}$/', $candidate)) {
-      $candidate = $fallbackValue;
-      if ($candidate !== '' && $candidate[0] !== '#') {
-        $candidate = '#' . $candidate;
-      }
-      if (preg_match('/^#([0-9A-Fa-f]{3})$/', $candidate, $matches)) {
-        $candidate = sprintf('#%1$s%1$s%2$s%2$s%3$s%3$s', $matches[1][0], $matches[1][1], $matches[1][2]);
-      }
+    if (strlen($candidate) !== 7) {
+      $candidate = $fallback;
     }
 
     return strtoupper($candidate);
   };
   $customThemeValues = [
-    'primary' => $normalizeThemeValue(old('theme_primary_color', $themeCustomDefaults['primary'] ?? '#05A5A8'), $themeDefaults['primary'] ?? '#05A5A8'),
-    'surface' => $normalizeThemeValue(old('theme_surface_color', $themeCustomDefaults['surface'] ?? '#F5F5F9'), $themeDefaults['surface'] ?? '#F5F5F9'),
+    'primary' => $normalizeColorValue(old('theme_primary_color', $themeCustomDefaults['primary'] ?? '#046C72'), $themeDefaults['primary'] ?? '#046C72'),
+    'surface' => $normalizeColorValue(old('theme_surface_color', $themeCustomDefaults['surface'] ?? '#F5F5F9'), $themeDefaults['surface'] ?? '#F5F5F9'),
   ];
 ?>
 <?= $this->extend('layouts/admin') ?>
@@ -347,261 +337,155 @@
             </div>
 
             <div class="tab-pane fade" id="tab-theme" role="tabpanel" aria-labelledby="tab-theme-tab">
-              <div class="row g-4">
-                <div class="col-12">
-                  <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body">
-                      <h6 class="fw-semibold mb-3">Mode Tampilan</h6>
-                      <div class="theme-mode-toggle" data-theme-mode-toggle>
-                        <?php foreach ($themeModeOptions as $modeValue => $modeLabel): ?>
-                          <?php $modeId = 'theme-mode-' . $modeValue; ?>
-                          <input
-                            type="radio"
-                            class="btn-check"
-                            name="theme_mode"
-                            id="<?= esc($modeId) ?>"
-                            value="<?= esc($modeValue) ?>"
-                            data-theme-mode-input
-                            <?= $activeThemeMode === $modeValue ? 'checked' : '' ?>
-                          >
-                          <label class="btn btn-outline-primary" for="<?= esc($modeId) ?>">
-                            <?= esc($modeLabel) ?>
-                          </label>
-                        <?php endforeach; ?>
-                      </div>
-                      <?php if ($validation && $validation->hasError('theme_mode')): ?>
-                        <div class="form-text text-danger mt-2"><?= esc($validation->getError('theme_mode')) ?></div>
-                      <?php else: ?>
-                        <p class="text-muted small mt-2 mb-0">
-                          <i class="bx bx-info-circle me-1" aria-hidden="true"></i>
-                          Pilih preset siap pakai atau gunakan mode custom untuk mengikuti warna identitas OPD.
-                        </p>
-                      <?php endif; ?>
-                    </div>
+              <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                  <div class="d-flex flex-column gap-2 mb-4">
+                    <h6 class="fw-semibold mb-0">Pengaturan Tema</h6>
+                    <p class="text-muted small mb-0">Pilih salah satu preset atau gunakan warna khas OPD.</p>
                   </div>
-                </div>
 
-                <div class="col-12 col-xl-7">
-                  <div
-                    class="<?= $activeThemeMode === ProfileAdminService::THEME_MODE_CUSTOM ? 'd-none' : '' ?>"
-                    data-theme-pane="preset"
-                  >
-                    <div class="card border-0 shadow-sm">
-                      <div class="card-body">
-                        <h6 class="fw-semibold mb-3">Preset Tema Siap Pakai</h6>
-                        <div class="theme-preset-filter btn-group btn-group-sm mb-3" role="group" aria-label="Filter preset warna" data-theme-preset-filter-group>
-                          <?php
-                            $presetFilters = [
-                              'all'   => 'Semua',
-                              'dark'  => 'Gelap',
-                              'light' => 'Cerah',
-                            ];
-                            $activePresetFilter = old('theme_preset_filter', 'all');
-                            if (! array_key_exists($activePresetFilter, $presetFilters)) {
-                              $activePresetFilter = 'all';
-                            }
-                          ?>
-                          <?php foreach ($presetFilters as $filterValue => $filterLabel): ?>
-                            <?php $filterId = 'theme-preset-filter-' . $filterValue; ?>
-                            <input
-                              type="radio"
-                              class="btn-check"
-                              name="theme_preset_filter"
-                              id="<?= esc($filterId) ?>"
-                              value="<?= esc($filterValue) ?>"
-                              data-theme-preset-filter
-                              <?= $activePresetFilter === $filterValue ? 'checked' : '' ?>
-                            >
-                            <label class="btn btn-outline-secondary" for="<?= esc($filterId) ?>"><?= esc($filterLabel) ?></label>
-                          <?php endforeach; ?>
-                        </div>
-                        <div
-                          class="d-grid gap-3 theme-preset-grid"
-                          data-theme-preset-grid
-                          data-theme-default="<?= esc($defaultPresetSlug) ?>"
-                          data-theme-active-filter="<?= esc($activePresetFilter) ?>"
-                        >
-                          <?php foreach ($themePresets as $slug => $preset): ?>
-                            <?php
-                              $primary = strtoupper($preset['primary']);
-                              $surface = strtoupper($preset['surface']);
-                              $isActive = $activeThemePreset === $slug;
-                              $tone    = $preset['tone'] ?? 'dark';
-                            ?>
-                            <label
-                              class="card border-0 shadow-sm theme-preset-card <?= $isActive ? 'is-active' : '' ?>"
-                              data-theme-preset-card
-                              data-theme-preset="<?= esc($slug) ?>"
-                              data-theme-primary="<?= esc($primary) ?>"
-                              data-theme-surface="<?= esc($surface) ?>"
-                              data-theme-tone="<?= esc($tone) ?>"
-                            >
-                              <input
-                                type="radio"
-                                name="theme_preset"
-                                value="<?= esc($slug) ?>"
-                                class="visually-hidden"
-                                data-theme-preset-input
-                                <?= $isActive ? 'checked' : '' ?>
-                              >
-                              <div class="card-body d-flex flex-column gap-3">
-                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                                  <div>
-                                    <h6 class="fw-semibold mb-1"><?= esc($preset['label']) ?></h6>
+                  <div class="theme-mode-toggle mb-4" data-theme-mode-toggle>
+                    <?php foreach ($themeModeOptions as $modeValue => $modeLabel): ?>
+                      <?php
+                        $modeId    = 'theme-mode-' . $modeValue;
+                        $disabled  = $modeValue === ProfileAdminService::THEME_MODE_PRESET && $themePresets === [];
+                      ?>
+                      <input
+                        type="radio"
+                        class="btn-check"
+                        name="theme_mode"
+                        id="<?= esc($modeId) ?>"
+                        value="<?= esc($modeValue) ?>"
+                        data-theme-mode-input
+                        <?= $disabled ? 'disabled' : '' ?>
+                        <?= $activeThemeMode === $modeValue ? 'checked' : '' ?>
+                      >
+                      <label class="btn btn-outline-primary<?= $disabled ? ' disabled' : '' ?>" for="<?= esc($modeId) ?>">
+                        <?= esc($modeLabel) ?>
+                      </label>
+                    <?php endforeach; ?>
+                  </div>
+                  <?php if ($validation && $validation->hasError('theme_mode')): ?>
+                    <div class="form-text text-danger mb-3"><?= esc($validation->getError('theme_mode')) ?></div>
+                  <?php endif; ?>
+
+                  <div data-theme-pane="<?= ProfileAdminService::THEME_MODE_PRESET ?>" <?= $activeThemeMode === ProfileAdminService::THEME_MODE_CUSTOM ? 'class="d-none"' : '' ?>>
+                    <?php if ($themePresets === []): ?>
+                      <div class="alert alert-warning mb-0">
+                        <i class="bx bx-info-circle me-2" aria-hidden="true"></i>
+                        Belum tersedia daftar preset warna. Tambahkan konfigurasi pada <code>Config/ProfileTheme.php</code> atau gunakan mode "Warna OPD".
+                      </div>
+                    <?php else: ?>
+                      <?php
+                        $toneGroups = [
+                          'light' => ['label' => 'Tema Cerah', 'icon' => 'bx-sun'],
+                          'dark'  => ['label' => 'Tema Gelap', 'icon' => 'bx-moon'],
+                        ];
+                        $presetsByTone = [];
+                        foreach ($themePresets as $slug => $preset) {
+                            $tone = strtolower($preset['tone'] ?? 'light');
+                            $presetsByTone[$tone][$slug] = $preset;
+                        }
+                      ?>
+                      <?php foreach ($toneGroups as $toneKey => $meta): ?>
+                        <?php $groupPresets = $presetsByTone[$toneKey] ?? []; ?>
+                        <?php if ($groupPresets === []): continue; endif; ?>
+                        <div class="theme-preset-group mb-4">
+                          <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bx <?= esc($meta['icon']) ?> text-primary"></i>
+                            <h6 class="mb-0"><?= esc($meta['label']) ?></h6>
+                          </div>
+                          <div class="row g-3">
+                            <?php foreach ($groupPresets as $slug => $preset): ?>
+                              <?php
+                                $primary = strtoupper($preset['primary']);
+                                $surface = strtoupper($preset['surface']);
+                                $isActive = $activeThemePreset === $slug;
+                                $inputId = 'theme-preset-' . $slug;
+                              ?>
+                              <div class="col-12 col-md-6 col-xl-4">
+                                <label class="card border-0 shadow-sm theme-preset-card <?= $isActive ? 'is-active' : '' ?>" for="<?= esc($inputId) ?>" data-theme-preset-card>
+                                  <input
+                                    type="radio"
+                                    class="visually-hidden"
+                                    id="<?= esc($inputId) ?>"
+                                    name="theme_preset"
+                                    value="<?= esc($slug) ?>"
+                                    <?= $isActive ? 'checked' : '' ?>
+                                  >
+                                  <div class="card-body d-flex flex-column gap-3">
+                                    <div class="d-flex justify-content-between align-items-center gap-2">
+                                      <span class="badge bg-label-primary"><?= esc($preset['label']) ?></span>
+                                      <div class="theme-preset-swatches" aria-hidden="true">
+                                        <span class="theme-preset-swatch" style="background-color: <?= esc($primary) ?>"></span>
+                                        <span class="theme-preset-swatch" style="background-color: <?= esc($surface) ?>"></span>
+                                      </div>
+                                    </div>
+                                    <div class="theme-preset-meta small text-muted">
+                                      <div><strong>Primary:</strong> <?= esc($primary) ?></div>
+                                      <div><strong>Surface:</strong> <?= esc($surface) ?></div>
+                                    </div>
                                   </div>
-                                  <div class="theme-preset-swatches" aria-hidden="true">
-                                    <span
-                                      class="theme-preset-swatch theme-preset-swatch-primary"
-                                      style="background-color: <?= esc($primary) ?>"
-                                    ></span>
-                                    <span
-                                      class="theme-preset-swatch theme-preset-swatch-surface"
-                                      style="background-color: <?= esc($surface) ?>"
-                                    ></span>
-                                  </div>
-                                </div>
-                                <div class="theme-preset-meta small text-muted d-flex flex-wrap gap-3">
-                                  <span><strong>Primary:</strong> <?= esc($primary) ?></span>
-                                  <span><strong>Surface:</strong> <?= esc($surface) ?></span>
-                                </div>
+                                  <span class="theme-preset-check" aria-hidden="true">
+                                    <i class="bx bx-check"></i>
+                                  </span>
+                                </label>
                               </div>
-                              <span class="theme-preset-check" aria-hidden="true">
-                                <i class="bx bx-check"></i>
-                              </span>
-                            </label>
-                          <?php endforeach; ?>
-                        </div>
-                        <?php if ($validation && $validation->hasError('theme_preset')): ?>
-                          <div class="form-text text-danger mt-2"><?= esc($validation->getError('theme_preset')) ?></div>
-                        <?php else: ?>
-                          <p class="text-muted small mt-3 mb-0">
-                            <i class="bx bx-info-circle me-1" aria-hidden="true"></i>
-                            Semua preset telah diuji agar memenuhi standar kontras sehingga aman dipakai di publik maupun admin.
-                          </p>
-                        <?php endif; ?>
-                        <div class="d-flex flex-wrap gap-2 mt-3">
-                          <button type="button" class="btn btn-outline-secondary btn-sm" data-theme-preset-reset>
-                            <i class="bx bx-undo me-1" aria-hidden="true"></i>Gunakan Tema Default
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    class="<?= $activeThemeMode === ProfileAdminService::THEME_MODE_PRESET ? 'd-none' : '' ?>"
-                    data-theme-pane="custom"
-                  >
-                    <div class="card border-0 shadow-sm">
-                      <div class="card-body">
-                        <h6 class="fw-semibold mb-3">Warna Custom OPD</h6>
-                        <div class="row g-4 theme-custom-grid" data-theme-custom-panel>
-                          <?php
-                            $customFieldConfig = [
-                              'primary' => [
-                                'name'  => 'theme_primary_color',
-                                'label' => 'Warna Utama',
-                                'helper'=> 'Dipakai untuk tombol primer, tautan aktif, dan elemen sorotan utama.',
-                                'value' => $customThemeValues['primary'],
-                                'default' => $normalizeThemeValue($themeDefaults['primary'] ?? '#05A5A8', '#05A5A8'),
-                              ],
-                              'surface' => [
-                                'name'  => 'theme_surface_color',
-                                'label' => 'Warna Latar Permukaan',
-                                'helper'=> 'Menentukan warna latar belakang halaman dan kartu permukaan. Warna teks akan otomatis menyesuaikan agar tetap terbaca.',
-                                'value' => $customThemeValues['surface'],
-                                'default' => $normalizeThemeValue($themeDefaults['surface'] ?? '#F5F5F9', '#F5F5F9'),
-                              ],
-                            ];
-                          ?>
-                          <?php foreach ($customFieldConfig as $key => $config): ?>
-                            <div class="col-12 col-md-6">
-                              <div class="card border-0 shadow-sm theme-custom-card" data-custom-card="<?= esc($key) ?>">
-                                <div class="card-body d-flex flex-column gap-3">
-                                  <div>
-                                    <h6 class="fw-semibold mb-1"><?= esc($config['label']) ?></h6>
-                                    <p class="text-muted small mb-0"><?= esc($config['helper']) ?></p>
-                                  </div>
-                                  <hex-color-picker
-                                    class="theme-hex-picker"
-                                    data-color-picker="<?= esc($key) ?>"
-                                    color="<?= esc($config['value']) ?>"
-                                    data-default-color="<?= esc($config['default']) ?>"
-                                    aria-label="<?= esc($config['label']) ?>"
-                                  ></hex-color-picker>
-                                  <div>
-                                    <label for="field-<?= esc($config['name']) ?>" class="form-label small text-muted">Kode HEX</label>
-                                    <input
-                                      type="text"
-                                      class="form-control theme-custom-input"
-                                      id="field-<?= esc($config['name']) ?>"
-                                      name="<?= esc($config['name']) ?>"
-                                      value="<?= esc($config['value']) ?>"
-                                      maxlength="7"
-                                      inputmode="text"
-                                      spellcheck="false"
-                                      autocomplete="off"
-                                      data-theme-custom-input="<?= esc($key) ?>"
-                                      data-default-color="<?= esc($config['default']) ?>"
-                                    >
-                                  </div>
-                                  <?php if ($validation && $validation->hasError($config['name'])): ?>
-                                    <div class="form-text text-danger"><?= esc($validation->getError($config['name'])) ?></div>
-                                  <?php else: ?>
-                                    <div class="form-text text-muted">Masukkan kode warna HEX enam digit, contoh <?= esc($config['default']) ?>.</div>
-                                  <?php endif; ?>
-                                </div>
-                              </div>
-                            </div>
-                          <?php endforeach; ?>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2 mt-3">
-                          <button type="button" class="btn btn-outline-secondary btn-sm" data-theme-custom-reset>
-                            <i class="bx bx-magic-wand me-1" aria-hidden="true"></i>Sesuaikan Otomatis
-                          </button>
-                        </div>
-                        <p class="text-muted small mt-3 mb-0">
-                          <i class="bx bx-info-circle me-1" aria-hidden="true"></i>
-                          Sistem akan menjaga kontras teks secara otomatis. Jika kombinasi terlalu terang, Anda akan diminta menyesuaikan warna.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-12 col-xl-5">
-                  <div class="card border-0 shadow-sm theme-preview-card" data-theme-preview>
-                    <div class="card-body">
-                      <h6 class="fw-semibold mb-3">Pratinjau Tema</h6>
-                      <div class="theme-preview-hero mb-3 rounded-4 p-4 text-white" data-theme-preview-hero>
-                        <span class="text-uppercase small fw-semibold opacity-75 d-block mb-2">Pratinjau</span>
-                        <h5 class="fw-bold mb-2">Judul Halaman</h5>
-                        <p class="mb-3 text-white-50 small">Contoh hero dengan warna utama saat diterapkan.</p>
-                        <div class="d-flex flex-wrap gap-2">
-                          <button type="button" class="btn btn-light btn-sm fw-semibold" data-theme-preview-hero-cta>Mulai</button>
-                          <button type="button" class="btn btn-outline-light btn-sm fw-semibold" data-theme-preview-hero-outline>Pelajari</button>
-                        </div>
-                      </div>
-                      <div class="theme-preview-surface rounded-4 p-3" data-theme-preview-surface>
-                        <div class="d-flex align-items-start gap-3 mb-3">
-                          <div class="theme-preview-badge rounded-circle flex-shrink-0" data-theme-preview-accent></div>
-                          <div class="flex-grow-1">
-                            <h6 class="fw-semibold mb-1" data-theme-preview-heading>Judul Kartu</h6>
-                            <p class="mb-0 small" data-theme-preview-text>Contoh teks isi untuk melihat keterbacaan warna netral.</p>
+                            <?php endforeach; ?>
                           </div>
                         </div>
-                        <div class="d-flex flex-wrap gap-2">
-                          <button type="button" class="btn btn-primary btn-sm" disabled data-theme-preview-button-primary>Utama</button>
-                          <button type="button" class="btn btn-outline-primary btn-sm" disabled data-theme-preview-button-outline>Sorotan</button>
-                          <button type="button" class="btn btn-outline-secondary btn-sm" disabled data-theme-preview-button-muted>Latar</button>
+                      <?php endforeach; ?>
+                      <?php if ($validation && $validation->hasError('theme_preset')): ?>
+                        <div class="form-text text-danger mt-3"><?= esc($validation->getError('theme_preset')) ?></div>
+                      <?php else: ?>
+                        <p class="text-muted small mt-3 mb-0">
+                          <i class="bx bx-info-circle me-1" aria-hidden="true"></i>
+                          Perubahan warna preset otomatis diterapkan ke situs publik dan panel admin.
+                        </p>
+                      <?php endif; ?>
+                    <?php endif; ?>
+                  </div>
+
+                  <div data-theme-pane="<?= ProfileAdminService::THEME_MODE_CUSTOM ?>" <?= $activeThemeMode === ProfileAdminService::THEME_MODE_PRESET ? 'class="d-none"' : '' ?>>
+                    <div class="row g-4 theme-custom-grid">
+                      <?php
+                        $customFields = [
+                          'primary' => [
+                            'label' => 'Warna Utama',
+                            'name'  => 'theme_primary_color',
+                            'helper'=> 'Dipakai untuk tombol, tautan, dan elemen sorotan.',
+                          ],
+                          'surface' => [
+                            'label' => 'Warna Latar Permukaan',
+                            'name'  => 'theme_surface_color',
+                            'helper'=> 'Mengatur warna latar halaman dan kartu konten.',
+                          ],
+                        ];
+                      ?>
+                      <?php foreach ($customFields as $key => $config): ?>
+                        <div class="col-12 col-md-6">
+                          <label class="form-label" for="<?= esc($config['name']) ?>"><?= esc($config['label']) ?></label>
+                          <input
+                            type="color"
+                            class="form-control form-control-color w-100"
+                            id="<?= esc($config['name']) ?>"
+                            name="<?= esc($config['name']) ?>"
+                            value="<?= esc($customThemeValues[$key]) ?>"
+                            title="<?= esc($config['label']) ?>"
+                          >
+                          <?php if ($validation && $validation->hasError($config['name'])): ?>
+                            <div class="form-text text-danger"><?= esc($validation->getError($config['name'])) ?></div>
+                          <?php else: ?>
+                            <div class="form-text text-muted"><?= esc($config['helper']) ?></div>
+                          <?php endif; ?>
                         </div>
-                      </div>
+                      <?php endforeach; ?>
                     </div>
                   </div>
+
                 </div>
               </div>
             </div>
-          </div> 
 
           <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4">
             <p class="text-muted small mb-0"><span class="text-danger">*</span> Wajib diisi.</p>
@@ -644,11 +528,52 @@
 <?= $this->section('pageScripts') ?>
   <script src="<?= base_url('assets/vendor/cropperjs/cropper.min.js') ?>"></script>
   <script src="<?= base_url('assets/js/admin/profile-logos.js') ?>" defer></script>
-  <script type="module" src="https://unpkg.com/vanilla-colorful?module"></script>
-  <script src="<?= base_url('assets/js/admin/profile-theme.js') ?>" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var modeInputs = document.querySelectorAll('[data-theme-mode-input]');
+      var panes = document.querySelectorAll('[data-theme-pane]');
+
+      function togglePane(active) {
+        panes.forEach(function (pane) {
+          var paneMode = pane.getAttribute('data-theme-pane');
+          if (! paneMode) {
+            return;
+          }
+
+          if (paneMode === active) {
+            pane.classList.remove('d-none');
+          } else {
+            pane.classList.add('d-none');
+          }
+        });
+      }
+
+      modeInputs.forEach(function (input) {
+        input.addEventListener('change', function () {
+          if (this.checked) {
+            togglePane(this.value);
+          }
+        });
+      });
+
+      var active = document.querySelector('[data-theme-mode-input]:checked');
+      if (active) {
+        togglePane(active.value);
+      }
+
+      var presetInputs = document.querySelectorAll('input[name="theme_preset"]');
+      presetInputs.forEach(function (input) {
+        input.addEventListener('change', function () {
+          document.querySelectorAll('[data-theme-preset-card]').forEach(function (card) {
+            card.classList.remove('is-active');
+          });
+
+          var card = this.closest('[data-theme-preset-card]');
+          if (card) {
+            card.classList.add('is-active');
+          }
+        });
+      });
+    });
+  </script>
 <?= $this->endSection() ?>
-
-
-
-
-

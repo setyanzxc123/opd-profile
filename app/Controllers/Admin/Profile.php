@@ -31,6 +31,9 @@ class Profile extends BaseController
         // we keep a single-row profile; fetch first or create a placeholder
         $profile = $model->orderBy('id', 'ASC')->first();
         if (! $profile) {
+            $defaultPreset = $this->profileService->getDefaultThemePresetSlug();
+            $defaultTheme  = $this->profileService->buildThemeFromPreset($defaultPreset, self::DEFAULT_THEME_SETTINGS);
+
             $model->insert([
                 'name'        => '',
                 'description' => null,
@@ -45,15 +48,16 @@ class Profile extends BaseController
                 'email'       => null,
                 'logo_public_path' => null,
                 'logo_admin_path'  => null,
-                'theme_settings'   => json_encode(self::DEFAULT_THEME_SETTINGS),
+                'theme_settings'   => json_encode($defaultTheme),
             ]);
             $profile = $model->orderBy('id', 'ASC')->first();
         }
 
         $themeSettings = $this->profileService->mergeThemeSettings($profile['theme_settings'] ?? null);
-        $themePresets  = $this->profileService->getThemePresets();
+        $themePresets   = $this->profileService->getThemePresets();
         $detectedPreset = $this->profileService->detectThemePresetSlug($themeSettings);
-        $activePreset  = $detectedPreset ?? (array_key_first($themePresets) ?? ThemeStyleService::DEFAULT_PRESET);
+        $defaultPreset  = $this->profileService->getDefaultThemePresetSlug();
+        $activePreset   = $detectedPreset ?? $defaultPreset;
         $activeThemeMode = $detectedPreset !== null
             ? ProfileAdminService::THEME_MODE_PRESET
             : ProfileAdminService::THEME_MODE_CUSTOM;
@@ -77,7 +81,7 @@ class Profile extends BaseController
 
     public function update()
     {
-        $themePresets = ThemeStyleService::presetThemes();
+        $themePresets = $this->profileService->getThemePresets();
         $presetKeys   = array_keys($themePresets);
         $themeModeInput = (string) $this->request->getPost('theme_mode');
         $themeMode = $this->profileService->normalizeThemeMode($themeModeInput);
@@ -158,7 +162,10 @@ class Profile extends BaseController
             $finalTheme = $this->profileService->buildThemeFromPreset($presetSlug, self::DEFAULT_THEME_SETTINGS);
         }
 
-        $contrastError = $this->profileService->validateThemeAccessibility($finalTheme);
+        $contrastError = $this->profileService->validateThemeAccessibility(
+            $finalTheme,
+            $this->profileService->minimumContrastRatio()
+        );
         if ($contrastError !== null) {
             return redirect()->back()
                 ->withInput()
@@ -243,4 +250,3 @@ class Profile extends BaseController
             ->with('message', 'Profil berhasil disimpan.');
     }
 }
-

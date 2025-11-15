@@ -14,17 +14,56 @@ class ProfileAdminService
 
     public function getThemePresets(): array
     {
+        $config = config('ProfileTheme');
+        if ($config && is_array($config->presets ?? null) && $config->presets !== []) {
+            return $config->presets;
+        }
+
         return ThemeStyleService::presetThemes();
+    }
+
+    public function getDefaultThemePresetSlug(): string
+    {
+        $config  = config('ProfileTheme');
+        $presets = $this->getThemePresets();
+        $default = is_string($config->defaultPreset ?? null) ? $config->defaultPreset : null;
+
+        if ($default && array_key_exists($default, $presets)) {
+            return $default;
+        }
+
+        return array_key_first($presets) ?? ThemeStyleService::DEFAULT_PRESET;
     }
 
     public function detectThemePresetSlug(array $theme): ?string
     {
-        return ThemeStyleService::detectPresetSlug($theme);
+        $presets = $this->getThemePresets();
+        if ($presets === []) {
+            return null;
+        }
+
+        $merged = ThemeStyleService::mergeSettings($theme);
+
+        foreach ($presets as $slug => $preset) {
+            $candidate = ThemeStyleService::mergeSettings([
+                'primary' => $preset['primary'] ?? null,
+                'surface' => $preset['surface'] ?? null,
+            ]);
+
+            if (($candidate['primary'] ?? null) === ($merged['primary'] ?? null)
+                && ($candidate['surface'] ?? null) === ($merged['surface'] ?? null)
+            ) {
+                return $slug;
+            }
+        }
+
+        return null;
     }
 
     public function buildThemeFromPreset(?string $slug, array $defaults): array
     {
-        $preset = ThemeStyleService::getPresetTheme($slug);
+        $presets = $this->getThemePresets();
+        $preset  = $slug !== null ? ($presets[$slug] ?? null) : null;
 
         if ($preset) {
             return ThemeStyleService::mergeSettings([
@@ -76,23 +115,23 @@ class ProfileAdminService
         }
 
         if ($candidate[0] !== '#') {
-            $candidate = '#' . $candidate;
+            $candidate = '#' . ltrim($candidate, '#');
         }
 
-        if (! preg_match('/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/', $candidate)) {
-            return null;
-        }
-
-        if (strlen($candidate) === 4) {
+        if (preg_match('/^#([0-9A-Fa-f]{3})$/', $candidate, $matches)) {
             $candidate = sprintf(
                 '#%s%s%s%s%s%s',
-                $candidate[1],
-                $candidate[1],
-                $candidate[2],
-                $candidate[2],
-                $candidate[3],
-                $candidate[3]
+                $matches[1][0],
+                $matches[1][0],
+                $matches[1][1],
+                $matches[1][1],
+                $matches[1][2],
+                $matches[1][2]
             );
+        }
+
+        if (! preg_match('/^#[0-9A-Fa-f]{6}$/', $candidate)) {
+            return null;
         }
 
         return strtoupper($candidate);
@@ -193,11 +232,24 @@ class ProfileAdminService
         return (int) ((string) $value === '1' ? 1 : 0);
     }
 
-    public function validateThemeAccessibility(array $theme, float $minimumRatio = 4.5): ?string
+    public function minimumContrastRatio(): float
     {
-        $primary = $theme['primary'] ?? ThemeStyleService::DEFAULT_THEME['primary'];
-        $surface = $theme['surface'] ?? ThemeStyleService::DEFAULT_THEME['surface'];
-        $neutral = $theme['neutral'] ?? ThemeStyleService::deriveAccessibleNeutral($surface);
+        $config = config('ProfileTheme');
+        $value  = (float) ($config->minimumContrast ?? 4.5);
+
+        if ($value < 1.0) {
+            $value = 1.0;
+        }
+
+        return $value;
+    }
+
+    public function validateThemeAccessibility(array $theme, ?float $minimumRatio = null): ?string
+    {
+        $minimumRatio = $minimumRatio ?? $this->minimumContrastRatio();
+        $primary      = $theme['primary'] ?? ThemeStyleService::DEFAULT_THEME['primary'];
+        $surface      = $theme['surface'] ?? ThemeStyleService::DEFAULT_THEME['surface'];
+        $neutral      = $theme['neutral'] ?? ThemeStyleService::deriveAccessibleNeutral($surface);
 
         if (! ThemeStyleService::passesContrast('#FFFFFF', $primary, $minimumRatio)) {
             return 'Warna utama harus memiliki kontras yang cukup terhadap teks.';
