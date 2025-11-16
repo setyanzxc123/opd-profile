@@ -2,8 +2,8 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\FileUploadManager;
 use App\Models\DocumentModel;
-use CodeIgniter\HTTP\Files\UploadedFile;
 
 class Documents extends BaseController
 {
@@ -19,64 +19,6 @@ class Documents extends BaseController
         'application/zip',
         'application/x-zip-compressed',
     ];
-
-    private function ensureUploadsDir(): string
-    {
-        $target = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, self::UPLOAD_DIR);
-        if (! is_dir($target)) {
-            @mkdir($target, 0775, true);
-        }
-
-        return $target;
-    }
-
-    private function deleteFile(?string $relativePath): void
-    {
-        if (! $relativePath) {
-            return;
-        }
-
-        $relativePath = ltrim($relativePath, '/\\');
-        $fullPath     = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath);
-        $uploadsRoot  = realpath(rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'uploads');
-        $realPath     = realpath($fullPath);
-
-        if (! $uploadsRoot || ! $realPath || strpos($realPath, $uploadsRoot) !== 0) {
-            return;
-        }
-
-        if (is_file($realPath)) {
-            @unlink($realPath);
-        }
-    }
-
-    private function hasAllowedMime(UploadedFile $file): bool
-    {
-        $mime = strtolower((string) $file->getMimeType());
-
-        return in_array($mime, self::ALLOWED_DOC_MIMES, true);
-    }
-
-    private function moveDocument(UploadedFile $file, ?string $originalPath = null): ?string
-    {
-        $targetDir = $this->ensureUploadsDir();
-        $newName   = $file->getRandomName();
-
-        try {
-            $file->move($targetDir, $newName, true);
-        } catch (\Throwable $e) {
-            log_message('error', 'Failed to store document file: {error}', ['error' => $e->getMessage()]);
-            return null;
-        }
-
-        $relativePath = self::UPLOAD_DIR . '/' . $newName;
-
-        if ($originalPath && $originalPath !== $relativePath) {
-            $this->deleteFile($originalPath);
-        }
-
-        return $relativePath;
-    }
 
     public function index()
     {
@@ -119,11 +61,11 @@ class Documents extends BaseController
         }
 
         $file = $this->request->getFile('file');
-        if (! $file || ! $file->isValid() || ! $this->hasAllowedMime($file)) {
+        if (! $file || ! $file->isValid() || ! FileUploadManager::hasAllowedMime($file, self::ALLOWED_DOC_MIMES)) {
             return redirect()->back()->withInput()->with('error', 'Jenis file dokumen tidak diizinkan.');
         }
 
-        $newPath = $this->moveDocument($file);
+        $newPath = FileUploadManager::moveFile($file, self::UPLOAD_DIR);
         if (! $newPath) {
             return redirect()->back()->withInput()->with('error', 'Gagal menyimpan file dokumen.');
         }
@@ -190,11 +132,11 @@ class Documents extends BaseController
 
         $file = $this->request->getFile('file');
         if ($file && $file->isValid()) {
-            if (! $this->hasAllowedMime($file)) {
+            if (! FileUploadManager::hasAllowedMime($file, self::ALLOWED_DOC_MIMES)) {
                 return redirect()->back()->withInput()->with('error', 'Jenis file dokumen tidak diizinkan.');
             }
 
-            $newPath = $this->moveDocument($file, $item['file_path'] ?? null);
+            $newPath = FileUploadManager::moveFile($file, self::UPLOAD_DIR, $item['file_path'] ?? null);
             if (! $newPath) {
                 return redirect()->back()->withInput()->with('error', 'Gagal menyimpan file dokumen.');
             }
@@ -215,7 +157,7 @@ class Documents extends BaseController
         $model = new DocumentModel();
         $item  = $model->find($id);
         if ($item) {
-            $this->deleteFile($item['file_path'] ?? null);
+            FileUploadManager::deleteFile($item['file_path'] ?? null);
             $model->delete($id);
             log_activity('document.delete', 'Menghapus dokumen: ' . ($item['title'] ?? ''));
         }

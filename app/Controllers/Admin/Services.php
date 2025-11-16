@@ -3,8 +3,8 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\FileUploadManager;
 use App\Models\ServiceModel;
-use CodeIgniter\HTTP\Files\UploadedFile;
 
 class Services extends BaseController
 {
@@ -18,58 +18,15 @@ class Services extends BaseController
         'image/gif',
     ];
 
-    private function ensureUploadsDir(): string
+    private function moveImageWithOptimization(\CodeIgniter\HTTP\Files\UploadedFile $file, ?string $originalPath = null): ?string
     {
-        $target = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, self::UPLOAD_DIR);
-        if (! is_dir($target)) {
-            @mkdir($target, 0775, true);
-        }
-
-        return $target;
-    }
-
-    private function deleteFile(?string $relativePath): void
-    {
-        if (! $relativePath) {
-            return;
-        }
-
-        $relativePath = ltrim($relativePath, '/\\');
-        $fullPath     = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath);
-        $uploadsRoot  = realpath(rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'uploads');
-        $realPath     = realpath($fullPath);
-
-        if (! $uploadsRoot || ! $realPath || strpos($realPath, $uploadsRoot) !== 0) {
-            return;
-        }
-
-        if (is_file($realPath)) {
-            @unlink($realPath);
-        }
-    }
-
-    private function hasAllowedMime(UploadedFile $file): bool
-    {
-        $mime = strtolower((string) $file->getMimeType());
-
-        return in_array($mime, self::ALLOWED_IMAGE_MIMES, true);
-    }
-
-    private function moveImage(UploadedFile $file, ?string $originalPath = null): ?string
-    {
-        $targetDir = $this->ensureUploadsDir();
-        $newName   = $file->getRandomName();
-
-        try {
-            $file->move($targetDir, $newName, true);
-        } catch (\Throwable $throwable) {
-            log_message('error', 'Failed to store service thumbnail: {error}', ['error' => $throwable->getMessage()]);
-
+        $newPath = FileUploadManager::moveFile($file, self::UPLOAD_DIR, $originalPath);
+        if (! $newPath) {
             return null;
         }
 
-        $relativePath = self::UPLOAD_DIR . '/' . $newName;
-        $fullPath     = $targetDir . DIRECTORY_SEPARATOR . $newName;
+        $fullPath = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
+                  . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $newPath);
 
         try {
             $image = \Config\Services::image();
@@ -80,11 +37,7 @@ class Services extends BaseController
             log_message('debug', 'Thumbnail optimization skipped: {error}', ['error' => $throwable->getMessage()]);
         }
 
-        if ($originalPath && $originalPath !== $relativePath) {
-            $this->deleteFile($originalPath);
-        }
-
-        return $relativePath;
+        return $newPath;
     }
 
     private function clearServiceCaches(): void
@@ -228,11 +181,11 @@ class Services extends BaseController
 
         $file = $this->request->getFile('thumbnail');
         if ($file && $file->isValid()) {
-            if (! $this->hasAllowedMime($file)) {
+            if (! FileUploadManager::hasAllowedMime($file, self::ALLOWED_IMAGE_MIMES)) {
                 return redirect()->back()->withInput()->with('error', 'Jenis file thumbnail tidak diizinkan.');
             }
 
-            $newPath = $this->moveImage($file);
+            $newPath = $this->moveImageWithOptimization($file);
             if (! $newPath) {
                 return redirect()->back()->withInput()->with('error', 'Gagal menyimpan thumbnail.');
             }
@@ -315,11 +268,11 @@ class Services extends BaseController
 
         $file = $this->request->getFile('thumbnail');
         if ($file && $file->isValid()) {
-            if (! $this->hasAllowedMime($file)) {
+            if (! FileUploadManager::hasAllowedMime($file, self::ALLOWED_IMAGE_MIMES)) {
                 return redirect()->back()->withInput()->with('error', 'Jenis file thumbnail tidak diizinkan.');
             }
 
-            $newPath = $this->moveImage($file, $item['thumbnail'] ?? null);
+            $newPath = $this->moveImageWithOptimization($file, $item['thumbnail'] ?? null);
             if (! $newPath) {
                 return redirect()->back()->withInput()->with('error', 'Gagal menyimpan thumbnail.');
             }
@@ -343,7 +296,7 @@ class Services extends BaseController
         $model = new ServiceModel();
         $item  = $model->find($id);
         if ($item) {
-            $this->deleteFile($item['thumbnail'] ?? null);
+            FileUploadManager::deleteFile($item['thumbnail'] ?? null);
             $model->delete($id);
             $this->clearServiceCaches();
             log_activity('service.delete', 'Menghapus layanan: ' . ($item['title'] ?? ''));

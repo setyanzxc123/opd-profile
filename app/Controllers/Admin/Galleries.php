@@ -2,8 +2,8 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\FileUploadManager;
 use App\Models\GalleryModel;
-use CodeIgniter\HTTP\Files\UploadedFile;
 
 class Galleries extends BaseController
 {
@@ -17,78 +17,26 @@ class Galleries extends BaseController
         'image/gif',
     ];
 
-    private function optimizeImage(string $path): void
+    private function moveImageWithOptimization(\CodeIgniter\HTTP\Files\UploadedFile $file, ?string $originalPath = null): ?string
     {
-        $image = \Config\Services::image();
-        
-        $image->withFile($path)
-            ->resize(1920, 1080, true, 'width')
-            ->save($path, 80);
-    }
-
-    private function ensureUploadsDir(): string
-    {
-        $target = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, self::UPLOAD_DIR);
-        if (! is_dir($target)) {
-            @mkdir($target, 0775, true);
-        }
-
-        return $target;
-    }
-
-    private function deleteFile(?string $relativePath): void
-    {
-        if (! $relativePath) {
-            return;
-        }
-
-        $relativePath = ltrim($relativePath, '/\\');
-        $fullPath     = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath);
-        $uploadsRoot  = realpath(rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'uploads');
-        $realPath     = realpath($fullPath);
-
-        if (! $uploadsRoot || ! $realPath || strpos($realPath, $uploadsRoot) !== 0) {
-            return;
-        }
-
-        if (is_file($realPath)) {
-            @unlink($realPath);
-        }
-    }
-
-    private function hasAllowedMime(UploadedFile $file): bool
-    {
-        $mime = strtolower((string) $file->getMimeType());
-
-        return in_array($mime, self::ALLOWED_IMAGE_MIMES, true);
-    }
-
-    private function moveImage(UploadedFile $file, ?string $originalPath = null): ?string
-    {
-        $targetDir = $this->ensureUploadsDir();
-        $newName   = $file->getRandomName();
-
-        try {
-            $file->move($targetDir, $newName, true);
-        } catch (\Throwable $e) {
-            log_message('error', 'Failed to store gallery image: {error}', ['error' => $e->getMessage()]);
+        $newPath = FileUploadManager::moveFile($file, self::UPLOAD_DIR, $originalPath);
+        if (! $newPath) {
             return null;
         }
 
-        $relativePath = self::UPLOAD_DIR . '/' . $newName;
-        $fullPath     = $targetDir . DIRECTORY_SEPARATOR . $newName;
+        $fullPath = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
+                  . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $newPath);
 
         try {
-            $this->optimizeImage($fullPath);
+            $image = \Config\Services::image();
+            $image->withFile($fullPath)
+                ->resize(1920, 1080, true, 'width')
+                ->save($fullPath, 80);
         } catch (\Throwable $e) {
             log_message('error', 'Failed to optimize gallery image: {error}', ['error' => $e->getMessage()]);
         }
 
-        if ($originalPath && $originalPath !== $relativePath) {
-            $this->deleteFile($originalPath);
-        }
-
-        return $relativePath;
+        return $newPath;
     }
 
     public function index()
@@ -132,11 +80,11 @@ class Galleries extends BaseController
         }
 
         $file = $this->request->getFile('image');
-        if (! $file || ! $file->isValid() || ! $this->hasAllowedMime($file)) {
+        if (! $file || ! $file->isValid() || ! FileUploadManager::hasAllowedMime($file, self::ALLOWED_IMAGE_MIMES)) {
             return redirect()->back()->withInput()->with('error', 'Jenis file gambar tidak diizinkan.');
         }
 
-        $newPath = $this->moveImage($file);
+        $newPath = $this->moveImageWithOptimization($file);
         if (! $newPath) {
             return redirect()->back()->withInput()->with('error', 'Gagal menyimpan file gambar.');
         }
@@ -199,11 +147,11 @@ class Galleries extends BaseController
 
         $file = $this->request->getFile('image');
         if ($file && $file->isValid()) {
-            if (! $this->hasAllowedMime($file)) {
+            if (! FileUploadManager::hasAllowedMime($file, self::ALLOWED_IMAGE_MIMES)) {
                 return redirect()->back()->withInput()->with('error', 'Jenis file gambar tidak diizinkan.');
             }
 
-            $newPath = $this->moveImage($file, $item['image_path'] ?? null);
+            $newPath = $this->moveImageWithOptimization($file, $item['image_path'] ?? null);
             if (! $newPath) {
                 return redirect()->back()->withInput()->with('error', 'Gagal menyimpan file gambar.');
             }
@@ -225,7 +173,7 @@ class Galleries extends BaseController
         $model = new GalleryModel();
         $item  = $model->find($id);
         if ($item) {
-            $this->deleteFile($item['image_path'] ?? null);
+            FileUploadManager::deleteFile($item['image_path'] ?? null);
             $model->delete($id);
             log_activity('gallery.delete', 'Menghapus foto galeri: ' . ($item['title'] ?? ''));
         }
