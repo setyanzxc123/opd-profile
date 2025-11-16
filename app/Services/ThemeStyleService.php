@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use Spatie\Color\Hex;
+use Spatie\Color\Rgb;
+
 class ThemeStyleService
 {
     public const DEFAULT_THEME = [
@@ -228,21 +231,25 @@ class ThemeStyleService
     public static function ensureAccessiblePrimary(string $primary): string
     {
         $normalized = self::normalizeHex($primary, self::DEFAULT_THEME['primary']);
+
         if (self::passesContrast('#FFFFFF', $normalized, 4.5)) {
             return $normalized;
         }
 
-        $current = $normalized;
+        // Try darkening the color progressively using Spatie Color
+        $color = Hex::fromString($normalized);
+
         for ($i = 1; $i <= 12; $i++) {
             $ratio = min($i * 0.08, 0.96);
             $darker = self::darken($normalized, $ratio);
+
             if (self::passesContrast('#FFFFFF', $darker, 4.5)) {
                 return $darker;
             }
-            $current = $darker;
         }
 
-        return $current;
+        // If all else fails, return heavily darkened version
+        return self::darken($normalized, 0.96);
     }
 
     public static function compilePublicVariables(array $theme): array
@@ -399,11 +406,8 @@ class ThemeStyleService
 
     public static function contrastRatio(string $colorA, string $colorB): float
     {
-        $first  = self::normalizeHex($colorA, '#000000');
-        $second = self::normalizeHex($colorB, '#FFFFFF');
-
-        $luminanceA = self::relativeLuminance($first);
-        $luminanceB = self::relativeLuminance($second);
+        $luminanceA = self::relativeLuminance($colorA);
+        $luminanceB = self::relativeLuminance($colorB);
 
         $lighter = max($luminanceA, $luminanceB);
         $darker  = min($luminanceA, $luminanceB);
@@ -413,17 +417,23 @@ class ThemeStyleService
 
     private static function relativeLuminance(string $hex): float
     {
-        $normalized = self::normalizeHex($hex, '#000000');
+        try {
+            $color = Hex::fromString($hex);
+            $rgb = $color->toRgb();
 
-        $red   = hexdec(substr($normalized, 1, 2)) / 255;
-        $green = hexdec(substr($normalized, 3, 2)) / 255;
-        $blue  = hexdec(substr($normalized, 5, 2)) / 255;
+            $r = $rgb->red() / 255;
+            $g = $rgb->green() / 255;
+            $b = $rgb->blue() / 255;
 
-        $redLinear = $red <= 0.03928 ? $red / 12.92 : pow(($red + 0.055) / 1.055, 2.4);
-        $greenLinear = $green <= 0.03928 ? $green / 12.92 : pow(($green + 0.055) / 1.055, 2.4);
-        $blueLinear = $blue <= 0.03928 ? $blue / 12.92 : pow(($blue + 0.055) / 1.055, 2.4);
+            $rLinear = $r <= 0.03928 ? $r / 12.92 : pow(($r + 0.055) / 1.055, 2.4);
+            $gLinear = $g <= 0.03928 ? $g / 12.92 : pow(($g + 0.055) / 1.055, 2.4);
+            $bLinear = $b <= 0.03928 ? $b / 12.92 : pow(($b + 0.055) / 1.055, 2.4);
 
-        return 0.2126 * $redLinear + 0.7152 * $greenLinear + 0.0722 * $blueLinear;
+            return 0.2126 * $rLinear + 0.7152 * $gLinear + 0.0722 * $bLinear;
+        } catch (\Exception $e) {
+            // Fallback to default if parsing fails
+            return 0.5;
+        }
     }
 
     private static function decode($raw): array
@@ -454,11 +464,7 @@ class ThemeStyleService
 
     private static function normalizeHex($value, string $fallback): ?string
     {
-        if ($value === null) {
-            return strtoupper($fallback);
-        }
-
-        if (is_array($value)) {
+        if ($value === null || is_array($value)) {
             return strtoupper($fallback);
         }
 
@@ -471,6 +477,7 @@ class ThemeStyleService
             $candidate = '#' . $candidate;
         }
 
+        // Handle 3-character hex shorthand
         if (preg_match('/^#([0-9A-Fa-f]{3})$/', $candidate, $matches)) {
             $candidate = sprintf('#%1$s%1$s%2$s%2$s%3$s%3$s', $matches[1][0], $matches[1][1], $matches[1][2]);
         }
@@ -484,69 +491,90 @@ class ThemeStyleService
 
     private static function toRgbString(string $hex): string
     {
-        $normalized = self::normalizeHex($hex, '#000000');
-        $red   = hexdec(substr($normalized, 1, 2));
-        $green = hexdec(substr($normalized, 3, 2));
-        $blue  = hexdec(substr($normalized, 5, 2));
+        try {
+            $color = Hex::fromString($hex);
+            $rgb = $color->toRgb();
 
-        return $red . ', ' . $green . ', ' . $blue;
+            return $rgb->red() . ', ' . $rgb->green() . ', ' . $rgb->blue();
+        } catch (\Exception $e) {
+            // Fallback to manual parsing if Spatie fails
+            $normalized = self::normalizeHex($hex, '#000000');
+            $red   = hexdec(substr($normalized, 1, 2));
+            $green = hexdec(substr($normalized, 3, 2));
+            $blue  = hexdec(substr($normalized, 5, 2));
+
+            return $red . ', ' . $green . ', ' . $blue;
+        }
     }
 
     private static function lighten(string $hex, float $ratio): string
     {
-        $normalized = self::normalizeHex($hex, '#FFFFFF');
-        $weight = min(max($ratio, 0.0), 1.0);
+        try {
+            $color = Hex::fromString($hex);
+            $rgb = $color->toRgb();
 
-        $red   = hexdec(substr($normalized, 1, 2));
-        $green = hexdec(substr($normalized, 3, 2));
-        $blue  = hexdec(substr($normalized, 5, 2));
+            $weight = min(max($ratio, 0.0), 1.0);
 
-        $newRed   = (int) round($red + (255 - $red) * $weight);
-        $newGreen = (int) round($green + (255 - $green) * $weight);
-        $newBlue  = (int) round($blue + (255 - $blue) * $weight);
+            $r = (int) round($rgb->red() + (255 - $rgb->red()) * $weight);
+            $g = (int) round($rgb->green() + (255 - $rgb->green()) * $weight);
+            $b = (int) round($rgb->blue() + (255 - $rgb->blue()) * $weight);
 
-        return sprintf('#%02X%02X%02X', $newRed, $newGreen, $newBlue);
+            return strtoupper((string) Rgb::fromString("rgb($r, $g, $b)")->toHex());
+        } catch (\Exception $e) {
+            log_message('error', 'Failed to lighten color: {error}', ['error' => $e->getMessage()]);
+            return $hex;
+        }
     }
 
     private static function darken(string $hex, float $ratio): string
     {
-        $normalized = self::normalizeHex($hex, '#000000');
-        $weight = min(max($ratio, 0.0), 1.0);
+        try {
+            $color = Hex::fromString($hex);
+            $rgb = $color->toRgb();
 
-        $red   = hexdec(substr($normalized, 1, 2));
-        $green = hexdec(substr($normalized, 3, 2));
-        $blue  = hexdec(substr($normalized, 5, 2));
+            $weight = min(max($ratio, 0.0), 1.0);
 
-        $newRed   = (int) round($red * (1 - $weight));
-        $newGreen = (int) round($green * (1 - $weight));
-        $newBlue  = (int) round($blue * (1 - $weight));
+            $r = (int) round($rgb->red() * (1 - $weight));
+            $g = (int) round($rgb->green() * (1 - $weight));
+            $b = (int) round($rgb->blue() * (1 - $weight));
 
-        return sprintf('#%02X%02X%02X', $newRed, $newGreen, $newBlue);
+            return strtoupper((string) Rgb::fromString("rgb($r, $g, $b)")->toHex());
+        } catch (\Exception $e) {
+            log_message('error', 'Failed to darken color: {error}', ['error' => $e->getMessage()]);
+            return $hex;
+        }
     }
 
     private static function mix(string $hex, string $mixTo, float $ratio): string
     {
-        $primary   = self::normalizeHex($hex, '#000000');
-        $secondary = self::normalizeHex($mixTo, '#FFFFFF');
-        $weight    = min(max($ratio, 0.0), 1.0);
-        $inverse   = 1 - $weight;
+        try {
+            $color1 = Hex::fromString($hex);
+            $color2 = Hex::fromString($mixTo);
 
-        $red   = (int) round(hexdec(substr($primary, 1, 2)) * $inverse + hexdec(substr($secondary, 1, 2)) * $weight);
-        $green = (int) round(hexdec(substr($primary, 3, 2)) * $inverse + hexdec(substr($secondary, 3, 2)) * $weight);
-        $blue  = (int) round(hexdec(substr($primary, 5, 2)) * $inverse + hexdec(substr($secondary, 5, 2)) * $weight);
+            $rgb1 = $color1->toRgb();
+            $rgb2 = $color2->toRgb();
 
-        return sprintf('#%02X%02X%02X', $red, $green, $blue);
+            $weight = min(max($ratio, 0.0), 1.0);
+            $inverse = 1 - $weight;
+
+            $r = (int) round($rgb1->red() * $inverse + $rgb2->red() * $weight);
+            $g = (int) round($rgb1->green() * $inverse + $rgb2->green() * $weight);
+            $b = (int) round($rgb1->blue() * $inverse + $rgb2->blue() * $weight);
+
+            return strtoupper((string) Rgb::fromString("rgb($r, $g, $b)")->toHex());
+        } catch (\Exception $e) {
+            log_message('error', 'Failed to mix colors: {error}', ['error' => $e->getMessage()]);
+            return $hex;
+        }
     }
 
     private static function contrastColor(string $hex): string
     {
-        $normalized = self::normalizeHex($hex, '#000000');
-        $red   = hexdec(substr($normalized, 1, 2));
-        $green = hexdec(substr($normalized, 3, 2));
-        $blue  = hexdec(substr($normalized, 5, 2));
-
-        $luminance = (0.299 * $red + 0.587 * $green + 0.114 * $blue) / 255;
-
-        return $luminance > 0.58 ? '#111111' : '#FFFFFF';
+        try {
+            $luminance = self::relativeLuminance($hex);
+            return $luminance > 0.58 ? '#111111' : '#FFFFFF';
+        } catch (\Exception $e) {
+            return '#FFFFFF';
+        }
     }
 }
