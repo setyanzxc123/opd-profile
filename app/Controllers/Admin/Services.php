@@ -70,37 +70,6 @@ class Services extends BaseController
         }
     }
 
-    private function uniqueSlug(string $title, ?string $slugInput = null, ?int $ignoreId = null): string
-    {
-        helper('text');
-
-        $base = $slugInput !== null && $slugInput !== '' ? $slugInput : $title;
-        $base = url_title($base, '-', true);
-        if ($base === '') {
-            $base = 'layanan';
-        }
-
-        $slug  = $base;
-        $model = new ServiceModel();
-        $i     = 2;
-
-        while (true) {
-            $query = $model->where('slug', $slug);
-            if ($ignoreId) {
-                $query = $query->where('id !=', $ignoreId);
-            }
-
-            if (! $query->first()) {
-                break;
-            }
-
-            $slug = $base . '-' . $i;
-            $i++;
-        }
-
-        return $slug;
-    }
-
     public function index(): string
     {
         $items = (new ServiceModel())
@@ -156,9 +125,12 @@ class Services extends BaseController
             return redirect()->back()->withInput()->with('error', 'Periksa kembali isian Anda.');
         }
 
+        helper('slug');
+
+        $model            = new ServiceModel();
         $titleInput       = sanitize_plain_text($this->request->getPost('title'));
         $slugInput        = sanitize_plain_text($this->request->getPost('slug'));
-        $slug             = $this->uniqueSlug($titleInput, $slugInput ?: null);
+        $slug             = unique_slug($titleInput, $model, 'slug', $slugInput ?: null, null, 'layanan');
         $descriptionInput = sanitize_plain_text($this->request->getPost('description'));
         $contentInput     = sanitize_rich_text($this->request->getPost('content'));
         $requirements     = sanitize_plain_text($this->request->getPost('requirements'));
@@ -243,9 +215,11 @@ class Services extends BaseController
             return redirect()->back()->withInput()->with('error', 'Periksa kembali isian Anda.');
         }
 
+        helper('slug');
+
         $titleInput       = sanitize_plain_text($this->request->getPost('title'));
         $slugInput        = sanitize_plain_text($this->request->getPost('slug'));
-        $slug             = $this->uniqueSlug($titleInput, $slugInput ?: null, $id);
+        $slug             = unique_slug($titleInput, $model, 'slug', $slugInput ?: null, $id, 'layanan');
         $descriptionInput = sanitize_plain_text($this->request->getPost('description'));
         $contentInput     = sanitize_rich_text($this->request->getPost('content'));
         $requirements     = sanitize_plain_text($this->request->getPost('requirements'));

@@ -17,35 +17,6 @@ class News extends BaseController
         $this->mediaService = service('newsMedia');
     }
 
-    private function uniqueSlug(string $title, ?int $ignoreId = null): string
-    {
-        helper('text');
-
-        $base = url_title($title, '-', true);
-        if ($base === '') {
-            $base = 'news';
-        }
-
-        $slug  = $base;
-        $model = new NewsModel();
-        $i     = 2;
-
-        while (true) {
-            $existing = $model->where('slug', $slug);
-            if ($ignoreId) {
-                $existing = $existing->where('id !=', $ignoreId);
-            }
-
-            if (! $existing->first()) {
-                break;
-            }
-
-            $slug = $base . '-' . $i;
-            $i++;
-        }
-
-        return $slug;
-    }
 
     private function normalizePublishedAt(?string $value): ?string
     {
@@ -249,9 +220,11 @@ class News extends BaseController
             return redirect()->back()->withInput()->with('error', 'Periksa kembali data yang diisi.');
         }
 
+        helper('slug');
+
         $model          = new NewsModel();
         $titleInput     = sanitize_plain_text($this->request->getPost('title'));
-        $slug           = $this->uniqueSlug($titleInput);
+        $slug           = unique_slug($titleInput, $model, 'slug', null, null, 'news');
         $contentRaw     = (string) $this->request->getPost('content');
         $content        = sanitize_rich_text($contentRaw);
         $publishedAt    = $this->normalizePublishedAt($this->request->getPost('published_at'));
@@ -398,8 +371,10 @@ class News extends BaseController
             return redirect()->back()->withInput()->with('error', 'Periksa kembali data yang diisi.');
         }
 
+        helper('slug');
+
         $titleInput     = sanitize_plain_text($this->request->getPost('title'));
-        $slug           = $this->uniqueSlug($titleInput, $id);
+        $slug           = unique_slug($titleInput, $model, 'slug', null, $id, 'news');
         $contentRaw     = (string) $this->request->getPost('content');
         $content        = sanitize_rich_text($contentRaw);
         $publishedAt    = $this->normalizePublishedAt($this->request->getPost('published_at'));
