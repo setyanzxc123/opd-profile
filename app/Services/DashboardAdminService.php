@@ -10,11 +10,6 @@ use App\Models\ServiceModel;
 
 class DashboardAdminService
 {
-    /**
-     * @var array<string,array<string,bool>>
-     */
-    private array $columnCache = [];
-
     public function collectMetrics(): array
     {
         $now           = date('Y-m-d H:i:s');
@@ -203,17 +198,7 @@ class DashboardAdminService
 
     private function tableHasColumn($db, string $table, string $column): bool
     {
-        $tableKey  = $table;
-        $columnKey = strtolower($column);
-
-        if (isset($this->columnCache[$tableKey][$columnKey])) {
-            return $this->columnCache[$tableKey][$columnKey];
-        }
-
-        $exists = $db->fieldExists($column, $table);
-        $this->columnCache[$tableKey][$columnKey] = $exists;
-
-        return $exists;
+        return $db->fieldExists($column, $table);
     }
 
     private function currentRole(): string
