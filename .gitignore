@@ -130,6 +130,11 @@ _modules/*
 # Visual Studio Code
 .vscode/
 
+.claude/settings.local.json
+
+# Backup files
+*.backup
+
 /results/
 /phpunit*.xml
 plans.txt

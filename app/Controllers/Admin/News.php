@@ -275,10 +275,6 @@ class News extends BaseController
         $thumbPath = null;
         $file      = $this->request->getFile('thumbnail');
         if ($file && $file->isValid()) {
-            if (! $this->mediaService->isAllowedImageMime($file)) {
-                return redirect()->back()->withInput()->with('error', 'Jenis file thumbnail tidak diizinkan.');
-            }
-
             $thumbPath = $this->mediaService->moveThumbnail($file);
             if (! $thumbPath) {
                 return redirect()->back()->withInput()->with('error', 'Gagal menyimpan thumbnail.');
@@ -447,10 +443,6 @@ class News extends BaseController
 
         $file = $this->request->getFile('thumbnail');
         if ($file && $file->isValid()) {
-            if (! $this->mediaService->isAllowedImageMime($file)) {
-                return redirect()->back()->withInput()->with('error', 'Jenis file thumbnail tidak diizinkan.');
-            }
-
             $newPath = $this->mediaService->moveThumbnail($file);
             if (! $newPath) {
                 return redirect()->back()->withInput()->with('error', 'Gagal menyimpan thumbnail.');

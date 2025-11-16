@@ -12,21 +12,6 @@ class NewsMediaService
 {
     private const THUMB_UPLOAD_DIR = 'uploads/news';
     private const MEDIA_UPLOAD_DIR = 'uploads/news-media';
-    private const ALLOWED_IMAGE_MIMES = [
-        'image/jpeg',
-        'image/jpg',
-        'image/pjpeg',
-        'image/png',
-        'image/webp',
-        'image/gif',
-    ];
-
-    public function isAllowedImageMime(UploadedFile $file): bool
-    {
-        $mime = strtolower((string) $file->getMimeType());
-
-        return in_array($mime, self::ALLOWED_IMAGE_MIMES, true);
-    }
 
     public function moveThumbnail(UploadedFile $file, ?string $originalPath = null): ?string
     {
@@ -195,10 +180,6 @@ class NewsMediaService
 
                 if ($file->hasMoved()) {
                     throw new RuntimeException('File gambar media sudah dipindahkan dan tidak dapat diproses ulang.');
-                }
-
-                if (! $this->isAllowedImageMime($file)) {
-                    throw new RuntimeException('Format gambar media tidak diizinkan.');
                 }
 
                 $caption   = sanitize_plain_text((string) ($newImageCaptions[$i] ?? ''));

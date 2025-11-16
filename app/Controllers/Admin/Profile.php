@@ -184,10 +184,6 @@ class Profile extends BaseController
 
         $logoPublicFile = $this->request->getFile('logo_public');
         if ($logoPublicFile && $logoPublicFile->isValid() && ! $logoPublicFile->hasMoved()) {
-            if (! $logoHelper->isAllowedMime($logoPublicFile)) {
-                return redirect()->back()->withInput()->with('error', 'Jenis file logo tidak diizinkan.');
-            }
-
             try {
                 $newPublicUploadedPath = $logoHelper->store(
                     $logoPublicFile,

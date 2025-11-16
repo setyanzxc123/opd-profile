@@ -12,14 +12,6 @@ class ProfileLogoService
 
     private const UPLOAD_DIR = 'uploads/profile';
 
-    private const ALLOWED_MIME_TYPES = [
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'image/webp',
-        'image/gif',
-    ];
-
     private const MIN_DIMENSION = 48;
 
     private const MAX_DIMENSIONS = [
@@ -27,25 +19,19 @@ class ProfileLogoService
         self::TYPE_ADMIN  => 320,
     ];
 
-    public function isAllowedMime(UploadedFile $file): bool
-    {
-        $mime = strtolower((string) $file->getMimeType());
-
-        return in_array($mime, self::ALLOWED_MIME_TYPES, true);
-    }
-
     public function store(UploadedFile $file, string $type = self::TYPE_PUBLIC, array $options = []): string
     {
         $type = $this->normalizeType($type);
 
-        $tempPath = $file->getTempName();
-        $info     = @getimagesize($tempPath);
+        // Get image dimensions using CI4's getImageFile() helper
+        $imageInfo = \Config\Services::image()->withFile($file->getTempName())->getFile();
 
-        if (! is_array($info) || empty($info[0]) || empty($info[1])) {
+        if (! $imageInfo) {
             throw new \RuntimeException('Logo tidak valid atau tidak dapat dibaca. Gunakan berkas JPG, PNG, WEBP, atau GIF.');
         }
 
-        [$width, $height] = [(int) $info[0], (int) $info[1]];
+        $width = $imageInfo->origWidth ?? 0;
+        $height = $imageInfo->origHeight ?? 0;
 
         if ($width < self::MIN_DIMENSION || $height < self::MIN_DIMENSION) {
             throw new \RuntimeException('Logo terlalu kecil. Gunakan gambar dengan ukuran minimal ' . self::MIN_DIMENSION . 'x' . self::MIN_DIMENSION . ' piksel.');
@@ -54,8 +40,9 @@ class ProfileLogoService
         $targetDir = $this->ensureUploadsDir();
         $extension = strtolower((string) $file->getClientExtension());
 
+        // Use CI4's guessExtension() if extension is empty
         if ($extension === '') {
-            $extension = $this->extensionFromMime($file->getMimeType()) ?? 'png';
+            $extension = $file->guessExtension() ?? 'png';
         }
 
         $token = $this->randomToken();
@@ -127,20 +114,6 @@ class ProfileLogoService
         return in_array($type, [self::TYPE_PUBLIC, self::TYPE_ADMIN], true) ? $type : self::TYPE_PUBLIC;
     }
 
-    private function extensionFromMime(?string $mime): ?string
-    {
-        $map = [
-            'image/jpeg' => 'jpg',
-            'image/jpg'  => 'jpg',
-            'image/png'  => 'png',
-            'image/webp' => 'webp',
-            'image/gif'  => 'gif',
-        ];
-
-        $key = strtolower((string) $mime);
-
-        return $map[$key] ?? null;
-    }
 
     private function randomToken(): string
     {
