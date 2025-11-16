@@ -3,7 +3,6 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\NewsCategoryModel;
-use App\Models\NewsMediaModel;
 use App\Models\NewsModel;
 use App\Models\NewsTagModel;
 use App\Services\NewsMediaService;
@@ -200,27 +199,24 @@ class News extends BaseController
             'selectedCategories' => [],
             'selectedTags'       => [],
             'primaryCategory'    => null,
-            'mediaItems'         => [],
         ]);
     }
 
     public function store()
     {
-        helper(['activity', 'content', 'news']);
+        helper(['activity', 'content', 'news', 'slug']);
 
         $rules = [
             'title'        => 'required|min_length[3]|max_length[200]',
             'content'      => 'required',
             'excerpt'      => 'permit_empty|max_length[300]',
             'published_at' => 'permit_empty',
-            'thumbnail'    => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]|mime_in[thumbnail,image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,image/gif]',
+            'thumbnail'    => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]',
         ];
 
         if (! $this->validate($rules)) {
             return redirect()->back()->withInput()->with('error', 'Periksa kembali data yang diisi.');
         }
-
-        helper('slug');
 
         $model          = new NewsModel();
         $titleInput     = sanitize_plain_text($this->request->getPost('title'));
@@ -229,16 +225,8 @@ class News extends BaseController
         $content        = sanitize_rich_text($contentRaw);
         $publishedAt    = $this->normalizePublishedAt($this->request->getPost('published_at'));
         $categoryIds    = $this->parseCategoryInput();
-        if ($categoryIds !== []) {
-            $validCategoryIds = model(NewsCategoryModel::class)->whereIn('id', $categoryIds)->findColumn('id') ?? [];
-            $categoryIds      = array_values(array_unique(array_map('intval', $validCategoryIds)));
-        }
         $primaryCategory = $this->determinePrimaryCategory($categoryIds);
         $existingTagIds  = $this->parseExistingTagInput();
-        if ($existingTagIds !== []) {
-            $validTags     = model(NewsTagModel::class)->whereIn('id', $existingTagIds)->findColumn('id') ?? [];
-            $existingTagIds= array_values(array_unique(array_map('intval', $validTags)));
-        }
         $newTagIds      = $this->createTagsFromInput((string) $this->request->getPost('new_tags'));
         $allTagIds      = array_values(array_unique(array_merge($existingTagIds, $newTagIds)));
 
@@ -252,22 +240,6 @@ class News extends BaseController
             if (! $thumbPath) {
                 return redirect()->back()->withInput()->with('error', 'Gagal menyimpan thumbnail.');
             }
-        }
-
-        $mediaPayload = [
-            'changes'        => ['delete' => [], 'update' => [], 'insert' => []],
-            'deleted_paths'  => [],
-            'uploaded_paths' => [],
-        ];
-
-        try {
-            $mediaPayload = $this->mediaService->collectChanges($this->request, []);
-        } catch (\RuntimeException $exception) {
-            if ($thumbPath) {
-                $this->mediaService->deleteFile($thumbPath);
-            }
-
-            return redirect()->back()->withInput()->with('error', $exception->getMessage());
         }
 
         $model->insert([
@@ -285,34 +257,10 @@ class News extends BaseController
         if ($newsId > 0) {
             $model->syncCategories($newsId, $categoryIds);
             $model->syncTags($newsId, $allTagIds);
-
-            $mediaModel = model(NewsMediaModel::class);
-            $hasChanges = ! empty($mediaPayload['changes']['delete'])
-                || ! empty($mediaPayload['changes']['update'])
-                || ! empty($mediaPayload['changes']['insert']);
-
-            $syncedMedia = [];
-            if ($hasChanges) {
-                $syncedMedia = $mediaModel->syncMedia($newsId, $mediaPayload['changes']);
-            }
-
-            foreach ($mediaPayload['deleted_paths'] as $path) {
-                $this->mediaService->deleteFile($path);
-            }
-
-            if ($syncedMedia !== []) {
-                $this->mediaService->refreshCoverThumbnail($model, $newsId, $syncedMedia, $thumbPath);
-            } elseif ($thumbPath) {
-                $model->update($newsId, ['thumbnail' => $thumbPath]);
-            }
         } else {
-            foreach ($mediaPayload['uploaded_paths'] as $path) {
-                $this->mediaService->deleteFile($path);
-            }
             if ($thumbPath) {
                 $this->mediaService->deleteFile($thumbPath);
             }
-
             return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data berita.');
         }
 
@@ -332,8 +280,6 @@ class News extends BaseController
         $taxonomy           = $this->taxonomyOptions();
         $selectedCategories = $model->getCategoryIds($id);
         $selectedTags       = $model->getTagIds($id);
-        $mediaItems         = model(NewsMediaModel::class)->byNews($id);
-        $mediaItems         = $this->mediaService->prepareMediaForForm($mediaItems);
 
         return view('admin/news/form', [
             'title'              => 'Ubah Berita',
@@ -345,13 +291,12 @@ class News extends BaseController
             'selectedCategories' => $selectedCategories,
             'selectedTags'       => $selectedTags,
             'primaryCategory'    => $item['primary_category_id'] ?? null,
-            'mediaItems'         => $mediaItems,
         ]);
     }
 
     public function update(int $id)
     {
-        helper(['activity', 'content', 'news']);
+        helper(['activity', 'content', 'news', 'slug']);
 
         $model = new NewsModel();
         $item  = $model->find($id);
@@ -364,14 +309,12 @@ class News extends BaseController
             'content'      => 'required',
             'excerpt'      => 'permit_empty|max_length[300]',
             'published_at' => 'permit_empty',
-            'thumbnail'    => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]|mime_in[thumbnail,image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,image/gif]',
+            'thumbnail'    => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]',
         ];
 
         if (! $this->validate($rules)) {
             return redirect()->back()->withInput()->with('error', 'Periksa kembali data yang diisi.');
         }
-
-        helper('slug');
 
         $titleInput     = sanitize_plain_text($this->request->getPost('title'));
         $slug           = unique_slug($titleInput, $model, 'slug', null, $id, 'news');
@@ -379,16 +322,8 @@ class News extends BaseController
         $content        = sanitize_rich_text($contentRaw);
         $publishedAt    = $this->normalizePublishedAt($this->request->getPost('published_at'));
         $categoryIds    = $this->parseCategoryInput();
-        if ($categoryIds !== []) {
-            $validCategoryIds = model(NewsCategoryModel::class)->whereIn('id', $categoryIds)->findColumn('id') ?? [];
-            $categoryIds      = array_values(array_unique(array_map('intval', $validCategoryIds)));
-        }
         $primaryCategory = $this->determinePrimaryCategory($categoryIds);
         $existingTagIds  = $this->parseExistingTagInput();
-        if ($existingTagIds !== []) {
-            $validTagIds    = model(NewsTagModel::class)->whereIn('id', $existingTagIds)->findColumn('id') ?? [];
-            $existingTagIds = array_values(array_unique(array_map('intval', $validTagIds)));
-        }
         $newTagIds = $this->createTagsFromInput((string) $this->request->getPost('new_tags'));
         $allTagIds = array_values(array_unique(array_merge($existingTagIds, $newTagIds)));
 
@@ -404,61 +339,24 @@ class News extends BaseController
             'primary_category_id' => $primaryCategory,
         ];
 
-        $mediaModel          = model(NewsMediaModel::class);
-        $existingMediaRaw    = $mediaModel->byNews($id);
-        $existingMedia       = $this->mediaService->prepareMediaForForm($existingMediaRaw);
-        $mediaPayload        = [
-            'changes'        => ['delete' => [], 'update' => [], 'insert' => []],
-            'deleted_paths'  => [],
-            'uploaded_paths' => [],
-        ];
-
-        $oldThumbnail      = $item['thumbnail'] ?? null;
-        $thumbnailReplaced = false;
-
+        $oldThumbnail = $item['thumbnail'] ?? null;
         $file = $this->request->getFile('thumbnail');
         if ($file && $file->isValid()) {
             $newPath = $this->mediaService->moveThumbnail($file);
             if (! $newPath) {
                 return redirect()->back()->withInput()->with('error', 'Gagal menyimpan thumbnail.');
             }
-
             $data['thumbnail'] = $newPath;
-            $thumbnailReplaced = true;
-        }
 
-        try {
-            $mediaPayload = $this->mediaService->collectChanges($this->request, $existingMedia);
-        } catch (\RuntimeException $exception) {
-            if ($thumbnailReplaced && isset($data['thumbnail'])) {
-                $this->mediaService->deleteFile($data['thumbnail']);
+            // Delete old thumbnail if replaced
+            if ($oldThumbnail && $oldThumbnail !== $newPath) {
+                $this->mediaService->deleteFile($oldThumbnail);
             }
-
-            return redirect()->back()->withInput()->with('error', $exception->getMessage());
         }
 
         $model->update($id, $data);
         $model->syncCategories($id, $categoryIds);
         $model->syncTags($id, $allTagIds);
-
-        $hasChanges = ! empty($mediaPayload['changes']['delete'])
-            || ! empty($mediaPayload['changes']['update'])
-            || ! empty($mediaPayload['changes']['insert']);
-
-        $syncedMedia = $existingMediaRaw;
-        if ($hasChanges) {
-            $syncedMedia = $mediaModel->syncMedia($id, $mediaPayload['changes']);
-        }
-
-        foreach ($mediaPayload['deleted_paths'] as $path) {
-            $this->mediaService->deleteFile($path);
-        }
-
-        $this->mediaService->refreshCoverThumbnail($model, $id, $syncedMedia, $data['thumbnail'] ?? $oldThumbnail);
-
-        if ($thumbnailReplaced && $oldThumbnail && ($data['thumbnail'] ?? '') !== $oldThumbnail) {
-            $this->mediaService->deleteFile($oldThumbnail);
-        }
 
         log_activity('news.update', 'Mengubah berita: ' . $titleInput);
 
@@ -472,18 +370,11 @@ class News extends BaseController
         $model = new NewsModel();
         $item  = $model->find($id);
         if ($item) {
-            $mediaModel = model(NewsMediaModel::class);
-            $mediaItems = $mediaModel->byNews($id);
-
-            foreach ($mediaItems as $media) {
-                if (($media['media_type'] ?? '') === 'image' && ! empty($media['file_path'])) {
-                    $this->mediaService->deleteFile($media['file_path']);
-                }
+            // Delete thumbnail if exists
+            if (!empty($item['thumbnail'])) {
+                $this->mediaService->deleteFile($item['thumbnail']);
             }
 
-            $mediaModel->where('news_id', $id)->delete();
-
-            $this->mediaService->deleteFile($item['thumbnail'] ?? null);
             $model->delete($id);
             log_activity('news.delete', 'Menghapus berita: ' . ($item['title'] ?? ''));
         }
