@@ -46,15 +46,12 @@ class PublicContentService
         return $this->cache->remember($cacheKey, $this->ttl, function () use ($limit) {
             try {
                 $model = model(ServiceModel::class);
-                $builder = $model
+
+                return $model
+                    ->where('is_active', 1)
                     ->orderBy('sort_order', 'asc')
-                    ->orderBy('title', 'asc');
-
-                if ($this->servicesHaveActiveColumn()) {
-                    $builder = $builder->where('is_active', 1);
-                }
-
-                return $builder->findAll($limit) ?: [];
+                    ->orderBy('title', 'asc')
+                    ->findAll($limit) ?: [];
             } catch (Throwable $throwable) {
                 log_message('warning', 'Failed to fetch featured services: {error}', ['error' => $throwable->getMessage()]);
 
@@ -68,15 +65,12 @@ class PublicContentService
         return $this->cache->remember('public_services_all', $this->ttl, function () {
             try {
                 $model = model(ServiceModel::class);
-                $builder = $model
+
+                return $model
+                    ->where('is_active', 1)
                     ->orderBy('sort_order', 'asc')
-                    ->orderBy('title', 'asc');
-
-                if ($this->servicesHaveActiveColumn()) {
-                    $builder = $builder->where('is_active', 1);
-                }
-
-                return $builder->findAll() ?: [];
+                    ->orderBy('title', 'asc')
+                    ->findAll() ?: [];
             } catch (Throwable $throwable) {
                 log_message('warning', 'Failed to fetch services: {error}', ['error' => $throwable->getMessage()]);
 
@@ -115,10 +109,6 @@ class PublicContentService
         return $this->cache->remember($cacheKey, $this->ttl, function () use ($limit) {
             try {
                 $model = model(NewsModel::class);
-
-                if ($this->newsHasViewCountColumn()) {
-                    $model->orderBy('view_count', 'desc');
-                }
 
                 $items = $model
                     ->orderBy('published_at', 'desc')
@@ -307,14 +297,10 @@ class PublicContentService
         }
     }
 
+    // Simplified related news - just fetch latest from same category or all if no category
     public function relatedNews(int $newsId, ?int $primaryCategoryId = null, array $tagIds = [], int $limit = 4): array
     {
         $limit = max(1, $limit);
-        $primaryCategoryId = $primaryCategoryId !== null ? (int) $primaryCategoryId : null;
-        $tagIds            = array_values(array_unique(array_filter(
-            array_map(static fn ($value) => (int) $value, $tagIds),
-            static fn (int $value): bool => $value > 0
-        )));
 
         try {
             $model = model(NewsModel::class);
@@ -323,99 +309,16 @@ class PublicContentService
                   ->orderBy('published_at', 'desc')
                   ->orderBy('created_at', 'desc');
 
+            // If category provided, filter by category
             if ($primaryCategoryId !== null) {
-                $model->join('news_category_map', 'news_category_map.news_id = news.id', 'left');
+                $model->join('news_category_map', 'news_category_map.news_id = news.id', 'inner')
+                      ->where('news_category_map.category_id', $primaryCategoryId)
+                      ->groupBy('news.id');
             }
 
-            if ($tagIds !== []) {
-                $model->join('news_tag_map', 'news_tag_map.news_id = news.id', 'left');
-            }
+            $rows = $model->findAll($limit) ?: [];
 
-            if ($primaryCategoryId !== null || $tagIds !== []) {
-                $model->groupStart();
-
-                if ($primaryCategoryId !== null) {
-                    $model->where('news_category_map.category_id', $primaryCategoryId);
-                }
-
-                if ($tagIds !== []) {
-                    $method = $primaryCategoryId !== null ? 'orWhereIn' : 'whereIn';
-                    $model->{$method}('news_tag_map.tag_id', $tagIds);
-                }
-
-                $model->groupEnd();
-            }
-
-            $model->groupBy('news.id');
-
-            $fetchLimit = max($limit * 3, $limit);
-            $rows       = $model->findAll($fetchLimit) ?: [];
-            $rows       = $this->hydrateNewsRelations($rows);
-
-            if ($rows === []) {
-                return [];
-            }
-
-            if ($primaryCategoryId === null && $tagIds === []) {
-                return array_slice($rows, 0, $limit);
-            }
-
-            $tagLookup = $tagIds !== [] ? array_flip($tagIds) : [];
-
-            foreach ($rows as &$row) {
-                $score = 0;
-
-                if ($primaryCategoryId !== null) {
-                    $primary = $row['primary_category']['id'] ?? null;
-                    if ((int) $primary === $primaryCategoryId) {
-                        $score += 3;
-                    }
-
-                    foreach ($row['categories'] ?? [] as $category) {
-                        if ((int) ($category['id'] ?? 0) === $primaryCategoryId) {
-                            $score += 2;
-                            break;
-                        }
-                    }
-                }
-
-                if ($tagLookup) {
-                    $tagMatches = 0;
-                    foreach ($row['tags'] ?? [] as $tag) {
-                        $tagId = (int) ($tag['id'] ?? 0);
-                        if (isset($tagLookup[$tagId])) {
-                            $tagMatches++;
-                        }
-                    }
-                    $score += $tagMatches;
-                }
-
-                $row['_relevance']    = $score;
-                $row['_published_ts'] = isset($row['published_at']) ? strtotime((string) $row['published_at']) ?: 0 : 0;
-                $row['_created_ts']   = isset($row['created_at']) ? strtotime((string) $row['created_at']) ?: 0 : 0;
-            }
-            unset($row);
-
-            usort($rows, static function (array $a, array $b): int {
-                if ($a['_relevance'] !== $b['_relevance']) {
-                    return $b['_relevance'] <=> $a['_relevance'];
-                }
-
-                if ($a['_published_ts'] !== $b['_published_ts']) {
-                    return $b['_published_ts'] <=> $a['_published_ts'];
-                }
-
-                return $b['_created_ts'] <=> $a['_created_ts'];
-            });
-
-            $rows = array_slice($rows, 0, $limit);
-
-            foreach ($rows as &$row) {
-                unset($row['_relevance'], $row['_published_ts'], $row['_created_ts']);
-            }
-            unset($row);
-
-            return $rows;
+            return $this->hydrateNewsRelations($rows);
         } catch (Throwable $throwable) {
             log_message('warning', 'Failed to fetch related news: {error}', ['error' => $throwable->getMessage()]);
 
@@ -460,59 +363,6 @@ class PublicContentService
         });
     }
 
-    protected function newsHasViewCountColumn(): bool
-    {
-        static $result;
-
-        if ($result !== null) {
-            return $result;
-        }
-
-        $cacheKey = 'schema_news_has_view_count';
-
-        $result = (bool) $this->cache->remember($cacheKey, 86400, static function () {
-            try {
-                $db     = db_connect();
-                $fields = $db->getFieldNames('news');
-                $db->close();
-
-                return in_array('view_count', $fields, true);
-            } catch (Throwable $throwable) {
-                log_message('debug', 'Unable to inspect news table: {error}', ['error' => $throwable->getMessage()]);
-
-                return false;
-            }
-        });
-
-        return $result;
-    }
-
-    private function servicesHaveActiveColumn(): bool
-    {
-        static $result;
-
-        if ($result !== null) {
-            return $result;
-        }
-
-        $cacheKey = 'schema_services_has_active';
-
-        $result = (bool) $this->cache->remember($cacheKey, 86400, static function () {
-            try {
-                $db = db_connect();
-                $fields = $db->getFieldNames('services');
-                $db->close();
-
-                return in_array('is_active', $fields, true);
-            } catch (Throwable $throwable) {
-                log_message('debug', 'Unable to inspect services table: {error}', ['error' => $throwable->getMessage()]);
-
-                return false;
-            }
-        });
-
-        return $result;
-    }
 
     /**
      * @param array<int,int> $newsIds
