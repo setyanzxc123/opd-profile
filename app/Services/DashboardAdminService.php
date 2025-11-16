@@ -94,6 +94,7 @@ class DashboardAdminService
 
         $latest = $model->builder()
             ->select('id, name, subject, status, created_at')
+            ->whereIn('status', ['new', 'in_progress'])
             ->orderBy('created_at', 'DESC')
             ->limit(5)
             ->get()
