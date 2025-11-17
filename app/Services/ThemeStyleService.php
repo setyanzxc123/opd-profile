@@ -13,161 +13,54 @@ class ThemeStyleService
         'surface' => '#F5F5F9',
     ];
 
-    public const DEFAULT_PRESET = 'coastal-teal';
+    public const DEFAULT_PRESET = 'teal';
 
+    // Simplified: only essential frequently-used colors
     public const PRESET_THEMES = [
-        'teal-700' => [
-            'label'   => 'Teal 700',
-            'primary' => '#115E59',
-            'surface' => '#E7FBF8',
-            'tone'    => 'dark',
-        ],
-        'teal-500' => [
-            'label'   => 'Teal 500',
+        'teal' => [
+            'label'   => 'Teal (Default)',
             'primary' => '#0D9488',
             'surface' => '#EBFFFB',
             'tone'    => 'light',
         ],
-        'cyan-700' => [
-            'label'   => 'Cyan 700',
-            'primary' => '#0E7490',
-            'surface' => '#E4F9FF',
-            'tone'    => 'dark',
-        ],
-        'cyan-500' => [
-            'label'   => 'Cyan 500',
-            'primary' => '#0891B2',
-            'surface' => '#E8F9FF',
-            'tone'    => 'light',
-        ],
-        'emerald-700' => [
-            'label'   => 'Emerald 700',
-            'primary' => '#047857',
-            'surface' => '#E6F7EF',
-            'tone'    => 'dark',
-        ],
-        'emerald-500' => [
-            'label'   => 'Emerald 500',
-            'primary' => '#059669',
-            'surface' => '#ECFBF4',
-            'tone'    => 'light',
-        ],
-        'green-700' => [
-            'label'   => 'Green 700',
-            'primary' => '#15803D',
-            'surface' => '#EBF8EE',
-            'tone'    => 'dark',
-        ],
-        'green-500' => [
-            'label'   => 'Green 500',
-            'primary' => '#16A34A',
-            'surface' => '#EDFAEF',
-            'tone'    => 'light',
-        ],
-        'blue-800' => [
-            'label'   => 'Blue 800',
-            'primary' => '#1E40AF',
-            'surface' => '#EEF3FF',
-            'tone'    => 'dark',
-        ],
-        'blue-500' => [
-            'label'   => 'Blue 500',
+        'blue' => [
+            'label'   => 'Biru',
             'primary' => '#2563EB',
             'surface' => '#EFF4FF',
             'tone'    => 'light',
         ],
-        'indigo-700' => [
-            'label'   => 'Indigo 700',
-            'primary' => '#3730A3',
-            'surface' => '#F0F1FF',
-            'tone'    => 'dark',
-        ],
-        'indigo-500' => [
-            'label'   => 'Indigo 500',
-            'primary' => '#4F46E5',
-            'surface' => '#F3F2FF',
+        'green' => [
+            'label'   => 'Hijau',
+            'primary' => '#16A34A',
+            'surface' => '#EDFAEF',
             'tone'    => 'light',
         ],
-        'purple-700' => [
-            'label'   => 'Purple 700',
-            'primary' => '#581C87',
-            'surface' => '#F8EEFF',
-            'tone'    => 'dark',
-        ],
-        'purple-500' => [
-            'label'   => 'Purple 500',
-            'primary' => '#7C3AED',
-            'surface' => '#F9F0FF',
-            'tone'    => 'light',
-        ],
-        'red-700' => [
-            'label'   => 'Red 700',
-            'primary' => '#B91C1C',
-            'surface' => '#FFF0F1',
-            'tone'    => 'dark',
-        ],
-        'red-500' => [
-            'label'   => 'Red 500',
+        'red' => [
+            'label'   => 'Merah',
             'primary' => '#EF4444',
             'surface' => '#FFECEC',
             'tone'    => 'light',
         ],
-        'orange-700' => [
-            'label'   => 'Orange 700',
-            'primary' => '#C2410C',
-            'surface' => '#FFF2E7',
-            'tone'    => 'dark',
-        ],
-        'orange-500' => [
-            'label'   => 'Orange 500',
-            'primary' => '#F97316',
-            'surface' => '#FFF2E6',
-            'tone'    => 'light',
-        ],
-        'yellow-500' => [
-            'label'   => 'Yellow 500',
+        'yellow' => [
+            'label'   => 'Kuning',
             'primary' => '#EAB308',
             'surface' => '#FFF8D9',
             'tone'    => 'light',
         ],
-        'amber-700' => [
-            'label'   => 'Amber 700',
-            'primary' => '#B45309',
-            'surface' => '#FFF4DF',
+        'blue-dark' => [
+            'label'   => 'Biru Gelap',
+            'primary' => '#1E40AF',
+            'surface' => '#EEF3FF',
             'tone'    => 'dark',
         ],
-        'amber-500' => [
-            'label'   => 'Amber 500',
-            'primary' => '#F59E0B',
-            'surface' => '#FFF3D6',
-            'tone'    => 'light',
-        ],
-        'rose-700' => [
-            'label'   => 'Rose 700',
-            'primary' => '#BE123C',
-            'surface' => '#FFEFF3',
-            'tone'    => 'dark',
-        ],
-        'rose-500' => [
-            'label'   => 'Rose 500',
-            'primary' => '#E11D48',
-            'surface' => '#FFEFF5',
-            'tone'    => 'light',
-        ],
-        'charcoal-900' => [
-            'label'   => 'Charcoal 900',
+        'charcoal' => [
+            'label'   => 'Hitam',
             'primary' => '#0F172A',
             'surface' => '#F5F6FB',
             'tone'    => 'dark',
         ],
-        'black-900' => [
-            'label'   => 'Black 900',
-            'primary' => '#0B1220',
-            'surface' => '#F4F4F5',
-            'tone'    => 'dark',
-        ],
-        'white-100' => [
-            'label'   => 'White 100',
+        'white' => [
+            'label'   => 'Putih',
             'primary' => '#FFFFFF',
             'surface' => '#F9FAFB',
             'tone'    => 'light',
