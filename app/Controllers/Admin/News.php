@@ -215,7 +215,7 @@ class News extends BaseController
         ];
 
         if (! $this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', 'Periksa kembali data yang diisi.');
+            return redirect()->back()->withInput();
         }
 
         $model          = new NewsModel();
@@ -313,7 +313,7 @@ class News extends BaseController
         ];
 
         if (! $this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', 'Periksa kembali data yang diisi.');
+            return redirect()->back()->withInput();
         }
 
         $titleInput     = sanitize_plain_text($this->request->getPost('title'));

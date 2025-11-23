@@ -79,7 +79,19 @@
           </div>
         <?php endif; ?>
 
-        <form method="post" enctype="multipart/form-data" action="<?= $mode === 'edit' ? site_url('admin/news/update/'.$item['id']) : site_url('admin/news') ?>">
+        <?php if (isset($validation) && $validation->getErrors()): ?>
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <h6 class="alert-heading mb-2"><i class="bx bx-error-circle me-1"></i> Periksa kembali data yang diisi</h6>
+            <ul class="mb-0 ps-3">
+              <?php foreach ($validation->getErrors() as $field => $error): ?>
+                <li><?= esc($error) ?></li>
+              <?php endforeach; ?>
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+          </div>
+        <?php endif; ?>
+
+        <form id="newsForm" method="post" enctype="multipart/form-data" action="<?= $mode === 'edit' ? site_url('admin/news/update/'.$item['id']) : site_url('admin/news/store') ?>">
           <?= csrf_field() ?>
 
           <div class="row g-4 align-items-start news-form-layout">
@@ -96,7 +108,7 @@
                 
                                   <div class="mb-4">
                                     <label class="form-label fw-semibold" for="newsTitle">Judul Berita <span class="text-danger">*</span></label>
-                                    <input type="text" id="newsTitle" name="title" class="form-control form-control-lg" maxlength="200" required value="<?= esc(old('title', $item['title'])) ?>" placeholder="Contoh: Pemkab Gelar Diskusi Publik Transformasi Digital">
+                                    <input type="text" id="newsTitle" name="title" class="form-control form-control-lg" maxlength="200" value="<?= esc(old('title', $item['title'])) ?>" placeholder="Contoh: Pemkab Gelar Diskusi Publik Transformasi Digital">
                                     <div class="d-flex flex-column flex-lg-row justify-content-between gap-1 form-text mt-2">
                                       <span id="titleCounter" class="text-muted" role="status" aria-live="polite">0/200 karakter</span>
                                       <span>Slug otomatis: <span id="slugPreview" class="fw-semibold text-primary" data-initial-slug="<?= esc($item['slug'] ?? 'slug-otomatis', 'attr') ?>" role="status" aria-live="polite"><?= esc($item['slug'] ?? 'slug-otomatis') ?></span></span>
@@ -109,7 +121,7 @@
                                   <div class="mb-3">
                                     <label class="form-label fw-semibold mb-0" for="newsContent">Isi Berita <span class="text-danger">*</span></label>
                                   </div>
-                                  <textarea id="newsContent" name="content" class="form-control" rows="12" placeholder="Tulis isi berita dengan struktur yang rapi..." required><?= old('content', $item['content']) ?></textarea>
+                                  <textarea id="newsContent" name="content" class="form-control" rows="12" placeholder="Tulis isi berita dengan struktur yang rapi..."><?= old('content', $item['content']) ?></textarea>
                                   <div class="form-text mt-2">Gunakan toolbar untuk menambahkan heading, daftar, tabel, media, hingga kutipan.</div>
                                   <?php if (isset($validation) && $validation->hasError('content')): ?>
                                     <div class="form-text text-danger mt-1"><?= esc($validation->getError('content')) ?></div>
@@ -282,7 +294,10 @@
             </div>
           </div>
           <div class="d-flex justify-content-end gap-2 mt-4">
-            <button type="submit" class="btn btn-primary btn-lg"><i class="bx bx-save me-2"></i> Simpan Berita</button>
+            <button type="submit" id="submitBtn" class="btn btn-primary btn-lg">
+              <i class="bx bx-save me-2"></i>
+              <span class="btn-text">Simpan Berita</span>
+            </button>
           </div>
         </form>
       </div>
@@ -530,6 +545,39 @@
     }
 
     initTinyMCE(initialEditorLanguage);
+
+    // Form submission handler
+    const newsForm = document.getElementById('newsForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (newsForm) {
+      newsForm.addEventListener('submit', function(e) {
+        // Save TinyMCE content to textarea
+        const editor = tinymce.get('newsContent');
+        if (editor) {
+          try {
+            editor.save();
+          } catch (err) {
+            console.error('[News Form] Error saving editor content:', err);
+          }
+        }
+
+        // Update button to show loading state
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          const btnIcon = submitBtn.querySelector('i');
+          const btnText = submitBtn.querySelector('.btn-text');
+          if (btnIcon) {
+            btnIcon.className = 'bx bx-loader-alt bx-spin me-2';
+          }
+          if (btnText) {
+            btnText.textContent = 'Menyimpan...';
+          }
+        }
+
+        return true;
+      });
+    }
   });
 </script>
 <?= $this->endSection() ?>
