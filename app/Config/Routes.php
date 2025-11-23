@@ -75,21 +75,13 @@ $routes->group('admin', [
     $routes->post('users/toggle/(:num)', 'Users::toggle/$1');
     $routes->post('users/reset/(:num)', 'Users::resetPassword/$1');
     $routes->get('logs', 'ActivityLogs::index');
-    // Hero Sliders CMS
+    // Hero Sliders CMS - Clean & RESTful
     $routes->get('hero-sliders', 'HeroSliders::index');
     $routes->get('hero-sliders/create', 'HeroSliders::create');
     $routes->post('hero-sliders', 'HeroSliders::store');
     $routes->get('hero-sliders/edit/(:num)', 'HeroSliders::edit/$1');
     $routes->post('hero-sliders/update/(:num)', 'HeroSliders::update/$1');
     $routes->post('hero-sliders/delete/(:num)', 'HeroSliders::delete/$1');
-    $routes->post('hero-sliders/duplicate/(:num)', 'HeroSliders::duplicate/$1');
-    $routes->get('hero-sliders/preview/(:num)', 'HeroSliders::preview/$1');
     $routes->post('hero-sliders/sort-order', 'HeroSliders::updateSortOrder');
     $routes->post('hero-sliders/track-view/(:num)', 'HeroSliders::trackView/$1');
-    $routes->get('hero-sliders/slots/news', 'HeroSliderSlots::news');
-    
-    // Debug routes (temporary for troubleshooting)
-    $routes->get('hero-slider-debug/check-status', 'HeroSliderDebug::checkStatus');
-    $routes->get('hero-slider-debug/reset-and-create', 'HeroSliderDebug::resetAndCreate');
-    $routes->get('hero-slider-debug/force-create', 'HeroSliderDebug::forceCreate');
 });

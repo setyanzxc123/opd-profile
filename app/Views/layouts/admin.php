@@ -91,7 +91,7 @@
           </li>
           <?php endif; ?>
 
-          <?php $hasContentAccess = $canAccess('news') || $canAccess('services') || $canAccess('galleries') || $canAccess('documents') || $canAccess('contacts'); ?>
+          <?php $hasContentAccess = $canAccess('news') || $canAccess('services') || $canAccess('galleries') || $canAccess('documents') || $canAccess('contacts') || $canAccess('hero-sliders'); ?>
           <?php if ($hasContentAccess): ?>
           <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Konten</span>
@@ -125,6 +125,14 @@
             <a href="<?= site_url('admin/documents') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-file"></i>
               <div class="text-truncate">Dokumen</div>
+            </a>
+          </li>
+          <?php endif; ?>
+          <?php if ($canAccess('hero-sliders')): ?>
+          <li class="menu-item<?= $section === 'hero-sliders' ? ' active' : '' ?>">
+            <a href="<?= site_url('admin/hero-sliders') ?>" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-slider"></i>
+              <div class="text-truncate">Hero Sliders</div>
             </a>
           </li>
           <?php endif; ?>

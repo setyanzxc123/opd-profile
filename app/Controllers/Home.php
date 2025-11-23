@@ -2,23 +2,26 @@
 
 namespace App\Controllers;
 
+use App\Models\HeroSliderModel;
 use App\Services\PublicContentService;
 use CodeIgniter\I18n\Time;
 
 class Home extends BaseController
 {
     private PublicContentService $contentService;
+    private HeroSliderModel $sliderModel;
 
     public function __construct()
     {
         $this->contentService = new PublicContentService();
+        $this->sliderModel = model(HeroSliderModel::class);
     }
 
     public function index(): string
     {
         $profile   = $this->contentService->latestProfile();
         $services  = $this->contentService->featuredServices(4);
-        $newsItems = $this->contentService->recentNews(4);
+        $newsItems = $this->contentService->recentNews(5);
         $galleries = $this->contentService->recentGalleries(4);
         $documents = $this->contentService->recentDocuments(4);
 
@@ -46,27 +49,37 @@ class Home extends BaseController
 
     private function buildHeroView(?array $profile, array $newsItems): array
     {
-        $sliderItems = [];
-        foreach ($newsItems as $index => $item) {
-            $primaryCategory = $item['primary_category'] ?? null;
-            $sliderItems[] = [
+        $limitSlots = 10;
+        $minSlides  = 5;
+
+        $manual = $this->sliderModel->getActiveSlides($limitSlots);
+        $slides = [];
+        foreach ($manual as $index => $item) {
+            $slides[] = [
                 'title'     => (string) ($item['title'] ?? ''),
-                'excerpt'   => $this->limitText($item['content'] ?? '', 200),
-                'thumbnail' => $this->resolveMediaUrl($item['thumbnail'] ?? ''),
-                'slug'      => (string) ($item['slug'] ?? ''),
+                'excerpt'   => $this->limitText($item['description'] ?? '', 200),
+                'thumbnail' => $this->resolveMediaUrl($item['image_path'] ?? ''),
+                'link'      => (string) ($item['button_link'] ?? '#'),
                 'isActive'  => $index === 0,
-                'published' => $this->formatDate($item['published_at'] ?? null),
-                'category'      => $primaryCategory['name'] ?? null,
-                'category_slug' => $primaryCategory['slug'] ?? null,
+                'published' => null,
+                'category'      => $item['subtitle'] ?? null,
+                'category_slug' => null,
+                'button_text'   => $item['button_text'] ?? 'Selengkapnya',
             ];
+        }
+
+        if (count($slides) < $minSlides) {
+            $needed = $minSlides - count($slides);
+            $fallback = $this->buildNewsFallback($newsItems, $needed, count($slides));
+            $slides = array_merge($slides, $fallback);
         }
 
         $profileName  = trim((string) ($profile['name'] ?? 'Dinas ....'));
         $profileIntro = trim((string) ($profile['description'] ?? 'Menyediakan informasi terkini mengenai program kerja, layanan publik, data dokumen penting, serta berita terbaru dari dinas.'));
 
         return [
-            'hasSlider' => $sliderItems !== [],
-            'slides'    => $sliderItems,
+            'hasSlider' => $slides !== [],
+            'slides'    => array_slice($slides, 0, $limitSlots),
             'fallback'  => [
                 'title'       => $profileName,
                 'description' => $profileIntro,
@@ -74,6 +87,29 @@ class Home extends BaseController
                 'ctaContact'  => site_url('kontak'),
             ],
         ];
+    }
+
+    private function buildNewsFallback(array $newsItems, int $limit, int $offsetCount = 0): array
+    {
+        $fallback = [];
+        $newsItems = array_slice($newsItems, 0, $limit);
+
+        foreach ($newsItems as $index => $item) {
+            $primaryCategory = $item['primary_category'] ?? null;
+            $fallback[] = [
+                'title'     => (string) ($item['title'] ?? ''),
+                'excerpt'   => $this->limitText($item['content'] ?? '', 200),
+                'thumbnail' => $this->resolveMediaUrl($item['thumbnail'] ?? ''),
+                'link'      => site_url('berita/' . (string) ($item['slug'] ?? '')),
+                'isActive'  => ($index + $offsetCount) === 0,
+                'published' => $this->formatDate($item['published_at'] ?? null),
+                'category'      => $primaryCategory['name'] ?? null,
+                'category_slug' => $primaryCategory['slug'] ?? null,
+                'button_text'   => 'Baca Selengkapnya',
+            ];
+        }
+
+        return $fallback;
     }
 
     private function buildProfileSummary(?array $profile): array
