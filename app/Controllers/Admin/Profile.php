@@ -103,6 +103,8 @@ class Profile extends BaseController
             'map_zoom'    => 'permit_empty|integer|greater_than_equal_to[1]|less_than_equal_to[20]',
             'map_display' => 'permit_empty|in_list[0,1]',
             'logo_public' => 'permit_empty|max_size[logo_public,3072]|is_image[logo_public]|ext_in[logo_public,jpg,jpeg,png,webp,gif]|mime_in[logo_public,image/jpeg,image/jpg,image/png,image/webp,image/gif]',
+            'org_structure_image' => 'permit_empty|max_size[org_structure_image,5120]|is_image[org_structure_image]|ext_in[org_structure_image,jpg,jpeg,png,webp]|mime_in[org_structure_image,image/jpeg,image/jpg,image/png,image/webp]',
+            'org_structure_alt_text' => 'permit_empty|max_length[5000]',
             'theme_mode'   => 'required|in_list[' . $modeOptionsRule . ']',
             'theme_preset' => $presetRule,
             'theme_primary_color' => 'permit_empty|' . $hexRule,
@@ -151,6 +153,20 @@ class Profile extends BaseController
             'map_display' => $this->profileService->normalizeDisplayFlag($this->request->getPost('map_display')),
             'phone'       => sanitize_plain_text($this->request->getPost('phone')),
             'email'       => sanitize_plain_text($this->request->getPost('email')),
+            'org_structure_alt_text' => sanitize_plain_text($this->request->getPost('org_structure_alt_text')),
+            // Social media fields
+            'social_facebook' => sanitize_plain_text($this->request->getPost('social_facebook')),
+            'social_facebook_active' => $this->profileService->normalizeDisplayFlag($this->request->getPost('social_facebook_active')),
+            'social_instagram' => sanitize_plain_text($this->request->getPost('social_instagram')),
+            'social_instagram_active' => $this->profileService->normalizeDisplayFlag($this->request->getPost('social_instagram_active')),
+            'social_twitter' => sanitize_plain_text($this->request->getPost('social_twitter')),
+            'social_twitter_active' => $this->profileService->normalizeDisplayFlag($this->request->getPost('social_twitter_active')),
+            'social_youtube' => sanitize_plain_text($this->request->getPost('social_youtube')),
+            'social_youtube_active' => $this->profileService->normalizeDisplayFlag($this->request->getPost('social_youtube_active')),
+            'social_tiktok' => sanitize_plain_text($this->request->getPost('social_tiktok')),
+            'social_tiktok_active' => $this->profileService->normalizeDisplayFlag($this->request->getPost('social_tiktok_active')),
+            'operational_hours' => sanitize_plain_text($this->request->getPost('operational_hours')),
+            'operational_notes' => sanitize_plain_text($this->request->getPost('operational_notes')),
         ];
 
         if ($themeMode === ProfileAdminService::THEME_MODE_CUSTOM) {
@@ -209,6 +225,37 @@ class Profile extends BaseController
         $data['logo_public_path'] = $publicPathAfter;
         $data['logo_admin_path']  = $publicPathAfter;
 
+        // Handle organization structure image upload
+        $orgStructurePathBefore = $currentProfile['org_structure_image'] ?? null;
+        $orgStructurePathAfter = $orgStructurePathBefore;
+        
+        $orgStructureFile = $this->request->getFile('org_structure_image');
+        if ($orgStructureFile && $orgStructureFile->isValid() && ! $orgStructureFile->hasMoved()) {
+            helper('filesystem');
+            $uploadPath = WRITEPATH . 'uploads/org-structure/';
+            
+            if (! is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+            
+            $newName = $orgStructureFile->getRandomName();
+            try {
+                $orgStructureFile->move($uploadPath, $newName);
+                $orgStructurePathAfter = 'writable/uploads/org-structure/' . $newName;
+                $data['org_structure_updated_at'] = date('Y-m-d H:i:s');
+            } catch (\Throwable $e) {
+                return redirect()->back()->withInput()->with('error', 'Gagal mengunggah gambar struktur organisasi.');
+            }
+        }
+        
+        $removeOrgStructure = $this->profileService->shouldRemove($this->request->getPost('remove_org_structure'));
+        if ($removeOrgStructure) {
+            $orgStructurePathAfter = null;
+            $data['org_structure_updated_at'] = date('Y-m-d H:i:s');
+        }
+        
+        $data['org_structure_image'] = $orgStructurePathAfter;
+
         if ($isUpdate) {
             $model->update($id, $data);
         } else {
@@ -236,6 +283,14 @@ class Profile extends BaseController
 
         foreach ($pathsToDelete as $unusedPath) {
             $logoHelper->delete($unusedPath);
+        }
+
+        // Clean up old org structure image if replaced or removed
+        if ($orgStructurePathBefore && $orgStructurePathBefore !== $orgStructurePathAfter) {
+            $oldOrgImageFile = FCPATH . $orgStructurePathBefore;
+            if (is_file($oldOrgImageFile)) {
+                @unlink($oldOrgImageFile);
+            }
         }
 
         $message = $isUpdate ? 'Memperbarui Profil' : 'Membuat Profil';

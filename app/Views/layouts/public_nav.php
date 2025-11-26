@@ -25,14 +25,19 @@
   $logoPublicPath = trim((string) ($profileData['logo_public_path'] ?? ''));
   $logoPublicUrl = $logoPublicPath !== '' ? base_url($logoPublicPath) : null;
   $brandLabel = $profileName !== '' ? $profileName : 'OPD Pemerintah';
-  $metaLinks = [
-    ['label' => 'Press Room', 'href' => site_url('berita')],
-  ];
-  $languageLabel = 'English';
+  $brandLabel = $profileName !== '' ? $profileName : 'OPD Pemerintah';
 
   $navItems = [
     ['label' => 'Beranda', 'href' => site_url('/') . '#beranda', 'active' => $isHome],
-    ['label' => 'Profil', 'href' => site_url('profil'), 'active' => strpos($path, 'profil') === 0],
+    [
+      'label' => 'Profil', 
+      'href' => site_url('profil'), 
+      'active' => strpos($path, 'profil') === 0 || strpos($path, 'struktur-organisasi') === 0,
+      'dropdown' => [
+        ['label' => 'Profil OPD', 'href' => site_url('profil')],
+        ['label' => 'Struktur Organisasi', 'href' => site_url('struktur-organisasi')],
+      ]
+    ],
     ['label' => 'Layanan', 'href' => site_url('layanan'), 'active' => strpos($path, 'layanan') === 0],
     ['label' => 'Berita', 'href' => site_url('berita'), 'active' => strpos($path, 'berita') === 0],
     ['label' => 'Galeri', 'href' => site_url('galeri'), 'active' => strpos($path, 'galeri') === 0],
@@ -56,15 +61,22 @@
           <?php endif; ?>
         </span>
       </a>
-      <div class="public-navbar-meta public-navbar-top-meta d-none d-lg-flex ms-auto">
-        <?php foreach ($metaLinks as $metaLink): ?>
-          <a class="public-navbar-meta-link" href="<?= esc($metaLink['href']) ?>"><?= esc($metaLink['label']) ?></a>
-        <?php endforeach; ?>
-        <span class="public-navbar-meta-divider" aria-hidden="true"></span>
-        <button class="public-navbar-language" type="button" aria-label="Ganti bahasa">
-          <?= esc($languageLabel) ?>
-          <span class="public-navbar-language-icon" aria-hidden="true"></span>
-        </button>
+      <div class="public-navbar-meta public-navbar-top-meta d-none d-lg-flex ms-auto align-items-center gap-3">
+        <?php if (!empty($profileData['social_facebook']) && ($profileData['social_facebook_active'] ?? '1') == '1'): ?>
+          <a href="<?= esc($profileData['social_facebook']) ?>" target="_blank" rel="noopener noreferrer" class="text-decoration-none fs-4" style="color: #1877f2;" title="Facebook"><i class="bx bxl-facebook-circle"></i></a>
+        <?php endif; ?>
+        <?php if (!empty($profileData['social_instagram']) && ($profileData['social_instagram_active'] ?? '1') == '1'): ?>
+          <a href="<?= esc($profileData['social_instagram']) ?>" target="_blank" rel="noopener noreferrer" class="text-decoration-none fs-4" style="color: #e4405f;" title="Instagram"><i class="bx bxl-instagram"></i></a>
+        <?php endif; ?>
+        <?php if (!empty($profileData['social_twitter']) && ($profileData['social_twitter_active'] ?? '1') == '1'): ?>
+          <a href="<?= esc($profileData['social_twitter']) ?>" target="_blank" rel="noopener noreferrer" class="text-decoration-none fs-4" style="color: #1da1f2;" title="Twitter / X"><i class="bx bxl-twitter"></i></a>
+        <?php endif; ?>
+        <?php if (!empty($profileData['social_youtube']) && ($profileData['social_youtube_active'] ?? '1') == '1'): ?>
+          <a href="<?= esc($profileData['social_youtube']) ?>" target="_blank" rel="noopener noreferrer" class="text-decoration-none fs-4" style="color: #ff0000;" title="YouTube"><i class="bx bxl-youtube"></i></a>
+        <?php endif; ?>
+        <?php if (!empty($profileData['social_tiktok']) && ($profileData['social_tiktok_active'] ?? '1') == '1'): ?>
+          <a href="<?= esc($profileData['social_tiktok']) ?>" target="_blank" rel="noopener noreferrer" class="text-decoration-none fs-4" style="color: #000000;" title="TikTok"><i class="bx bxl-tiktok"></i></a>
+        <?php endif; ?>
       </div>
     </div>
   </div>
@@ -84,19 +96,40 @@
         <div class="collapse navbar-collapse" id="publicNavbar">
           <ul class="public-navbar-links navbar-nav flex-column flex-lg-row align-items-start align-items-lg-center mb-0">
             <?php foreach ($navItems as $item): ?>
-              <li class="nav-item">
-                <a class="nav-link<?= $item['active'] ? ' active' : '' ?>" href="<?= esc($item['href']) ?>"<?= $item['active'] ? ' aria-current="page"' : '' ?>><?= esc($item['label']) ?></a>
-              </li>
+              <?php if (isset($item['dropdown'])): ?>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle<?= $item['active'] ? ' active' : '' ?>" href="<?= esc($item['href']) ?>" id="navbarDropdown<?= esc($item['label']) ?>" role="button" data-bs-toggle="dropdown" aria-expanded="false"<?= $item['active'] ? ' aria-current="page"' : '' ?>>
+                    <?= esc($item['label']) ?>
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="navbarDropdown<?= esc($item['label']) ?>">
+                    <?php foreach ($item['dropdown'] as $subItem): ?>
+                      <li><a class="dropdown-item" href="<?= esc($subItem['href']) ?>"><?= esc($subItem['label']) ?></a></li>
+                    <?php endforeach; ?>
+                  </ul>
+                </li>
+              <?php else: ?>
+                <li class="nav-item">
+                  <a class="nav-link<?= $item['active'] ? ' active' : '' ?>" href="<?= esc($item['href']) ?>"<?= $item['active'] ? ' aria-current="page"' : '' ?>><?= esc($item['label']) ?></a>
+                </li>
+              <?php endif; ?>
             <?php endforeach; ?>
           </ul>
-          <div class="public-navbar-meta public-navbar-meta--mobile d-lg-none">
-            <?php foreach ($metaLinks as $metaLink): ?>
-              <a class="public-navbar-meta-link" href="<?= esc($metaLink['href']) ?>"><?= esc($metaLink['label']) ?></a>
-            <?php endforeach; ?>
-            <button class="public-navbar-language" type="button" aria-label="Ganti bahasa">
-              <?= esc($languageLabel) ?>
-              <span class="public-navbar-language-icon" aria-hidden="true"></span>
-            </button>
+          <div class="public-navbar-meta public-navbar-meta--mobile d-lg-none d-flex align-items-center gap-3 mt-3">
+            <?php if (!empty($profileData['social_facebook']) && ($profileData['social_facebook_active'] ?? '1') == '1'): ?>
+              <a href="<?= esc($profileData['social_facebook']) ?>" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-muted fs-4" title="Facebook"><i class="bx bxl-facebook-circle"></i></a>
+            <?php endif; ?>
+            <?php if (!empty($profileData['social_instagram']) && ($profileData['social_instagram_active'] ?? '1') == '1'): ?>
+              <a href="<?= esc($profileData['social_instagram']) ?>" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-muted fs-4" title="Instagram"><i class="bx bxl-instagram"></i></a>
+            <?php endif; ?>
+            <?php if (!empty($profileData['social_twitter']) && ($profileData['social_twitter_active'] ?? '1') == '1'): ?>
+              <a href="<?= esc($profileData['social_twitter']) ?>" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-muted fs-4" title="Twitter / X"><i class="bx bxl-twitter"></i></a>
+            <?php endif; ?>
+            <?php if (!empty($profileData['social_youtube']) && ($profileData['social_youtube_active'] ?? '1') == '1'): ?>
+              <a href="<?= esc($profileData['social_youtube']) ?>" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-muted fs-4" title="YouTube"><i class="bx bxl-youtube"></i></a>
+            <?php endif; ?>
+            <?php if (!empty($profileData['social_tiktok']) && ($profileData['social_tiktok_active'] ?? '1') == '1'): ?>
+              <a href="<?= esc($profileData['social_tiktok']) ?>" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-muted fs-4" title="TikTok"><i class="bx bxl-tiktok"></i></a>
+            <?php endif; ?>
           </div>
         </div>
         <form class="public-search public-navbar-search" action="<?= site_url('berita') ?>" method="get" role="search" data-nav-search-form data-nav-search-url="<?= site_url('search/berita') ?>">

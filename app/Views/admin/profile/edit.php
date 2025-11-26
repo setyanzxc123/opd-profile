@@ -106,6 +106,12 @@
               <button class="nav-link" id="tab-kontak-tab" data-bs-toggle="tab" data-bs-target="#tab-kontak" type="button" role="tab" aria-controls="tab-kontak" aria-selected="false">Kontak & Lokasi</button>
             </li>
             <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-social-tab" data-bs-toggle="tab" data-bs-target="#tab-social" type="button" role="tab" aria-controls="tab-social" aria-selected="false">Media Sosial</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-org-tab" data-bs-toggle="tab" data-bs-target="#tab-org" type="button" role="tab" aria-controls="tab-org" aria-selected="false">Struktur Organisasi</button>
+            </li>
+            <li class="nav-item" role="presentation">
               <button class="nav-link" id="tab-theme-tab" data-bs-toggle="tab" data-bs-target="#tab-theme" type="button" role="tab" aria-controls="tab-theme" aria-selected="false">Tampilan & Warna</button>
             </li>
           </ul>
@@ -330,6 +336,184 @@
                           </div>
                         <?php endif; ?>
                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+            <div class="tab-pane fade" id="tab-social" role="tabpanel" aria-labelledby="tab-social-tab">
+              <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                  <h6 class="fw-semibold mb-3">Pengaturan Media Sosial</h6>
+                  <p class="text-muted small mb-4">Kelola tautan media sosial yang akan ditampilkan pada navigasi publik. Gunakan sakelar (switch) untuk mengaktifkan atau menonaktifkan platform tertentu.</p>
+                  
+                  <div class="row g-4">
+                    <div class="col-12 col-lg-8">
+                      <div class="d-grid gap-4">
+                        
+                        <!-- Facebook -->
+                        <div class="p-3 border rounded bg-light-subtle">
+                          <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-medium mb-0 d-flex align-items-center">
+                              <i class="bx bxl-facebook-circle fs-4 me-2 text-primary"></i>Facebook
+                            </label>
+                            <div class="form-check form-switch">
+                              <input type="hidden" name="social_facebook_active" value="0">
+                              <input class="form-check-input" type="checkbox" name="social_facebook_active" value="1" id="social_facebook_active" <?= ($profile['social_facebook_active'] ?? '1') == '1' ? 'checked' : '' ?>>
+                              <label class="form-check-label small" for="social_facebook_active">Aktif</label>
+                            </div>
+                          </div>
+                          <input type="url" name="social_facebook" class="form-control" value="<?= esc(old('social_facebook', $profile['social_facebook'] ?? '')) ?>" placeholder="https://facebook.com/...">
+                        </div>
+
+                        <!-- Instagram -->
+                        <div class="p-3 border rounded bg-light-subtle">
+                          <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-medium mb-0 d-flex align-items-center">
+                              <i class="bx bxl-instagram fs-4 me-2 text-danger"></i>Instagram
+                            </label>
+                            <div class="form-check form-switch">
+                              <input type="hidden" name="social_instagram_active" value="0">
+                              <input class="form-check-input" type="checkbox" name="social_instagram_active" value="1" id="social_instagram_active" <?= ($profile['social_instagram_active'] ?? '1') == '1' ? 'checked' : '' ?>>
+                              <label class="form-check-label small" for="social_instagram_active">Aktif</label>
+                            </div>
+                          </div>
+                          <input type="url" name="social_instagram" class="form-control" value="<?= esc(old('social_instagram', $profile['social_instagram'] ?? '')) ?>" placeholder="https://instagram.com/...">
+                        </div>
+
+                        <!-- Twitter -->
+                        <div class="p-3 border rounded bg-light-subtle">
+                          <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-medium mb-0 d-flex align-items-center">
+                              <i class="bx bxl-twitter fs-4 me-2 text-info"></i>Twitter / X
+                            </label>
+                            <div class="form-check form-switch">
+                              <input type="hidden" name="social_twitter_active" value="0">
+                              <input class="form-check-input" type="checkbox" name="social_twitter_active" value="1" id="social_twitter_active" <?= ($profile['social_twitter_active'] ?? '1') == '1' ? 'checked' : '' ?>>
+                              <label class="form-check-label small" for="social_twitter_active">Aktif</label>
+                            </div>
+                          </div>
+                          <input type="url" name="social_twitter" class="form-control" value="<?= esc(old('social_twitter', $profile['social_twitter'] ?? '')) ?>" placeholder="https://twitter.com/...">
+                        </div>
+
+                        <!-- YouTube -->
+                        <div class="p-3 border rounded bg-light-subtle">
+                          <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-medium mb-0 d-flex align-items-center">
+                              <i class="bx bxl-youtube fs-4 me-2 text-danger"></i>YouTube
+                            </label>
+                            <div class="form-check form-switch">
+                              <input type="hidden" name="social_youtube_active" value="0">
+                              <input class="form-check-input" type="checkbox" name="social_youtube_active" value="1" id="social_youtube_active" <?= ($profile['social_youtube_active'] ?? '1') == '1' ? 'checked' : '' ?>>
+                              <label class="form-check-label small" for="social_youtube_active">Aktif</label>
+                            </div>
+                          </div>
+                          <input type="url" name="social_youtube" class="form-control" value="<?= esc(old('social_youtube', $profile['social_youtube'] ?? '')) ?>" placeholder="https://youtube.com/...">
+                        </div>
+
+                        <!-- TikTok -->
+                        <div class="p-3 border rounded bg-light-subtle">
+                          <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-medium mb-0 d-flex align-items-center">
+                              <i class="bx bxl-tiktok fs-4 me-2 text-dark"></i>TikTok
+                            </label>
+                            <div class="form-check form-switch">
+                              <input type="hidden" name="social_tiktok_active" value="0">
+                              <input class="form-check-input" type="checkbox" name="social_tiktok_active" value="1" id="social_tiktok_active" <?= ($profile['social_tiktok_active'] ?? '1') == '1' ? 'checked' : '' ?>>
+                              <label class="form-check-label small" for="social_tiktok_active">Aktif</label>
+                            </div>
+                          </div>
+                          <input type="url" name="social_tiktok" class="form-control" value="<?= esc(old('social_tiktok', $profile['social_tiktok'] ?? '')) ?>" placeholder="https://tiktok.com/@...">
+                        </div>
+
+                      </div>
+                    </div>
+                    
+                    <div class="col-12 col-lg-4">
+                      <div class="alert alert-info">
+                        <div class="d-flex">
+                          <i class="bx bx-info-circle fs-4 me-2"></i>
+                          <div>
+                            <h6 class="alert-heading fw-bold mb-1">Informasi</h6>
+                            <p class="mb-0 small">Ikon media sosial hanya akan muncul di situs publik jika statusnya <strong>Aktif</strong> dan kolom tautan (URL) telah diisi.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-org" role="tabpanel" aria-labelledby="tab-org-tab">
+              <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                  <h6 class="fw-semibold mb-3">Diagram Struktur Organisasi</h6>
+                  <p class="text-muted small mb-4">Unggah diagram struktur organisasi yang telah dibuat di PowerPoint, Canva, CorelDraw, atau tools design lainnya.</p>
+                  
+                  <?php
+                    $orgImgPath = $profile['org_structure_image'] ?? null;
+                    $orgImgUrl = $orgImgPath ? base_url($orgImgPath) : null;
+                    $orgAltText = old('org_structure_alt_text', $profile['org_structure_alt_text'] ?? '');
+                    $orgUpdatedAt = $profile['org_structure_updated_at'] ?? null;
+                    $removeOrgOld = old('remove_org_structure');
+                  ?>
+                  
+                  <div class="row g-4">
+                    <div class="col-12">
+                      <?php if ($orgImgUrl): ?>
+                        <label class="form-label d-block">Preview Saat Ini</label>
+                        <div class="border rounded p-2 bg-light mb-3" style="max-height: 400px; overflow: auto;">
+                          <img src="<?= esc($orgImgUrl) ?>" alt="Preview struktur organisasi" class="img-fluid w-100">
+                        </div>
+                        <?php if ($orgUpdatedAt): ?>
+                          <p class="small text-muted mb-3">Terakhir diperbarui: <?= esc($orgUpdatedAt) ?></p>
+                        <?php endif; ?>
+                      <?php else: ?>
+                        <div class="alert alert-info">
+                         <i class="bx bx-info-circle me-2"></i> Belum ada diagram struktur organisasi. Unggah gambar untuk menampilkan di halaman publik.
+                        </div>
+                      <?php endif; ?>
+                    </div>
+                    
+                    <div class="col-12 col-lg-8">
+                      <label class="form-label">Upload Gambar Diagram Struktur Organisasi</label>
+                      <input type="file"
+                             name="org_structure_image"
+                             class="form-control"
+                             accept=".jpg,.jpeg,.png,.webp">
+                      <?php if ($validation && $validation->hasError('org_structure_image')): ?>
+                        <div class="form-text text-danger"><?= esc($validation->getError('org_structure_image')) ?></div>
+                      <?php else: ?>
+                        <div class="form-text text-muted">Format yang didukung: JPG, PNG, WEBP (maksimal 5 MB).</div>
+                        <div class="form-text text-muted">Untuk hasil terbaik, gunakan gambar dengan resolusi minimal 1200px (lebar).</div>
+                      <?php endif; ?>
+                      
+                      <?php if ($orgImgUrl): ?>
+                        <div class="form-check mt-2">
+                          <input class="form-check-input"
+                                 type="checkbox"
+                                 id="remove-org-structure"
+                                 name="remove_org_structure"
+                                 value="1"
+                                 <?= ($removeOrgOld === '1' || $removeOrgOld === 'on') ? 'checked' : '' ?>>
+                          <label class="form-check-label small text-muted" for="remove-org-structure">Hapus gambar saat ini</label>
+                        </div>
+                      <?php endif; ?>
+                    </div>
+                    
+                    <div class="col-12 col-lg-8">
+                      <label class="form-label">Deskripsi Alt Text (Opsional)</label>
+                      <textarea name="org_structure_alt_text" rows="3" class="form-control" placeholder="Deskripsi singkat struktur organisasi untuk aksesibilitas"><?= esc($orgAltText) ?></textarea>
+                      <?php if ($validation && $validation->hasError('org_structure_alt_text')): ?>
+                        <div class="form-text text-danger"><?= esc($validation->getError('org_structure_alt_text')) ?></div>
+                      <?php else: ?>
+                        <div class="form-text text-muted">Alt text membantu aksesibilitas dan SEO. Contoh: "Struktur Organisasi Dinas Komunikasi dan Informatika"</div>
+                      <?php endif; ?>
                     </div>
                   </div>
                 </div>
@@ -573,6 +757,39 @@
             card.classList.add('is-active');
           }
         });
+      });
+
+      // Social Media: Disable toggle if URL is empty
+      const socialMediaInputs = [
+        { url: 'input[name="social_facebook"]', toggle: '#social_facebook_active' },
+        { url: 'input[name="social_instagram"]', toggle: '#social_instagram_active' },
+        { url: 'input[name="social_twitter"]', toggle: '#social_twitter_active' },
+        { url: 'input[name="social_youtube"]', toggle: '#social_youtube_active' },
+        { url: 'input[name="social_tiktok"]', toggle: '#social_tiktok_active' }
+      ];
+
+      socialMediaInputs.forEach(function(item) {
+        const urlInput = document.querySelector(item.url);
+        const toggleInput = document.querySelector(item.toggle);
+        
+        if (urlInput && toggleInput) {
+          // Check on page load
+          function checkAndToggle() {
+            if (urlInput.value.trim() === '') {
+              toggleInput.disabled = true;
+              toggleInput.checked = false;
+              toggleInput.closest('.form-check')?.classList.add('opacity-50');
+            } else {
+              toggleInput.disabled = false;
+              toggleInput.closest('.form-check')?.classList.remove('opacity-50');
+            }
+          }
+          
+          checkAndToggle();
+          
+          // Check on input change
+          urlInput.addEventListener('input', checkAndToggle);
+        }
       });
     });
   </script>
