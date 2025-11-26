@@ -12,6 +12,7 @@
 .contact-panel {
   gap: 1rem;
 }
+
 .hero-slider {
   position: relative;
   width: 100%;
@@ -90,6 +91,7 @@
 
 /* Additional reduced motion: disable non-essential UI transitions */
 @media (prefers-reduced-motion: reduce) {
+
   .public-navbar,
   .public-navbar .nav-link::after,
   .public-search-field,
@@ -196,6 +198,7 @@
   width: min(92vw, 1200px);
   margin: 0 auto;
 }
+
 /* Contact page */
 
 .public-search {
@@ -348,4 +351,107 @@
   outline: 2px solid rgba(var(--public-primary-rgb, 13, 110, 253), 0.55);
   outline-offset: 2px;
   background-color: rgba(var(--public-primary-rgb, 13, 110, 253), 0.12);
+}
+
+/* Premium Dropdown Styles - Enhanced specificity */
+.public-navbar .navbar-nav .dropdown-toggle::after {
+  transition: transform 0.25s ease;
+  display: inline-block;
+  margin-left: 0.3em;
+}
+
+.public-navbar .navbar-nav .dropdown.show .dropdown-toggle::after {
+  transform: rotate(180deg);
+}
+
+.public-navbar .navbar-nav .dropdown-menu {
+  margin-top: 0.5rem !important;
+  padding: 0.5rem 0;
+  border: none !important;
+  border-radius: 0.75rem;
+  box-shadow:
+    0 4px 24px -8px rgba(15, 23, 42, 0.25),
+    0 0 0 1px rgba(var(--public-primary-rgb, 13, 110, 253), 0.08) !important;
+  background-color: #ffffff;
+  animation: dropdownSlideIn 0.3s ease-out;
+  transform-origin: top center;
+  min-width: 200px;
+}
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.public-navbar .navbar-nav .dropdown-menu .dropdown-item {
+  padding: 0.65rem 1.25rem;
+  color: #334155 !important;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+  background-color: transparent;
+  border: none;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    padding-left 0.25s ease;
+}
+
+.public-navbar .navbar-nav .dropdown-menu .dropdown-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg,
+      rgba(var(--public-primary-rgb, 13, 110, 253), 0.9) 0%,
+      rgba(var(--public-primary-rgb, 13, 110, 253), 0.6) 100%);
+  transform: scaleY(0);
+  transition: transform 0.25s ease;
+}
+
+.public-navbar .navbar-nav .dropdown-menu .dropdown-item:hover,
+.public-navbar .navbar-nav .dropdown-menu .dropdown-item:focus {
+  color: rgba(var(--public-primary-rgb, 13, 110, 253), 1) !important;
+  background: linear-gradient(90deg,
+      rgba(var(--public-primary-rgb, 13, 110, 253), 0.12) 0%,
+      rgba(var(--public-primary-rgb, 13, 110, 253), 0.04) 100%) !important;
+  padding-left: 1.5rem;
+}
+
+.public-navbar .navbar-nav .dropdown-menu .dropdown-item:hover::before,
+.public-navbar .navbar-nav .dropdown-menu .dropdown-item:focus::before {
+  transform: scaleY(1);
+}
+
+.public-navbar .navbar-nav .dropdown-menu .dropdown-item:active {
+  color: rgba(var(--public-primary-rgb, 13, 110, 253), 1) !important;
+  background: linear-gradient(90deg,
+      rgba(var(--public-primary-rgb, 13, 110, 253), 0.18) 0%,
+      rgba(var(--public-primary-rgb, 13, 110, 253), 0.08) 100%) !important;
+}
+
+/* Smooth transition for dropdown toggle */
+.public-navbar .navbar-nav .nav-link.dropdown-toggle {
+  transition: color 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .public-navbar .navbar-nav .dropdown-menu {
+    animation: none !important;
+  }
+
+  .public-navbar .navbar-nav .dropdown-toggle::after,
+  .public-navbar .navbar-nav .dropdown-menu .dropdown-item,
+  .public-navbar .navbar-nav .dropdown-menu .dropdown-item::before {
+    transition: none !important;
+  }
 }
