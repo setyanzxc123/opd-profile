@@ -31,6 +31,10 @@ class Home extends BaseController
         $galleryItems = $this->transformGalleries($galleries);
         $documentItems = $this->transformDocuments($documents);
         $contactQuickLinks = $this->buildQuickLinks($profile);
+        
+        // Calculate statistics
+        helper('statistics');
+        $statistics = $this->buildStatistics();
 
         return view('public/home', [
             'title'            => 'Beranda OPD',
@@ -42,6 +46,7 @@ class Home extends BaseController
             'galleries'        => $galleryItems,
             'documents'        => $documentItems,
             'contactQuickLinks'=> $contactQuickLinks,
+            'statistics'       => $statistics,
             'footerProfile'    => $profile,
             'profile'          => $profile,
         ]);
@@ -245,6 +250,19 @@ class Home extends BaseController
         }
 
         return base_url($trimmed);
+    }
+    
+    private function buildStatistics(): array
+    {
+        $servicesModel = model('App\Models\ServiceModel');
+        $newsModel = model('App\Models\NewsModel');
+        $documentsModel = model('App\Models\DocumentModel');
+        
+        return [
+            'services' => $servicesModel->where('is_active', 1)->countAllResults(),
+            'news' => $newsModel->where('published_at IS NOT NULL', null, false)->countAllResults(),
+            'documents' => $documentsModel->countAllResults(),
+        ];
     }
 
     private function formatDate($date): ?string

@@ -71,6 +71,35 @@
       <?php endif; ?>
     </div>
   </section>
+  
+  <!-- Statistics Section -->
+  <?php $stats = $statistics ?? ['services' => 0, 'news' => 0, 'documents' => 0]; ?>
+  <section class="public-section section-warm py-5" aria-labelledby="stats-heading">
+    <div class="container public-container">
+      <h2 class="visually-hidden" id="stats-heading">Statistik</h2>
+      <div class="row g-4 text-center">
+        <div class="col-6 col-md-4">
+          <div class="stats-card">
+            <div class="stats-number text-primary fw-bold display-4"><?= (int) $stats['services'] ?></div>
+            <div class="stats-label text-muted">Layanan Tersedia</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4">
+          <div class="stats-card">
+            <div class="stats-number text-primary fw-bold display-4"><?= (int) $stats['news'] ?></div>
+            <div class="stats-label text-muted">Berita Dipublikasikan</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4">
+          <div class="stats-card">
+            <div class="stats-number text-primary fw-bold display-4"><?= (int) $stats['documents'] ?></div>
+            <div class="stats-label text-muted">Dokumen Publik</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
   <div class="section-divider section-divider-brand" aria-hidden="true">
     <span class="section-divider__label">PROFIL</span>
   </div>
@@ -271,6 +300,35 @@
       <?php endif; ?>
     </div>
   </section>
+  
+  <!-- Organization Structure Preview -->
+  <?php
+    $orgImgPath = $profile['org_structure_image'] ?? null;
+    $orgImgUrl = $orgImgPath ? base_url($orgImgPath) : null;
+  ?>
+  <?php if ($orgImgUrl): ?>
+  <section class="public-section section-neutral py-5" id="org-preview" aria-labelledby="org-preview-heading">
+    <div class="container public-container">
+      <header class="section-head text-center">
+        <h2 class="section-title" id="org-preview-heading">Struktur Organisasi</h2>
+      </header>
+      <div class="text-center">
+        <a href="<?= site_url('struktur-organisasi') ?>" class="d-inline-block">
+          <img src="<?= esc($orgImgUrl) ?>" 
+               alt="Preview Struktur Organisasi" 
+               class="img-fluid rounded shadow-sm" 
+               style="max-height: 300px; width: auto;">
+        </a>
+        <div class="mt-3">
+          <a href="<?= site_url('struktur-organisasi') ?>" class="btn btn-primary">
+            Lihat Struktur Lengkap
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <?php endif; ?>
+  
   <div class="section-divider section-divider-brand" aria-hidden="true">
     <span class="section-divider__label">KONTAK CEPAT</span>
   </div>

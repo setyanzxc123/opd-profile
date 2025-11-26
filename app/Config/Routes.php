@@ -17,6 +17,7 @@ $routes->get('galeri', 'Pages::galeri');
 $routes->get('dokumen', 'Pages::dokumen');
 $routes->get('kontak', 'Pages::kontak');
 $routes->post('kontak', 'ContactController::submit');
+$routes->get('struktur-organisasi', 'PublicOrganization::index');
 
 $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::attempt');
