@@ -92,6 +92,8 @@ class Profile extends BaseController
 
         $rules = [
             'name'        => 'required|min_length[3]|max_length[150]',
+            'name_line2'  => 'permit_empty|max_length[150]',
+            'hide_brand_text' => 'permit_empty|in_list[0,1]',
             'email'       => 'permit_empty|valid_email|max_length[100]',
             'phone'       => 'permit_empty|max_length[20]',
             'description' => 'permit_empty',
@@ -143,6 +145,8 @@ class Profile extends BaseController
 
         $data = [
             'name'        => sanitize_plain_text($this->request->getPost('name')),
+            'name_line2'  => sanitize_plain_text($this->request->getPost('name_line2')),
+            'hide_brand_text' => $this->profileService->normalizeDisplayFlag($this->request->getPost('hide_brand_text')),
             'description' => sanitize_rich_text($this->request->getPost('description')),
             'vision'      => sanitize_rich_text($this->request->getPost('vision')),
             'mission'     => sanitize_rich_text($this->request->getPost('mission')),

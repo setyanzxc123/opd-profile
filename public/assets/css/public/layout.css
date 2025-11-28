@@ -1,5 +1,8 @@
 /* Layout sizing similar to vanilla */
-.public-container { width: min(92vw, 1200px); margin: 0 auto; }
+.public-container {
+  width: min(92vw, 1200px);
+  margin: 0 auto;
+}
 
 /* Sticky navbar look */
 .public-navbar {
@@ -68,10 +71,23 @@
 }
 
 .public-navbar-brand-name {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  color: var(--public-neutral-900, #22303e);
+}
+
+.public-navbar-brand-name-main {
   font-size: clamp(1.05rem, 1.8vw, 1.3rem);
   font-weight: 700;
   letter-spacing: 0.008em;
-  color: inherit;
+}
+
+.public-navbar-brand-name-region {
+  font-size: clamp(0.75rem, 1.3vw, 0.95rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  margin-top: 0.1rem;
 }
 
 .public-navbar-brand-tagline {
@@ -260,15 +276,15 @@
   outline-offset: 3px;
 }
 
-.public-body #konten-utama > *:first-child {
+.public-body #konten-utama>*:first-child {
   margin-top: 0;
 }
 
-.public-body #konten-utama > .public-section:first-of-type {
+.public-body #konten-utama>.public-section:first-of-type {
   padding-top: clamp(1.35rem, 4vw, 2.5rem);
 }
 
-.public-body #konten-utama > .public-section:first-of-type .container {
+.public-body #konten-utama>.public-section:first-of-type .container {
   padding-top: clamp(1.35rem, 4vw, 2.5rem) !important;
 }
 
@@ -510,7 +526,9 @@
 }
 
 /* Hero spacing */
-.hero-section { padding: 0 0 clamp(3rem, 9vw, 6rem); }
+.hero-section {
+  padding: 0 0 clamp(3rem, 9vw, 6rem);
+}
 
 .section-divider {
   width: 100%;
@@ -579,12 +597,25 @@
 }
 
 /* Section surface tints */
-.section-cool { background: var(--surface-cool); border-top: 1px solid var(--border-soft); }
-.section-warm { background: var(--surface-warm); border-top: 1px solid var(--border-soft); }
-.section-neutral { background: var(--surface-neutral); }
+.section-cool {
+  background: var(--surface-cool);
+  border-top: 1px solid var(--border-soft);
+}
+
+.section-warm {
+  background: var(--surface-warm);
+  border-top: 1px solid var(--border-soft);
+}
+
+.section-neutral {
+  background: var(--surface-neutral);
+}
 
 /* Section heading accent underline */
-.section-head h2 { position: relative; display: inline-block; }
+.section-head h2 {
+  position: relative;
+  display: inline-block;
+}
 
 /* Add card-base class to all card elements in HTML instead of CSS inheritance */
 
@@ -599,7 +630,10 @@
 }
 
 /* Contact background gradient */
-.contact-summary { background: var(--surface-base); border-top: 1px solid var(--surface-border); }
+.contact-summary {
+  background: var(--surface-base);
+  border-top: 1px solid var(--surface-border);
+}
 
 /* Hero news highlight */
 .hero-news {
@@ -810,7 +844,7 @@
   color: var(--public-neutral-800, #27303f);
 }
 
-.contact-links li + li {
+.contact-links li+li {
   margin-top: 1rem;
 }
 
@@ -1073,12 +1107,15 @@
   .public-navbar .navbar-brand-logo {
     height: 56px;
   }
+
   .public-footer .footer-map {
     min-height: 280px;
   }
+
   .public-footer .footer-map-placeholder {
     min-height: 280px;
   }
+
   .public-footer .footer-description {
     font-size: 0.95rem;
   }

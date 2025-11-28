@@ -127,7 +127,17 @@
                       <?php if ($validation && $validation->hasError('name')): ?>
                         <div class="form-text text-danger"><?= esc($validation->getError('name')) ?></div>
                       <?php else: ?>
-                        <div class="form-text text-muted">Nama resmi instansi akan tampil di header situs publik.</div>
+                        <div class="form-text text-muted">Nama resmi instansi (baris pertama) akan tampil di header situs publik.</div>
+                      <?php endif; ?>
+                    </div>
+
+                    <div>
+                      <label class="form-label">Nama OPD Baris Kedua <span class="text-muted small">(Opsional)</span></label>
+                      <input type="text" name="name_line2" class="form-control" maxlength="150" value="<?= esc(old('name_line2', $profile['name_line2'] ?? '')) ?>" placeholder="Contoh: Kabupaten Donggala">
+                      <?php if ($validation && $validation->hasError('name_line2')): ?>
+                        <div class="form-text text-danger"><?= esc($validation->getError('name_line2')) ?></div>
+                      <?php else: ?>
+                        <div class="form-text text-muted">Baris kedua (opsional) akan ditampilkan dengan ukuran font lebih kecil.</div>
                       <?php endif; ?>
                     </div>
 
@@ -180,6 +190,18 @@
                              data-preview-target="public"
                              <?= ($removePublicOld === '1' || $removePublicOld === 'on') ? 'checked' : '' ?>>
                       <label class="form-check-label small text-muted" for="remove-logo-public">Hapus logo saat ini</label>
+                    </div>
+                    <div class="form-check mt-2">
+                      <input class="form-check-input"
+                             type="checkbox"
+                             id="hide-brand-text"
+                             name="hide_brand_text"
+                             value="1"
+                             <?= (old('hide_brand_text', $profile['hide_brand_text'] ?? '0') == '1') ? 'checked' : '' ?>>
+                      <label class="form-check-label small" for="hide-brand-text">
+                        <strong>Sembunyikan nama OPD di navbar</strong>
+                        <div class="text-muted" style="font-size: 0.85rem;">Aktifkan jika logo sudah include text nama OPD</div>
+                      </label>
                     </div>
                   </div>
                 </div>

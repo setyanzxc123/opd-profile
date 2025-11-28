@@ -10,6 +10,8 @@ class OpdProfileModel extends Model
     protected $returnType = 'array';
     protected $allowedFields = [
         'name',
+        'name_line2',
+        'hide_brand_text',
         'description',
         'vision',
         'mission',

@@ -21,11 +21,18 @@
   }
 
   $profileName = trim((string) ($profileData['name'] ?? ''));
+  $profileNameLine2 = trim((string) ($profileData['name_line2'] ?? ''));
   $profileTagline = trim((string) ($profileData['tagline_public'] ?? ($profileData['tagline'] ?? '')));
   $logoPublicPath = trim((string) ($profileData['logo_public_path'] ?? ''));
   $logoPublicUrl = $logoPublicPath !== '' ? base_url($logoPublicPath) : null;
   $brandLabel = $profileName !== '' ? $profileName : 'OPD Pemerintah';
-  $brandLabel = $profileName !== '' ? $profileName : 'OPD Pemerintah';
+  $hideBrandText = ($profileData['hide_brand_text'] ?? '0') == '1';
+  
+  // Gunakan field name_line2 dari database (user-controlled)
+  $brandParts = [
+    'main' => $brandLabel,
+    'region' => $profileNameLine2
+  ];
 
   $navItems = [
     ['label' => 'Beranda', 'href' => site_url('/') . '#beranda', 'active' => $isHome],
@@ -54,12 +61,19 @@
         <?php else: ?>
           <span class="me-3 rounded-circle d-inline-flex align-items-center justify-content-center brand-circle text-white fs-6 flex-shrink-0" aria-hidden="true"></span>
         <?php endif; ?>
-        <span class="public-navbar-brand-copy">
-          <span class="public-navbar-brand-name"><?= esc($brandLabel) ?></span>
-          <?php if ($profileTagline !== ''): ?>
-            <span class="public-navbar-brand-tagline"><?= esc($profileTagline) ?></span>
-          <?php endif; ?>
-        </span>
+        <?php if (!$hideBrandText): ?>
+          <span class="public-navbar-brand-copy">
+            <span class="public-navbar-brand-name">
+              <span class="public-navbar-brand-name-main"><?= esc($brandParts['main']) ?></span>
+              <?php if ($brandParts['region'] !== ''): ?>
+                <span class="public-navbar-brand-name-region"><?= esc($brandParts['region']) ?></span>
+              <?php endif; ?>
+            </span>
+            <?php if ($profileTagline !== ''): ?>
+              <span class="public-navbar-brand-tagline"><?= esc($profileTagline) ?></span>
+            <?php endif; ?>
+          </span>
+        <?php endif; ?>
       </a>
       <div class="public-navbar-meta public-navbar-top-meta d-none d-lg-flex ms-auto align-items-center gap-3">
         <?php if (!empty($profileData['social_facebook']) && ($profileData['social_facebook_active'] ?? '1') == '1'): ?>
