@@ -42,6 +42,9 @@
       'active' => strpos($path, 'profil') === 0 || strpos($path, 'struktur-organisasi') === 0,
       'dropdown' => [
         ['label' => 'Profil OPD', 'href' => site_url('profil')],
+        ['label' => 'Sambutan', 'href' => site_url('profil/sambutan')],
+        ['label' => 'Visi & Misi', 'href' => site_url('profil/visi-misi')],
+        ['label' => 'Tugas & Fungsi', 'href' => site_url('profil/tugas-fungsi')],
         ['label' => 'Struktur Organisasi', 'href' => site_url('struktur-organisasi')],
       ]
     ],

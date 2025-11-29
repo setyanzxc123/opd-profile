@@ -39,6 +39,56 @@ class Pages extends BaseController
         ]);
     }
 
+    public function profilSambutan(): string
+    {
+        $profile = $this->contentService->latestProfile();
+
+        if (! $profile || empty($profile['greeting'])) {
+            throw PageNotFoundException::forPageNotFound('Halaman sambutan tidak tersedia.');
+        }
+
+        return view('public/profile_greeting', [
+            'title'         => 'Sambutan',
+            'profile'       => $profile,
+            'footerProfile' => $profile,
+        ]);
+    }
+
+    public function profilVisiMisi(): string
+    {
+        $profile = $this->contentService->latestProfile();
+
+        if (! $profile) {
+            $profile = [
+                'name'    => 'Profil OPD belum tersedia',
+                'vision'  => null,
+                'mission' => null,
+            ];
+        }
+
+        return view('public/profile_visi_misi', [
+            'title'         => 'Visi & Misi',
+            'profile'       => $profile,
+            'footerProfile' => $profile,
+        ]);
+    }
+
+    public function profilTugasFungsi(): string
+    {
+        $profile = $this->contentService->latestProfile();
+
+        if (! $profile || empty($profile['tasks_functions'])) {
+            throw PageNotFoundException::forPageNotFound('Halaman tugas dan fungsi tidak tersedia.');
+        }
+
+        return view('public/profile_tasks_functions', [
+            'title'         => 'Tugas & Fungsi',
+            'profile'       => $profile,
+            'footerProfile' => $profile,
+        ]);
+    }
+
+
     public function layanan(): string
     {
         $services = $this->transformServicesForPublic($this->contentService->allActiveServices());
