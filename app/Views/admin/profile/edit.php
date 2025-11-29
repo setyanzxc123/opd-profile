@@ -62,6 +62,8 @@
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
 
+<link rel="stylesheet" href="<?= base_url('assets/css/admin/profile-edit.css') ?>">
+
 <div class="row g-4">
   <div class="col-12">
     <div class="card shadow-sm">
@@ -95,28 +97,40 @@
           <?= csrf_field() ?>
           <input type="hidden" name="id" value="<?= esc($profile['id']) ?>">
 
-          <ul class="nav nav-tabs" id="profileTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="tab-umum-tab" data-bs-toggle="tab" data-bs-target="#tab-umum" type="button" role="tab" aria-controls="tab-umum" aria-selected="true">Umum</button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="tab-visimisi-tab" data-bs-toggle="tab" data-bs-target="#tab-visimisi" type="button" role="tab" aria-controls="tab-visimisi" aria-selected="false">Visi & Misi</button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="tab-kontak-tab" data-bs-toggle="tab" data-bs-target="#tab-kontak" type="button" role="tab" aria-controls="tab-kontak" aria-selected="false">Kontak & Lokasi</button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="tab-social-tab" data-bs-toggle="tab" data-bs-target="#tab-social" type="button" role="tab" aria-controls="tab-social" aria-selected="false">Media Sosial</button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="tab-org-tab" data-bs-toggle="tab" data-bs-target="#tab-org" type="button" role="tab" aria-controls="tab-org" aria-selected="false">Struktur Organisasi</button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="tab-theme-tab" data-bs-toggle="tab" data-bs-target="#tab-theme" type="button" role="tab" aria-controls="tab-theme" aria-selected="false">Tampilan & Warna</button>
-            </li>
-          </ul>
+          <div class="row g-3">
+            <!-- Sidebar Navigation -->
+            <div class="col-md-3">
+              <div class="nav flex-column nav-pills" id="profileTabs" role="tablist" aria-orientation="vertical">
+                <button class="nav-link active" id="tab-umum-tab" data-bs-toggle="pill" data-bs-target="#tab-umum" type="button" role="tab" aria-controls="tab-umum" aria-selected="true">
+                  <i class="bx bx-home-circle me-2"></i>Umum
+                </button>
+                <button class="nav-link" id="tab-visimisi-tab" data-bs-toggle="pill" data-bs-target="#tab-visimisi" type="button" role="tab" aria-controls="tab-visimisi" aria-selected="false">
+                  <i class="bx bx-bullseye me-2"></i>Visi & Misi
+                </button>
+                <button class="nav-link" id="tab-sambutan-tab" data-bs-toggle="pill" data-bs-target="#tab-sambutan" type="button" role="tab" aria-controls="tab-sambutan" aria-selected="false">
+                  <i class="bx bx-chat me-2"></i>Sambutan
+                </button>
+                <button class="nav-link" id="tab-tugas-tab" data-bs-toggle="pill" data-bs-target="#tab-tugas" type="button" role="tab" aria-controls="tab-tugas" aria-selected="false">
+                  <i class="bx bx-task me-2"></i>Tugas & Fungsi
+                </button>
+                <button class="nav-link" id="tab-kontak-tab" data-bs-toggle="pill" data-bs-target="#tab-kontak" type="button" role="tab" aria-controls="tab-kontak" aria-selected="false">
+                  <i class="bx bx-map-pin me-2"></i>Kontak & Lokasi
+                </button>
+                <button class="nav-link" id="tab-social-tab" data-bs-toggle="pill" data-bs-target="#tab-social" type="button" role="tab" aria-controls="tab-social" aria-selected="false">
+                  <i class="bx bx-share-alt me-2"></i>Media Sosial
+                </button>
+                <button class="nav-link" id="tab-org-tab" data-bs-toggle="pill" data-bs-target="#tab-org" type="button" role="tab" aria-controls="tab-org" aria-selected="false">
+                  <i class="bx bx-network-chart me-2"></i>Struktur Organisasi
+                </button>
+                <button class="nav-link" id="tab-theme-tab" data-bs-toggle="pill" data-bs-target="#tab-theme" type="button" role="tab" aria-controls="tab-theme" aria-selected="false">
+                  <i class="bx bx-paint me-2"></i>Tampilan & Warna
+                </button>
+              </div>
+            </div>
 
-          <div class="tab-content border border-top-0">
+            <!-- Tab Content -->
+            <div class="col-md-9">
+              <div class="tab-content">
             <div class="tab-pane fade show active" id="tab-umum" role="tabpanel" aria-labelledby="tab-umum-tab">
               <div class="row g-4">
                 <div class="col-12 col-lg-8">
@@ -217,6 +231,26 @@
                 <div class="col-12 col-lg-10">
                   <label class="form-label">Misi</label>
                   <textarea name="mission" rows="4" class="form-control" placeholder="Jabarkan poin-poin misi instansi."><?= esc(old('mission', $profile['mission'])) ?></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-sambutan" role="tabpanel" aria-labelledby="tab-sambutan-tab">
+              <div class="row g-3">
+                <div class="col-12 col-lg-10">
+                  <label class="form-label">Sambutan</label>
+                  <textarea name="greeting" rows="8" class="form-control" placeholder="Tulis kata sambutan kepala instansi atau pesan selamat datang untuk pengunjung situs."><?= esc(old('greeting', $profile['greeting'] ?? '')) ?></textarea>
+                  <div class="form-text text-muted">Sambutan ini akan ditampilkan sebagai halaman terpisah di bagian Profil publik.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-tugas" role="tabpanel" aria-labelledby="tab-tugas-tab">
+              <div class="row g-3">
+                <div class="col-12 col-lg-10">
+                  <label class="form-label">Tugas dan Fungsi</label>
+                  <textarea name="tasks_functions" rows="10" class="form-control" placeholder="Jabarkan tugas pokok dan fungsi instansi secara lengkap."><?= esc(old('tasks_functions', $profile['tasks_functions'] ?? '')) ?></textarea>
+                  <div class="form-text text-muted">Tugas dan fungsi ini akan ditampilkan sebagai halaman terpisah di bagian Profil publik.</div>
                 </div>
               </div>
             </div>
@@ -692,6 +726,10 @@
                 </div>
               </div>
             </div>
+
+              </div>
+            </div><!-- /.col-md-9 -->
+          </div><!-- /.row -->
 
           <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4">
             <p class="text-muted small mb-0"><span class="text-danger">*</span> Wajib diisi.</p>
