@@ -128,6 +128,10 @@ class Pages extends BaseController
         $categories  = $this->contentService->newsCategories();
         $tags        = $this->contentService->newsTags();
         $popularNews = $this->contentService->popularNews(5);
+        
+        // Get featured news
+        $newsModel = new \App\Models\NewsModel();
+        $featuredNews = $newsModel->getFeaturedNews();
 
         $pageTitle   = 'Berita Terbaru';
         $description = 'Kumpulan berita resmi terbaru dari OPD lengkap dengan kategori dan tag.';
@@ -221,6 +225,7 @@ class Pages extends BaseController
             ],
             'breadcrumbs'    => $breadcrumbs,
             'popularNews'    => $popularNews,
+            'featuredNews'   => $featuredNews,
             'footerProfile'  => $profile,
             'profile'        => $profile,
         ]);

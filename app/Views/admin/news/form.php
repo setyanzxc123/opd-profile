@@ -158,18 +158,6 @@
                                     <h5 class="fw-semibold mb-3">Pengaturan Publikasi</h5>
                 
                                     <div class="mb-3">
-                                      <label class="form-label" for="editorLanguage">Bahasa Editor</label>
-                                      <select id="editorLanguage" class="form-select">
-                                        <option value="id" selected>Bahasa Indonesia</option>
-                                        <option value="en">English</option>
-                                      </select>
-                                      <div class="form-text">Pilih bahasa antarmuka TinyMCE yang paling nyaman digunakan.</div>
-                                    </div>
-                
-                                    <div class="mb-3">
-                                      <label class="form-label" for="publishedAt">Rencana Tanggal Terbit</label>
-                                      <?php
-                                        $val = old('published_at', $item['published_at']);
                                         if ($val && strpos($val, 'T') === false) {
                                           $val = str_replace(' ', 'T', substr($val, 0, 16));
                                         }

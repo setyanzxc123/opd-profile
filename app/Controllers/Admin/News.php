@@ -232,6 +232,7 @@ class News extends BaseController
 
         $rawExcerpt = $this->request->getPost('excerpt');
         $excerpt    = news_trim_excerpt(is_string($rawExcerpt) ? $rawExcerpt : null, $content);
+        $isFeatured = (int) $this->request->getPost('is_featured');
 
         $thumbPath = null;
         $file      = $this->request->getFile('thumbnail');
@@ -251,6 +252,7 @@ class News extends BaseController
             'published_at'        => $publishedAt,
             'author_id'           => (int) session('user_id'),
             'primary_category_id' => $primaryCategory,
+            'is_featured'         => $isFeatured,
         ]);
 
         $newsId = (int) $model->getInsertID();
@@ -329,6 +331,7 @@ class News extends BaseController
 
         $rawExcerpt = $this->request->getPost('excerpt');
         $excerpt    = news_trim_excerpt(is_string($rawExcerpt) ? $rawExcerpt : null, $content);
+        $isFeatured = (int) $this->request->getPost('is_featured');
 
         $data = [
             'title'               => $titleInput,
@@ -337,6 +340,7 @@ class News extends BaseController
             'excerpt'             => $excerpt,
             'published_at'        => $publishedAt,
             'primary_category_id' => $primaryCategory,
+            'is_featured'         => $isFeatured,
         ];
 
         $oldThumbnail = $item['thumbnail'] ?? null;

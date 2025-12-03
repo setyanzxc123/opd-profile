@@ -84,12 +84,15 @@
         <div class="d-flex flex-wrap gap-2 mb-3">
           <?php if ($primaryCategory): ?>
             <a class="badge bg-primary-subtle text-primary" href="<?= site_url('berita/kategori/' . esc($primaryCategory['slug'], 'url')) ?>">
-              <?= esc($primaryCategory['name']) ?>
+              <i class='bx <?= esc($primaryCategory['icon'] ?? 'bx-news') ?> me-1'></i><?= esc($primaryCategory['name']) ?>
             </a>
           <?php endif; ?>
           <?php if ($published_at instanceof Time): ?>
             <span class="badge bg-light text-primary">Dipublikasikan <?= esc($published_at->toLocalizedString('d MMMM yyyy')) ?></span>
           <?php endif; ?>
+          <span class="badge bg-light text-secondary">
+             <i class='bx bx-time-five'></i> <?= calculate_read_time($article['content']) ?> mnt baca
+          </span>
         </div>
         <h1 class="fw-bold mb-4"><?= esc($article['title']) ?></h1>
         <?php if ($excerpt !== ''): ?>
@@ -153,7 +156,7 @@
             <div class="d-inline-flex flex-wrap gap-2 align-items-center">
               <?php foreach ($categories as $category): ?>
                 <a class="badge bg-light text-secondary" href="<?= site_url('berita/kategori/' . esc($category['slug'], 'url')) ?>">
-                  <?= esc($category['name']) ?>
+                  <i class='bx <?= esc($category['icon'] ?? 'bx-news') ?> me-1'></i><?= esc($category['name']) ?>
                 </a>
               <?php endforeach; ?>
             </div>

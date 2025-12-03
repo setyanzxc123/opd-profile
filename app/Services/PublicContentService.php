@@ -377,7 +377,7 @@ class PublicContentService
         $db = db_connect();
         try {
             $rows = $db->table('news_category_map')
-                ->select('news_category_map.news_id, news_categories.id, news_categories.name, news_categories.slug, news_categories.description, news_categories.is_active, news_categories.sort_order')
+                ->select('news_category_map.news_id, news_categories.id, news_categories.name, news_categories.slug, news_categories.description, news_categories.is_active, news_categories.sort_order, news_categories.icon')
                 ->join('news_categories', 'news_categories.id = news_category_map.category_id', 'inner')
                 ->whereIn('news_category_map.news_id', $newsIds)
                 ->orderBy('news_categories.sort_order', 'asc')
@@ -400,6 +400,7 @@ class PublicContentService
                 'name'        => (string) $row['name'],
                 'slug'        => (string) $row['slug'],
                 'description' => (string) ($row['description'] ?? ''),
+                'icon'        => (string) ($row['icon'] ?? 'bx-news'),
             ];
         }
 

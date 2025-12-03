@@ -105,3 +105,30 @@ if (! function_exists('news_resolve_meta_description')) {
     }
 }
 
+if (! function_exists('calculate_read_time')) {
+    /**
+     * Calculate estimated read time for content
+     * Based on average reading speed of 200 words per minute
+     * 
+     * @param string $content HTML content
+     * @return int Read time in minutes (minimum 1)
+     */
+    function calculate_read_time(string $content): int
+    {
+        if (empty($content)) {
+            return 1;
+        }
+
+        // Strip HTML tags and get plain text
+        $plainText = strip_tags($content);
+        
+        // Count words 
+        $wordCount = str_word_count($plainText);
+        
+        // Calculate read time (200 words per minute)
+        $readTime = ceil($wordCount / 200);
+        
+        // Minimum 1 minute
+        return max(1, $readTime);
+    }
+}

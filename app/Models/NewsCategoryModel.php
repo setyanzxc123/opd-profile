@@ -17,6 +17,7 @@ class NewsCategoryModel extends Model
         'parent_id',
         'sort_order',
         'is_active',
+        'icon',
     ];
 
     public function getActiveOrdered(): array
