@@ -51,6 +51,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link href="<?= base_url('assets/css/public/tokens.css') ?>" rel="stylesheet" />
   <link href="<?= base_url('assets/css/public/layout.css') ?>" rel="stylesheet" />
+  <link href="<?= base_url('assets/css/public/navbar-dropdown.css') ?>" rel="stylesheet" />
   <link href="<?= base_url('assets/css/public/components.css') ?>" rel="stylesheet" />
   <link href="<?= base_url('assets/css/public/pages.css') ?>" rel="stylesheet" />
   <link href="<?= base_url('assets/css/public/hide-icons.css') ?>" rel="stylesheet" />
