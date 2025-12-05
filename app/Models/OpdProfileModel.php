@@ -15,6 +15,8 @@ class OpdProfileModel extends Model
         'description',
         'vision',
         'mission',
+        'greeting',
+        'tasks_functions',
         'address',
         'latitude',
         'longitude',

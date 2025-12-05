@@ -43,8 +43,11 @@ class Pages extends BaseController
     {
         $profile = $this->contentService->latestProfile();
 
-        if (! $profile || empty($profile['greeting'])) {
-            throw PageNotFoundException::forPageNotFound('Halaman sambutan tidak tersedia.');
+        if (! $profile) {
+            $profile = [
+                'name'     => 'Profil OPD',
+                'greeting' => null,
+            ];
         }
 
         return view('public/profile_greeting', [
@@ -77,8 +80,11 @@ class Pages extends BaseController
     {
         $profile = $this->contentService->latestProfile();
 
-        if (! $profile || empty($profile['tasks_functions'])) {
-            throw PageNotFoundException::forPageNotFound('Halaman tugas dan fungsi tidak tersedia.');
+        if (! $profile) {
+            $profile = [
+                'name'            => 'Profil OPD',
+                'tasks_functions' => null,
+            ];
         }
 
         return view('public/profile_tasks_functions', [
