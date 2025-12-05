@@ -1,21 +1,28 @@
 <?= $this->extend('layouts/public') ?>
 
 <?= $this->section('content') ?>
-<section class="public-section">
-  <div class="container public-container py-5">
+<section class="public-section pt-3 pb-5">
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb mb-0 small">
+        <li class="breadcrumb-item">
+          <a href="<?= site_url('/') ?>" class="text-decoration-none">
+            <i class="bx bx-home-alt me-1"></i>Beranda
+          </a>
+        </li>
+        <li class="breadcrumb-item"><a href="<?= site_url('profil') ?>" class="text-decoration-none">Profil</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Visi & Misi</li>
+      </ol>
+    </nav>
+
+    <!-- Header -->
+    <header class="text-center mb-5">
+      <h1 class="fw-bold mb-3">Visi & Misi</h1>
+    </header>
+
     <div class="row justify-content-center">
-      <div class="col-lg-10">
-        <div class="mb-4">
-          <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="<?= site_url('/') ?>">Beranda</a></li>
-              <li class="breadcrumb-item"><a href="<?= site_url('profil') ?>">Profil</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Visi & Misi</li>
-            </ol>
-          </nav>
-          <span class="hero-badge text-uppercase">Visi & Misi</span>
-          <h1 class="display-5 fw-bold mt-3 mb-3"><?= esc($profile['name'] ?? 'OPD') ?></h1>
-        </div>
+      <div class="col-lg-8">
         
         <article class="surface-card profile-card mb-4">
           <h2 class="h4 fw-semibold mb-3">Visi</h2>

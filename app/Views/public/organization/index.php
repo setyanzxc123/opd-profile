@@ -1,13 +1,26 @@
 <?= $this->extend('layouts/public') ?>
 
 <?= $this->section('content') ?>
-<div class="public-page">
-  <section class="public-section section-neutral" id="struktur-organisasi" aria-labelledby="org-heading">
-    <div class="container public-container">
-      <header class="section-head">
-        <h1 class="section-title" id="org-heading">Struktur Organisasi</h1>
-        <p class="section-lead"><?= esc($profile['name'] ?? 'OPD') ?></p>
-      </header>
+<section class="public-section pt-3 pb-5">
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb mb-0 small">
+        <li class="breadcrumb-item">
+          <a href="<?= site_url('/') ?>" class="text-decoration-none">
+            <i class="bx bx-home-alt me-1"></i>Beranda
+          </a>
+        </li>
+        <li class="breadcrumb-item"><a href="<?= site_url('profil') ?>" class="text-decoration-none">Profil</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Struktur Organisasi</li>
+      </ol>
+    </nav>
+
+    <!-- Header -->
+    <header class="text-center mb-5">
+      <h1 class="fw-bold mb-3">Struktur Organisasi</h1>
+      <p class="text-muted lead mx-auto" style="max-width: 540px;"><?= esc($profile['name'] ?? 'OPD') ?></p>
+    </header>
 
       <?php
         $orgImgPath = $profile['org_structure_image'] ?? null;
@@ -51,9 +64,8 @@
           Struktur organisasi belum tersedia. Silakan hubungi admin untuk informasi lebih lanjut.
         </div>
       <?php endif; ?>
-    </div>
-  </section>
-</div>
+  </div>
+</section>
 
 <!-- Simple Lightbox for Image Zoom -->
 <div id="orgLightbox" class="modal fade" tabindex="-1" aria-hidden="true" style="display: none;">

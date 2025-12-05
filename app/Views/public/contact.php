@@ -56,15 +56,27 @@
   }
 </style>
 
-<section class="public-section py-5">
+<section class="public-section pt-3 pb-5">
   <div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb mb-0 small">
+        <li class="breadcrumb-item">
+          <a href="<?= site_url('/') ?>" class="text-decoration-none">
+            <i class="bx bx-home-alt me-1"></i>Beranda
+          </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Kontak</li>
+      </ol>
+    </nav>
+
     <!-- Header -->
-    <div class="text-center mb-5">
-      <h1 class="mb-3">Hubungi Kami</h1>
-      <p class="text-muted lead" style="max-width: 600px; margin: 0 auto;">
+    <header class="text-center mb-5">
+      <h1 class="fw-bold mb-3">Hubungi Kami</h1>
+      <p class="text-muted lead mx-auto" style="max-width: 540px;">
         Sampaikan pertanyaan, saran, atau pengaduan Anda. Tim kami siap membantu.
       </p>
-    </div>
+    </header>
 
     <div class="row g-4">
       <!-- Informasi Kontak -->

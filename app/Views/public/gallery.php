@@ -1,13 +1,28 @@
 <?= $this->extend('layouts/public') ?>
 
 <?= $this->section('content') ?>
-<section class="public-section">
-  <div class="container public-container py-5">
-    <div class="text-center mb-5">
-      <span class="hero-badge text-uppercase">Galeri</span>
-      <h1 class="display-5 fw-bold mt-3 mb-3">Dokumentasi Kegiatan</h1>
-      <p class="lead text-muted">Potret aktivitas dan layanan yang kami hadirkan untuk masyarakat.</p>
-    </div>
+<section class="public-section pt-3 pb-5">
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb mb-0 small">
+        <li class="breadcrumb-item">
+          <a href="<?= site_url('/') ?>" class="text-decoration-none">
+            <i class="bx bx-home-alt me-1"></i>Beranda
+          </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Galeri</li>
+      </ol>
+    </nav>
+
+    <!-- Header -->
+    <header class="text-center mb-5">
+      <h1 class="fw-bold mb-3">Galeri Kegiatan</h1>
+      <p class="text-muted lead mx-auto" style="max-width: 540px;">
+        Dokumentasi aktivitas dan layanan kami untuk masyarakat.
+      </p>
+    </header>
+
     <?php if ($galleries): ?>
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         <?php foreach ($galleries as $item): ?>

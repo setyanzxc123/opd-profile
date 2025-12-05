@@ -25,14 +25,27 @@
 <?= $this->extend('layouts/public') ?>
 
 <?= $this->section('content') ?>
-<section class="public-section" aria-labelledby="news-archive-heading">
-  <div class="container public-container py-5">
-    <div class="mb-4">
-      <?= view('public/components/breadcrumb', [
-        'trail'     => $breadcrumbs,
-        'ariaLabel' => 'Navigasi halaman berita',
-      ]) ?>
-    </div>
+<section class="public-section pt-3 pb-5" aria-labelledby="news-archive-heading">
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb mb-0 small">
+        <li class="breadcrumb-item">
+          <a href="<?= site_url('/') ?>" class="text-decoration-none">
+            <i class="bx bx-home-alt me-1"></i>Beranda
+          </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Berita</li>
+      </ol>
+    </nav>
+
+    <!-- Header -->
+    <header class="text-center mb-5" id="news-archive-heading">
+      <h1 class="fw-bold mb-3">Berita & Informasi</h1>
+      <p class="text-muted lead mx-auto" style="max-width: 540px;">
+        Ikuti perkembangan terbaru, pengumuman, dan informasi penting dari kami.
+      </p>
+    </header>
 
     <!-- Search Bar -->
     <form class="news-search mb-4" role="search" method="get" action="<?= current_url() ?>">
