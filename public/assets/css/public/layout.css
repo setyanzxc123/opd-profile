@@ -404,7 +404,7 @@
 
 .section-divider {
   width: 100%;
-  height: clamp(3.5rem, 9vw, 4.75rem);
+  height: clamp(2.75rem, 6vw, 3.5rem);
   position: relative;
   display: flex;
   align-items: center;
@@ -415,51 +415,24 @@
   padding-inline: clamp(1rem, 5vw, 2.5rem);
 }
 
-.section-divider::before,
-.section-divider::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
 .section-divider__label {
   position: relative;
   z-index: 1;
   font-weight: 600;
-  font-size: clamp(1rem, 2.3vw, 1.25rem);
-  letter-spacing: normal;
-  text-transform: none;
+  font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
   line-height: 1.3;
   margin: 0;
-  text-shadow: none;
 }
 
+/* Formal solid style - suitable for government websites */
 .section-divider-brand {
-  background: linear-gradient(105deg,
-      color-mix(in sRGB, var(--public-primary) 78%, white) 0%,
-      color-mix(in sRGB, var(--public-primary-dark) 88%, black) 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.24),
-    inset 0 -2px 0 rgba(var(--public-primary-rgb), 0.45);
-}
-
-.section-divider-brand::before {
-  background: linear-gradient(120deg,
-      color-mix(in sRGB, var(--public-accent) 55%, transparent) 0%,
-      transparent 65%);
-  transform: skewX(-18deg) translateX(-18%);
-  opacity: 0.6;
-}
-
-.section-divider-brand::after {
-  background: linear-gradient(100deg,
-      rgba(255, 255, 255, 0.18) 0%,
-      rgba(255, 255, 255, 0.02) 55%,
-      transparent 75%);
-  transform: skewX(-14deg) translateX(15%);
-  opacity: 0.65;
+  background: linear-gradient(135deg,
+      var(--public-primary) 0%,
+      var(--public-primary-dark) 100%);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Generic section spacing and styling */

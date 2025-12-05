@@ -22,14 +22,10 @@ class Home extends BaseController
         $profile   = $this->contentService->latestProfile();
         $services  = $this->contentService->featuredServices(4);
         $newsItems = $this->contentService->recentNews(5);
-        $galleries = $this->contentService->recentGalleries(4);
-        $documents = $this->contentService->recentDocuments(4);
 
         $hero = $this->buildHeroView($profile, $newsItems);
         $serviceCards = $this->transformServices($services);
         [$featuredNews, $otherNews] = $this->transformNews($newsItems);
-        $galleryItems = $this->transformGalleries($galleries);
-        $documentItems = $this->transformDocuments($documents);
         $contactQuickLinks = $this->buildQuickLinks($profile);
         
         // Calculate statistics
@@ -43,8 +39,6 @@ class Home extends BaseController
             'services'         => $serviceCards,
             'featuredNews'     => $featuredNews,
             'otherNews'        => $otherNews,
-            'galleries'        => $galleryItems,
-            'documents'        => $documentItems,
             'contactQuickLinks'=> $contactQuickLinks,
             'statistics'       => $statistics,
             'footerProfile'    => $profile,
@@ -262,6 +256,7 @@ class Home extends BaseController
             'services' => $servicesModel->where('is_active', 1)->countAllResults(),
             'news' => $newsModel->where('published_at IS NOT NULL', null, false)->countAllResults(),
             'documents' => $documentsModel->countAllResults(),
+            'visitors' => 0, // Placeholder - bisa diintegrasikan dengan analytics nanti
         ];
     }
 

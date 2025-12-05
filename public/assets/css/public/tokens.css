@@ -485,7 +485,10 @@ body.public-body {
 }
 
 @media (max-width: 991.98px) {
-  place-items: center;
+  .brand-circle {
+    width: 42px;
+    height: 42px;
+  }
 }
 
 .news-card img {

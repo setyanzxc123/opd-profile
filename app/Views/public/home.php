@@ -2,6 +2,7 @@
 
 <?= $this->section('pageStyles') ?>
 <link rel="stylesheet" href="<?= base_url('assets/vendor/swiper/swiper-bundle.min.css') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/public/home-enhancements.css') ?>">
 <?= $this->endSection() ?>
 
 <?= $this->section('pageScripts') ?>
@@ -10,6 +11,7 @@
 
 <?= $this->section('content') ?>
 <div class="public-home">
+  <!-- Hero Slider - TETAP ADA -->
   <section class="hero-section hero-shell hero-soft" id="beranda" aria-labelledby="beranda-heading">
     <div class="container public-container">
       <?php if ($hero['hasSlider']): ?>
@@ -71,57 +73,116 @@
       <?php endif; ?>
     </div>
   </section>
-  
-  <div class="section-divider section-divider-brand" aria-hidden="true">
-    <span class="section-divider__label">PROFIL</span>
-  </div>
 
-  <section class="public-section section-neutral" id="profil-singkat" aria-labelledby="profil-heading">
+  <!-- Quick Stats Bar -->
+  <section class="public-section section-neutral py-4" aria-label="Statistik">
     <div class="container public-container">
-      <header class="section-head">
-        <h2 class="section-title"><?= esc($profileSummary['name']) ?></h2>
-        <?php if ($profileSummary['description']): ?>
-          <p class="section-lead"><?= esc($profileSummary['description']) ?></p>
-        <?php endif; ?>
-      </header>
-      <div class="profile-grid">
-        <dl class="profile-list">
-          <?php if ($profileSummary['address']): ?>
-            <div class="profile-item">
-              <dt>Alamat</dt>
-              <dd><?= nl2br(esc($profileSummary['address'])) ?></dd>
-            </div>
-          <?php endif; ?>
-          <?php if ($profileSummary['phone']): ?>
-            <div class="profile-item">
-              <dt>Telepon</dt>
-              <dd><?= esc($profileSummary['phone']) ?></dd>
-            </div>
-          <?php endif; ?>
-          <?php if ($profileSummary['email']): ?>
-            <div class="profile-item">
-              <dt>Email</dt>
-              <dd><a class="surface-link" href="mailto:<?= esc($profileSummary['email']) ?>"><?= esc($profileSummary['email']) ?></a></dd>
-            </div>
-          <?php endif; ?>
-        </dl>
-        <div class="profile-card surface-card" role="complementary" aria-label="Tautan cepat">
-          <h3>Butuh layanan cepat?</h3>
-          <p class="text-muted">Kunjungi halaman layanan untuk melihat persyaratan, biaya, dan estimasi waktu proses.</p>
-          <a class="btn btn-public-primary" href="<?= site_url('layanan') ?>">Daftar layanan</a>
+      <div class="quick-stats">
+        <div class="quick-stat">
+          <div class="quick-stat__icon">
+            <i class="bx bx-briefcase-alt-2"></i>
+          </div>
+          <span class="quick-stat__value"><?= esc($statistics['services'] ?? 0) ?></span>
+          <span class="quick-stat__label">Layanan Publik</span>
+        </div>
+        <div class="quick-stat">
+          <div class="quick-stat__icon">
+            <i class="bx bx-news"></i>
+          </div>
+          <span class="quick-stat__value"><?= esc($statistics['news'] ?? 0) ?></span>
+          <span class="quick-stat__label">Berita</span>
+        </div>
+        <div class="quick-stat">
+          <div class="quick-stat__icon">
+            <i class="bx bx-file"></i>
+          </div>
+          <span class="quick-stat__value"><?= esc($statistics['documents'] ?? 0) ?></span>
+          <span class="quick-stat__label">Dokumen</span>
+        </div>
+        <div class="quick-stat">
+          <div class="quick-stat__icon">
+            <i class="bx bx-group"></i>
+          </div>
+          <span class="quick-stat__value"><?= number_format($statistics['visitors'] ?? 0) ?></span>
+          <span class="quick-stat__label">Pengunjung</span>
         </div>
       </div>
     </div>
   </section>
-  <div class="section-divider section-divider-brand" aria-hidden="true">
-    <span class="section-divider__label">LAYANAN UNGGULAN</span>
-  </div>
 
-  <section class="public-section section-warm" id="layanan" aria-labelledby="layanan-heading">
+  <!-- Quick Actions -->
+  <section class="public-section section-warm" aria-labelledby="quick-actions-heading">
+    <div class="container public-container">
+      <header class="section-head text-center">
+        <h2 class="section-title" id="quick-actions-heading">Akses Cepat</h2>
+        <p class="section-lead">Pilih menu yang Anda butuhkan</p>
+      </header>
+      <div class="quick-actions">
+        <a href="<?= site_url('layanan') ?>" class="quick-action">
+          <div class="quick-action__icon">
+            <i class="bx bx-list-check"></i>
+          </div>
+          <span class="quick-action__label">Layanan Publik</span>
+        </a>
+        <a href="<?= site_url('berita') ?>" class="quick-action">
+          <div class="quick-action__icon">
+            <i class="bx bx-news"></i>
+          </div>
+          <span class="quick-action__label">Berita Terkini</span>
+        </a>
+        <a href="<?= site_url('dokumen') ?>" class="quick-action">
+          <div class="quick-action__icon">
+            <i class="bx bx-download"></i>
+          </div>
+          <span class="quick-action__label">Unduh Dokumen</span>
+        </a>
+        <a href="<?= site_url('kontak') ?>" class="quick-action">
+          <div class="quick-action__icon">
+            <i class="bx bx-phone-call"></i>
+          </div>
+          <span class="quick-action__label">Hubungi Kami</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sambutan Pimpinan -->
+  <?php 
+    $hasGreeting = !empty($profile['greeting']);
+    $greetingText = $hasGreeting ? $profile['greeting'] : null;
+    $leaderName = $profile['name'] ?? 'Kepala Dinas';
+  ?>
+  <?php if ($hasGreeting): ?>
+  <section class="public-section section-neutral" aria-labelledby="welcome-heading">
+    <div class="container public-container">
+      <header class="section-head text-center">
+        <h2 class="section-title" id="welcome-heading">Sambutan</h2>
+      </header>
+      <div class="welcome-section">
+        <div class="welcome-photo welcome-photo--placeholder">
+          <i class="bx bx-user"></i>
+        </div>
+        <div class="welcome-content">
+          <p class="welcome-greeting">
+            <?= esc(mb_strimwidth(strip_tags($greetingText), 0, 300, '...', 'UTF-8')) ?>
+          </p>
+          <div class="welcome-author">
+            <span class="welcome-author__name"><?= esc($leaderName) ?></span>
+            <span class="welcome-author__title">Kepala Dinas</span>
+          </div>
+          <a href="<?= site_url('profil/sambutan') ?>" class="btn btn-public-ghost btn-sm mt-2">Baca selengkapnya</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <?php endif; ?>
+
+  <!-- Layanan Unggulan -->
+  <section class="public-section section-cool" id="layanan" aria-labelledby="layanan-heading">
     <div class="container public-container">
       <header class="section-head">
-        <h2 class="section-title">Kemudahan akses untuk layanan prioritas</h2>
-        <p class="section-lead">Pilih layanan yang paling sering digunakan masyarakat dan mulai proses secara daring.</p>
+        <h2 class="section-title" id="layanan-heading">Layanan Unggulan</h2>
+        <p class="section-lead">Layanan yang paling sering digunakan masyarakat</p>
       </header>
       <?php if ($services): ?>
         <div class="minimal-grid minimal-grid-4" role="list">
@@ -135,20 +196,21 @@
             </article>
           <?php endforeach; ?>
         </div>
+        <div class="section-cta mt-4">
+          <a class="btn btn-public-primary" href="<?= site_url('layanan') ?>">Lihat Semua Layanan</a>
+        </div>
       <?php else: ?>
         <p class="text-muted">Data layanan belum tersedia.</p>
       <?php endif; ?>
     </div>
   </section>
-  <div class="section-divider section-divider-brand" aria-hidden="true">
-    <span class="section-divider__label">BERITA</span>
-  </div>
 
+  <!-- Berita Terkini -->
   <section class="public-section section-neutral" id="berita" aria-labelledby="berita-heading">
     <div class="container public-container">
       <header class="section-head">
-        <h2 class="section-title">Informasi terkini</h2>
-        <p class="section-lead">Ikuti kabar terbaru mengenai kebijakan, pelayanan, dan kegiatan penting.</p>
+        <h2 class="section-title" id="berita-heading">Berita Terkini</h2>
+        <p class="section-lead">Informasi terbaru seputar kegiatan dan kebijakan</p>
       </header>
       <div class="news-grid">
         <?php if ($featuredNews): ?>
@@ -206,126 +268,99 @@
       </div>
     </div>
   </section>
-  <div class="section-divider section-divider-brand" aria-hidden="true">
-    <span class="section-divider__label">GALERI KEGIATAN</span>
-  </div>
 
-  <section class="public-section section-neutral" id="galeri" aria-labelledby="galeri-heading">
-    <div class="container public-container">
-      <header class="section-head">
-        <h2 class="section-title">Dokumentasi pelayanan dan aktivitas</h2>
-      </header>
-      <?php if ($galleries): ?>
-        <div class="minimal-grid minimal-grid-4 gallery-minimal" role="list">
-          <?php foreach ($galleries as $gallery): ?>
-            <article class="card-base gallery-item" role="listitem">
-              <?php if ($gallery['image']): ?>
-                <div class="gallery-item-media">
-                  <img src="<?= esc($gallery['image']) ?>" alt="<?= esc($gallery['title']) ?>" loading="lazy">
-                </div>
-              <?php endif; ?>
-              <div class="gallery-item-body">
-                <h3><?= esc($gallery['title']) ?></h3>
-                <?php if ($gallery['description']): ?>
-                  <p class="text-muted small mb-0"><?= esc($gallery['description']) ?></p>
-                <?php endif; ?>
-              </div>
-            </article>
-          <?php endforeach; ?>
-        </div>
-      <?php else: ?>
-        <p class="text-muted">Belum ada dokumentasi yang ditampilkan.</p>
-      <?php endif; ?>
-    </div>
-  </section>
-  <div class="section-divider section-divider-brand" aria-hidden="true">
-    <span class="section-divider__label">DOKUMEN PUBLIK</span>
-  </div>
-
-  <section class="public-section section-neutral" id="dokumen" aria-labelledby="dokumen-heading">
-    <div class="container public-container">
-      <header class="section-head">
-        <h2 class="section-title">Unduh regulasi dan laporan resmi</h2>
-      </header>
-      <?php if ($documents): ?>
-        <div class="documents-list" role="list">
-          <?php foreach ($documents as $document): ?>
-            <article class="document-item surface-card" role="listitem">
-              <div>
-                <h3><?= esc($document['title']) ?></h3>
-                <p class="text-muted mb-0">
-                  <?php if ($document['category']): ?>
-                    <span><?= esc($document['category']) ?></span>
-                    <span class="mx-2">�</span>
-                  <?php endif; ?>
-                  <?php if ($document['year']): ?>
-                    <span><?= esc($document['year']) ?></span>
-                  <?php endif; ?>
-                </p>
-              </div>
-              <a class="btn btn-public-ghost" href="<?= esc($document['url']) ?>" target="_blank" rel="noopener">Unduh</a>
-            </article>
-          <?php endforeach; ?>
-        </div>
-      <?php else: ?>
-        <p class="text-muted">Belum ada dokumen yang dapat diunduh.</p>
-      <?php endif; ?>
-    </div>
-  </section>
-  
-  <!-- Organization Structure Preview -->
-  <?php
-    $orgImgPath = $profile['org_structure_image'] ?? null;
-    $orgImgUrl = $orgImgPath ? base_url($orgImgPath) : null;
+  <!-- Hubungi Kami dengan Peta -->
+  <?php 
+    $hasCoordinates = !empty($profile['latitude']) && !empty($profile['longitude']);
+    $latitude = $profile['latitude'] ?? null;
+    $longitude = $profile['longitude'] ?? null;
+    $mapZoom = $profile['map_zoom'] ?? 16;
   ?>
-  <?php if ($orgImgUrl): ?>
-  <section class="public-section section-neutral py-5" id="org-preview" aria-labelledby="org-preview-heading">
-    <div class="container public-container">
-      <header class="section-head text-center">
-        <h2 class="section-title" id="org-preview-heading">Struktur Organisasi</h2>
-      </header>
-      <div class="text-center">
-        <a href="<?= site_url('struktur-organisasi') ?>" class="d-inline-block">
-          <img src="<?= esc($orgImgUrl) ?>" 
-               alt="Preview Struktur Organisasi" 
-               class="img-fluid rounded shadow-sm" 
-               style="max-height: 300px; width: auto;">
-        </a>
-        <div class="mt-3">
-          <a href="<?= site_url('struktur-organisasi') ?>" class="btn btn-primary">
-            Lihat Struktur Lengkap
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-  <?php endif; ?>
-  
-  <div class="section-divider section-divider-brand" aria-hidden="true">
-    <span class="section-divider__label">KONTAK CEPAT</span>
-  </div>
-
-  <section class="public-section section-neutral" id="kontak" aria-labelledby="kontak-heading">
+  <section class="public-section section-warm" id="kontak" aria-labelledby="kontak-heading">
     <div class="container public-container">
       <header class="section-head">
-        <h2 class="section-title">Hubungi kami</h2>
-        <p class="section-lead">Gunakan kanal berikut untuk memperoleh respons tercepat dari tim kami.</p>
+        <h2 class="section-title" id="kontak-heading">Hubungi Kami</h2>
+        <p class="section-lead">Kami siap melayani pertanyaan dan pengaduan Anda</p>
       </header>
-      <ul class="contact-quick-links" role="list">
-        <?php foreach ($contactQuickLinks as $link): ?>
-          <li role="listitem">
-            <a class="surface-link" href="<?= esc($link['href']) ?>"<?= $link['href'] !== '#' ? ' target="_blank" rel="noopener"' : '' ?>>
-              <span><?= esc($link['label']) ?></span>
-              <span class="contact-link-value"><?= esc($link['value']) ?></span>
+      
+      <div class="contact-grid">
+        <div class="contact-info-list">
+          <?php if (!empty($profileSummary['address'])): ?>
+          <div class="contact-info-item">
+            <div class="contact-info-item__icon">
+              <i class="bx bx-map"></i>
+            </div>
+            <div class="contact-info-item__content">
+              <div class="contact-info-item__label">Alamat</div>
+              <div class="contact-info-item__value"><?= nl2br(esc($profileSummary['address'])) ?></div>
+            </div>
+          </div>
+          <?php endif; ?>
+          
+          <?php if (!empty($profileSummary['phone'])): ?>
+          <a href="tel:<?= preg_replace('/[^0-9+]/', '', $profileSummary['phone']) ?>" class="contact-info-item">
+            <div class="contact-info-item__icon">
+              <i class="bx bx-phone"></i>
+            </div>
+            <div class="contact-info-item__content">
+              <div class="contact-info-item__label">Telepon</div>
+              <div class="contact-info-item__value"><?= esc($profileSummary['phone']) ?></div>
+            </div>
+          </a>
+          <?php endif; ?>
+          
+          <?php if (!empty($profileSummary['email'])): ?>
+          <a href="mailto:<?= esc($profileSummary['email']) ?>" class="contact-info-item">
+            <div class="contact-info-item__icon">
+              <i class="bx bx-envelope"></i>
+            </div>
+            <div class="contact-info-item__content">
+              <div class="contact-info-item__label">Email</div>
+              <div class="contact-info-item__value"><?= esc($profileSummary['email']) ?></div>
+            </div>
+          </a>
+          <?php endif; ?>
+          
+          <?php if (!empty($profile['operational_hours'])): ?>
+          <div class="contact-info-item">
+            <div class="contact-info-item__icon">
+              <i class="bx bx-time"></i>
+            </div>
+            <div class="contact-info-item__content">
+              <div class="contact-info-item__label">Jam Operasional</div>
+              <div class="contact-info-item__value"><?= esc($profile['operational_hours']) ?></div>
+            </div>
+          </div>
+          <?php endif; ?>
+          
+          <div class="mt-3">
+            <a class="btn btn-public-primary" href="<?= site_url('kontak') ?>">
+              <i class="bx bx-message-square-detail me-1"></i>Form Pengaduan
             </a>
-          </li>
-        <?php endforeach; ?>
-      </ul>
-      <div class="section-cta">
-        <a class="btn btn-public-primary" href="<?= site_url('kontak') ?>">Form pengaduan</a>
+          </div>
+        </div>
+        
+        <?php if ($hasCoordinates): ?>
+        <div class="contact-map">
+          <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3000!2d<?= esc($longitude) ?>!3d<?= esc($latitude) ?>!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zM!5e0!3m2!1sid!2sid!4v1234567890"
+            allowfullscreen="" 
+            loading="lazy" 
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Lokasi Kantor">
+          </iframe>
+        </div>
+        <?php else: ?>
+        <div class="contact-map d-flex align-items-center justify-content-center bg-light">
+          <div class="text-center text-muted p-4">
+            <i class="bx bx-map-alt" style="font-size: 3rem;"></i>
+            <p class="mb-0 mt-2">Peta lokasi belum tersedia</p>
+          </div>
+        </div>
+        <?php endif; ?>
       </div>
     </div>
   </section>
+
 </div>
 <?= $this->endSection() ?>
-
