@@ -21,37 +21,37 @@ class ProfileTheme
         // Tema cerah
         'light-red' => [
             'label'   => 'Merah Cerah',
-            'primary' => '#EF4444',
+            'primary' => '#DC2626',
             'surface' => '#FFF5F5',
             'tone'    => 'light',
         ],
         'light-yellow' => [
             'label'   => 'Kuning Cerah',
-            'primary' => '#F59E0B',
+            'primary' => '#D97706',
             'surface' => '#FFF8E1',
             'tone'    => 'light',
         ],
         'light-green' => [
             'label'   => 'Hijau Cerah',
-            'primary' => '#22C55E',
+            'primary' => '#16A34A',
             'surface' => '#ECFDF5',
             'tone'    => 'light',
         ],
         'light-blue' => [
             'label'   => 'Biru Cerah',
-            'primary' => '#2563EB',
+            'primary' => '#1D4ED8',
             'surface' => '#EEF4FF',
             'tone'    => 'light',
         ],
         'light-orange' => [
             'label'   => 'Oranye Cerah',
-            'primary' => '#F97316',
+            'primary' => '#EA580C',
             'surface' => '#FFF1E6',
             'tone'    => 'light',
         ],
         'light-black' => [
             'label'   => 'Hitam Cerah',
-            'primary' => '#4B5563',
+            'primary' => '#374151',
             'surface' => '#F4F6FB',
             'tone'    => 'light',
         ],
