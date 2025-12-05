@@ -41,15 +41,22 @@
     color: var(--public-primary-dark);
 }
 
-/* Dropdown toggle styling */
+/* Dropdown toggle styling - hide Bootstrap default caret */
 .public-navbar .dropdown-toggle::after {
-    margin-left: 0.35em;
-    vertical-align: 0.15em;
-    transition: transform 0.2s ease;
+    display: none;
 }
 
-.public-navbar .dropdown-toggle:hover::after,
-.public-navbar .dropdown.show .dropdown-toggle::after {
+/* Dropdown arrow icon styling */
+.public-navbar .dropdown-arrow {
+    display: inline-block;
+    font-size: 1em;
+    margin-left: 0.15em;
+    vertical-align: middle;
+    transition: transform 0.25s ease;
+}
+
+.public-navbar .dropdown-toggle:hover .dropdown-arrow,
+.public-navbar .dropdown:hover .dropdown-arrow {
     transform: rotate(180deg);
 }
 

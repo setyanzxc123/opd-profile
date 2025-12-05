@@ -295,6 +295,103 @@ class Pages extends BaseController
         return $this->response->setJSON(['results' => $results]);
     }
 
+    /**
+     * Global search endpoint - searches news, services, and documents
+     */
+    public function globalSearch(): ResponseInterface
+    {
+        $query = trim((string) $this->request->getGet('q'));
+        $limitParam = $this->request->getGet('limit');
+        $limit = is_numeric($limitParam) ? (int) $limitParam : 8;
+        $limit = max(1, min(15, $limit));
+
+        if ($query === '') {
+            return $this->response->setJSON(['results' => []]);
+        }
+
+        helper(['url']);
+        $results = [];
+
+        // Search news (limit to 4)
+        $articles = $this->contentService->searchNews($query, 4);
+        foreach ($articles as $article) {
+            $content = isset($article['content']) ? strip_tags((string) $article['content']) : '';
+            $content = trim(preg_replace('/\s+/', ' ', $content));
+            $snippet = function_exists('mb_substr') ? trim(mb_substr($content, 0, 80)) : trim(substr($content, 0, 80));
+            if ($snippet !== '' && (function_exists('mb_strlen') ? mb_strlen($content) > 80 : strlen($content) > 80)) {
+                $snippet = rtrim($snippet, " \t\n\r\0\x0B,.") . '…';
+            }
+
+            $results[] = [
+                'type'  => 'berita',
+                'icon'  => 'bx-news',
+                'label' => 'Berita',
+                'title' => $article['title'] ?? '',
+                'url'   => site_url('berita/' . ($article['slug'] ?? '')),
+                'snippet' => $snippet,
+            ];
+        }
+
+        // Search services (limit to 2)
+        $servicesModel = model('App\Models\ServiceModel');
+        $services = $servicesModel
+            ->where('is_active', 1)
+            ->groupStart()
+                ->like('title', $query)
+                ->orLike('description', $query)
+            ->groupEnd()
+            ->limit(2)
+            ->findAll();
+
+        foreach ($services as $service) {
+            $desc = trim(strip_tags((string) ($service['description'] ?? '')));
+            $snippet = function_exists('mb_substr') ? trim(mb_substr($desc, 0, 80)) : trim(substr($desc, 0, 80));
+            if ($snippet !== '' && (function_exists('mb_strlen') ? mb_strlen($desc) > 80 : strlen($desc) > 80)) {
+                $snippet = rtrim($snippet, " \t\n\r\0\x0B,.") . '…';
+            }
+
+            $results[] = [
+                'type'  => 'layanan',
+                'icon'  => 'bx-briefcase',
+                'label' => 'Layanan',
+                'title' => $service['title'] ?? '',
+                'url'   => site_url('layanan') . '#' . rawurlencode($service['slug'] ?? ''),
+                'snippet' => $snippet,
+            ];
+        }
+
+        // Search documents (limit to 2)
+        $documentsModel = model('App\Models\DocumentModel');
+        $documents = $documentsModel
+            ->like('title', $query)
+            ->orLike('category', $query)
+            ->limit(2)
+            ->findAll();
+
+        foreach ($documents as $document) {
+            $category = trim((string) ($document['category'] ?? ''));
+            $year = trim((string) ($document['year'] ?? ''));
+            $snippet = $category !== '' ? $category : '';
+            if ($year !== '') {
+                $snippet .= $snippet !== '' ? " ({$year})" : $year;
+            }
+
+            $results[] = [
+                'type'  => 'dokumen',
+                'icon'  => 'bx-file',
+                'label' => 'Dokumen',
+                'title' => $document['title'] ?? '',
+                'url'   => base_url($document['file_path'] ?? ''),
+                'snippet' => $snippet,
+            ];
+        }
+
+        // Limit total results
+        $results = array_slice($results, 0, $limit);
+
+        return $this->response->setJSON(['results' => $results]);
+    }
+
     public function beritaDetail(string $slug): string
     {
         helper(['url', 'news']);

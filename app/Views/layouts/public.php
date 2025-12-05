@@ -55,6 +55,7 @@
   <link href="<?= base_url('assets/css/public/components.css') ?>" rel="stylesheet" />
   <link href="<?= base_url('assets/css/public/pages.css') ?>" rel="stylesheet" />
   <link href="<?= base_url('assets/css/public/hide-icons.css') ?>" rel="stylesheet" />
+  <link href="<?= base_url('assets/css/public/global-search.css') ?>" rel="stylesheet" />
   <?php if ($publicThemeVariables !== []): ?>
     <?= theme_render_style($publicThemeVariables) ?>
   <?php endif; ?>

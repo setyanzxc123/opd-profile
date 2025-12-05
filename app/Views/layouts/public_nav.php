@@ -116,7 +116,7 @@
               <?php if (isset($item['dropdown'])): ?>
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle<?= $item['active'] ? ' active' : '' ?>" href="<?= esc($item['href']) ?>" id="navbarDropdown<?= esc($item['label']) ?>" role="button" data-bs-toggle="dropdown" aria-expanded="false"<?= $item['active'] ? ' aria-current="page"' : '' ?>>
-                    <?= esc($item['label']) ?>
+                    <?= esc($item['label']) ?> <i class="bx bx-chevron-down dropdown-arrow"></i>
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="navbarDropdown<?= esc($item['label']) ?>">
                     <?php foreach ($item['dropdown'] as $subItem): ?>
@@ -149,19 +149,47 @@
             <?php endif; ?>
           </div>
         </div>
-        <form class="public-search public-navbar-search" action="<?= site_url('berita') ?>" method="get" role="search" data-nav-search-form data-nav-search-url="<?= site_url('search/berita') ?>">
-          <div class="public-search-field">
-            <label class="visually-hidden" for="navSearch">Cari informasi</label>
-            <input id="navSearch" class="public-search-input" type="search" name="q" placeholder="Cari berita" aria-label="Cari berita" value="<?= esc($path === 'berita' ? ($request->getGet('q') ?? '') : '') ?>" autocomplete="off" data-nav-search-input aria-controls="navSearchResults">
-            <span class="public-search-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" focusable="false" role="img">
-                <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5L20.49 19l-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z" fill="currentColor"/>
-              </svg>
-            </span>
-          </div>
-          <div class="public-search-results" id="navSearchResults" aria-label="Hasil pencarian berita" aria-live="polite" aria-relevant="additions" hidden data-nav-search-results></div>
-        </form>
+        <button type="button" class="public-search-trigger" aria-label="Buka pencarian" data-search-trigger>
+          <i class="bx bx-search"></i>
+        </button>
       </div>
     </div>
   </div>
 </nav>
+
+<!-- Full-screen Search Overlay -->
+<div class="search-overlay" id="searchOverlay" role="dialog" aria-modal="true" aria-labelledby="searchOverlayTitle" hidden data-search-overlay>
+  <div class="search-overlay__backdrop" data-search-close></div>
+  <div class="search-overlay__container">
+    <div class="search-overlay__header">
+      <h2 class="visually-hidden" id="searchOverlayTitle">Pencarian Global</h2>
+      <button type="button" class="search-overlay__close" aria-label="Tutup pencarian" data-search-close>
+        <i class="bx bx-x"></i>
+      </button>
+    </div>
+    <div class="search-overlay__body">
+      <form class="search-overlay__form" action="<?= site_url('berita') ?>" method="get" role="search" data-search-form data-search-url="<?= site_url('search') ?>">
+        <div class="search-overlay__input-wrap">
+          <i class="bx bx-search search-overlay__input-icon"></i>
+          <input 
+            type="search" 
+            class="search-overlay__input" 
+            name="q" 
+            placeholder="Cari berita, layanan, dokumen..." 
+            aria-label="Cari informasi"
+            autocomplete="off"
+            autofocus
+            data-search-input
+          >
+          <span class="search-overlay__hint">Tekan ESC untuk menutup</span>
+        </div>
+      </form>
+      <div class="search-overlay__results" data-search-results>
+        <div class="search-overlay__empty" data-search-empty>
+          <i class="bx bx-search-alt-2"></i>
+          <p>Ketik untuk mulai mencari</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

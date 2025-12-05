@@ -64,17 +64,17 @@
         speed: reduce ? 0 : 600,
         autoplay: !reduce && slideCount > 1
           ? {
-              delay: interval,
-              disableOnInteraction: false,
-              pauseOnMouseEnter: true
-            }
+            delay: interval,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true
+          }
           : false,
         navigation: slideCount > 1 && prevEl && nextEl ? { prevEl, nextEl } : undefined,
         pagination: slideCount > 1 && paginationEl
           ? {
-              el: paginationEl,
-              clickable: true
-            }
+            el: paginationEl,
+            clickable: true
+          }
           : undefined,
         on: {
           init(sw) {
@@ -117,25 +117,46 @@
     }, 120);
   };
 
-  // Search: progressive enhancement with safe URL handling
-  const initNavSearch = () => {
-    const form = document.querySelector('[data-nav-search-form]');
-    if (!form) return;
+  // Full-screen Search Overlay
+  const initSearchOverlay = () => {
+    const trigger = document.querySelector('[data-search-trigger]');
+    const overlay = document.querySelector('[data-search-overlay]');
+    if (!trigger || !overlay) return;
 
-    const input = form.querySelector('[data-nav-search-input]');
-    const results = form.querySelector('[data-nav-search-results]');
-    const endpoint = form.getAttribute('data-nav-search-url');
-    if (!input || !results || !endpoint) return;
+    const form = overlay.querySelector('[data-search-form]');
+    const input = overlay.querySelector('[data-search-input]');
+    const resultsContainer = overlay.querySelector('[data-search-results]');
+    const emptyState = overlay.querySelector('[data-search-empty]');
+    const closeButtons = overlay.querySelectorAll('[data-search-close]');
+    const endpoint = form ? form.getAttribute('data-search-url') : null;
 
-    const min = Number(form.getAttribute('data-nav-search-min')) > 0 ? Number(form.getAttribute('data-nav-search-min')) : 2;
-    const limit = Number(form.getAttribute('data-nav-search-limit')) > 0 ? Number(form.getAttribute('data-nav-search-limit')) : 5;
+    if (!input || !resultsContainer || !endpoint) return;
 
     let current = '';
     let controller = null;
 
-    const setLoading = (v) => v ? form.setAttribute('aria-busy', 'true') : form.removeAttribute('aria-busy');
-    const clear = () => { results.innerHTML = ''; results.setAttribute('hidden', 'hidden'); };
-    const show = () => { results.removeAttribute('hidden'); };
+    const openOverlay = () => {
+      overlay.removeAttribute('hidden');
+      requestAnimationFrame(() => {
+        overlay.classList.add('is-open');
+        input.focus();
+        document.body.style.overflow = 'hidden';
+      });
+    };
+
+    const closeOverlay = () => {
+      overlay.classList.remove('is-open');
+      document.body.style.overflow = '';
+      setTimeout(() => {
+        overlay.setAttribute('hidden', '');
+        input.value = '';
+        current = '';
+        resultsContainer.innerHTML = '';
+        if (emptyState) {
+          resultsContainer.appendChild(emptyState);
+        }
+      }, 300);
+    };
 
     const allowUrl = (u) => {
       try {
@@ -146,107 +167,152 @@
       }
     };
 
-    const render = (items, q) => {
-      results.innerHTML = '';
-      const frag = document.createDocumentFragment();
-      const list = Array.isArray(items) ? items.slice(0, limit) : [];
+    const renderResults = (items, q) => {
+      resultsContainer.innerHTML = '';
 
-      if (!list.length) {
-        const empty = document.createElement('div');
-        empty.className = 'public-search-result public-search-result--empty';
-        empty.textContent = `Tidak ada hasil untuk "${q}".`;
-        frag.appendChild(empty);
-      } else {
-        list.forEach((item) => {
-          if (!item || !item.url) return;
-          const a = document.createElement('a');
-          a.className = 'public-search-result public-search-result--link';
-          a.href = allowUrl(item.url);
-
-          const title = document.createElement('span');
-          title.className = 'public-search-result__title';
-          title.textContent = String(item.title || 'Tanpa judul');
-          a.appendChild(title);
-
-          const metaWrap = document.createElement('span');
-          metaWrap.className = 'public-search-result__meta';
-
-          if (item.published_at) {
-            const d = new Date(item.published_at);
-            if (!Number.isNaN(d.getTime())) {
-              const date = document.createElement('span');
-              date.className = 'public-search-result__date';
-              date.textContent = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-              metaWrap.appendChild(date);
-            }
-          }
-          if (item.snippet) {
-            const sn = document.createElement('span');
-            sn.className = 'public-search-result__snippet';
-            sn.textContent = String(item.snippet);
-            metaWrap.appendChild(sn);
-          }
-          if (metaWrap.childNodes.length) a.appendChild(metaWrap);
-
-          frag.appendChild(a);
-        });
+      if (!items.length) {
+        const noResults = document.createElement('div');
+        noResults.className = 'search-overlay__no-results';
+        noResults.innerHTML = `<i class="bx bx-search-alt"></i><p>Tidak ada hasil untuk "<strong>${q}</strong>"</p>`;
+        resultsContainer.appendChild(noResults);
+        return;
       }
 
-      results.appendChild(frag);
-      show();
+      // Group items by type
+      const groups = {};
+      const groupLabels = {
+        berita: { label: 'Berita', icon: 'bx-news' },
+        layanan: { label: 'Layanan', icon: 'bx-briefcase' },
+        dokumen: { label: 'Dokumen', icon: 'bx-file' }
+      };
+
+      items.forEach(item => {
+        const type = item.type || 'other';
+        if (!groups[type]) groups[type] = [];
+        groups[type].push(item);
+      });
+
+      // Render groups
+      Object.entries(groups).forEach(([type, groupItems]) => {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'search-overlay__group';
+
+        const groupInfo = groupLabels[type] || { label: type, icon: 'bx-folder' };
+
+        const titleEl = document.createElement('div');
+        titleEl.className = 'search-overlay__group-title';
+        titleEl.innerHTML = `<i class="bx ${groupInfo.icon}"></i> ${groupInfo.label}`;
+        groupEl.appendChild(titleEl);
+
+        groupItems.forEach(item => {
+          const a = document.createElement('a');
+          a.className = 'search-overlay__item';
+          a.href = allowUrl(item.url);
+          a.addEventListener('click', () => closeOverlay());
+
+          const iconWrap = document.createElement('div');
+          iconWrap.className = 'search-overlay__item-icon';
+          iconWrap.innerHTML = `<i class="bx ${item.icon || groupInfo.icon}"></i>`;
+          a.appendChild(iconWrap);
+
+          const content = document.createElement('div');
+          content.className = 'search-overlay__item-content';
+
+          const title = document.createElement('div');
+          title.className = 'search-overlay__item-title';
+          title.textContent = item.title || 'Tanpa judul';
+          content.appendChild(title);
+
+          if (item.snippet) {
+            const snippet = document.createElement('div');
+            snippet.className = 'search-overlay__item-snippet';
+            snippet.textContent = item.snippet;
+            content.appendChild(snippet);
+          }
+
+          a.appendChild(content);
+          groupEl.appendChild(a);
+        });
+
+        resultsContainer.appendChild(groupEl);
+      });
     };
 
     const fetchResults = async (q) => {
-      if (controller) { try { controller.abort(); } catch (_) {} }
+      if (controller) { try { controller.abort(); } catch (_) { } }
       try { controller = new AbortController(); } catch (_) { controller = null; }
-      setLoading(true);
+
+      // Show loading
+      resultsContainer.innerHTML = '<div class="search-overlay__loading"><i class="bx bx-loader-alt bx-spin"></i> Mencari...</div>';
+
       try {
         let url;
         try { url = new URL(endpoint, window.location.origin); }
         catch (_) { url = new URL(window.location.origin + endpoint.replace(/^\//, '')); }
         url.searchParams.set('q', q);
-        url.searchParams.set('limit', String(limit));
-        const res = await fetch(url.toString(), { headers: { Accept: 'application/json' }, signal: controller ? controller.signal : undefined });
+        url.searchParams.set('limit', '12');
+
+        const res = await fetch(url.toString(), {
+          headers: { Accept: 'application/json' },
+          signal: controller ? controller.signal : undefined
+        });
+
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const payload = await res.json();
         if (current !== q) return;
-        render(Array.isArray(payload.results) ? payload.results : [], q);
+        renderResults(Array.isArray(payload.results) ? payload.results : [], q);
       } catch (e) {
         if (controller && e && e.name === 'AbortError') return;
         if (current === q) {
-          const errorEl = document.createElement('div');
-          errorEl.className = 'public-search-result public-search-result--error';
-          errorEl.setAttribute('role', 'option');
-          errorEl.textContent = 'Terjadi kesalahan saat memuat hasil.';
-          results.innerHTML = '';
-          results.appendChild(errorEl);
-          show();
+          resultsContainer.innerHTML = '<div class="search-overlay__no-results"><i class="bx bx-error-circle"></i><p>Terjadi kesalahan saat mencari.</p></div>';
         }
       } finally {
-        if (current === q) setLoading(false);
         controller = null;
       }
     };
-    const debounced = debounce(fetchResults, 320);
 
-    input.addEventListener('input', (ev) => {
-      const v = String(ev.target.value || '').trim();
+    const debouncedSearch = debounce(fetchResults, 350);
+
+    // Event listeners
+    trigger.addEventListener('click', openOverlay);
+
+    closeButtons.forEach(btn => {
+      btn.addEventListener('click', closeOverlay);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay.classList.contains('is-open')) {
+        closeOverlay();
+      }
+    });
+
+    input.addEventListener('input', (e) => {
+      const v = String(e.target.value || '').trim();
       current = v;
-      if (v.length < min) {
-        debounced.cancel();
-        if (controller) { try { controller.abort(); } catch (_) {} controller = null; }
-        setLoading(false);
-        clear();
+
+      if (v.length < 2) {
+        debouncedSearch.cancel();
+        if (controller) { try { controller.abort(); } catch (_) { } controller = null; }
+        resultsContainer.innerHTML = '';
+        if (emptyState) resultsContainer.appendChild(emptyState);
         return;
       }
-      debounced(v);
+
+      debouncedSearch(v);
     });
-    input.addEventListener('focus', () => { if (results.children.length) show(); });
-    input.addEventListener('keydown', (e) => { if (e.key === 'Escape') clear(); });
-    document.addEventListener('click', (e) => { if (!form.contains(e.target)) clear(); });
-    results.addEventListener('click', () => clear());
-    form.addEventListener('submit', () => { debounced.cancel(); if (controller) { try { controller.abort(); } catch (_) {} controller = null; } setLoading(false); clear(); });
+
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const q = input.value.trim();
+        if (q) {
+          closeOverlay();
+          window.location.href = form.action + '?q=' + encodeURIComponent(q);
+        }
+      });
+    }
   };
+
 
   // Contact form: rely on HTML5, add honeypot + small feedback
   const initContactForm = () => {
@@ -279,11 +345,39 @@
     });
   };
 
+  // Dropdown: on desktop, prevent click toggle since hover is used
+  const initDropdownHover = () => {
+    const dropdownToggles = document.querySelectorAll('.public-navbar .dropdown-toggle');
+    const isDesktop = () => window.innerWidth >= 992;
+
+    dropdownToggles.forEach((toggle) => {
+      toggle.addEventListener('click', (e) => {
+        if (isDesktop()) {
+          // On desktop, prevent Bootstrap dropdown toggle, allow normal link navigation
+          e.stopPropagation();
+          const dropdown = toggle.closest('.dropdown');
+          if (dropdown) {
+            // Remove the .show class to prevent pinned state
+            dropdown.classList.remove('show');
+            const menu = dropdown.querySelector('.dropdown-menu');
+            if (menu) menu.classList.remove('show');
+          }
+          // Navigate to href if it exists and is not just a hash
+          const href = toggle.getAttribute('href');
+          if (href && href !== '#' && href !== '') {
+            window.location.href = href;
+          }
+        }
+      });
+    });
+  };
+
   const ready = () => {
     initNavbar();
     initHeroSwiper();
-    initNavSearch();
+    initSearchOverlay();
     initContactForm();
+    initDropdownHover();
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready);
   else ready();
@@ -292,9 +386,9 @@
   if (typeof document.addEventListener === 'function') {
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
-        heroSwiperRegistry.forEach((entry) => { try { entry.pause(); } catch (_) {} });
+        heroSwiperRegistry.forEach((entry) => { try { entry.pause(); } catch (_) { } });
       } else {
-        heroSwiperRegistry.forEach((entry) => { try { entry.resume(); } catch (_) {} });
+        heroSwiperRegistry.forEach((entry) => { try { entry.resume(); } catch (_) { } });
       }
     });
   }

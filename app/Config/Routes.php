@@ -15,6 +15,7 @@ $routes->get('berita', 'Pages::berita');
 $routes->get('berita/kategori/(:segment)', 'Pages::beritaKategori/$1');
 $routes->get('berita/tag/(:segment)', 'Pages::beritaTag/$1');
 $routes->get('search/berita', 'Pages::beritaSearch');
+$routes->get('search', 'Pages::globalSearch');
 $routes->get('berita/(:segment)', 'Pages::beritaDetail/$1');
 $routes->get('galeri', 'Pages::galeri');
 $routes->get('dokumen', 'Pages::dokumen');
