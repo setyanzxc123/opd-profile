@@ -22,11 +22,14 @@ class ContactController extends BaseController
 
     public function submit(): ResponseInterface
     {
+        helper('captcha');
+        
         $request   = $this->request;
         $session   = session();
         $isAjax    = $request->isAJAX();
-        $postData  = $request->getPost(['full_name', 'email', 'phone', 'subject', 'message', 'website']);
+        $postData  = $request->getPost(['full_name', 'email', 'phone', 'subject', 'message', 'website', 'captcha_answer']);
         $honeypot  = trim((string) ($postData['website'] ?? ''));
+        $captchaAnswer = trim((string) ($postData['captcha_answer'] ?? ''));
         $ipAddress = (string) $request->getIPAddress();
 
         $payload = [
@@ -39,6 +42,14 @@ class ContactController extends BaseController
 
         if ($honeypot !== '') {
             return $this->respondSuccess($isAjax, 'Pesan Anda berhasil dikirim. Tim kami akan menindaklanjuti secepatnya.');
+        }
+
+        // Verify captcha
+        if (! captcha_verify($captchaAnswer)) {
+            $session->setFlashdata('contact_error', 'Jawaban captcha salah atau sudah kedaluwarsa. Silakan coba lagi.');
+            $session->setFlashdata('contact_old', $payload);
+
+            return $this->respondError($isAjax, 'Jawaban captcha tidak valid.', ['captcha_answer' => 'Jawaban captcha salah.'], 422, $payload);
         }
 
         if ($this->isBlacklisted($payload['email'], $ipAddress)) {

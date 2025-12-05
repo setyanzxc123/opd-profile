@@ -8,6 +8,16 @@
     $email   = trim((string) ($profile['email'] ?? ''));
     $session = session();
 
+    // Map data
+    $latitudeRaw    = $profile['latitude'] ?? null;
+    $longitudeRaw   = $profile['longitude'] ?? null;
+    $latitude       = is_numeric($latitudeRaw) ? (float) $latitudeRaw : null;
+    $longitude      = is_numeric($longitudeRaw) ? (float) $longitudeRaw : null;
+    $zoomLevel      = $profile['map_zoom'] ?? 16;
+    $mapDisplay     = (int) ($profile['map_display'] ?? 0) === 1;
+    $hasCoordinates = $latitude !== null && $longitude !== null;
+    $shouldShowMap  = $mapDisplay && $hasCoordinates;
+
     $successMessage = (string) ($session->getFlashdata('contact_success') ?? '');
     $errorMessage   = (string) ($session->getFlashdata('contact_error') ?? '');
     $contactErrors  = (array) ($session->getFlashdata('contact_errors') ?? []);
@@ -25,275 +35,299 @@
         $candidate = $contactOld[$field] ?? old($field);
         $formDefaults[$field] = is_string($candidate) ? $candidate : $defaultValue;
     }
-
-    $quickLinks = [];
-
-    if ($phone !== '') {
-        $quickLinks[] = [
-            'label' => 'Hubungi via Telepon',
-            'value' => $phone,
-            'href'  => 'tel:' . preg_replace('/[^0-9+]/', '', $phone),
-        ];
-    }
-
-    if ($email !== '') {
-        $quickLinks[] = [
-            'label' => 'Kirim Email',
-            'value' => $email,
-            'href'  => 'mailto:' . $email,
-        ];
-    }
-
-    if (! $quickLinks) {
-        $quickLinks[] = [
-            'label' => 'Layanan Pengaduan',
-            'value' => 'Segera hadir',
-            'href'  => '#',
-        ];
-    }
-
-    $infoChips = array_values(array_filter([
-        $address !== '' ? 'Layanan tatap muka tersedia pada jam kerja.' : null,
-        $phone !== '' ? 'Telepon aktif pukul 08.00-16.00 WIB.' : null,
-        $email !== '' ? 'Balasan email dikirim maksimal 1x24 jam.' : null,
-    ]));
 ?>
-<section class="contact-hero section-surface">
-  <div class="container public-container contact-hero__container">
-    <div class="contact-hero__copy">
-      <span class="contact-eyebrow">Butuh bantuan?</span>
-      <h1>Kontak &amp; Aduan Masyarakat</h1>
-      <p class="contact-lead">Kami siap membantu kebutuhan informasi, pengaduan, serta masukan Anda agar pelayanan publik semakin baik.</p>
-      <?php if (! empty($infoChips)): ?>
-      <ul class="contact-hero__chips">
-        <?php foreach ($infoChips as $chip): ?>
-        <li><?= esc($chip) ?></li>
-        <?php endforeach; ?>
-      </ul>
-      <?php endif; ?>
+
+<style>
+  .contact-icon-wrap {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background-color: rgba(var(--public-primary-rgb, 13, 110, 253), 0.1);
+    color: var(--public-primary, #0d6efd);
+    font-size: 1.25rem;
+  }
+  .contact-map-frame {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+</style>
+
+<section class="public-section py-5">
+  <div class="container">
+    <!-- Header -->
+    <div class="text-center mb-5">
+      <h1 class="mb-3">Hubungi Kami</h1>
+      <p class="text-muted lead" style="max-width: 600px; margin: 0 auto;">
+        Sampaikan pertanyaan, saran, atau pengaduan Anda. Tim kami siap membantu.
+      </p>
     </div>
-    <div class="contact-hero__panel">
-      <div class="contact-hero__card surface-card">
-        <h2 class="contact-hero__title">Saluran Prioritas</h2>
-        <p class="text-muted mb-3">Gunakan kanal berikut untuk memperoleh respons tercepat dari tim kami.</p>
-        <ul class="contact-quick-links">
-          <?php foreach ($quickLinks as $link): ?>
-          <li>
-            <a class="surface-link" href="<?= esc($link['href']) ?>"<?php if ($link['href'] !== '#'): ?> target="_blank" rel="noopener"<?php endif; ?>>
-              <span><?= esc($link['label']) ?></span>
-              <span class="contact-link-value"><?= esc($link['value']) ?></span>
-            </a>
-          </li>
-          <?php endforeach; ?>
-        </ul>
-        <p class="contact-hero__hint text-muted">Tidak menemukan kanal yang sesuai? Tinggalkan pesan melalui formulir di bawah.</p>
+
+    <div class="row g-4">
+      <!-- Informasi Kontak -->
+      <div class="col-lg-4">
+        <div class="surface-card h-100 p-4">
+          <h2 class="h5 mb-4">Informasi Kontak</h2>
+          
+          <div class="d-flex flex-column gap-4">
+            <!-- Alamat -->
+            <div class="d-flex gap-3">
+              <div class="flex-shrink-0">
+                <div class="contact-icon-wrap">
+                  <i class="bx bx-map"></i>
+                </div>
+              </div>
+              <div>
+                <h6 class="mb-1">Alamat Kantor</h6>
+                <p class="text-muted mb-0 small">
+                  <?= $address !== '' ? nl2br(esc($address)) : 'Alamat belum tersedia' ?>
+                </p>
+              </div>
+            </div>
+
+            <!-- Telepon -->
+            <div class="d-flex gap-3">
+              <div class="flex-shrink-0">
+                <div class="contact-icon-wrap">
+                  <i class="bx bx-phone"></i>
+                </div>
+              </div>
+              <div>
+                <h6 class="mb-1">Telepon</h6>
+                <?php if ($phone !== ''): ?>
+                  <a href="tel:<?= preg_replace('/[^0-9+]/', '', $phone) ?>" class="text-decoration-none">
+                    <?= esc($phone) ?>
+                  </a>
+                <?php else: ?>
+                  <p class="text-muted mb-0 small">Nomor telepon belum tersedia</p>
+                <?php endif; ?>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="d-flex gap-3">
+              <div class="flex-shrink-0">
+                <div class="contact-icon-wrap">
+                  <i class="bx bx-envelope"></i>
+                </div>
+              </div>
+              <div>
+                <h6 class="mb-1">Email</h6>
+                <?php if ($email !== ''): ?>
+                  <a href="mailto:<?= esc($email) ?>" class="text-decoration-none">
+                    <?= esc($email) ?>
+                  </a>
+                <?php else: ?>
+                  <p class="text-muted mb-0 small">Email belum tersedia</p>
+                <?php endif; ?>
+              </div>
+            </div>
+
+            <!-- Jam Pelayanan -->
+            <div class="d-flex gap-3">
+              <div class="flex-shrink-0">
+                <div class="contact-icon-wrap">
+                  <i class="bx bx-time"></i>
+                </div>
+              </div>
+              <div>
+                <h6 class="mb-1">Jam Pelayanan</h6>
+                <p class="text-muted mb-0 small">
+                  Senin - Kamis: 08.00 - 16.00 WIB<br>
+                  Jumat: 08.00 - 15.00 WIB
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Peta Lokasi -->
+          <?php if ($shouldShowMap): ?>
+            <?php
+              $coordinateString = trim((string) $latitude) . ',' . trim((string) $longitude);
+              $mapZoomValue     = is_numeric($zoomLevel) ? (int) $zoomLevel : 16;
+              if ($mapZoomValue < 1 || $mapZoomValue > 20) { $mapZoomValue = 16; }
+              $mapEmbedUrl = 'https://www.google.com/maps?q=' . rawurlencode($coordinateString) . '&z=' . rawurlencode((string) $mapZoomValue) . '&output=embed';
+              $mapExternalUrl = 'https://www.google.com/maps?q=' . rawurlencode($coordinateString);
+            ?>
+            <div class="mt-4 pt-3 border-top">
+              <h6 class="mb-3">Lokasi Kantor</h6>
+              <div class="contact-map-frame ratio ratio-4x3">
+                <iframe
+                  src="<?= esc($mapEmbedUrl) ?>"
+                  title="Lokasi Kantor"
+                  loading="lazy"
+                  allowfullscreen
+                  referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+              </div>
+              <a class="btn btn-sm btn-outline-primary mt-2 w-100" href="<?= esc($mapExternalUrl) ?>" target="_blank" rel="noopener">
+                <i class="bx bx-map me-1"></i>Buka di Google Maps
+              </a>
+            </div>
+          <?php endif; ?>
+        </div>
+      </div>
+
+      <!-- Form Kontak -->
+      <div class="col-lg-8">
+        <div class="surface-card p-4">
+          <h2 class="h5 mb-4">Kirim Pesan</h2>
+
+          <?php if ($successMessage !== ''): ?>
+            <div class="alert alert-success" role="status">
+              <i class="bx bx-check-circle me-2"></i><?= esc($successMessage) ?>
+            </div>
+          <?php endif; ?>
+
+          <?php if ($errorMessage !== ''): ?>
+            <div class="alert alert-danger" role="alert">
+              <i class="bx bx-error-circle me-2"></i><?= esc($errorMessage) ?>
+            </div>
+          <?php endif; ?>
+
+          <form method="post" action="<?= site_url('kontak') ?>" novalidate data-contact-form>
+            <?= csrf_field() ?>
+            
+            <div class="row g-3">
+              <!-- Nama -->
+              <div class="col-md-6">
+                <?php $fieldError = $contactErrors['full_name'] ?? ''; ?>
+                <label class="form-label" for="contactFullName">Nama Lengkap <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control<?= $fieldError !== '' ? ' is-invalid' : '' ?>"
+                  id="contactFullName"
+                  name="full_name"
+                  value="<?= esc($formDefaults['full_name']) ?>"
+                  maxlength="150"
+                  autocomplete="name"
+                  required
+                >
+                <?php if ($fieldError !== ''): ?>
+                  <div class="invalid-feedback"><?= esc($fieldError) ?></div>
+                <?php endif; ?>
+              </div>
+
+              <!-- Email -->
+              <div class="col-md-6">
+                <?php $fieldError = $contactErrors['email'] ?? ''; ?>
+                <label class="form-label" for="contactEmail">Email <span class="text-danger">*</span></label>
+                <input
+                  type="email"
+                  class="form-control<?= $fieldError !== '' ? ' is-invalid' : '' ?>"
+                  id="contactEmail"
+                  name="email"
+                  value="<?= esc($formDefaults['email']) ?>"
+                  maxlength="150"
+                  autocomplete="email"
+                  required
+                >
+                <?php if ($fieldError !== ''): ?>
+                  <div class="invalid-feedback"><?= esc($fieldError) ?></div>
+                <?php endif; ?>
+              </div>
+
+              <!-- Telepon -->
+              <div class="col-md-6">
+                <?php $fieldError = $contactErrors['phone'] ?? ''; ?>
+                <label class="form-label" for="contactPhone">Nomor Telepon</label>
+                <input
+                  type="tel"
+                  class="form-control<?= $fieldError !== '' ? ' is-invalid' : '' ?>"
+                  id="contactPhone"
+                  name="phone"
+                  value="<?= esc($formDefaults['phone']) ?>"
+                  maxlength="30"
+                  autocomplete="tel"
+                >
+                <?php if ($fieldError !== ''): ?>
+                  <div class="invalid-feedback"><?= esc($fieldError) ?></div>
+                <?php endif; ?>
+              </div>
+
+              <!-- Subjek -->
+              <div class="col-md-6">
+                <?php $fieldError = $contactErrors['subject'] ?? ''; ?>
+                <label class="form-label" for="contactSubject">Subjek <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control<?= $fieldError !== '' ? ' is-invalid' : '' ?>"
+                  id="contactSubject"
+                  name="subject"
+                  value="<?= esc($formDefaults['subject']) ?>"
+                  maxlength="120"
+                  required
+                >
+                <?php if ($fieldError !== ''): ?>
+                  <div class="invalid-feedback"><?= esc($fieldError) ?></div>
+                <?php endif; ?>
+              </div>
+
+              <!-- Pesan -->
+              <div class="col-12">
+                <?php $fieldError = $contactErrors['message'] ?? ''; ?>
+                <label class="form-label" for="contactMessage">Pesan <span class="text-danger">*</span></label>
+                <textarea
+                  class="form-control<?= $fieldError !== '' ? ' is-invalid' : '' ?>"
+                  id="contactMessage"
+                  name="message"
+                  rows="5"
+                  maxlength="2000"
+                  required
+                ><?= esc($formDefaults['message']) ?></textarea>
+                <?php if ($fieldError !== ''): ?>
+                  <div class="invalid-feedback"><?= esc($fieldError) ?></div>
+                <?php endif; ?>
+              </div>
+            </div>
+
+            <!-- Honeypot -->
+            <div style="position: absolute; left: -9999px;" aria-hidden="true">
+              <input type="text" name="website" tabindex="-1" autocomplete="off">
+            </div>
+
+            <!-- Captcha -->
+            <?php 
+              helper('captcha');
+              $captcha = captcha_generate();
+              $captchaError = $contactErrors['captcha_answer'] ?? '';
+            ?>
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <label class="form-label" for="contactCaptcha">
+                  Verifikasi: <strong><?= esc($captcha['question']) ?> = ?</strong> <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control<?= $captchaError !== '' ? ' is-invalid' : '' ?>"
+                  id="contactCaptcha"
+                  name="captcha_answer"
+                  placeholder="Masukkan jawaban"
+                  maxlength="5"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                  required
+                >
+                <?php if ($captchaError !== ''): ?>
+                  <div class="invalid-feedback"><?= esc($captchaError) ?></div>
+                <?php else: ?>
+                  <div class="form-text">Jawab pertanyaan matematika di atas untuk membuktikan Anda bukan robot.</div>
+                <?php endif; ?>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <button type="submit" class="btn btn-public-primary btn-lg">
+                <i class="bx bx-send me-2"></i>Kirim Pesan
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
 </section>
-
-<section class="contact-main">
-  <div class="container public-container contact-main__container">
-    <div class="contact-grid">
-      <article class="contact-card contact-card--form surface-card">
-        <header class="contact-card__header">
-          <h2>Form Kontak &amp; Aspirasi</h2>
-          <p>Isi formulir ini untuk mengirimkan pertanyaan, saran, atau pengaduan. Pastikan data kontak aktif agar kami dapat menindaklanjuti.</p>
-        </header>
-
-        <?php if ($successMessage !== ''): ?>
-          <div class="alert alert-success contact-alert" role="status">
-            <?= esc($successMessage) ?>
-          </div>
-        <?php endif; ?>
-
-        <?php if ($errorMessage !== ''): ?>
-          <div class="alert alert-danger contact-alert" role="alert">
-            <?= esc($errorMessage) ?>
-          </div>
-        <?php endif; ?>
-
-        <form id="form-kontak" class="contact-form" method="post" action="<?= site_url('kontak') ?>" novalidate data-contact-form>
-          <?= csrf_field() ?>
-          <div class="contact-form-feedback" data-contact-feedback hidden></div>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <?php
-                $fieldError = $contactErrors['full_name'] ?? '';
-                $describedBy = $fieldError !== '' ? 'contactFullNameError' : 'contactFullNameHelp';
-              ?>
-              <label class="form-label" for="contactFullName">Nama Lengkap <span class="text-danger">*</span></label>
-              <input
-                type="text"
-                class="form-control<?= $fieldError !== '' ? ' is-invalid' : '' ?>"
-                id="contactFullName"
-                name="full_name"
-                value="<?= esc($formDefaults['full_name']) ?>"
-                maxlength="150"
-                autocomplete="name"
-                required
-                aria-describedby="<?= $describedBy ?>"
-              >
-              <?php if ($fieldError !== ''): ?>
-                <div id="contactFullNameError" class="invalid-feedback"><?= esc($fieldError) ?></div>
-              <?php else: ?>
-                <div id="contactFullNameHelp" class="form-text">Tuliskan nama sesuai identitas agar mudah diverifikasi.</div>
-              <?php endif; ?>
-            </div>
-
-            <div class="col-md-6">
-              <?php
-                $fieldError = $contactErrors['email'] ?? '';
-                $describedBy = $fieldError !== '' ? 'contactEmailError' : 'contactEmailHelp';
-              ?>
-              <label class="form-label" for="contactEmail">Email Aktif <span class="text-danger">*</span></label>
-              <input
-                type="email"
-                class="form-control<?= $fieldError !== '' ? ' is-invalid' : '' ?>"
-                id="contactEmail"
-                name="email"
-                value="<?= esc($formDefaults['email']) ?>"
-                maxlength="150"
-                autocomplete="email"
-                required
-                aria-describedby="<?= $describedBy ?>"
-              >
-              <?php if ($fieldError !== ''): ?>
-                <div id="contactEmailError" class="invalid-feedback"><?= esc($fieldError) ?></div>
-              <?php else: ?>
-                <div id="contactEmailHelp" class="form-text">Kami akan mengirimkan notifikasi tindak lanjut ke email ini.</div>
-              <?php endif; ?>
-            </div>
-
-            <div class="col-md-6">
-              <?php
-                $fieldError = $contactErrors['phone'] ?? '';
-                $describedBy = $fieldError !== '' ? 'contactPhoneError' : 'contactPhoneHelp';
-              ?>
-              <label class="form-label" for="contactPhone">Nomor Telepon</label>
-              <input
-                type="tel"
-                class="form-control<?= $fieldError !== '' ? ' is-invalid' : '' ?>"
-                id="contactPhone"
-                name="phone"
-                value="<?= esc($formDefaults['phone']) ?>"
-                maxlength="30"
-                autocomplete="tel"
-                pattern="^[0-9+().\\s-]{6,}$"
-                aria-describedby="<?= $describedBy ?>"
-              >
-              <?php if ($fieldError !== ''): ?>
-                <div id="contactPhoneError" class="invalid-feedback"><?= esc($fieldError) ?></div>
-              <?php else: ?>
-                <div id="contactPhoneHelp" class="form-text">Opsional namun membantu jika perlu dihubungi segera.</div>
-              <?php endif; ?>
-            </div>
-
-            <div class="col-md-6">
-              <?php
-                $fieldError = $contactErrors['subject'] ?? '';
-                $describedBy = $fieldError !== '' ? 'contactSubjectError' : 'contactSubjectHelp';
-              ?>
-              <label class="form-label" for="contactSubject">Subjek Pesan <span class="text-danger">*</span></label>
-              <input
-                type="text"
-                class="form-control<?= $fieldError !== '' ? ' is-invalid' : '' ?>"
-                id="contactSubject"
-                name="subject"
-                value="<?= esc($formDefaults['subject']) ?>"
-                maxlength="120"
-                required
-                aria-describedby="<?= $describedBy ?>"
-              >
-              <?php if ($fieldError !== ''): ?>
-                <div id="contactSubjectError" class="invalid-feedback"><?= esc($fieldError) ?></div>
-              <?php else: ?>
-                <div id="contactSubjectHelp" class="form-text">Gunakan kalimat singkat yang mewakili topik utama pesan.</div>
-              <?php endif; ?>
-            </div>
-
-            <div class="col-12">
-              <?php
-                $fieldError = $contactErrors['message'] ?? '';
-                $describedBy = $fieldError !== '' ? 'contactMessageError' : 'contactMessageHelp';
-              ?>
-              <label class="form-label" for="contactMessage">Pesan <span class="text-danger">*</span></label>
-              <textarea
-                class="form-control<?= $fieldError !== '' ? ' is-invalid' : '' ?>"
-                id="contactMessage"
-                name="message"
-                rows="6"
-                maxlength="2000"
-                required
-                aria-describedby="<?= $describedBy ?>"><?= esc($formDefaults['message']) ?></textarea>
-              <?php if ($fieldError !== ''): ?>
-                <div id="contactMessageError" class="invalid-feedback"><?= esc($fieldError) ?></div>
-              <?php else: ?>
-                <div id="contactMessageHelp" class="form-text">Sertakan detail kronologi, tanggal kejadian, atau unit layanan terkait.</div>
-              <?php endif; ?>
-            </div>
-          </div>
-
-          <div class="contact-honeypot" aria-hidden="true">
-            <label for="contactWebsite">Website</label>
-            <input type="text" id="contactWebsite" name="website" tabindex="-1" autocomplete="off">
-          </div>
-
-          <div class="contact-captcha-placeholder" id="contactCaptchaPlaceholder" data-captcha-placeholder>
-            <p class="contact-captcha-text text-muted mb-0">Captcha opsional akan muncul di sini ketika diaktifkan.</p>
-          </div>
-
-          <div class="contact-form__foot">
-            <button type="submit" class="btn btn-public-primary btn-lg">Kirim Pesan</button>
-            <p class="contact-form__meta text-muted">Dengan mengirimkan formulir ini Anda menyetujui kebijakan privasi dan tata tertib layanan pengaduan.</p>
-          </div>
-        </form>
-      </article>
-
-      <aside class="contact-card contact-card--info surface-card">
-        <header class="contact-card__header">
-          <h2>Informasi Kantor</h2>
-          <p>Datang langsung ke kantor kami atau gunakan detail berikut untuk tindak lanjut mandiri.</p>
-        </header>
-        <dl class="contact-info-list">
-          <div>
-            <dt>Alamat Kantor</dt>
-            <dd><?= $address !== '' ? nl2br(esc($address)) : '<span class="text-muted">Alamat belum tersedia.</span>' ?></dd>
-          </div>
-          <div>
-            <dt>Telepon</dt>
-            <dd><?= $phone !== '' ? esc($phone) : '<span class="text-muted">Nomor telepon belum tersedia.</span>' ?></dd>
-          </div>
-          <div>
-            <dt>Email</dt>
-            <dd>
-              <?php if ($email !== ''): ?>
-                <a class="surface-link" href="mailto:<?= esc($email) ?>"><?= esc($email) ?></a>
-              <?php else: ?>
-                <span class="text-muted">Email belum tersedia.</span>
-              <?php endif; ?>
-            </dd>
-          </div>
-          <div>
-            <dt>Jam Pelayanan</dt>
-            <dd>
-              Senin s.d. Kamis 08.00-16.00 WIB<br>
-              Jumat 08.00-15.00 WIB<br>
-              Layanan daring 24 jam
-            </dd>
-          </div>
-        </dl>
-
-        <section class="contact-map" aria-labelledby="contactMapTitle">
-          <h3 id="contactMapTitle">Lokasi Kantor</h3>
-          <p class="text-muted">Sematkan peta digital instansi Anda di sini. Tambahkan iframe Google Maps melalui konfigurasi apabila tersedia.</p>
-          <div class="contact-map__frame" data-map-placeholder>
-            <span>Pra-tayang peta akan tampil di sini.</span>
-          </div>
-        </section>
-      </aside>
-    </div>
-  </div>
-</section>
 <?= $this->endSection() ?>
-
