@@ -72,34 +72,6 @@
     </div>
   </section>
   
-  <!-- Statistics Section -->
-  <?php $stats = $statistics ?? ['services' => 0, 'news' => 0, 'documents' => 0]; ?>
-  <section class="public-section section-warm py-5" aria-labelledby="stats-heading">
-    <div class="container public-container">
-      <h2 class="visually-hidden" id="stats-heading">Statistik</h2>
-      <div class="row g-4 text-center">
-        <div class="col-6 col-md-4">
-          <div class="stats-card">
-            <div class="stats-number text-primary fw-bold display-4"><?= (int) $stats['services'] ?></div>
-            <div class="stats-label text-muted">Layanan Tersedia</div>
-          </div>
-        </div>
-        <div class="col-6 col-md-4">
-          <div class="stats-card">
-            <div class="stats-number text-primary fw-bold display-4"><?= (int) $stats['news'] ?></div>
-            <div class="stats-label text-muted">Berita Dipublikasikan</div>
-          </div>
-        </div>
-        <div class="col-6 col-md-4">
-          <div class="stats-card">
-            <div class="stats-number text-primary fw-bold display-4"><?= (int) $stats['documents'] ?></div>
-            <div class="stats-label text-muted">Dokumen Publik</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  
   <div class="section-divider section-divider-brand" aria-hidden="true">
     <span class="section-divider__label">PROFIL</span>
   </div>

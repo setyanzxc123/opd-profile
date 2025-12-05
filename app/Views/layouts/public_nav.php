@@ -35,7 +35,7 @@
   ];
 
   $navItems = [
-    ['label' => 'Beranda', 'href' => site_url('/') . '#beranda', 'active' => $isHome],
+    ['label' => 'Beranda', 'href' => site_url('/'), 'active' => $isHome],
     [
       'label' => 'Profil', 
       'href' => site_url('profil'), 
