@@ -75,42 +75,6 @@
     </div>
   </section>
 
-  <!-- Quick Stats Bar -->
-  <section class="public-section section-neutral py-4" aria-label="Statistik">
-    <div class="container public-container">
-      <div class="quick-stats">
-        <div class="quick-stat">
-          <div class="quick-stat__icon">
-            <i class="bx bx-briefcase-alt-2"></i>
-          </div>
-          <span class="quick-stat__value"><?= esc($statistics['services'] ?? 0) ?></span>
-          <span class="quick-stat__label">Layanan Publik</span>
-        </div>
-        <div class="quick-stat">
-          <div class="quick-stat__icon">
-            <i class="bx bx-news"></i>
-          </div>
-          <span class="quick-stat__value"><?= esc($statistics['news'] ?? 0) ?></span>
-          <span class="quick-stat__label">Berita</span>
-        </div>
-        <div class="quick-stat">
-          <div class="quick-stat__icon">
-            <i class="bx bx-file"></i>
-          </div>
-          <span class="quick-stat__value"><?= esc($statistics['documents'] ?? 0) ?></span>
-          <span class="quick-stat__label">Dokumen</span>
-        </div>
-        <div class="quick-stat">
-          <div class="quick-stat__icon">
-            <i class="bx bx-group"></i>
-          </div>
-          <span class="quick-stat__value"><?= number_format($statistics['visitors'] ?? 0) ?></span>
-          <span class="quick-stat__label">Pengunjung</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- Quick Actions -->
   <section class="public-section section-warm" aria-labelledby="quick-actions-heading">
     <div class="container public-container">

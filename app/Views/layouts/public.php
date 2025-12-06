@@ -68,6 +68,12 @@
   <main id="konten-utama" class="flex-grow-1" tabindex="-1">
     <?= $this->renderSection('content') ?>
   </main>
+  
+  <!-- Back to Top Button -->
+  <button type="button" class="back-to-top" id="backToTop" aria-label="Kembali ke atas" title="Kembali ke atas">
+    <i class="bx bx-chevron-up"></i>
+  </button>
+  
   <?= $this->include('layouts/public_footer', ['footerProfile' => $footerProfileData]) ?>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   <script src="<?= base_url('assets/vendor/js/headroom.min.js') ?>" defer></script>

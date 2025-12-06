@@ -372,12 +372,53 @@
     });
   };
 
+  // Back to Top Button
+  const initBackToTop = () => {
+    const btn = document.getElementById('backToTop');
+    if (!btn) return;
+
+    const footer = document.querySelector('.public-footer');
+    const threshold = 300; // Show button after scrolling this much
+
+    const updateVisibility = () => {
+      const scrollY = window.scrollY || window.pageYOffset;
+      const windowHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+
+      // Show if scrolled past threshold, or if near/at footer
+      const nearBottom = scrollY + windowHeight >= docHeight - 100;
+      const shouldShow = scrollY > threshold || nearBottom;
+
+      if (shouldShow) {
+        btn.classList.add('visible');
+      } else {
+        btn.classList.remove('visible');
+      }
+    };
+
+    const scrollToTop = () => {
+      const reduce = prefersReducedMotion();
+      if (reduce) {
+        window.scrollTo(0, 0);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+
+    btn.addEventListener('click', scrollToTop);
+    window.addEventListener('scroll', updateVisibility, { passive: true });
+
+    // Initial check
+    updateVisibility();
+  };
+
   const ready = () => {
     initNavbar();
     initHeroSwiper();
     initSearchOverlay();
     initContactForm();
     initDropdownHover();
+    initBackToTop();
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready);
   else ready();

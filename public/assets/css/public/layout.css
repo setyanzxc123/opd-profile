@@ -399,7 +399,13 @@
 
 /* Hero spacing */
 .hero-section {
-  padding: 0 0 clamp(3rem, 9vw, 6rem);
+  padding: 0;
+}
+
+/* Section directly after hero - moderate spacing, no border */
+.hero-section+.public-section {
+  padding-top: clamp(2rem, 5vw, 3rem);
+  border-top: none !important;
 }
 
 .section-divider {
@@ -1006,4 +1012,68 @@
   width: 48px;
   height: 48px;
   background: var(--public-primary, #045063);
+}
+
+/* ========================================
+   BACK TO TOP BUTTON
+   ======================================== */
+.back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--public-primary) 0%, var(--public-primary-dark) 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease, box-shadow 0.2s ease;
+}
+
+.back-to-top i {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.back-to-top:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.back-to-top:active {
+  transform: translateY(0);
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+@media (max-width: 576px) {
+  .back-to-top {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 44px;
+    height: 44px;
+  }
+
+  .back-to-top i {
+    font-size: 1.35rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top {
+    transition: none;
+  }
 }
