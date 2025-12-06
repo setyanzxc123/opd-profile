@@ -54,6 +54,16 @@
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   }
+  /* Form input styling - visible border */
+  .surface-card .form-control {
+    border: 1.5px solid rgba(var(--public-primary-rgb), 0.45) !important;
+    background: #ffffff !important;
+    border-radius: 8px;
+  }
+  .surface-card .form-control:focus {
+    border-color: var(--public-primary) !important;
+    box-shadow: 0 0 0 2px rgba(var(--public-primary-rgb), 0.1) !important;
+  }
 </style>
 
 <section class="public-section pt-3 pb-5">

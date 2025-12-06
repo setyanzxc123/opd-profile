@@ -114,7 +114,7 @@
   <!-- Quick Actions -->
   <section class="public-section section-warm" aria-labelledby="quick-actions-heading">
     <div class="container public-container">
-      <header class="section-head text-center">
+      <header class="section-head">
         <h2 class="section-title" id="quick-actions-heading">Akses Cepat</h2>
         <p class="section-lead">Pilih menu yang Anda butuhkan</p>
       </header>

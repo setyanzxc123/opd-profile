@@ -3,6 +3,44 @@
    List layout with 10 items per page + pagination
    ======================================== */
 
+/* Search Bar - Smaller and Centered */
+.news-search {
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.news-search .input-group {
+    border: 1px solid #888888;
+    border-radius: 50px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.news-search .form-control {
+    border: none !important;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.9rem;
+    background: transparent !important;
+}
+
+.news-search .form-control:focus {
+    box-shadow: none !important;
+    outline: none;
+}
+
+.news-search .input-group:focus-within {
+    border-color: var(--public-primary);
+}
+
+.news-search .btn {
+    border: none;
+    border-left: 1px solid #888888;
+    border-radius: 0 !important;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.9rem;
+}
+
 /* News List Container */
 .news-list-page {
     display: flex;

@@ -197,8 +197,9 @@
 
 .contact-form .form-control {
   border-radius: 12px;
-  border-color: rgba(var(--public-primary-rgb), 0.18);
+  border: 1px solid #888888 !important;
   padding-block: 0.65rem;
+  background: #ffffff !important;
 }
 
 .contact-form .form-control:focus {
@@ -207,11 +208,11 @@
 }
 
 .contact-form .form-control.is-invalid {
-  border-color: rgba(217, 45, 32, 0.55);
+  border-color: #dc3545;
 }
 
 .contact-form .form-control.is-valid {
-  border-color: rgba(16, 185, 129, 0.55);
+  border-color: #198754;
 }
 
 .contact-form__foot {
