@@ -1,5 +1,13 @@
 <?= $this->extend('layouts/public') ?>
 
+<?= $this->section('pageStyles') ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/public/gallery-lightbox.css') ?>">
+<?= $this->endSection() ?>
+
+<?= $this->section('pageScripts') ?>
+<script src="<?= base_url('assets/js/gallery-lightbox.js') ?>" defer></script>
+<?= $this->endSection() ?>
+
 <?= $this->section('content') ?>
 <section class="public-section pt-3 pb-5">
   <div class="container">
@@ -19,7 +27,7 @@
     <header class="text-center mb-5">
       <h1 class="fw-bold mb-3">Galeri Kegiatan</h1>
       <p class="text-muted lead mx-auto" style="max-width: 540px;">
-        Dokumentasi aktivitas dan layanan kami untuk masyarakat.
+        Dokumentasi aktivitas dan layanan kami untuk masyarakat. Klik gambar untuk memperbesar.
       </p>
     </header>
 
@@ -51,4 +59,3 @@
   </div>
 </section>
 <?= $this->endSection() ?>
-

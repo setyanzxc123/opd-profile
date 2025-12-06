@@ -27,13 +27,13 @@
   /* Surface tints for clearer section boundaries */
   --surface-base: #f5f5f9;
   --surface-neutral: #f5f5f9;
-  --surface-cool: #f5f5f9;
-  --surface-warm: #f5f5f9;
+  --surface-cool: #eef4f8;
+  --surface-warm: #faf8f5;
   --surface-card: #ffffff;
-  --surface-border: rgba(34, 48, 62, 0.08);
-  --surface-border-strong: rgba(34, 48, 62, 0.16);
-  --surface-shadow: 0 0.1875rem 0.5rem rgba(34, 48, 62, 0.08);
-  --surface-shadow-sm: 0 0.125rem 0.375rem rgba(34, 48, 62, 0.07);
+  --surface-border: rgba(34, 48, 62, 0.12);
+  --surface-border-strong: rgba(34, 48, 62, 0.18);
+  --surface-shadow: 0 2px 8px rgba(34, 48, 62, 0.1), 0 1px 3px rgba(34, 48, 62, 0.06);
+  --surface-shadow-sm: 0 1px 4px rgba(34, 48, 62, 0.08);
   --border-soft: color-mix(in sRGB, var(--public-primary) 18%, transparent);
 }
 

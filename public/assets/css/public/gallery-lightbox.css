@@ -1,0 +1,242 @@
+/* ========================================
+   GALLERY LIGHTBOX
+   Popup overlay untuk melihat gambar galeri
+   ======================================== */
+
+/* Lightbox Overlay */
+.gallery-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.92);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    padding: 1rem;
+}
+
+.gallery-lightbox.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Lightbox Content Container */
+.gallery-lightbox__content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.gallery-lightbox.active .gallery-lightbox__content {
+    transform: scale(1);
+}
+
+/* Image */
+.gallery-lightbox__image {
+    max-width: 100%;
+    max-height: 75vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Caption */
+.gallery-lightbox__caption {
+    margin-top: 1rem;
+    text-align: center;
+    color: #ffffff;
+    max-width: 600px;
+}
+
+.gallery-lightbox__title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+}
+
+.gallery-lightbox__desc {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+/* Close Button */
+.gallery-lightbox__close {
+    position: absolute;
+    top: -3rem;
+    right: 0;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.gallery-lightbox__close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+/* Navigation Arrows */
+.gallery-lightbox__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+    z-index: 10;
+}
+
+.gallery-lightbox__nav:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.gallery-lightbox__nav--prev {
+    left: -4rem;
+}
+
+.gallery-lightbox__nav--next {
+    right: -4rem;
+}
+
+.gallery-lightbox__nav:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Counter */
+.gallery-lightbox__counter {
+    position: absolute;
+    top: -3rem;
+    left: 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .gallery-lightbox__content {
+        max-width: 95vw;
+    }
+
+    .gallery-lightbox__nav--prev {
+        left: 0.5rem;
+    }
+
+    .gallery-lightbox__nav--next {
+        right: 0.5rem;
+    }
+
+    .gallery-lightbox__close {
+        top: 0.5rem;
+        right: 0.5rem;
+        position: fixed;
+    }
+
+    .gallery-lightbox__counter {
+        top: 0.5rem;
+        left: 0.5rem;
+        position: fixed;
+    }
+
+    .gallery-lightbox__image {
+        max-height: 65vh;
+    }
+}
+
+/* Gallery Item Clickable Indicator */
+.gallery-item-media {
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px 12px 0 0;
+}
+
+.gallery-item-media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0);
+    transition: background 0.25s ease;
+    pointer-events: none;
+}
+
+.gallery-item-media:hover::after {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.gallery-item-media::before {
+    content: '\eb4e';
+    /* bx-zoom-in icon */
+    font-family: 'boxicons';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    color: var(--public-primary);
+    font-size: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.gallery-item-media:hover::before {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.gallery-item-media img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item-media:hover img {
+    transform: scale(1.05);
+}
+
+/* Gallery Item Body */
+.gallery-item-body {
+    padding: 1rem 1.25rem;
+}
+
+.gallery-item-body h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+}
