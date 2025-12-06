@@ -3,6 +3,7 @@
 <?= $this->section('pageStyles') ?>
 <link rel="stylesheet" href="<?= base_url('assets/vendor/swiper/swiper-bundle.min.css') ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/public/home-enhancements.css') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/public/home-news.css') ?>">
 <?= $this->endSection() ?>
 
 <?= $this->section('pageScripts') ?>
@@ -212,51 +213,53 @@
         <h2 class="section-title" id="berita-heading">Berita Terkini</h2>
         <p class="section-lead">Informasi terbaru seputar kegiatan dan kebijakan</p>
       </header>
-      <div class="news-grid">
+      <div class="news-home-grid">
         <?php if ($featuredNews): ?>
-          <article class="news-featured surface-card">
-            <?php if ($featuredNews['thumbnail']): ?>
-              <img class="news-featured__media" src="<?= esc($featuredNews['thumbnail']) ?>" alt="<?= esc($featuredNews['title']) ?>" loading="lazy">
-            <?php endif; ?>
-            <div class="news-featured__body">
-              <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-                <?php if (! empty($featuredNews['category'])): ?>
-                  <a class="badge bg-primary-subtle text-primary" href="<?= site_url('berita/kategori/' . esc($featuredNews['category_slug'], 'url')) ?>">
-                    <?= esc($featuredNews['category']) ?>
-                  </a>
-                <?php endif; ?>
-                <?php if ($featuredNews['published']): ?>
-                  <span class="news-meta mb-0"><?= esc($featuredNews['published']) ?></span>
-                <?php endif; ?>
-              </div>
-              <h3><a class="surface-link" href="<?= site_url('berita/' . esc($featuredNews['slug'], 'url')) ?>"><?= esc($featuredNews['title']) ?></a></h3>
-              <?php if ($featuredNews['excerpt']): ?>
-                <p class="text-muted"><?= esc($featuredNews['excerpt']) ?></p>
+          <!-- Featured News (Left) - Fully clickable -->
+          <a href="<?= site_url('berita/' . esc($featuredNews['slug'], 'url')) ?>" class="news-home-featured">
+            <div class="news-home-featured__media">
+              <?php if ($featuredNews['thumbnail']): ?>
+                <img src="<?= esc($featuredNews['thumbnail']) ?>" alt="<?= esc($featuredNews['title']) ?>" loading="lazy">
+              <?php else: ?>
+                <div class="news-placeholder"><i class="bx bx-image"></i></div>
               <?php endif; ?>
-              <a class="btn btn-public-primary" href="<?= site_url('berita/' . esc($featuredNews['slug'], 'url')) ?>">Baca selengkapnya</a>
+              <?php if (! empty($featuredNews['category'])): ?>
+                <span class="news-badge-category"><?= esc($featuredNews['category']) ?></span>
+              <?php endif; ?>
             </div>
-          </article>
+            <div class="news-home-featured__body">
+              <?php if ($featuredNews['published']): ?>
+                <span class="news-date"><?= esc($featuredNews['published']) ?></span>
+              <?php endif; ?>
+              <h3><?= esc($featuredNews['title']) ?></h3>
+              <?php if ($featuredNews['excerpt']): ?>
+                <p class="news-excerpt"><?= esc($featuredNews['excerpt']) ?></p>
+              <?php endif; ?>
+            </div>
+          </a>
         <?php endif; ?>
-        <div class="news-list" role="list">
+        
+        <!-- Other News (Right - 4 items, fully clickable) -->
+        <div class="news-home-list">
           <?php foreach ($otherNews as $news): ?>
-            <article class="news-list-item card-base" role="listitem">
-              <div>
-                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-                  <?php if (! empty($news['category'])): ?>
-                    <a class="badge bg-primary-subtle text-primary" href="<?= site_url('berita/kategori/' . esc($news['category_slug'], 'url')) ?>">
-                      <?= esc($news['category']) ?>
-                    </a>
-                  <?php endif; ?>
-                  <?php if ($news['published']): ?>
-                    <span class="news-meta mb-0"><?= esc($news['published']) ?></span>
-                  <?php endif; ?>
-                </div>
-                <h3><a class="surface-link" href="<?= site_url('berita/' . esc($news['slug'], 'url')) ?>"><?= esc($news['title']) ?></a></h3>
-                <?php if ($news['excerpt']): ?>
-                  <p class="text-muted small mb-0"><?= esc($news['excerpt']) ?></p>
+            <a href="<?= site_url('berita/' . esc($news['slug'], 'url')) ?>" class="news-home-item">
+              <div class="news-home-item__media">
+                <?php if (! empty($news['thumbnail'])): ?>
+                  <img src="<?= esc($news['thumbnail']) ?>" alt="<?= esc($news['title']) ?>" loading="lazy">
+                <?php else: ?>
+                  <div class="news-placeholder"><i class="bx bx-image"></i></div>
+                <?php endif; ?>
+                <?php if (! empty($news['category'])): ?>
+                  <span class="news-badge-category"><?= esc($news['category']) ?></span>
                 <?php endif; ?>
               </div>
-            </article>
+              <div class="news-home-item__body">
+                <?php if ($news['published']): ?>
+                  <span class="news-date"><?= esc($news['published']) ?></span>
+                <?php endif; ?>
+                <h4><?= esc($news['title']) ?></h4>
+              </div>
+            </a>
           <?php endforeach; ?>
           <?php if (! $otherNews && ! $featuredNews): ?>
             <p class="text-muted">Belum ada berita yang dipublikasikan.</p>

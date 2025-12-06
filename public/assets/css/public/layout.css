@@ -456,6 +456,11 @@
   background: var(--surface-neutral);
 }
 
+/* Section separator - visible line between sections on home */
+.public-home .public-section+.public-section {
+  border-top: 1px solid #888888;
+}
+
 /* Section heading accent underline */
 .section-head h2 {
   position: relative;

@@ -24,6 +24,10 @@
 
 <?= $this->extend('layouts/public') ?>
 
+<?= $this->section('pageStyles') ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/public/news-list.css') ?>">
+<?= $this->endSection() ?>
+
 <?= $this->section('content') ?>
 <section class="public-section pt-3 pb-5" aria-labelledby="news-archive-heading">
   <div class="container">
@@ -87,67 +91,6 @@
              href="<?= esc($buildUrl($activeCategory ? site_url('berita/kategori/' . $activeCategory['slug']) : site_url('berita'))) ?>">
             Tag: <?= esc($activeTag['name']) ?>
           </a>
-        <?php endif; ?>
-      </div>
-    <?php endif; ?>
-
-    <?php if ($categoryOptions || $tagOptions): ?>
-      <?php
-        $categoryResetUrl = $buildUrl(site_url('berita'), ['tag' => $activeTagSlug]);
-        $tagResetBase     = $activeCategorySlug ? site_url('berita/kategori/' . $activeCategorySlug) : site_url('berita');
-        $tagResetUrl      = $buildUrl($tagResetBase);
-      ?>
-      <div class="news-filter-panel border rounded p-3 mb-5">
-        <?php if ($categoryOptions): ?>
-          <div class="news-filter-group mb-3">
-            <span class="fw-semibold d-block mb-2">Kategori</span>
-            <div class="d-flex flex-wrap gap-2">
-              <a class="btn btn-chip <?= $activeCategory ? 'btn-outline-secondary' : 'btn-chip-primary' ?>"
-                 href="<?= esc($categoryResetUrl) ?>">
-                Semua Kategori
-              </a>
-              <?php foreach ($categoryOptions as $category): ?>
-                <?php
-                  $slug      = (string) ($category['slug'] ?? '');
-                  $isActive  = $activeCategorySlug === $slug;
-                  $categoryUrl = $buildUrl(site_url('berita/kategori/' . $slug), ['tag' => $activeTagSlug]);
-                ?>
-                <a class="btn btn-chip <?= $isActive ? 'btn-chip-primary' : 'btn-outline-secondary' ?>"
-                   href="<?= esc($categoryUrl) ?>">
-                  <i class='bx <?= esc($category['icon'] ?? 'bx-news') ?> me-1'></i><?= esc($category['name'] ?? 'Kategori') ?>
-                </a>
-              <?php endforeach; ?>
-            </div>
-          </div>
-        <?php endif; ?>
-
-        <?php if ($tagOptions): ?>
-          <div class="news-filter-group">
-            <span class="fw-semibold d-block mb-2">Tag Konten</span>
-            <div class="d-flex flex-wrap gap-2">
-              <a class="btn btn-chip <?= $activeTag ? 'btn-outline-secondary' : 'btn-chip-secondary' ?>"
-                 href="<?= esc($tagResetUrl) ?>">
-                Semua Tag
-              </a>
-              <?php foreach ($tagOptions as $tag): ?>
-                <?php
-                  $slug     = (string) ($tag['slug'] ?? '');
-                  $isActive = $activeTagSlug === $slug;
-                  $tagUrl   = $buildUrl(site_url('berita/tag/' . $slug), ['kategori' => $activeCategorySlug]);
-                ?>
-                <a class="btn btn-chip <?= $isActive ? 'btn-chip-secondary' : 'btn-outline-secondary' ?>"
-                   href="<?= esc($tagUrl) ?>">
-                  <?= esc($tag['name'] ?? 'Tag') ?>
-                </a>
-              <?php endforeach; ?>
-            </div>
-          </div>
-        <?php endif; ?>
-
-        <?php if ($hasFilter): ?>
-          <div class="mt-3">
-            <a class="btn btn-sm btn-link text-decoration-none" href="<?= esc($buildUrl(site_url('berita'))) ?>">Reset semua filter</a>
-          </div>
         <?php endif; ?>
       </div>
     <?php endif; ?>
@@ -223,7 +166,7 @@
     <div class="row g-5 align-items-start">
       <div class="col-12 col-lg-8">
         <?php if ($articles): ?>
-          <div class="row row-cols-1 row-cols-md-2 g-4" role="list">
+          <div class="news-list-page" role="list">
             <?php foreach ($articles as $article): ?>
               <?php
                 $coverImage = $article['thumbnail'] ?? null;
@@ -232,49 +175,34 @@
                 $primaryCat = $article['primary_category'] ?? null;
                 $readTime   = calculate_read_time((string) ($article['content'] ?? ''));
               ?>
-              <div class="col" role="listitem">
-                <article class="surface-card news-card h-100">
+              <a href="<?= site_url('berita/' . esc($article['slug'], 'url')) ?>" class="news-list-item-link" role="listitem">
+                <div class="news-list-item__thumb">
                   <?php if ($coverImage): ?>
-                    <div class="news-card__media">
-                      <img src="<?= esc(base_url($coverImage)) ?>" alt="<?= esc($article['title']) ?>" loading="lazy">
-                    </div>
+                    <img src="<?= esc(base_url($coverImage)) ?>" alt="<?= esc($article['title']) ?>" loading="lazy">
+                  <?php else: ?>
+                    <div class="news-list-item__thumb-placeholder"><i class="bx bx-image"></i></div>
                   <?php endif; ?>
-                  <div class="news-card__body">
-                    <div class="news-card__meta mb-2">
-                      <?php if ($primaryCat): ?>
-                        <a href="<?= site_url('berita/kategori/' . esc($primaryCat['slug'], 'url')) ?>" class="text-magazine-category text-decoration-none text-primary">
-                          <i class='bx <?= esc($primaryCat['icon'] ?? 'bx-news') ?> me-1'></i><?= esc($primaryCat['name']) ?>
-                        </a>
-                      <?php endif; ?>
-                      <?php if ($date): ?>
-                        <span class="text-magazine-meta ms-2">
-                          <?= esc($date->toLocalizedString('d MMM yyyy')) ?>
-                        </span>
-                      <?php endif; ?>
-                    </div>
-                    <h2 class="h5 fw-bold mb-3">
-                      <a class="text-decoration-none text-dark" href="<?= site_url('berita/' . esc($article['slug'], 'url')) ?>">
-                        <?= esc($article['title']) ?>
-                      </a>
-                    </h2>
-                    <p class="text-muted small mb-3">
-                      <?= esc($excerpt) ?>
-                    </p>
-                    <div class="d-flex justify-content-between align-items-center mt-auto">
-                      <span class="text-magazine-meta small">
-                        <i class='bx bx-time-five'></i> <?= $readTime ?> mnt baca
-                      </span>
-                      <a href="<?= site_url('berita/' . esc($article['slug'], 'url')) ?>" class="surface-link small">
-                        Baca Selengkapnya <i class="bx bx-right-arrow-alt"></i>
-                      </a>
-                    </div>
+                  <?php if ($primaryCat): ?>
+                    <span class="news-badge-category"><?= esc($primaryCat['name']) ?></span>
+                  <?php endif; ?>
+                </div>
+                <div class="news-list-item__content">
+                  <?php if ($date): ?>
+                    <span class="news-list-item__date"><?= esc($date->toLocalizedString('d MMM yyyy')) ?></span>
+                  <?php endif; ?>
+                  <h2 class="news-list-item__title"><?= esc($article['title']) ?></h2>
+                  <?php if ($excerpt): ?>
+                    <p class="news-list-item__excerpt"><?= esc($excerpt) ?></p>
+                  <?php endif; ?>
+                  <div class="news-list-item__meta">
+                    <span><i class="bx bx-time-five"></i><?= $readTime ?> mnt baca</span>
                   </div>
-                </article>
-              </div>
+                </div>
+              </a>
             <?php endforeach; ?>
           </div>
 
-          <div class="mt-5">
+          <div class="news-pagination mt-5">
             <?= $pager->links() ?>
           </div>
         <?php else: ?>
