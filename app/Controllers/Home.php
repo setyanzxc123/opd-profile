@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\HeroSliderModel;
+use App\Models\AppLinkModel;
 use App\Services\PublicContentService;
 use CodeIgniter\I18n\Time;
 
@@ -28,6 +29,10 @@ class Home extends BaseController
         [$featuredNews, $otherNews] = $this->transformNews($newsItems);
         $contactQuickLinks = $this->buildQuickLinks($profile);
         
+        // Get app links for slider
+        $appLinkModel = model(AppLinkModel::class);
+        $appLinks = $appLinkModel->getActiveLinks(20);
+        
         // Calculate statistics
         helper('statistics');
         $statistics = $this->buildStatistics();
@@ -41,6 +46,7 @@ class Home extends BaseController
             'otherNews'        => $otherNews,
             'contactQuickLinks'=> $contactQuickLinks,
             'statistics'       => $statistics,
+            'appLinks'         => $appLinks,
             'footerProfile'    => $profile,
             'profile'          => $profile,
         ]);

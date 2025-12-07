@@ -6,6 +6,10 @@
   $profileSiteName = trim((string) ($themeContext['siteName'] ?? ''));
   $adminLogoUrl = $themeContext['logoUrl'] ?? null;
   $faviconUrl = $themeContext['faviconUrl'] ?? base_url('favicon.ico');
+  
+  // Get unread contact messages count
+  $contactModel = model('App\Models\ContactMessageModel');
+  $newContactsCount = $contactModel->countNewMessages();
 ?>
 <!DOCTYPE html>
 <html
@@ -91,7 +95,7 @@
           </li>
           <?php endif; ?>
 
-          <?php $hasContentAccess = $canAccess('news') || $canAccess('services') || $canAccess('galleries') || $canAccess('documents') || $canAccess('contacts') || $canAccess('hero-sliders'); ?>
+          <?php $hasContentAccess = $canAccess('news') || $canAccess('services') || $canAccess('galleries') || $canAccess('documents') || $canAccess('contacts') || $canAccess('hero-sliders') || $canAccess('app-links'); ?>
           <?php if ($hasContentAccess): ?>
           <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Konten</span>
@@ -136,11 +140,22 @@
             </a>
           </li>
           <?php endif; ?>
+          <?php if ($canAccess('app-links')): ?>
+          <li class="menu-item<?= $section === 'app-links' ? ' active' : '' ?>">
+            <a href="<?= site_url('admin/app-links') ?>" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-link-alt"></i>
+              <div class="text-truncate">Tautan Aplikasi</div>
+            </a>
+          </li>
+          <?php endif; ?>
           <?php if ($canAccess('contacts')): ?>
           <li class="menu-item<?= $section === 'contacts' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/contacts') ?>" class="menu-link">
               <i class="menu-icon tf-icons bx bx-envelope"></i>
               <div class="text-truncate">Pesan Kontak</div>
+              <?php if ($newContactsCount > 0): ?>
+                <span class="badge bg-danger rounded-pill ms-auto"><?= $newContactsCount > 99 ? '99+' : $newContactsCount ?></span>
+              <?php endif; ?>
             </a>
           </li>
           <?php endif; ?>

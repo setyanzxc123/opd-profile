@@ -89,4 +89,14 @@ $routes->group('admin', [
     $routes->post('hero-sliders/delete/(:num)', 'HeroSliders::delete/$1');
     $routes->post('hero-sliders/sort-order', 'HeroSliders::updateSortOrder');
     $routes->post('hero-sliders/track-view/(:num)', 'HeroSliders::trackView/$1');
+    // App Links CMS
+    $routes->get('app-links', 'AppLinks::index');
+    $routes->get('app-links/create', 'AppLinks::create');
+    $routes->post('app-links', 'AppLinks::store');
+    $routes->get('app-links/edit/(:num)', 'AppLinks::edit/$1');
+    $routes->post('app-links/update/(:num)', 'AppLinks::update/$1');
+    $routes->post('app-links/delete/(:num)', 'AppLinks::delete/$1');
+    $routes->post('app-links/toggle/(:num)', 'AppLinks::toggleActive/$1');
+    $routes->post('app-links/sort-order', 'AppLinks::updateSortOrder');
+    $routes->post('app-links/toggle-section', 'AppLinks::toggleSection');
 });

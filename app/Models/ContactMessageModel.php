@@ -28,4 +28,20 @@ class ContactMessageModel extends Model
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
+
+    /**
+     * Count messages with 'new' status (unhandled)
+     */
+    public function countNewMessages(): int
+    {
+        return $this->where('status', 'new')->countAllResults();
+    }
+
+    /**
+     * Count all unhandled messages (new + in_progress)
+     */
+    public function countUnhandled(): int
+    {
+        return $this->whereIn('status', ['new', 'in_progress'])->countAllResults();
+    }
 }

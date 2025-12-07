@@ -1,0 +1,189 @@
+/* ========================================
+   APP LINKS SLIDER - Modern Logo Carousel
+   Auto-scrolling slider for OPD application links
+   ======================================== */
+
+/* Container */
+.app-links-slider {
+    padding: 1rem 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.app-links-slider::before,
+.app-links-slider::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.app-links-slider::before {
+    left: 0;
+    background: linear-gradient(to right, var(--public-neutral-50, #f8fafc), transparent);
+}
+
+.app-links-slider::after {
+    right: 0;
+    background: linear-gradient(to left, var(--public-neutral-50, #f8fafc), transparent);
+}
+
+/* Track - Continuous scrolling */
+.app-links-track {
+    display: flex;
+    gap: 2rem;
+    animation: scrollLinks 30s linear infinite;
+    width: max-content;
+}
+
+.app-links-track:hover {
+    animation-play-state: paused;
+}
+
+@keyframes scrollLinks {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Individual Link Item */
+.app-link-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    min-width: 120px;
+    max-width: 140px;
+    text-decoration: none;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0.8;
+}
+
+.app-link-item:hover {
+    transform: translateY(-4px) scale(1.05);
+    opacity: 1;
+}
+
+/* Logo Container */
+.app-link-logo {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 0.5rem;
+    transition: box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.app-link-item:hover .app-link-logo {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.app-link-logo img {
+    max-width: 52px;
+    max-height: 52px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Placeholder for missing logos */
+.app-link-logo-placeholder {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+    border-radius: 12px;
+    margin-bottom: 0.5rem;
+    color: #999;
+    font-size: 1.5rem;
+}
+
+/* Name */
+.app-link-name {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--public-neutral-700, #374151);
+    text-align: center;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.app-link-item:hover .app-link-name {
+    color: var(--public-primary, #3b82f6);
+}
+
+/* Static layout for few items */
+.app-links-static {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+.app-links-static .app-link-item {
+    opacity: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .app-links-slider::before,
+    .app-links-slider::after {
+        width: 40px;
+    }
+
+    .app-links-track {
+        gap: 1.5rem;
+    }
+
+    .app-link-item {
+        min-width: 100px;
+        max-width: 110px;
+        padding: 0.75rem;
+    }
+
+    .app-link-logo,
+    .app-link-logo-placeholder {
+        width: 52px;
+        height: 52px;
+    }
+
+    .app-link-logo img {
+        max-width: 44px;
+        max-height: 44px;
+    }
+
+    .app-link-name {
+        font-size: 0.7rem;
+    }
+}
+
+/* Speed variants */
+.app-links-track.speed-slow {
+    animation-duration: 45s;
+}
+
+.app-links-track.speed-fast {
+    animation-duration: 20s;
+}

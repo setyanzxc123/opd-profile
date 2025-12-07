@@ -12,6 +12,7 @@ class OpdProfileModel extends Model
         'name',
         'name_line2',
         'hide_brand_text',
+        'show_app_links',
         'description',
         'vision',
         'mission',

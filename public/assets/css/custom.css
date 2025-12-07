@@ -28,15 +28,18 @@
   --bs-btn-active-bg: var(--theme-admin-btn-active, var(--bs-primary));
   --bs-btn-active-border-color: var(--theme-admin-btn-active, var(--bs-primary));
 }
+
 /* Ensure brand toggle always visible */
 #layout-menu .app-brand .layout-menu-toggle {
   opacity: 1 !important;
   display: inline-flex !important;
   align-items: center;
 }
+
 #layout-menu .app-brand .layout-menu-toggle i {
   color: #ffffff !important;
 }
+
 .layout-menu-collapsed #layout-menu .app-brand .layout-menu-toggle {
   opacity: 1 !important;
 }
@@ -57,6 +60,7 @@
     padding-inline-start: var(--bs-menu-width);
     transition: none;
   }
+
   .layout-menu-collapsed .layout-page {
     padding-inline-start: var(--bs-menu-collapsed-width) !important;
   }
@@ -68,16 +72,17 @@
 }
 
 .layout-menu .menu-link,
-.layout-menu .menu-link > *,
+.layout-menu .menu-link>*,
 .layout-menu .menu-header,
 .layout-menu .menu-block,
 .layout-menu .menu-header-text {
   transition: none !important;
 }
 
-.menu:not(.menu-no-animation) .menu-link > :not(.menu-icon) {
+.menu:not(.menu-no-animation) .menu-link> :not(.menu-icon) {
   transition: none !important;
 }
+
 /* News module ------------------------------------------------------------- */
 .news-form-header {
   border-bottom: 1px solid var(--bs-border-color);
@@ -107,7 +112,7 @@
   margin: 0;
 }
 
-.news-side-section + .news-side-section {
+.news-side-section+.news-side-section {
   margin-top: 1.5rem;
 }
 
@@ -128,7 +133,7 @@
 }
 
 
-.news-guideline li + li {
+.news-guideline li+li {
   margin-top: 0.25rem;
 }
 
@@ -169,6 +174,7 @@
 
 /* Layout menu brand adjustments */
 @media (min-width: 1200px) {
+
   .menu .app-brand,
   #layout-menu .app-brand {
     display: flex;
@@ -295,7 +301,7 @@
 }
 
 @media (min-width: 992px) {
-  .news-side-section > .card {
+  .news-side-section>.card {
     position: sticky;
     top: 1.5rem;
   }
@@ -314,7 +320,9 @@
 }
 
 /* Utility */
-.min-w-0 { min-width: 0; }
+.min-w-0 {
+  min-width: 0;
+}
 
 .contact-status-filter .btn.btn-primary .badge {
   background-color: #ffffff;
@@ -339,14 +347,14 @@
   border-radius: 16px;
 }
 
-.layout-wrapper .card > .card-header:first-child,
-.authentication-wrapper .card > .card-header:first-child {
+.layout-wrapper .card>.card-header:first-child,
+.authentication-wrapper .card>.card-header:first-child {
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
 }
 
-.layout-wrapper .card > .card-footer:last-child,
-.authentication-wrapper .card > .card-footer:last-child {
+.layout-wrapper .card>.card-footer:last-child,
+.authentication-wrapper .card>.card-footer:last-child {
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
 }
@@ -393,4 +401,38 @@ body.login-page {
   .login-card {
     border-radius: 16px;
   }
+}
+
+/* Menu notification badge */
+.menu-link .badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  line-height: 20px;
+  flex-shrink: 0;
+}
+
+.menu-link .badge.bg-danger {
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+@keyframes badge-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.85;
+    transform: scale(1.05);
+  }
+}
+
+/* Hide badge in collapsed menu on hover */
+.layout-menu-collapsed #layout-menu:not(:hover) .menu-link .badge {
+  display: none;
 }

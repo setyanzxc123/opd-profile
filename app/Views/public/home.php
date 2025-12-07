@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="<?= base_url('assets/vendor/swiper/swiper-bundle.min.css') ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/public/home-enhancements.css') ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/public/home-news.css') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/public/home-app-links.css') ?>">
 <?= $this->endSection() ?>
 
 <?= $this->section('pageScripts') ?>
@@ -235,6 +236,78 @@
       </div>
     </div>
   </section>
+
+  <!-- Tautan Aplikasi Terkait -->
+  <?php 
+    $showAppLinksEnabled = ($profile['show_app_links'] ?? '1') == '1';
+  ?>
+  <?php if (!empty($appLinks) && $showAppLinksEnabled): ?>
+  <section class="public-section section-warm" id="tautan-aplikasi" aria-labelledby="app-links-heading">
+    <div class="container public-container">
+      <header class="section-head">
+        <h2 class="section-title" id="app-links-heading">Tautan Aplikasi</h2>
+        <p class="section-lead">Akses cepat ke aplikasi dan layanan terkait di daerah</p>
+      </header>
+      
+      <?php 
+        $linkCount = count($appLinks);
+        $useSlider = $linkCount > 6; // Use slider if more than 6 links
+      ?>
+      
+      <?php if ($useSlider): ?>
+        <!-- Auto-scrolling slider for many links -->
+        <div class="app-links-slider">
+          <div class="app-links-track">
+            <?php 
+              // Duplicate items for seamless loop
+              $allLinks = array_merge($appLinks, $appLinks);
+            ?>
+            <?php foreach ($allLinks as $link): ?>
+              <a href="<?= esc($link['url']) ?>" 
+                 class="app-link-item" 
+                 target="_blank" 
+                 rel="noopener" 
+                 title="<?= esc($link['description'] ?: $link['name']) ?>">
+                <?php if (!empty($link['logo_path'])): ?>
+                  <div class="app-link-logo">
+                    <img src="<?= base_url($link['logo_path']) ?>" alt="<?= esc($link['name']) ?>" loading="lazy">
+                  </div>
+                <?php else: ?>
+                  <div class="app-link-logo-placeholder">
+                    <i class="bx bx-link-external"></i>
+                  </div>
+                <?php endif; ?>
+                <span class="app-link-name"><?= esc($link['name']) ?></span>
+              </a>
+            <?php endforeach; ?>
+          </div>
+        </div>
+      <?php else: ?>
+        <!-- Static centered display for few links -->
+        <div class="app-links-static">
+          <?php foreach ($appLinks as $link): ?>
+            <a href="<?= esc($link['url']) ?>" 
+               class="app-link-item" 
+               target="_blank" 
+               rel="noopener" 
+               title="<?= esc($link['description'] ?: $link['name']) ?>">
+              <?php if (!empty($link['logo_path'])): ?>
+                <div class="app-link-logo">
+                  <img src="<?= base_url($link['logo_path']) ?>" alt="<?= esc($link['name']) ?>" loading="lazy">
+                </div>
+              <?php else: ?>
+                <div class="app-link-logo-placeholder">
+                  <i class="bx bx-link-external"></i>
+                </div>
+              <?php endif; ?>
+              <span class="app-link-name"><?= esc($link['name']) ?></span>
+            </a>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+    </div>
+  </section>
+  <?php endif; ?>
 
   <!-- Hubungi Kami dengan Peta -->
   <?php 
