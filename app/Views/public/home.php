@@ -12,6 +12,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<?php helper('image'); ?>
 <div class="public-home">
   <!-- Hero Slider - TETAP ADA -->
   <section class="hero-section hero-shell hero-soft" id="beranda" aria-labelledby="beranda-heading">
@@ -26,7 +27,20 @@
               <article class="hero-slide hero-slide-cover swiper-slide" role="listitem" data-hero-slide>
                 <figure class="hero-cover-media">
                   <?php if ($slide['thumbnail']): ?>
-                    <img src="<?= esc($slide['thumbnail']) ?>" alt="<?= esc($slide['title']) ?>" width="1200" height="600" loading="<?= $index === 0 ? 'eager' : 'lazy' ?>" decoding="async" fetchpriority="<?= $index === 0 ? 'high' : 'auto' ?>">
+                    <?php
+                      $srcsetData = responsive_srcset($slide['thumbnail'], [400, 800, 1200], '100vw');
+                      $isFirst = $index === 0;
+                    ?>
+                    <img 
+                      src="<?= esc($slide['thumbnail']) ?>" 
+                      srcset="<?= esc($srcsetData['srcset']) ?>"
+                      sizes="<?= esc($srcsetData['sizes']) ?>"
+                      alt="<?= esc($slide['title']) ?>" 
+                      width="1200" 
+                      height="675" 
+                      loading="<?= $isFirst ? 'eager' : 'lazy' ?>" 
+                      decoding="async" 
+                      fetchpriority="<?= $isFirst ? 'high' : 'auto' ?>">
                   <?php else: ?>
                     <div class="hero-placeholder" role="img" aria-label="Thumbnail belum tersedia">Thumbnail belum tersedia</div>
                   <?php endif; ?>
@@ -184,7 +198,17 @@
           <a href="<?= site_url('berita/' . esc($featuredNews['slug'], 'url')) ?>" class="news-home-featured">
             <div class="news-home-featured__media">
               <?php if ($featuredNews['thumbnail']): ?>
-                <img src="<?= esc($featuredNews['thumbnail']) ?>" alt="<?= esc($featuredNews['title']) ?>" width="600" height="400" loading="eager" decoding="async" fetchpriority="high">
+                <?php $featuredSrcset = responsive_srcset($featuredNews['thumbnail'], [400, 800], '(max-width: 768px) 100vw, 50vw'); ?>
+                <img 
+                  src="<?= esc($featuredNews['thumbnail']) ?>" 
+                  srcset="<?= esc($featuredSrcset['srcset']) ?>"
+                  sizes="<?= esc($featuredSrcset['sizes']) ?>"
+                  alt="<?= esc($featuredNews['title']) ?>" 
+                  width="800" 
+                  height="450" 
+                  loading="eager" 
+                  decoding="async" 
+                  fetchpriority="high">
               <?php else: ?>
                 <div class="news-placeholder"><i class="bx bx-image"></i></div>
               <?php endif; ?>
@@ -210,7 +234,16 @@
             <a href="<?= site_url('berita/' . esc($news['slug'], 'url')) ?>" class="news-home-item">
               <div class="news-home-item__media">
                 <?php if (! empty($news['thumbnail'])): ?>
-                  <img src="<?= esc($news['thumbnail']) ?>" alt="<?= esc($news['title']) ?>" width="120" height="80" loading="lazy" decoding="async">
+                  <?php $newsSrcset = responsive_srcset($news['thumbnail'], [400], '120px'); ?>
+                  <img 
+                    src="<?= esc($news['thumbnail']) ?>" 
+                    srcset="<?= esc($newsSrcset['srcset']) ?>"
+                    sizes="<?= esc($newsSrcset['sizes']) ?>"
+                    alt="<?= esc($news['title']) ?>" 
+                    width="120" 
+                    height="68" 
+                    loading="lazy" 
+                    decoding="async">
                 <?php else: ?>
                   <div class="news-placeholder"><i class="bx bx-image"></i></div>
                 <?php endif; ?>

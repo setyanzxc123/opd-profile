@@ -33,6 +33,10 @@ class Services extends BaseController
             $image->withFile($fullPath)
                 ->resize(1280, 720, true, 'width')
                 ->save($fullPath, 80);
+            
+            // Generate variants for responsive images
+            helper('image');
+            generate_image_variants($fullPath);
         } catch (\Throwable $throwable) {
             log_message('debug', 'Thumbnail optimization skipped: {error}', ['error' => $throwable->getMessage()]);
         }
@@ -245,6 +249,13 @@ class Services extends BaseController
             if (! FileUploadManager::hasAllowedMime($file, self::ALLOWED_IMAGE_MIMES)) {
                 return redirect()->back()->withInput()->with('error', 'Jenis file thumbnail tidak diizinkan.');
             }
+            
+            // Delete old variants if updating image
+            if (!empty($item['thumbnail'])) {
+                helper('image');
+                $oldFullPath = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $item['thumbnail']);
+                delete_image_variants($oldFullPath);
+            }
 
             $newPath = $this->moveImageWithOptimization($file, $item['thumbnail'] ?? null);
             if (! $newPath) {
@@ -270,6 +281,12 @@ class Services extends BaseController
         $model = new ServiceModel();
         $item  = $model->find($id);
         if ($item) {
+            if (!empty($item['thumbnail'])) {
+                 helper('image');
+                 $fullPath = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $item['thumbnail']);
+                 delete_image_variants($fullPath);
+            }
+            
             FileUploadManager::deleteFile($item['thumbnail'] ?? null);
             $model->delete($id);
             $this->clearServiceCaches();

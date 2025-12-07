@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/public') ?>
 
 <?= $this->section('content') ?>
+<?php helper('image'); ?>
 <section class="public-section pt-3 pb-5">
   <div class="container">
     <!-- Breadcrumb -->
@@ -34,10 +35,24 @@
           <div class="card-body p-4">
             <div class="text-center mb-3">
               <a href="<?= esc($orgImgUrl) ?>" class="d-inline-block" data-org-lightbox>
-                <img src="<?= esc($orgImgUrl) ?>" 
-                     alt="<?= esc($orgAltText) ?>" 
-                     class="img-fluid rounded shadow-sm"
-                     style="max-width: 100%; height: auto; cursor: zoom-in;">
+                <?php 
+                  $orgSrcset = responsive_srcset($orgImgPath, [800, 1200, 1600], '100vw');
+                  $orgDims = image_dimensions($orgImgPath);
+                  $orgWidth = $orgDims ? $orgDims['width'] : 1200;
+                  $orgHeight = $orgDims ? $orgDims['height'] : 800;
+                ?>
+                <img 
+                  src="<?= esc($orgImgUrl) ?>" 
+                  srcset="<?= esc($orgSrcset['srcset']) ?>"
+                  sizes="<?= esc($orgSrcset['sizes']) ?>"
+                  alt="<?= esc($orgAltText) ?>" 
+                  class="img-fluid rounded shadow-sm"
+                  width="<?= $orgWidth ?>"
+                  height="<?= $orgHeight ?>"
+                  style="max-width: 100%; height: auto; cursor: zoom-in;"
+                  loading="eager" 
+                  decoding="async"
+                  fetchpriority="high">
               </a>
             </div>
             

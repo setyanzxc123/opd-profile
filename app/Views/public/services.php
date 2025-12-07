@@ -1,6 +1,7 @@
 <?= $this->extend('layouts/public') ?>
 
 <?= $this->section('content') ?>
+<?php helper('image'); ?>
 <section class="public-section pt-3 pb-5">
   <div class="container">
     <!-- Breadcrumb -->
@@ -31,7 +32,16 @@
             <article class="service-card surface-card h-100" <?php if (! empty($service['slug'])): ?>id="<?= esc($service['slug'], 'attr') ?>"<?php endif; ?>>
               <div class="service-card__icon">
                 <?php if (! empty($service['thumbnail'])): ?>
-                  <img src="<?= esc($service['thumbnail'], 'attr') ?>" alt="<?= esc($service['title']) ?>" width="72" height="72" loading="lazy" decoding="async">
+                  <?php $serviceSrcset = responsive_srcset($service['thumbnail'], [400], '72px'); ?>
+                  <img 
+                    src="<?= esc($service['thumbnail'], 'attr') ?>" 
+                    srcset="<?= esc($serviceSrcset['srcset']) ?>"
+                    sizes="<?= esc($serviceSrcset['sizes']) ?>"
+                    alt="<?= esc($service['title']) ?>" 
+                    width="72" 
+                    height="72" 
+                    loading="lazy" 
+                    decoding="async">
                 <?php else: ?>
                   <i class="bx bx-briefcase"></i>
                 <?php endif; ?>

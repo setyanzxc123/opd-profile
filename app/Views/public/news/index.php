@@ -96,8 +96,8 @@
     <?php endif; ?>
 
     <?php
-      // Load helper for read time
-      helper('news');
+      // Load helpers
+      helper(['news', 'image']);
       
       // Featured News Hero (only show on main news page without filters)
       $featured = $featuredNews ?? null;
@@ -116,7 +116,17 @@
           <div class="col-lg-7">
             <a href="<?= site_url('berita/' . esc($featured['slug'], 'url')) ?>" class="featured-news-hero__image">
               <?php if (!empty($featured['thumbnail'])): ?>
-                <img src="<?= esc(base_url($featured['thumbnail'])) ?>" alt="<?= esc($featured['title']) ?>" width="800" height="450" loading="eager" decoding="async" fetchpriority="high">
+                <?php $featuredSrcset = responsive_srcset($featured['thumbnail'], [400, 800, 1200], '(max-width: 768px) 100vw, 60vw'); ?>
+                <img 
+                  src="<?= esc(base_url($featured['thumbnail'])) ?>" 
+                  srcset="<?= esc($featuredSrcset['srcset']) ?>"
+                  sizes="<?= esc($featuredSrcset['sizes']) ?>"
+                  alt="<?= esc($featured['title']) ?>" 
+                  width="800" 
+                  height="450" 
+                  loading="eager" 
+                  decoding="async" 
+                  fetchpriority="high">
               <?php else: ?>
                 <!-- Placeholder if no thumbnail -->
               <?php endif; ?>

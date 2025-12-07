@@ -7,11 +7,21 @@ use Config\Services;
 
 /**
  * Simplified NewsMediaService for basic OPD profile website
- * Handles only thumbnail image uploads - no video embedding or complex media gallery
+ * Handles thumbnail image uploads with responsive variants
  */
 class NewsMediaService
 {
     private const THUMB_UPLOAD_DIR = 'uploads/news';
+    
+    /**
+     * Responsive image widths to generate
+     * Format: width => aspectRatioHeight (based on 16:9)
+     */
+    private const RESPONSIVE_SIZES = [
+        400 => 225,   // 400x225 (16:9)
+        800 => 450,   // 800x450 (16:9)
+        1200 => 675,  // 1200x675 (16:9)
+    ];
 
     public function moveThumbnail(UploadedFile $file): ?string
     {
@@ -30,6 +40,7 @@ class NewsMediaService
 
         try {
             $this->optimiseImage($fullPath);
+            $this->generateResponsiveVariants($fullPath);
         } catch (\Throwable $throwable) {
             log_message('error', 'Failed to optimize news thumbnail: {error}', ['error' => $throwable->getMessage()]);
         }
@@ -52,9 +63,13 @@ class NewsMediaService
             return;
         }
 
+        // Delete main file
         if (is_file($realPath)) {
             @unlink($realPath);
         }
+        
+        // Delete responsive variants
+        $this->deleteResponsiveVariants($realPath);
     }
 
     private function ensureDirectory(string $relativePath): string
@@ -83,8 +98,27 @@ class NewsMediaService
         }
 
         $editor
-            ->resize(1200, 630, true, 'width')
+            ->resize(1200, 675, true, 'width')
             ->save($path, 85);
     }
+    
+    /**
+     * Generate responsive image variants at different sizes
+     */
+    private function generateResponsiveVariants(string $sourcePath): void
+    {
+        helper('image');
+        generate_image_variants($sourcePath, self::RESPONSIVE_SIZES);
+    }
+    
+    /**
+     * Delete all responsive variants of an image
+     */
+    private function deleteResponsiveVariants(string $sourcePath): void
+    {
+        helper('image');
+        delete_image_variants($sourcePath, array_keys(self::RESPONSIVE_SIZES));
+    }
 }
+
 

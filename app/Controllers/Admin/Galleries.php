@@ -28,10 +28,14 @@ class Galleries extends BaseController
                   . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $newPath);
 
         try {
-            $image = \Config\Services::image();
-            $image->withFile($fullPath)
+            $imageService = \Config\Services::image();
+            $imageService->withFile($fullPath)
                 ->resize(1920, 1080, true, 'width')
                 ->save($fullPath, 80);
+            
+            // Generate variants for responsive images
+            helper('image');
+            generate_image_variants($fullPath);
         } catch (\Throwable $e) {
             log_message('error', 'Failed to optimize gallery image: {error}', ['error' => $e->getMessage()]);
         }
@@ -150,6 +154,13 @@ class Galleries extends BaseController
             if (! FileUploadManager::hasAllowedMime($file, self::ALLOWED_IMAGE_MIMES)) {
                 return redirect()->back()->withInput()->with('error', 'Jenis file gambar tidak diizinkan.');
             }
+            
+            // Delete old variants if updating image
+            if (!empty($item['image_path'])) {
+                helper('image');
+                $oldFullPath = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $item['image_path']);
+                delete_image_variants($oldFullPath);
+            }
 
             $newPath = $this->moveImageWithOptimization($file, $item['image_path'] ?? null);
             if (! $newPath) {
@@ -173,6 +184,12 @@ class Galleries extends BaseController
         $model = new GalleryModel();
         $item  = $model->find($id);
         if ($item) {
+            if (!empty($item['image_path'])) {
+                 helper('image');
+                 $fullPath = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $item['image_path']);
+                 delete_image_variants($fullPath);
+            }
+            
             FileUploadManager::deleteFile($item['image_path'] ?? null);
             $model->delete($id);
             log_activity('gallery.delete', 'Menghapus foto galeri: ' . ($item['title'] ?? ''));

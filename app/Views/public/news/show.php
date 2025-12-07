@@ -3,6 +3,7 @@
 
 <?= $this->section('content') ?>
 <?php
+  helper('image');
   $breadcrumbs     = $breadcrumbs ?? [];
   $categories      = $article['categories'] ?? [];
   $primaryCategory = $article['primary_category'] ?? null;
@@ -41,7 +42,17 @@
                     ?>
                     <div class="carousel-item <?= $isActive ?>">
                       <figure class="mb-0">
-                        <img src="<?= esc($imagePath, 'attr') ?>" class="d-block w-100 rounded" alt="<?= esc($captionText !== '' ? $captionText : ($article['title'] ?? 'Gambar Berita')) ?>" width="800" height="450" loading="<?= $index === 0 ? 'eager' : 'lazy' ?>" decoding="async">
+                        <?php $carouselSrcset = responsive_srcset($media['file_path'], [400, 800, 1200], '100vw'); ?>
+                        <img 
+                          src="<?= esc($imagePath, 'attr') ?>" 
+                          srcset="<?= esc($carouselSrcset['srcset']) ?>"
+                          sizes="<?= esc($carouselSrcset['sizes']) ?>"
+                          class="d-block w-100 rounded" 
+                          alt="<?= esc($captionText !== '' ? $captionText : ($article['title'] ?? 'Gambar Berita')) ?>" 
+                          width="800" 
+                          height="450" 
+                          loading="<?= $index === 0 ? 'eager' : 'lazy' ?>" 
+                          decoding="async">
                         <?php if ($captionText !== ''): ?>
                           <figcaption class="carousel-caption d-none d-md-block">
                             <p class="mb-0"><?= esc($captionText) ?></p>
@@ -67,7 +78,18 @@
                 $imagePath   = base_url($singleMedia['file_path']);
               ?>
               <figure class="mb-0">
-                <img src="<?= esc($imagePath, 'attr') ?>" class="img-fluid rounded" alt="<?= esc($captionText !== '' ? $captionText : ($article['title'] ?? 'Gambar Berita')) ?>" width="800" height="450" loading="eager" decoding="async" fetchpriority="high">
+                <?php $singleSrcset = responsive_srcset($singleMedia['file_path'], [400, 800, 1200], '100vw'); ?>
+                <img 
+                  src="<?= esc($imagePath, 'attr') ?>" 
+                  srcset="<?= esc($singleSrcset['srcset']) ?>"
+                  sizes="<?= esc($singleSrcset['sizes']) ?>"
+                  class="img-fluid rounded" 
+                  alt="<?= esc($captionText !== '' ? $captionText : ($article['title'] ?? 'Gambar Berita')) ?>" 
+                  width="800" 
+                  height="450" 
+                  loading="eager" 
+                  decoding="async" 
+                  fetchpriority="high">
                 <?php if ($captionText !== ''): ?>
                   <figcaption class="text-muted small mt-2"><?= esc($captionText) ?></figcaption>
                 <?php endif; ?>
@@ -75,7 +97,18 @@
             <?php endif; ?>
           <?php else: ?>
             <figure class="mb-0">
-              <img src="<?= esc(base_url($article['thumbnail'])) ?>" alt="<?= esc($article['title']) ?>" width="800" height="450" loading="eager" decoding="async" fetchpriority="high" class="img-fluid rounded">
+              <?php $thumbSrcset = responsive_srcset($article['thumbnail'], [400, 800, 1200], '100vw'); ?>
+              <img 
+                src="<?= esc(base_url($article['thumbnail'])) ?>" 
+                srcset="<?= esc($thumbSrcset['srcset']) ?>"
+                sizes="<?= esc($thumbSrcset['sizes']) ?>"
+                alt="<?= esc($article['title']) ?>" 
+                width="800" 
+                height="450" 
+                loading="eager" 
+                decoding="async" 
+                fetchpriority="high" 
+                class="img-fluid rounded">
             </figure>
           <?php endif; ?>
         </div>
