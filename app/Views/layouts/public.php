@@ -50,14 +50,8 @@
   <link rel="preload" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'></noscript>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <link href="<?= base_url('assets/css/public/tokens.css') ?>" rel="stylesheet" />
-  <link href="<?= base_url('assets/css/public/layout.css') ?>" rel="stylesheet" />
-  <link href="<?= base_url('assets/css/public/navbar-dropdown.css') ?>" rel="stylesheet" />
-  <link href="<?= base_url('assets/css/public/components.css') ?>" rel="stylesheet" />
-  <link href="<?= base_url('assets/css/public/pages.css') ?>" rel="stylesheet" />
-  <link href="<?= base_url('assets/css/public/hide-icons.css') ?>" rel="stylesheet" />
-  <link href="<?= base_url('assets/css/public/global-search.css') ?>" rel="stylesheet" />
-  <link href="<?= base_url('assets/css/public/hero-slider.css') ?>" rel="stylesheet" />
+  <!-- CSS Bundle: tokens + layout + components + pages + navbar-dropdown + global-search + hero-slider + hide-icons -->
+  <link href="<?= base_url('assets/css/public/bundle.css') ?>" rel="stylesheet" />
   <?php if ($publicThemeVariables !== []): ?>
     <?= theme_render_style($publicThemeVariables) ?>
   <?php endif; ?>
