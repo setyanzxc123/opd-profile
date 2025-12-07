@@ -81,6 +81,87 @@
     </div>
 </div>
 
+<?php 
+    $resetData = session()->getFlashdata('reset_password_data');
+    if ($resetData && !empty($resetData['username']) && !empty($resetData['password'])): 
+?>
+<!-- Password Reset Modal (One-time display) -->
+<div class="modal fade" id="passwordResetModal" tabindex="-1" aria-labelledby="passwordResetModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="passwordResetModalLabel">
+                    <i class="bx bx-key me-2"></i>Password Baru Dibuat
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning mb-3">
+                    <i class="bx bx-info-circle me-1"></i>
+                    <strong>Penting!</strong> Password ini hanya ditampilkan sekali. Salin dan simpan sebelum menutup.
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Username</label>
+                    <div class="form-control bg-light"><?= esc($resetData['username']) ?></div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Password Baru</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control bg-light font-monospace" id="newPasswordDisplay" 
+                               value="<?= esc($resetData['password']) ?>" readonly>
+                        <button class="btn btn-outline-primary" type="button" id="copyPasswordBtn" title="Salin password">
+                            <i class="bx bx-copy"></i>
+                        </button>
+                    </div>
+                    <div id="copyFeedback" class="form-text text-success" style="display: none;">
+                        <i class="bx bx-check"></i> Password berhasil disalin!
+                    </div>
+                </div>
+                
+                <div class="alert alert-light border mb-0">
+                    <small class="text-muted">
+                        <i class="bx bx-shield me-1"></i>
+                        Berikan password ini kepada pengguna secara langsung atau melalui saluran yang aman. 
+                        Hindari mengirim via email yang tidak terenkripsi.
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                    <i class="bx bx-check me-1"></i>Saya Sudah Menyimpan Password
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-show the password modal
+    const modal = new bootstrap.Modal(document.getElementById('passwordResetModal'));
+    modal.show();
+    
+    // Copy to clipboard functionality
+    document.getElementById('copyPasswordBtn').addEventListener('click', function() {
+        const passwordField = document.getElementById('newPasswordDisplay');
+        const feedback = document.getElementById('copyFeedback');
+        
+        navigator.clipboard.writeText(passwordField.value).then(function() {
+            feedback.style.display = 'block';
+            setTimeout(() => { feedback.style.display = 'none'; }, 3000);
+        }).catch(function() {
+            // Fallback for older browsers
+            passwordField.select();
+            document.execCommand('copy');
+            feedback.style.display = 'block';
+            setTimeout(() => { feedback.style.display = 'none'; }, 3000);
+        });
+    });
+});
+</script>
+<?php endif; ?>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('pageStyles') ?>

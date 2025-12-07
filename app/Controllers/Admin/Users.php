@@ -228,13 +228,21 @@ class Users extends BaseController
             return redirect()->to(site_url('admin/users'))->with('error', 'Data tidak ditemukan.');
         }
 
-        $newPassword = bin2hex(random_bytes(4));
+        // Generate stronger password (12 characters)
+        $newPassword = bin2hex(random_bytes(6));
         $this->users->withPassword($user, $newPassword);
         $this->users->save($user);
 
         log_activity('user.reset_password', 'Reset password untuk ' . $user->username);
 
-        return redirect()->to(site_url('admin/users'))->with('message', "Password baru untuk {$user->username}: {$newPassword}");
+        // Store password data in separate session key for one-time display in modal
+        // This prevents password from appearing in URL or flash messages
+        session()->setFlashdata('reset_password_data', [
+            'username' => $user->username,
+            'password' => $newPassword,
+        ]);
+
+        return redirect()->to(site_url('admin/users'))->with('message', 'Password berhasil direset. Lihat password baru di bawah.');
     }
 
     private function presentUser(User $user): array
