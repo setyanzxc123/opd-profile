@@ -34,7 +34,7 @@
                 <?php if (! empty($service['thumbnail'])): ?>
                   <?php $serviceSrcset = responsive_srcset($service['thumbnail'], [400], '72px'); ?>
                   <img 
-                    src="<?= esc($service['thumbnail'], 'attr') ?>" 
+                    src="<?= esc(base_url($service['thumbnail']), 'attr') ?>" 
                     srcset="<?= esc($serviceSrcset['srcset']) ?>"
                     sizes="<?= esc($serviceSrcset['sizes']) ?>"
                     alt="<?= esc($service['title']) ?>" 

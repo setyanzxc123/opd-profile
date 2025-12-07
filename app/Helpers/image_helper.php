@@ -156,7 +156,7 @@ if (! function_exists('responsive_srcset')) {
     /**
      * Generate hanya atribut srcset dan sizes untuk digunakan inline
      * 
-     * @param string $imagePath Path relatif gambar
+     * @param string $imagePath Path relatif gambar ATAU full URL
      * @param array $widths Array ukuran width
      * @param string $sizes Nilai sizes attribute
      * @return array ['srcset' => string, 'sizes' => string]
@@ -165,13 +165,23 @@ if (! function_exists('responsive_srcset')) {
     {
         // Normalize slashes for consistency
         $imagePath = str_replace('\\', '/', $imagePath);
-        $imagePath = ltrim($imagePath, '/');
         
-        // Full System Path
-        $fullPath = FCPATH . str_replace('/', DIRECTORY_SEPARATOR, $imagePath);
+        // Check if input is already a full URL
+        $isUrl = preg_match('#^https?://#i', $imagePath);
         
-        // URL Path (always forward slash)
-        $baseUrl = base_url($imagePath);
+        if ($isUrl) {
+            // Extract relative path from URL for file checking
+            $baseUrlValue = rtrim(base_url(), '/');
+            $relativePath = str_replace($baseUrlValue . '/', '', $imagePath);
+            $relativePath = ltrim($relativePath, '/');
+            $baseUrl = $imagePath; // Use as-is for src
+        } else {
+            $relativePath = ltrim($imagePath, '/');
+            $baseUrl = base_url($relativePath);
+        }
+        
+        // Full System Path for file checking
+        $fullPath = FCPATH . str_replace('/', DIRECTORY_SEPARATOR, $relativePath);
         
         $srcsetParts = [];
         $originalWidth = 1200; // Default
@@ -185,7 +195,7 @@ if (! function_exists('responsive_srcset')) {
         
         foreach ($widths as $width) {
             if ($width <= $originalWidth) {
-                $variantPath = get_image_variant_path($imagePath, $width);
+                $variantPath = get_image_variant_path($relativePath, $width);
                 // System Path check
                 $variantSystemPath = str_replace('/', DIRECTORY_SEPARATOR, $variantPath);
                 $variantFullPath = FCPATH . $variantSystemPath;
