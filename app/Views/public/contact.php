@@ -1,5 +1,9 @@
 <?= $this->extend('layouts/public') ?>
 
+<?= $this->section('pageScripts') ?>
+<script src="<?= base_url('assets/js/public-contact.js') ?>" defer></script>
+<?= $this->endSection() ?>
+
 <?= $this->section('content') ?>
 <?php
     $profile = is_array($profile ?? null) ? $profile : [];

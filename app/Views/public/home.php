@@ -9,6 +9,7 @@
 
 <?= $this->section('pageScripts') ?>
 <script src="<?= base_url('assets/vendor/swiper/swiper-bundle.min.js') ?>" defer></script>
+<script src="<?= base_url('assets/js/public-hero.js') ?>" defer></script>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>

@@ -240,11 +240,13 @@ if (! function_exists('image_dimensions')) {
 if (! function_exists('generate_image_variants')) {
     /**
      * Generate responsive image variants at different sizes
+     * Also generates WebP versions for better compression
      * 
      * @param string $sourcePath Full path to source image
      * @param array $sizes Array of width => height pairs
+     * @param bool $generateWebp Whether to also generate WebP versions
      */
-    function generate_image_variants(string $sourcePath, array $sizes = [400 => 225, 800 => 450, 1200 => 675]): void
+    function generate_image_variants(string $sourcePath, array $sizes = [400 => 225, 800 => 450, 1200 => 675], bool $generateWebp = true): void
     {
         $info = @getimagesize($sourcePath);
         if (!$info) {
@@ -255,7 +257,12 @@ if (! function_exists('generate_image_variants')) {
         $pathInfo = pathinfo($sourcePath);
         $dir = $pathInfo['dirname'];
         $filename = $pathInfo['filename'];
-        $ext = $pathInfo['extension'] ?? 'jpg';
+        $ext = strtolower($pathInfo['extension'] ?? 'jpg');
+        
+        // Check if WebP is supported
+        $webpSupported = $generateWebp && function_exists('imagewebp') && 
+                         function_exists('gd_info') && 
+                         (gd_info()['WebP Support'] ?? false);
         
         $imageService = \Config\Services::image();
         
@@ -271,6 +278,12 @@ if (! function_exists('generate_image_variants')) {
                 $imageService->withFile($sourcePath)
                     ->resize($targetWidth, $targetHeight, true, 'width')
                     ->save($variantPath, 85);
+                    
+                // Generate WebP version of this variant
+                if ($webpSupported && in_array($ext, ['jpg', 'jpeg', 'png'])) {
+                    $webpPath = $dir . DIRECTORY_SEPARATOR . $filename . '-' . $targetWidth . '.webp';
+                    convert_to_webp($variantPath, $webpPath, 80);
+                }
             } catch (\Throwable $e) {
                 log_message('warning', 'Failed to create variant {width}w: {error}', [
                     'width' => $targetWidth,
@@ -278,12 +291,20 @@ if (! function_exists('generate_image_variants')) {
                 ]);
             }
         }
+        
+        // Also generate WebP for the original size
+        if ($webpSupported && in_array($ext, ['jpg', 'jpeg', 'png'])) {
+            $webpOriginal = $dir . DIRECTORY_SEPARATOR . $filename . '.webp';
+            if (!file_exists($webpOriginal)) {
+                convert_to_webp($sourcePath, $webpOriginal, 80);
+            }
+        }
     }
 }
 
 if (! function_exists('delete_image_variants')) {
     /**
-     * Delete all responsive variants of an image
+     * Delete all responsive variants of an image (including WebP versions)
      * 
      * @param string $sourcePath Full path to source image
      * @param array $widths Array of widths to check
@@ -293,13 +314,132 @@ if (! function_exists('delete_image_variants')) {
         $pathInfo = pathinfo($sourcePath);
         $dir = $pathInfo['dirname'];
         $filename = $pathInfo['filename'];
-        $ext = $pathInfo['extension'] ?? 'jpg';
+        $ext = strtolower($pathInfo['extension'] ?? 'jpg');
         
         foreach ($widths as $width) {
+            // Delete original format variant
             $variantPath = $dir . DIRECTORY_SEPARATOR . $filename . '-' . $width . '.' . $ext;
             if (is_file($variantPath)) {
                 @unlink($variantPath);
             }
+            
+            // Delete WebP variant
+            $webpVariantPath = $dir . DIRECTORY_SEPARATOR . $filename . '-' . $width . '.webp';
+            if (is_file($webpVariantPath)) {
+                @unlink($webpVariantPath);
+            }
         }
+        
+        // Delete WebP version of original
+        $webpOriginal = $dir . DIRECTORY_SEPARATOR . $filename . '.webp';
+        if (is_file($webpOriginal)) {
+            @unlink($webpOriginal);
+        }
+    }
+}
+
+if (! function_exists('convert_to_webp')) {
+    /**
+     * Convert an image to WebP format
+     * 
+     * @param string $sourcePath Full path to source image (jpg, jpeg, or png)
+     * @param string $destPath Full path for WebP output
+     * @param int $quality WebP quality (0-100, default 80)
+     * @return bool True if conversion successful
+     */
+    function convert_to_webp(string $sourcePath, string $destPath, int $quality = 80): bool
+    {
+        if (!function_exists('imagewebp')) {
+            return false;
+        }
+        
+        if (!file_exists($sourcePath)) {
+            return false;
+        }
+        
+        $info = @getimagesize($sourcePath);
+        if (!$info) {
+            return false;
+        }
+        
+        $mimeType = $info['mime'] ?? '';
+        $image = null;
+        
+        try {
+            switch ($mimeType) {
+                case 'image/jpeg':
+                    $image = @imagecreatefromjpeg($sourcePath);
+                    break;
+                case 'image/png':
+                    $image = @imagecreatefrompng($sourcePath);
+                    // Preserve transparency for PNG
+                    if ($image) {
+                        imagepalettetotruecolor($image);
+                        imagealphablending($image, true);
+                        imagesavealpha($image, true);
+                    }
+                    break;
+                case 'image/gif':
+                    $image = @imagecreatefromgif($sourcePath);
+                    break;
+                default:
+                    return false;
+            }
+            
+            if (!$image) {
+                return false;
+            }
+            
+            $result = @imagewebp($image, $destPath, $quality);
+            imagedestroy($image);
+            
+            return $result;
+        } catch (\Throwable $e) {
+            log_message('warning', 'WebP conversion failed: {error}', [
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
+    }
+}
+
+if (! function_exists('webp_supported')) {
+    /**
+     * Check if server supports WebP generation
+     * 
+     * @return bool True if WebP is supported
+     */
+    function webp_supported(): bool
+    {
+        if (!function_exists('imagewebp')) {
+            return false;
+        }
+        
+        if (!function_exists('gd_info')) {
+            return false;
+        }
+        
+        $gdInfo = gd_info();
+        return ($gdInfo['WebP Support'] ?? false) === true;
+    }
+}
+
+if (! function_exists('get_webp_path')) {
+    /**
+     * Get the WebP path for an image
+     * 
+     * @param string $imagePath Original image path
+     * @return string WebP image path
+     */
+    function get_webp_path(string $imagePath): string
+    {
+        $pathInfo = pathinfo($imagePath);
+        $dir = $pathInfo['dirname'] ?? '';
+        $filename = $pathInfo['filename'] ?? '';
+        
+        if ($dir && $dir !== '.') {
+            return $dir . '/' . $filename . '.webp';
+        }
+        return $filename . '.webp';
     }
 }

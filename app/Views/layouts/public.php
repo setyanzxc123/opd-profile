@@ -70,7 +70,9 @@
   <?= $this->include('layouts/public_footer', ['footerProfile' => $footerProfileData]) ?>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   <script src="<?= base_url('assets/vendor/js/headroom.min.js') ?>" defer></script>
-  <script src="<?= base_url('assets/js/public-min.js') ?>" defer></script>
+  <!-- Modular JS: Core (all pages) + Search (navbar search) -->
+  <script src="<?= base_url('assets/js/public-core.js') ?>" defer></script>
+  <script src="<?= base_url('assets/js/public-search.js') ?>" defer></script>
   <?= $this->renderSection('pageScripts') ?>
 </body>
 </html>
