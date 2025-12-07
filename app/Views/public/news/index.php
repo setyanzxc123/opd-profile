@@ -116,7 +116,7 @@
           <div class="col-lg-7">
             <a href="<?= site_url('berita/' . esc($featured['slug'], 'url')) ?>" class="featured-news-hero__image">
               <?php if (!empty($featured['thumbnail'])): ?>
-                <img src="<?= esc(base_url($featured['thumbnail'])) ?>" alt="<?= esc($featured['title']) ?>" loading="eager">
+                <img src="<?= esc(base_url($featured['thumbnail'])) ?>" alt="<?= esc($featured['title']) ?>" width="800" height="450" loading="eager" decoding="async" fetchpriority="high">
               <?php else: ?>
                 <!-- Placeholder if no thumbnail -->
               <?php endif; ?>
@@ -178,7 +178,7 @@
               <a href="<?= site_url('berita/' . esc($article['slug'], 'url')) ?>" class="news-list-item-link" role="listitem">
                 <div class="news-list-item__thumb">
                   <?php if ($coverImage): ?>
-                    <img src="<?= esc(base_url($coverImage)) ?>" alt="<?= esc($article['title']) ?>" loading="lazy">
+                    <img src="<?= esc(base_url($coverImage)) ?>" alt="<?= esc($article['title']) ?>" width="300" height="200" loading="lazy" decoding="async">
                   <?php else: ?>
                     <div class="news-list-item__thumb-placeholder"><i class="bx bx-image"></i></div>
                   <?php endif; ?>
@@ -236,7 +236,7 @@
                   ?>
                   <article class="d-flex gap-3 align-items-start">
                     <?php if (!empty($item['thumbnail'])): ?>
-                      <img src="<?= esc(base_url($item['thumbnail'])) ?>" alt="<?= esc($item['title']) ?>" class="rounded object-fit-cover" width="80" height="80" loading="lazy">
+                      <img src="<?= esc(base_url($item['thumbnail'])) ?>" alt="<?= esc($item['title']) ?>" class="rounded object-fit-cover" width="80" height="80" loading="lazy" decoding="async">
                     <?php else: ?>
                       <div class="rounded bg-light d-flex align-items-center justify-content-center text-muted" style="width: 80px; height: 80px; flex-shrink: 0;">
                         <i class='bx bx-image fs-4'></i>

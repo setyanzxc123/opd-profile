@@ -31,7 +31,7 @@
             <article class="service-card surface-card h-100" <?php if (! empty($service['slug'])): ?>id="<?= esc($service['slug'], 'attr') ?>"<?php endif; ?>>
               <div class="service-card__icon">
                 <?php if (! empty($service['thumbnail'])): ?>
-                  <img src="<?= esc($service['thumbnail'], 'attr') ?>" alt="<?= esc($service['title']) ?>" loading="lazy">
+                  <img src="<?= esc($service['thumbnail'], 'attr') ?>" alt="<?= esc($service['title']) ?>" width="72" height="72" loading="lazy" decoding="async">
                 <?php else: ?>
                   <i class="bx bx-briefcase"></i>
                 <?php endif; ?>

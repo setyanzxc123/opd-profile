@@ -38,7 +38,7 @@
             <article class="surface-card gallery-item h-100">
               <?php if (! empty($item['image_path'])): ?>
                 <div class="gallery-item-media">
-                  <img src="<?= esc(base_url($item['image_path'])) ?>" alt="<?= esc($item['title']) ?>" loading="lazy">
+                  <img src="<?= esc(base_url($item['image_path'])) ?>" alt="<?= esc($item['title']) ?>" width="400" height="300" loading="lazy" decoding="async">
                 </div>
               <?php endif; ?>
               <div class="gallery-item-body">

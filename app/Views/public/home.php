@@ -26,7 +26,7 @@
               <article class="hero-slide hero-slide-cover swiper-slide" role="listitem" data-hero-slide>
                 <figure class="hero-cover-media">
                   <?php if ($slide['thumbnail']): ?>
-                    <img src="<?= esc($slide['thumbnail']) ?>" alt="<?= esc($slide['title']) ?>" loading="lazy">
+                    <img src="<?= esc($slide['thumbnail']) ?>" alt="<?= esc($slide['title']) ?>" width="1200" height="600" loading="<?= $index === 0 ? 'eager' : 'lazy' ?>" decoding="async" fetchpriority="<?= $index === 0 ? 'high' : 'auto' ?>">
                   <?php else: ?>
                     <div class="hero-placeholder" role="img" aria-label="Thumbnail belum tersedia">Thumbnail belum tersedia</div>
                   <?php endif; ?>
@@ -184,7 +184,7 @@
           <a href="<?= site_url('berita/' . esc($featuredNews['slug'], 'url')) ?>" class="news-home-featured">
             <div class="news-home-featured__media">
               <?php if ($featuredNews['thumbnail']): ?>
-                <img src="<?= esc($featuredNews['thumbnail']) ?>" alt="<?= esc($featuredNews['title']) ?>" loading="lazy">
+                <img src="<?= esc($featuredNews['thumbnail']) ?>" alt="<?= esc($featuredNews['title']) ?>" width="600" height="400" loading="eager" decoding="async" fetchpriority="high">
               <?php else: ?>
                 <div class="news-placeholder"><i class="bx bx-image"></i></div>
               <?php endif; ?>
@@ -210,7 +210,7 @@
             <a href="<?= site_url('berita/' . esc($news['slug'], 'url')) ?>" class="news-home-item">
               <div class="news-home-item__media">
                 <?php if (! empty($news['thumbnail'])): ?>
-                  <img src="<?= esc($news['thumbnail']) ?>" alt="<?= esc($news['title']) ?>" loading="lazy">
+                  <img src="<?= esc($news['thumbnail']) ?>" alt="<?= esc($news['title']) ?>" width="120" height="80" loading="lazy" decoding="async">
                 <?php else: ?>
                   <div class="news-placeholder"><i class="bx bx-image"></i></div>
                 <?php endif; ?>
@@ -270,7 +270,7 @@
                  title="<?= esc($link['description'] ?: $link['name']) ?>">
                 <?php if (!empty($link['logo_path'])): ?>
                   <div class="app-link-logo">
-                    <img src="<?= base_url($link['logo_path']) ?>" alt="<?= esc($link['name']) ?>" loading="lazy">
+                    <img src="<?= base_url($link['logo_path']) ?>" alt="<?= esc($link['name']) ?>" width="64" height="64" loading="lazy" decoding="async">
                   </div>
                 <?php else: ?>
                   <div class="app-link-logo-placeholder">
@@ -293,7 +293,7 @@
                title="<?= esc($link['description'] ?: $link['name']) ?>">
               <?php if (!empty($link['logo_path'])): ?>
                 <div class="app-link-logo">
-                  <img src="<?= base_url($link['logo_path']) ?>" alt="<?= esc($link['name']) ?>" loading="lazy">
+                  <img src="<?= base_url($link['logo_path']) ?>" alt="<?= esc($link['name']) ?>" width="64" height="64" loading="lazy" decoding="async">
                 </div>
               <?php else: ?>
                 <div class="app-link-logo-placeholder">

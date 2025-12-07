@@ -41,7 +41,7 @@
                     ?>
                     <div class="carousel-item <?= $isActive ?>">
                       <figure class="mb-0">
-                        <img src="<?= esc($imagePath, 'attr') ?>" class="d-block w-100 rounded" alt="<?= esc($captionText !== '' ? $captionText : ($article['title'] ?? 'Gambar Berita')) ?>" loading="lazy">
+                        <img src="<?= esc($imagePath, 'attr') ?>" class="d-block w-100 rounded" alt="<?= esc($captionText !== '' ? $captionText : ($article['title'] ?? 'Gambar Berita')) ?>" width="800" height="450" loading="<?= $index === 0 ? 'eager' : 'lazy' ?>" decoding="async">
                         <?php if ($captionText !== ''): ?>
                           <figcaption class="carousel-caption d-none d-md-block">
                             <p class="mb-0"><?= esc($captionText) ?></p>
@@ -67,7 +67,7 @@
                 $imagePath   = base_url($singleMedia['file_path']);
               ?>
               <figure class="mb-0">
-                <img src="<?= esc($imagePath, 'attr') ?>" class="img-fluid rounded" alt="<?= esc($captionText !== '' ? $captionText : ($article['title'] ?? 'Gambar Berita')) ?>" loading="lazy">
+                <img src="<?= esc($imagePath, 'attr') ?>" class="img-fluid rounded" alt="<?= esc($captionText !== '' ? $captionText : ($article['title'] ?? 'Gambar Berita')) ?>" width="800" height="450" loading="eager" decoding="async" fetchpriority="high">
                 <?php if ($captionText !== ''): ?>
                   <figcaption class="text-muted small mt-2"><?= esc($captionText) ?></figcaption>
                 <?php endif; ?>
@@ -75,7 +75,7 @@
             <?php endif; ?>
           <?php else: ?>
             <figure class="mb-0">
-              <img src="<?= esc(base_url($article['thumbnail'])) ?>" alt="<?= esc($article['title']) ?>" loading="lazy" class="img-fluid rounded">
+              <img src="<?= esc(base_url($article['thumbnail'])) ?>" alt="<?= esc($article['title']) ?>" width="800" height="450" loading="eager" decoding="async" fetchpriority="high" class="img-fluid rounded">
             </figure>
           <?php endif; ?>
         </div>
@@ -183,7 +183,7 @@
             <div class="col">
               <article class="card h-100 border-0 shadow-sm">
                 <?php if (! empty($related['thumbnail'])): ?>
-                  <img class="card-img-top" src="<?= esc(base_url($related['thumbnail'])) ?>" alt="<?= esc($related['title']) ?>" loading="lazy">
+                  <img class="card-img-top" src="<?= esc(base_url($related['thumbnail'])) ?>" alt="<?= esc($related['title']) ?>" width="280" height="160" loading="lazy" decoding="async">
                 <?php endif; ?>
                 <div class="card-body">
                   <?php if (! empty($related['published_at'])): ?>
