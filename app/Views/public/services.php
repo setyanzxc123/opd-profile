@@ -5,16 +5,7 @@
 <section class="public-section pt-3 pb-5">
   <div class="container">
     <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
-      <ol class="breadcrumb mb-0 small">
-        <li class="breadcrumb-item">
-          <a href="<?= site_url('/') ?>" class="text-decoration-none">
-            <i class="bx bx-home-alt me-1"></i>Beranda
-          </a>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">Layanan</li>
-      </ol>
-    </nav>
+    <?= $this->include('public/components/_breadcrumb', ['current' => 'Layanan']) ?>
 
     <!-- Header -->
     <header class="text-center mb-5">
@@ -68,80 +59,8 @@
     <?php endif; ?>
   </div>
 </section>
+<?= $this->endSection() ?>
 
-<style>
-/* Service Card - Grid Layout */
-.service-card {
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  border-radius: 12px;
-  text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.service-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.12);
-}
-
-.service-card__icon {
-  width: 72px;
-  height: 72px;
-  margin: 0 auto 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 16px;
-  background: linear-gradient(135deg, 
-    rgba(var(--public-primary-rgb, 13, 110, 253), 0.12) 0%,
-    rgba(var(--public-primary-rgb, 13, 110, 253), 0.05) 100%);
-  overflow: hidden;
-}
-
-.service-card__icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.service-card__icon i {
-  font-size: 2rem;
-  color: var(--public-primary, #0d6efd);
-}
-
-.service-card__body {
-  flex: 1;
-}
-
-.service-card__title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
-  color: var(--public-neutral-900, #0f172a);
-  line-height: 1.4;
-}
-
-.service-card__desc {
-  font-size: 0.875rem;
-  color: var(--public-neutral-600, #64748b);
-  line-height: 1.5;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* Empty State */
-.empty-state {
-  padding: 2rem;
-}
-
-.empty-state i {
-  font-size: 3.5rem;
-  color: var(--public-neutral-400, #94a3b8);
-}
-</style>
+<?= $this->section('pageStyles') ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/public/services.css') ?>">
 <?= $this->endSection() ?>

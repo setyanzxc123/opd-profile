@@ -4,16 +4,7 @@
 <section class="public-section pt-3 pb-5">
   <div class="container">
     <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
-      <ol class="breadcrumb mb-0 small">
-        <li class="breadcrumb-item">
-          <a href="<?= site_url('/') ?>" class="text-decoration-none">
-            <i class="bx bx-home-alt me-1"></i>Beranda
-          </a>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">Dokumen</li>
-      </ol>
-    </nav>
+    <?= $this->include('public/components/_breadcrumb', ['current' => 'Dokumen']) ?>
 
     <!-- Header -->
     <header class="text-center mb-5">
@@ -94,5 +85,3 @@
   })();
 </script>
 <?= $this->endSection() ?>
-<?= $this->endSection() ?>
-

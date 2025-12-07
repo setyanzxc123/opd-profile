@@ -1,5 +1,9 @@
 <?= $this->extend('layouts/public') ?>
 
+<?= $this->section('pageStyles') ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/public/contact.css') ?>">
+<?= $this->endSection() ?>
+
 <?= $this->section('pageScripts') ?>
 <script src="<?= base_url('assets/js/public-contact.js') ?>" defer></script>
 <?= $this->endSection() ?>
@@ -41,48 +45,10 @@
     }
 ?>
 
-<style>
-  .contact-icon-wrap {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    background-color: rgba(var(--public-primary-rgb, 13, 110, 253), 0.1);
-    color: var(--public-primary, #0d6efd);
-    font-size: 1.25rem;
-  }
-  .contact-map-frame {
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  }
-  /* Form input styling - visible border */
-  .surface-card .form-control {
-    border: 1.5px solid rgba(var(--public-primary-rgb), 0.45) !important;
-    background: #ffffff !important;
-    border-radius: 8px;
-  }
-  .surface-card .form-control:focus {
-    border-color: var(--public-primary) !important;
-    box-shadow: 0 0 0 2px rgba(var(--public-primary-rgb), 0.1) !important;
-  }
-</style>
-
 <section class="public-section pt-3 pb-5">
   <div class="container">
     <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
-      <ol class="breadcrumb mb-0 small">
-        <li class="breadcrumb-item">
-          <a href="<?= site_url('/') ?>" class="text-decoration-none">
-            <i class="bx bx-home-alt me-1"></i>Beranda
-          </a>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">Kontak</li>
-      </ol>
-    </nav>
+    <?= $this->include('public/components/_breadcrumb', ['current' => 'Kontak']) ?>
 
     <!-- Header -->
     <header class="text-center mb-5">
