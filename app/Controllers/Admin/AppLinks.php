@@ -60,9 +60,13 @@ class AppLinks extends BaseController
      */
     public function store(): RedirectResponse
     {
+        helper(['content', 'activity']);
+
         $rules = [
-            'name' => 'required|max_length[255]',
-            'url'  => 'required|valid_url_strict|max_length[500]',
+            'name'        => 'required|min_length[2]|max_length[255]',
+            'url'         => 'required|valid_url_strict|max_length[500]',
+            'description' => 'permit_empty|max_length[500]',
+            'logo'        => 'permit_empty|max_size[logo,2048]|is_image[logo]|ext_in[logo,jpg,jpeg,png,webp,gif,svg]',
         ];
 
         if (!$this->validate($rules)) {
@@ -72,17 +76,28 @@ class AppLinks extends BaseController
                 ->with('errors', $this->validator->getErrors());
         }
 
+        // Sanitize inputs
         $data = [
-            'name'        => $this->request->getPost('name'),
-            'description' => $this->request->getPost('description'),
-            'url'         => $this->request->getPost('url'),
+            'name'        => sanitize_plain_text($this->request->getPost('name')),
+            'description' => sanitize_plain_text($this->request->getPost('description')),
+            'url'         => filter_var($this->request->getPost('url'), FILTER_SANITIZE_URL),
             'is_active'   => $this->request->getPost('is_active') ? 1 : 0,
             'sort_order'  => $this->model->getNextSortOrder(),
         ];
 
-        // Handle logo upload
+        // Handle logo upload with MIME validation
         $logoFile = $this->request->getFile('logo');
         if ($logoFile && $logoFile->isValid() && !$logoFile->hasMoved()) {
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+            $mime = strtolower($logoFile->getMimeType());
+            
+            if (!in_array($mime, $allowedMimes, true)) {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error', 'Jenis file logo tidak diizinkan.');
+            }
+
             $newName = $logoFile->getRandomName();
             $uploadPath = 'uploads/app_links';
             
@@ -97,6 +112,7 @@ class AppLinks extends BaseController
         }
 
         if ($this->model->insert($data)) {
+            log_activity('app_link.create', 'Menambah tautan aplikasi: ' . $data['name']);
             return redirect()
                 ->to('/admin/app-links')
                 ->with('success', 'Tautan aplikasi berhasil ditambahkan.');
@@ -105,7 +121,7 @@ class AppLinks extends BaseController
         return redirect()
             ->back()
             ->withInput()
-            ->with('errors', ['Gagal menyimpan data.']);
+            ->with('error', 'Gagal menyimpan data.');
     }
 
     /**
@@ -132,6 +148,8 @@ class AppLinks extends BaseController
      */
     public function update(int $id): RedirectResponse
     {
+        helper(['content', 'activity']);
+
         $link = $this->model->find($id);
 
         if (!$link) {
@@ -139,8 +157,10 @@ class AppLinks extends BaseController
         }
 
         $rules = [
-            'name' => 'required|max_length[255]',
-            'url'  => 'required|valid_url_strict|max_length[500]',
+            'name'        => 'required|min_length[2]|max_length[255]',
+            'url'         => 'required|valid_url_strict|max_length[500]',
+            'description' => 'permit_empty|max_length[500]',
+            'logo'        => 'permit_empty|max_size[logo,2048]|is_image[logo]|ext_in[logo,jpg,jpeg,png,webp,gif,svg]',
         ];
 
         if (!$this->validate($rules)) {
@@ -150,21 +170,36 @@ class AppLinks extends BaseController
                 ->with('errors', $this->validator->getErrors());
         }
 
+        // Sanitize inputs
         $data = [
-            'name'        => $this->request->getPost('name'),
-            'description' => $this->request->getPost('description'),
-            'url'         => $this->request->getPost('url'),
+            'name'        => sanitize_plain_text($this->request->getPost('name')),
+            'description' => sanitize_plain_text($this->request->getPost('description')),
+            'url'         => filter_var($this->request->getPost('url'), FILTER_SANITIZE_URL),
             'is_active'   => $this->request->getPost('is_active') ? 1 : 0,
         ];
 
-        // Handle logo upload
+        // Handle logo upload with MIME validation
         $logoFile = $this->request->getFile('logo');
         if ($logoFile && $logoFile->isValid() && !$logoFile->hasMoved()) {
-            // Delete old logo
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+            $mime = strtolower($logoFile->getMimeType());
+            
+            if (!in_array($mime, $allowedMimes, true)) {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error', 'Jenis file logo tidak diizinkan.');
+            }
+
+            // Delete old logo safely
             if (!empty($link['logo_path'])) {
                 $oldPath = FCPATH . ltrim($link['logo_path'], '/');
-                if (is_file($oldPath)) {
-                    @unlink($oldPath);
+                $uploadsRoot = realpath(FCPATH . 'uploads');
+                $realOldPath = realpath($oldPath);
+                
+                // Security: only delete if within uploads directory
+                if ($uploadsRoot && $realOldPath && strpos($realOldPath, $uploadsRoot) === 0 && is_file($realOldPath)) {
+                    @unlink($realOldPath);
                 }
             }
 
@@ -180,16 +215,21 @@ class AppLinks extends BaseController
             $data['logo_path'] = $uploadPath . '/' . $newName;
         }
 
-        // Handle logo removal
+        // Handle logo removal with path traversal protection
         if ($this->request->getPost('remove_logo') && !empty($link['logo_path'])) {
             $oldPath = FCPATH . ltrim($link['logo_path'], '/');
-            if (is_file($oldPath)) {
-                @unlink($oldPath);
+            $uploadsRoot = realpath(FCPATH . 'uploads');
+            $realOldPath = realpath($oldPath);
+            
+            // Security: only delete if within uploads directory
+            if ($uploadsRoot && $realOldPath && strpos($realOldPath, $uploadsRoot) === 0 && is_file($realOldPath)) {
+                @unlink($realOldPath);
             }
             $data['logo_path'] = null;
         }
 
         if ($this->model->update($id, $data)) {
+            log_activity('app_link.update', 'Memperbarui tautan aplikasi: ' . $data['name']);
             return redirect()
                 ->to('/admin/app-links')
                 ->with('success', 'Tautan aplikasi berhasil diperbarui.');
@@ -198,7 +238,7 @@ class AppLinks extends BaseController
         return redirect()
             ->back()
             ->withInput()
-            ->with('errors', ['Gagal memperbarui data.']);
+            ->with('error', 'Gagal memperbarui data.');
     }
 
     /**
@@ -206,7 +246,13 @@ class AppLinks extends BaseController
      */
     public function delete(int $id): RedirectResponse
     {
+        helper('activity');
+        
+        $link = $this->model->find($id);
+        $linkName = $link['name'] ?? 'Unknown';
+
         if ($this->model->deleteWithLogo($id)) {
+            log_activity('app_link.delete', 'Menghapus tautan aplikasi: ' . $linkName);
             return redirect()
                 ->to('/admin/app-links')
                 ->with('success', 'Tautan aplikasi berhasil dihapus.');
@@ -214,7 +260,7 @@ class AppLinks extends BaseController
 
         return redirect()
             ->back()
-            ->with('errors', ['Gagal menghapus data.']);
+            ->with('error', 'Gagal menghapus data.');
     }
 
     /**

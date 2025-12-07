@@ -59,6 +59,9 @@ class Auth extends BaseController
             return redirect()->back()->withInput()->with('error', $result->reason() ?? 'Username atau password salah.');
         }
 
+        // Regenerate session ID to prevent session fixation attacks
+        session()->regenerate(true);
+
         /** @var \CodeIgniter\Shield\Entities\User $userEntity */
         $userEntity = $auth->user();
         $userModel  = model(UserModel::class);

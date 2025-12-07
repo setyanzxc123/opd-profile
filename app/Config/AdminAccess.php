@@ -37,6 +37,8 @@ class AdminAccess extends BaseConfig
                 'documents',
                 'contacts',
                 'settings',
+                'hero-sliders',
+                'app-links',
             ],
         ],
     ];
