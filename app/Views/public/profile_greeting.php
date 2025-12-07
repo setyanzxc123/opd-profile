@@ -1,3 +1,4 @@
+<?php helper('content'); ?>
 <?= $this->extend('layouts/public') ?>
 
 <?= $this->section('content') ?>
@@ -25,8 +26,16 @@
       <div class="col-lg-8">
         
         <article class="surface-card profile-card">
-          <div class="prose">
-            <?= nl2br(esc($profile['greeting'] ?? 'Sambutan belum tersedia.')) ?>
+          <div class="prose rich-content">
+            <?php
+              $greetingContent = $profile['greeting'] ?? '';
+              if (!empty($greetingContent)) {
+                // Sanitize and output rich HTML content from TinyMCE
+                echo sanitize_rich_text($greetingContent);
+              } else {
+                echo '<p class="text-muted">Sambutan belum tersedia.</p>';
+              }
+            ?>
           </div>
         </article>
 

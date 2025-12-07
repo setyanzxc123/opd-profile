@@ -237,10 +237,17 @@
 
             <div class="tab-pane fade" id="tab-sambutan" role="tabpanel" aria-labelledby="tab-sambutan-tab">
               <div class="row g-3">
-                <div class="col-12 col-lg-10">
-                  <label class="form-label">Sambutan</label>
-                  <textarea name="greeting" rows="8" class="form-control" placeholder="Tulis kata sambutan kepala instansi atau pesan selamat datang untuk pengunjung situs."><?= esc(old('greeting', $profile['greeting'] ?? '')) ?></textarea>
-                  <div class="form-text text-muted">Sambutan ini akan ditampilkan sebagai halaman terpisah di bagian Profil publik.</div>
+                <div class="col-12">
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold" for="greetingContent">Sambutan Kepala OPD</label>
+                    <p class="text-muted small mb-2">Tulis kata sambutan dari Kepala OPD untuk pengunjung situs. Gunakan toolbar untuk menambahkan heading, gambar, dan format lainnya.</p>
+                  </div>
+                  <textarea id="greetingContent" name="greeting" class="form-control" rows="12" placeholder="Tulis kata sambutan kepala instansi atau pesan selamat datang untuk pengunjung situs..."><?= old('greeting', $profile['greeting'] ?? '') ?></textarea>
+                  <?php if ($validation && $validation->hasError('greeting')): ?>
+                    <div class="form-text text-danger mt-1"><?= esc($validation->getError('greeting')) ?></div>
+                  <?php else: ?>
+                    <div class="form-text text-muted mt-2">Sambutan ini akan ditampilkan sebagai halaman terpisah di bagian Profil publik.</div>
+                  <?php endif; ?>
                 </div>
               </div>
             </div>
@@ -770,6 +777,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('pageScripts') ?>
+  <script src="<?= base_url('assets/vendor/tinymce/js/tinymce/tinymce.min.js') ?>"></script>
   <script src="<?= base_url('assets/vendor/cropperjs/cropper.min.js') ?>"></script>
   <script src="<?= base_url('assets/js/admin/profile-logos.js') ?>" defer></script>
   <script>
@@ -852,5 +860,64 @@
         }
       });
     });
+
+    // TinyMCE for Greeting/Sambutan
+    (function() {
+      const initGreetingEditor = function() {
+        if (typeof tinymce === 'undefined') {
+          console.warn('[Profile] TinyMCE not loaded');
+          return;
+        }
+
+        tinymce.init({
+          selector: '#greetingContent',
+          branding: false,
+          promotion: false,
+          height: 480,
+          menubar: 'file edit view insert format tools table help',
+          toolbar_sticky: true,
+          toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | table image media link | removeformat | fullscreen preview code',
+          plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount help quickbars emoticons',
+          quickbars_selection_toolbar: 'bold italic underline | quicklink blockquote',
+          quickbars_insert_toolbar: 'image media | hr',
+          autosave_interval: '30s',
+          autosave_restore_when_empty: true,
+          autosave_retention: '2m',
+          image_caption: true,
+          content_style: 'body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif; font-size: 16px; line-height: 1.7; }',
+          table_default_attributes: { class: 'table table-striped table-sm' },
+          file_picker_types: 'image media',
+          language: 'id',
+          language_url: '<?= base_url('assets/vendor/tinymce/langs/id.js') ?>',
+          setup: function(editor) {
+            editor.on('init', function() {
+              console.log('[Profile] Greeting TinyMCE initialized');
+            });
+          }
+        });
+      };
+
+      // Initialize when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initGreetingEditor);
+      } else {
+        initGreetingEditor();
+      }
+
+      // Handle form submission
+      const form = document.querySelector('form[action*="admin/profile"]');
+      if (form) {
+        form.addEventListener('submit', function() {
+          const editor = tinymce.get('greetingContent');
+          if (editor) {
+            try {
+              editor.save();
+            } catch (err) {
+              console.error('[Profile] Error saving greeting editor:', err);
+            }
+          }
+        });
+      }
+    })();
   </script>
 <?= $this->endSection() ?>

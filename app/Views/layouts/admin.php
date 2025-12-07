@@ -249,9 +249,14 @@
                 </nav>
                 <div class="d-flex align-items-center gap-2">
                   <div class="dropdown">
-                    <a class="nav-link dropdown-toggle hide-arrow p-0 d-flex align-items-center" href="javascript:void(0);" id="dropdownAccount" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <div class="avatar avatar-online">
-                        <span class="avatar-initial rounded-circle bg-primary text-uppercase"><?= esc($initial) ?></span>
+                    <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" id="dropdownAccount" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Menu Akun">
+                      <div class="avatar-dropdown-wrapper">
+                        <div class="avatar avatar-online">
+                          <span class="avatar-initial rounded-circle bg-primary text-uppercase"><?= esc($initial) ?></span>
+                        </div>
+                        <span class="avatar-dropdown-indicator">
+                          <i class="bx bx-chevron-down" aria-hidden="true"></i>
+                        </span>
                       </div>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownAccount">
@@ -316,6 +321,23 @@
   <script src="<?= base_url('assets/vendor/js/menu.js') ?>"></script>
   <script src="<?= base_url('assets/js/helpers-override.js') ?>"></script>
   <script src="<?= base_url('assets/js/main.js') ?>"></script>
+  <script>
+    // Avatar dropdown indicator animation
+    document.addEventListener('DOMContentLoaded', function() {
+      var dropdownAccount = document.getElementById('dropdownAccount');
+      if (dropdownAccount) {
+        var indicator = dropdownAccount.querySelector('.avatar-dropdown-indicator');
+        if (indicator) {
+          dropdownAccount.addEventListener('shown.bs.dropdown', function() {
+            indicator.classList.add('is-open');
+          });
+          dropdownAccount.addEventListener('hidden.bs.dropdown', function() {
+            indicator.classList.remove('is-open');
+          });
+        }
+      }
+    });
+  </script>
   <?= $this->renderSection('pageScripts') ?>
 </body>
 </html>
