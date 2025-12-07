@@ -38,13 +38,14 @@ if (! function_exists('responsive_image')) {
         $defaultHeight = $options['default_height'] ?? null;
         $aspectRatio = $options['aspect_ratio'] ?? (16 / 9);
         
-        // Clean image path
+        // Normalize slashes for consistency
+        $imagePath = str_replace('\\', '/', $imagePath);
         $imagePath = ltrim($imagePath, '/');
         
         // Get full path for checking file existence
         $fullPath = FCPATH . str_replace('/', DIRECTORY_SEPARATOR, $imagePath);
         
-        // Base URL
+        // Base URL (always forward slash via helper logic)
         $baseUrl = base_url($imagePath);
         
         // Generate srcset entries
@@ -72,9 +73,10 @@ if (! function_exists('responsive_image')) {
         foreach ($widths as $width) {
             // Only include widths smaller or equal to original
             if ($width <= $originalWidth) {
-                // Check if resized variant exists (e.g., image-400.jpg)
+                // Check if resized variant exists
                 $variantPath = get_image_variant_path($imagePath, $width);
-                $variantFullPath = FCPATH . str_replace('/', DIRECTORY_SEPARATOR, $variantPath);
+                $variantSystemPath = str_replace('/', DIRECTORY_SEPARATOR, $variantPath);
+                $variantFullPath = FCPATH . $variantSystemPath;
                 
                 if (file_exists($variantFullPath)) {
                     $srcsetParts[] = base_url($variantPath) . ' ' . $width . 'w';
@@ -84,6 +86,7 @@ if (! function_exists('responsive_image')) {
         }
         
         // Always include original as the largest option
+        // Ensure base URL doesn't look weird if $imagePath has leading slash (already trimmed)
         $srcsetParts[] = $baseUrl . ' ' . $originalWidth . 'w';
         $actualWidths[] = $originalWidth;
         
@@ -142,8 +145,10 @@ if (! function_exists('get_image_variant_path')) {
         $ext = $pathInfo['extension'] ?? 'jpg';
         
         $variantFilename = $filename . '-' . $width . '.' . $ext;
+        $variantPath = $dir !== '.' ? ($dir . '/' . $variantFilename) : $variantFilename;
         
-        return $dir !== '.' ? ($dir . '/' . $variantFilename) : $variantFilename;
+        // Ensure forward slashes for URL usage
+        return str_replace('\\', '/', $variantPath);
     }
 }
 
@@ -158,8 +163,14 @@ if (! function_exists('responsive_srcset')) {
      */
     function responsive_srcset(string $imagePath, array $widths = [400, 800, 1200], string $sizes = '100vw'): array
     {
+        // Normalize slashes for consistency
+        $imagePath = str_replace('\\', '/', $imagePath);
         $imagePath = ltrim($imagePath, '/');
+        
+        // Full System Path
         $fullPath = FCPATH . str_replace('/', DIRECTORY_SEPARATOR, $imagePath);
+        
+        // URL Path (always forward slash)
         $baseUrl = base_url($imagePath);
         
         $srcsetParts = [];
@@ -175,7 +186,9 @@ if (! function_exists('responsive_srcset')) {
         foreach ($widths as $width) {
             if ($width <= $originalWidth) {
                 $variantPath = get_image_variant_path($imagePath, $width);
-                $variantFullPath = FCPATH . str_replace('/', DIRECTORY_SEPARATOR, $variantPath);
+                // System Path check
+                $variantSystemPath = str_replace('/', DIRECTORY_SEPARATOR, $variantPath);
+                $variantFullPath = FCPATH . $variantSystemPath;
                 
                 if (file_exists($variantFullPath)) {
                     $srcsetParts[] = base_url($variantPath) . ' ' . $width . 'w';

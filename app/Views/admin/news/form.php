@@ -158,6 +158,9 @@
                                     <h5 class="fw-semibold mb-3">Pengaturan Publikasi</h5>
                 
                                     <div class="mb-3">
+                                      <label class="form-label" for="publishedAt">Waktu Publikasi</label>
+                                      <?php
+                                        $val = old('published_at', $item['published_at'] ?? '');
                                         if ($val && strpos($val, 'T') === false) {
                                           $val = str_replace(' ', 'T', substr($val, 0, 16));
                                         }
