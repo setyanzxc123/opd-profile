@@ -23,11 +23,10 @@
   <title><?= esc($title ?? 'Admin OPD') ?></title>
   <link rel="icon" type="image/x-icon" href="<?= esc($faviconUrl) ?>" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&display=swap"
-    rel="stylesheet" />
+
+  <!-- Self-hosted fonts (Public Sans + Boxicons subset) -->
+  <link rel="stylesheet" href="<?= base_url('assets/vendor/fonts/public-sans/public-sans.css') ?>" />
+  <link rel="stylesheet" href="<?= base_url('assets/vendor/fonts/boxicons/boxicons-subset.css') ?>" />
 
   <link rel="stylesheet" href="<?= base_url('assets/vendor/fonts/iconify-icons.css') ?>" />
   <link rel="stylesheet" href="<?= base_url('assets/vendor/css/core.css') ?>" />

@@ -1,0 +1,483 @@
+/* Boxicons Subset - Self Hosted
+ * Full library: https://boxicons.com
+ * Version: 2.1.4
+ * This is a SUBSET containing only icons used in this project
+ * Total icons: ~83 (vs 1500+ in full library)
+ * 
+ * IMPORTANT: If you need to add a new icon, find its code in boxicons-full.css
+ * and add the class below.
+ */
+
+@font-face {
+    font-family: 'boxicons';
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    src: url('boxicons.woff2') format('woff2'),
+        url('boxicons.woff') format('woff');
+}
+
+/* Base classes */
+.bx {
+    font-family: 'boxicons' !important;
+    font-weight: 400;
+    font-style: normal;
+    font-variant: normal;
+    line-height: 1;
+    text-rendering: auto;
+    display: inline-block;
+    text-transform: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Animation classes */
+.bx-spin {
+    -webkit-animation: bx-spin 2s linear infinite;
+    animation: bx-spin 2s linear infinite;
+}
+
+.bx-spin-hover:hover {
+    -webkit-animation: bx-spin 2s linear infinite;
+    animation: bx-spin 2s linear infinite;
+}
+
+@-webkit-keyframes bx-spin {
+    0% {
+        -webkit-transform: rotate(0);
+        transform: rotate(0);
+    }
+
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+
+@keyframes bx-spin {
+    0% {
+        -webkit-transform: rotate(0);
+        transform: rotate(0);
+    }
+
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+
+/* Size modifiers */
+.bx-xs {
+    font-size: 1rem !important;
+}
+
+.bx-sm {
+    font-size: 1.55rem !important;
+}
+
+.bx-md {
+    font-size: 2.25rem !important;
+}
+
+.bx-lg {
+    font-size: 3rem !important;
+}
+
+/* Rotation modifiers */
+.bx-rotate-90 {
+    transform: rotate(90deg);
+}
+
+.bx-rotate-180 {
+    transform: rotate(180deg);
+}
+
+.bx-rotate-270 {
+    transform: rotate(270deg);
+}
+
+/* Flip modifiers */
+.bx-flip-horizontal {
+    transform: scaleX(-1);
+}
+
+.bx-flip-vertical {
+    transform: scaleY(-1);
+}
+
+/* ===================================================================
+   REGULAR ICONS (bx-)
+   =================================================================== */
+
+/* Navigation & UI */
+.bx-home:before {
+    content: "\eb12";
+}
+
+.bx-home-alt:before {
+    content: "\eb13";
+}
+
+.bx-home-circle:before {
+    content: "\eb14";
+}
+
+.bx-home-smile:before {
+    content: "\eb16";
+}
+
+.bx-chevron-up:before {
+    content: "\ea57";
+}
+
+.bx-chevron-down:before {
+    content: "\ea4a";
+}
+
+.bx-chevron-left:before {
+    content: "\ea4d";
+}
+
+.bx-chevron-right:before {
+    content: "\ea50";
+}
+
+.bx-arrow-back:before {
+    content: "\e9b4";
+}
+
+.bx-x:before {
+    content: "\ec8d";
+}
+
+.bx-menu:before {
+    content: "\eb5f";
+}
+
+/* Search */
+.bx-search:before {
+    content: "\ebf7";
+}
+
+.bx-search-alt:before {
+    content: "\ebf8";
+}
+
+.bx-search-alt-2:before {
+    content: "\ebf9";
+}
+
+/* Actions */
+.bx-plus:before {
+    content: "\ebc0";
+}
+
+.bx-edit:before {
+    content: "\eabf";
+}
+
+.bx-trash:before {
+    content: "\ec50";
+}
+
+.bx-save:before {
+    content: "\ebf4";
+}
+
+.bx-reset:before {
+    content: "\ebe0";
+}
+
+.bx-refresh:before {
+    content: "\ebd9";
+}
+
+.bx-copy:before {
+    content: "\ea84";
+}
+
+.bx-download:before {
+    content: "\eab9";
+}
+
+.bx-upload:before {
+    content: "\ec5f";
+}
+
+.bx-send:before {
+    content: "\ebfc";
+}
+
+.bx-show:before {
+    content: "\ec0c";
+}
+
+.bx-hide:before {
+    content: "\eb0e";
+}
+
+/* Status & Feedback */
+.bx-check:before {
+    content: "\ea41";
+}
+
+.bx-check-circle:before {
+    content: "\ea46";
+}
+
+.bx-error-circle:before {
+    content: "\eac7";
+}
+
+.bx-info-circle:before {
+    content: "\eb21";
+}
+
+/* Content */
+.bx-news:before {
+    content: "\eb9f";
+}
+
+.bx-file:before {
+    content: "\ead5";
+}
+
+.bx-folder:before {
+    content: "\eadf";
+}
+
+.bx-image:before {
+    content: "\eb1b";
+}
+
+.bx-image-alt:before {
+    content: "\eb1d";
+}
+
+.bx-star:before {
+    content: "\ec27";
+}
+
+.bx-calendar:before {
+    content: "\ea15";
+}
+
+.bx-calendar-event:before {
+    content: "\ea19";
+}
+
+/* Communication */
+.bx-envelope:before {
+    content: "\eac1";
+}
+
+.bx-envelope-open:before {
+    content: "\eac2";
+}
+
+.bx-phone:before {
+    content: "\ebb2";
+}
+
+.bx-phone-call:before {
+    content: "\ebb3";
+}
+
+.bx-message-square-detail:before {
+    content: "\eb80";
+}
+
+.bx-chat:before {
+    content: "\ea40";
+}
+
+/* Location */
+.bx-map:before {
+    content: "\eb56";
+}
+
+.bx-map-alt:before {
+    content: "\eb57";
+}
+
+.bx-map-pin:before {
+    content: "\eb58";
+}
+
+/* Time */
+.bx-time:before {
+    content: "\ec45";
+}
+
+.bx-time-five:before {
+    content: "\ec46";
+}
+
+.bx-history:before {
+    content: "\eb10";
+}
+
+/* Organization */
+.bx-building:before {
+    content: "\ea0a";
+}
+
+.bx-buildings:before {
+    content: "\ea0c";
+}
+
+.bx-sitemap:before {
+    content: "\ec10";
+}
+
+.bx-network-chart:before {
+    content: "\eb9e";
+}
+
+.bx-git-branch:before {
+    content: "\eaf0";
+}
+
+/* Business */
+.bx-briefcase:before {
+    content: "\ea00";
+}
+
+.bx-briefcase-alt-2:before {
+    content: "\ea02";
+}
+
+.bx-list-check:before {
+    content: "\eb40";
+}
+
+.bx-task:before {
+    content: "\ec3e";
+}
+
+/* Profile */
+.bx-user:before {
+    content: "\ec63";
+}
+
+.bx-target-lock:before {
+    content: "\ec3d";
+}
+
+.bx-bullseye:before {
+    content: "\ea0e";
+}
+
+/* Links */
+.bx-link-external:before {
+    content: "\eb3e";
+}
+
+.bx-link-alt:before {
+    content: "\eb3d";
+}
+
+/* Security */
+.bx-key:before {
+    content: "\eb28";
+}
+
+.bx-shield:before {
+    content: "\ec05";
+}
+
+.bx-power-off:before {
+    content: "\ebc8";
+}
+
+.bx-cog:before {
+    content: "\ea6e";
+}
+
+/* Media */
+.bx-slider:before {
+    content: "\ec16";
+}
+
+.bx-play-circle:before {
+    content: "\ebbe";
+}
+
+.bx-loader-alt:before {
+    content: "\eb46";
+}
+
+/* Social & Sharing */
+.bx-share-alt:before {
+    content: "\ec03";
+}
+
+/* Category/News icons */
+.bx-bullhorn:before {
+    content: "\ea05";
+}
+
+.bx-trophy:before {
+    content: "\ec56";
+}
+
+/* Theme */
+.bx-sun:before {
+    content: "\ec34";
+}
+
+.bx-moon:before {
+    content: "\eb94";
+}
+
+.bx-paint:before {
+    content: "\eba7";
+}
+
+/* ===================================================================
+   LOGO ICONS (bxl-)
+   =================================================================== */
+
+.bxl-facebook:before {
+    content: "\e92f";
+}
+
+.bxl-facebook-circle:before {
+    content: "\e930";
+}
+
+.bxl-instagram:before {
+    content: "\e942";
+}
+
+.bxl-twitter:before {
+    content: "\e982";
+}
+
+.bxl-youtube:before {
+    content: "\e992";
+}
+
+.bxl-tiktok:before {
+    content: "\e97c";
+}
+
+.bxl-whatsapp:before {
+    content: "\e98a";
+}
+
+.bxl-telegram:before {
+    content: "\e97b";
+}
+
+/* ===================================================================
+   ICON REFERENCE
+   ===================================================================
+   
+   To add a new icon:
+   1. Open boxicons-full.css in this folder
+   2. Search for the icon class (e.g., ".bx-camera")
+   3. Copy the content code (e.g., "\ea21")
+   4. Add line below:  .bx-camera:before { content: "\ea21"; }
+   
+   =================================================================== */

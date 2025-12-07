@@ -44,11 +44,9 @@
   <?php if ($metaImage !== ''): ?>
     <meta property="og:image" content="<?= esc($metaImage, 'attr') ?>" />
   <?php endif; ?>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="preload" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'></noscript>
+  <!-- Self-hosted fonts (Public Sans + Boxicons subset) -->
+  <link href="<?= base_url('assets/vendor/fonts/public-sans/public-sans.css') ?>" rel="stylesheet" />
+  <link href="<?= base_url('assets/vendor/fonts/boxicons/boxicons-subset.css') ?>" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <!-- CSS Bundle: tokens + layout + components + pages + navbar-dropdown + global-search + hero-slider + hide-icons -->
   <link href="<?= base_url('assets/css/public/bundle.css') ?>" rel="stylesheet" />
