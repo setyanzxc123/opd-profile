@@ -137,12 +137,5 @@ _modules/*
 
 /results/
 /phpunit*.xml
-plans.txt
 web_opd.sql
-plans2.txt
-saran.txt
-temuan_overengineering_admin.md
 /magnews2-master/
-
-# Claude AI generated documentation (internal use only)
-saranclaude.md

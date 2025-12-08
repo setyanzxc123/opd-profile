@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="<?= base_url('assets/vendor/fonts/public-sans/public-sans.css') ?>" />
   <link rel="stylesheet" href="<?= base_url('assets/vendor/fonts/boxicons/boxicons-subset.css') ?>" />
 
-  <link rel="stylesheet" href="<?= base_url('assets/vendor/fonts/iconify-icons.css') ?>" />
+  <!-- Icons: Using boxicons (already loaded via boxicons-subset.css) -->
   <link rel="stylesheet" href="<?= base_url('assets/vendor/css/core.css') ?>" />
   <link rel="stylesheet" href="<?= base_url('assets/css/demo.css') ?>" />
   <link rel="stylesheet" href="<?= base_url('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') ?>" />

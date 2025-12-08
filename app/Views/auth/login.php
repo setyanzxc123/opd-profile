@@ -29,7 +29,7 @@
   <title>Panel Admin</title>
   <link href="<?= base_url('assets/vendor/css/core.css') ?>" rel="stylesheet">
   <link href="<?= base_url('assets/vendor/css/pages/page-auth.css') ?>" rel="stylesheet">
-  <link href="<?= base_url('assets/vendor/fonts/iconify-icons.css') ?>" rel="stylesheet">
+  <!-- Icons: Using boxicons (loaded via core.css) -->
   <link href="<?= base_url('assets/css/demo.css') ?>" rel="stylesheet">
   <link href="<?= base_url('assets/css/custom.css') ?>" rel="stylesheet">
   <?php if ($loginThemeVariables !== []): ?>
