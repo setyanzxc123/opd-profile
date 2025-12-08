@@ -9,11 +9,17 @@ use Config\AllowedMimes;
 class Documents extends BaseController
 {
     private const UPLOAD_DIR = 'uploads/documents';
+    
+    protected DocumentModel $documentModel;
+
+    public function __construct()
+    {
+        $this->documentModel = model(DocumentModel::class);
+    }
 
     public function index()
     {
-        $model = new DocumentModel();
-        $items = $model->orderBy('id', 'DESC')->findAll(100);
+        $items = $this->documentModel->orderBy('id', 'DESC')->findAll(100);
         return view('admin/documents/index', [
             'title' => 'Dokumen',
             'items' => $items,
@@ -64,7 +70,7 @@ class Documents extends BaseController
         $categoryInput = sanitize_plain_text($this->request->getPost('category'));
         $yearInput     = sanitize_plain_text($this->request->getPost('year'));
 
-        (new DocumentModel())->insert([
+        $this->documentModel->insert([
             'title'     => $titleInput,
             'category'  => $categoryInput,
             'year'      => $yearInput,
@@ -78,7 +84,7 @@ class Documents extends BaseController
 
     public function edit(int $id)
     {
-        $item = (new DocumentModel())->find($id);
+        $item = $this->documentModel->find($id);
         if (! $item) {
             return redirect()->to(site_url('admin/documents'))->with('error', 'Data tidak ditemukan.');
         }
@@ -94,8 +100,7 @@ class Documents extends BaseController
     {
         helper(['activity', 'content']);
 
-        $model = new DocumentModel();
-        $item  = $model->find($id);
+        $item  = $this->documentModel->find($id);
         if (! $item) {
             return redirect()->to(site_url('admin/documents'))->with('error', 'Data tidak ditemukan.');
         }
@@ -134,7 +139,7 @@ class Documents extends BaseController
             $data['file_path'] = $newPath;
         }
 
-        $model->update($id, $data);
+        $this->documentModel->update($id, $data);
 
         log_activity('document.update', 'Memperbarui dokumen: ' . $titleInput);
 
@@ -144,11 +149,10 @@ class Documents extends BaseController
     public function delete(int $id)
     {
         helper('activity');
-        $model = new DocumentModel();
-        $item  = $model->find($id);
+        $item  = $this->documentModel->find($id);
         if ($item) {
             FileUploadManager::deleteFile($item['file_path'] ?? null);
-            $model->delete($id);
+            $this->documentModel->delete($id);
             log_activity('document.delete', 'Menghapus dokumen: ' . ($item['title'] ?? ''));
         }
         return redirect()->to(site_url('admin/documents'))->with('message', 'Data dihapus.');

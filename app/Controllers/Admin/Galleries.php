@@ -10,10 +10,17 @@ use Config\AllowedMimes;
 class Galleries extends BaseController
 {
     private const UPLOAD_DIR = 'uploads/galleries';
+    
+    protected GalleryModel $galleryModel;
+
+    public function __construct()
+    {
+        $this->galleryModel = model(GalleryModel::class);
+    }
 
     public function index()
     {
-        $items = (new GalleryModel())
+        $items = $this->galleryModel
             ->orderBy('id', 'DESC')
             ->findAll(100);
 
@@ -64,7 +71,7 @@ class Galleries extends BaseController
         $titleInput       = sanitize_plain_text($this->request->getPost('title'));
         $descriptionInput = sanitize_rich_text($this->request->getPost('description'));
 
-        (new GalleryModel())->insert([
+        $this->galleryModel->insert([
             'title'       => $titleInput,
             'description' => $descriptionInput,
             'image_path'  => $newPath,
@@ -77,7 +84,7 @@ class Galleries extends BaseController
 
     public function edit(int $id)
     {
-        $item = (new GalleryModel())->find($id);
+        $item = $this->galleryModel->find($id);
         if (! $item) {
             return redirect()->to(site_url('admin/galleries'))->with('error', 'Data tidak ditemukan.');
         }
@@ -94,8 +101,7 @@ class Galleries extends BaseController
     {
         helper(['activity', 'content']);
 
-        $model = new GalleryModel();
-        $item  = $model->find($id);
+        $item  = $this->galleryModel->find($id);
         if (! $item) {
             return redirect()->to(site_url('admin/galleries'))->with('error', 'Data tidak ditemukan.');
         }
@@ -134,7 +140,7 @@ class Galleries extends BaseController
             $data['image_path'] = $newPath;
         }
 
-        $model->update($id, $data);
+        $this->galleryModel->update($id, $data);
 
         log_activity('gallery.update', 'Mengubah foto galeri: ' . $titleInput);
 
@@ -145,13 +151,12 @@ class Galleries extends BaseController
     {
         helper('activity');
 
-        $model = new GalleryModel();
-        $item  = $model->find($id);
+        $item  = $this->galleryModel->find($id);
         if ($item) {
             // Delete image with all responsive variants
             ImageOptimizer::deleteWithVariants($item['image_path'] ?? null);
             
-            $model->delete($id);
+            $this->galleryModel->delete($id);
             log_activity('gallery.delete', 'Menghapus foto galeri: ' . ($item['title'] ?? ''));
         }
 

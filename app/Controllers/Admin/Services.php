@@ -11,6 +11,13 @@ use Config\AllowedMimes;
 class Services extends BaseController
 {
     private const UPLOAD_DIR = 'uploads/services';
+    
+    protected ServiceModel $serviceModel;
+
+    public function __construct()
+    {
+        $this->serviceModel = model(ServiceModel::class);
+    }
 
     private function clearServiceCaches(): void
     {
@@ -44,7 +51,7 @@ class Services extends BaseController
 
     public function index(): string
     {
-        $items = (new ServiceModel())
+        $items = $this->serviceModel
             ->orderBy('sort_order', 'ASC')
             ->orderBy('title', 'ASC')
             ->findAll();
@@ -99,10 +106,9 @@ class Services extends BaseController
 
         helper('slug');
 
-        $model            = new ServiceModel();
         $titleInput       = sanitize_plain_text($this->request->getPost('title'));
         $slugInput        = sanitize_plain_text($this->request->getPost('slug'));
-        $slug             = unique_slug($titleInput, $model, 'slug', $slugInput ?: null, null, 'layanan');
+        $slug             = unique_slug($titleInput, $this->serviceModel, 'slug', $slugInput ?: null, null, 'layanan');
         $descriptionInput = sanitize_plain_text($this->request->getPost('description'));
         $contentInput     = sanitize_rich_text($this->request->getPost('content'));
         $requirements     = sanitize_plain_text($this->request->getPost('requirements'));
@@ -137,7 +143,7 @@ class Services extends BaseController
             $data['thumbnail'] = $newPath;
         }
 
-        (new ServiceModel())->insert($data);
+        $this->serviceModel->insert($data);
 
         $this->clearServiceCaches();
 
@@ -148,7 +154,7 @@ class Services extends BaseController
 
     public function edit(int $id)
     {
-        $item = (new ServiceModel())->find($id);
+        $item = $this->serviceModel->find($id);
         if (! $item) {
             return redirect()->to(site_url('admin/services'))->with('error', 'Data tidak ditemukan.');
         }
@@ -165,8 +171,7 @@ class Services extends BaseController
     {
         helper(['activity', 'content', 'text']);
 
-        $model = new ServiceModel();
-        $item  = $model->find($id);
+        $item  = $this->serviceModel->find($id);
         if (! $item) {
             return redirect()->to(site_url('admin/services'))->with('error', 'Data tidak ditemukan.');
         }
@@ -191,7 +196,7 @@ class Services extends BaseController
 
         $titleInput       = sanitize_plain_text($this->request->getPost('title'));
         $slugInput        = sanitize_plain_text($this->request->getPost('slug'));
-        $slug             = unique_slug($titleInput, $model, 'slug', $slugInput ?: null, $id, 'layanan');
+        $slug             = unique_slug($titleInput, $this->serviceModel, 'slug', $slugInput ?: null, $id, 'layanan');
         $descriptionInput = sanitize_plain_text($this->request->getPost('description'));
         $contentInput     = sanitize_rich_text($this->request->getPost('content'));
         $requirements     = sanitize_plain_text($this->request->getPost('requirements'));
@@ -229,7 +234,7 @@ class Services extends BaseController
             $data['thumbnail'] = $newPath;
         }
 
-        $model->update($id, $data);
+        $this->serviceModel->update($id, $data);
 
         $this->clearServiceCaches();
 
@@ -242,13 +247,12 @@ class Services extends BaseController
     {
         helper('activity');
 
-        $model = new ServiceModel();
-        $item  = $model->find($id);
+        $item  = $this->serviceModel->find($id);
         if ($item) {
             // Delete thumbnail with all responsive variants
             ImageOptimizer::deleteWithVariants($item['thumbnail'] ?? null);
             
-            $model->delete($id);
+            $this->serviceModel->delete($id);
             $this->clearServiceCaches();
             log_activity('service.delete', 'Menghapus layanan: ' . ($item['title'] ?? ''));
         }

@@ -189,33 +189,23 @@ FileUploadManager::deleteFile($link['logo_path']);
 
 ---
 
-### 1.5 Duplikasi Validation Rules untuk Form Input
+### 1.5 Duplikasi Validation Rules untuk Form Input ⏭️ DITANGGUHKAN
+
+**Status:** ⏭️ Ditangguhkan (Prioritas Rendah)
 
 **Lokasi:**
-- `Controllers/Admin/Services.php` → `store()` baris 116-125, `update()` baris 206-215
-- `Controllers/Admin/Galleries.php` → `store()` baris 77-78, `update()` baris 139-140  
-- `Controllers/Admin/Documents.php` → `store()` baris 53-57, `update()` baris 114-120
-- `Controllers/Admin/News.php` → `store()` baris 209-215, `update()` baris 309-315
+- `Controllers/Admin/Services.php` → `store()` dan `update()`
+- `Controllers/Admin/Galleries.php` → `store()` dan `update()`
+- `Controllers/Admin/Documents.php` → `store()` dan `update()`
+- `Controllers/Admin/News.php` → `store()` dan `update()`
 
-**Masalah:**
-Validation rules untuk `store()` dan `update()` hampir identik di setiap controller, hanya berbeda pada rule `thumbnail` (required vs permit_empty).
+**Alasan Ditangguhkan:**
+- Rules masih cukup readable dalam bentuk inline
+- Perbedaan antar controller cukup signifikan (fields berbeda)
+- Manfaat refactoring tidak sebanding dengan kompleksitas
+- Dapat dikerjakan jika ada waktu ekstra
 
-**Rekomendasi:**
-```php
-// Dalam masing-masing controller, buat method private
-private function baseValidationRules(bool $isUpdate = false): array
-{
-    return [
-        'title' => 'required|min_length[3]|max_length[150]',
-        'content' => 'permit_empty',
-        'thumbnail' => $isUpdate 
-            ? 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]'
-            : 'uploaded[thumbnail]|max_size[thumbnail,4096]|is_image[thumbnail]',
-    ];
-}
-```
-
-**Prioritas:** 🟢 Rendah (inline tapi masih readable)
+**Prioritas:** 🟢 Rendah
 
 ---
 
@@ -238,79 +228,59 @@ return redirect()->to(site_url('admin/xxx'))->with('message', 'Data berhasil dis
 
 ## 2. ARSITEKTUR YANG INKONSISTEN
 
-### 2.1 Penggunaan Service Layer Tidak Konsisten
+### 2.1 Penggunaan Service Layer Tidak Konsisten ⏭️ DITANGGUHKAN
 
-**Controller dengan Service:**
-- ✅ `HeroSliders.php` → menggunakan `HeroSliderService` (thin controller)
+**Status:** ⏭️ Ditangguhkan (Refactoring Besar)
+
+**Controller dengan Service (Pattern yang Baik):**
+- ✅ `HeroSliders.php` → menggunakan `HeroSliderService`
 - ✅ `Profile.php` → menggunakan `ProfileAdminService`, `ProfileLogoService`
 - ✅ `News.php` → menggunakan `NewsMediaService`
 - ✅ `Dashboard.php` → menggunakan `DashboardAdminService`
 
-**Controller tanpa Service (Fat Controller):**
-- ❌ `Services.php` → logic langsung di controller (~300 baris)
-- ❌ `Galleries.php` → logic langsung di controller (~200 baris)
-- ❌ `Documents.php` → logic langsung di controller (~167 baris)
-- ❌ `AppLinks.php` → logic langsung di controller (~336 baris)
-- ❌ `Users.php` → logic langsung di controller (~284 baris)
-- ❌ `Contacts.php` → logic langsung di controller (~235 baris)
+**Controller tanpa Service:**
+- `Services.php`, `Galleries.php`, `Documents.php`, `AppLinks.php`, `Users.php`, `Contacts.php`
 
-**Rekomendasi:**
-Untuk konsistensi jangka panjang, buat Service layer untuk modul yang sering berubah:
-1. `AppLinksService.php` - menangani sort order, toggle, CRUD
-2. `UserAdminService.php` - menangani password, role, Shield integration
-3. (Opsional) `ServiceAdminService.php`, `GalleryAdminService.php`
+**Alasan Ditangguhkan:**
+- Memerlukan refactoring besar (~500+ baris per service baru)
+- Controller saat ini sudah cukup maintainable setelah refactoring 1.1-1.4 dan 2.2
+- Dapat dikerjakan secara bertahap jika ada kebutuhan testing atau fitur baru
 
-**Prioritas:** 🟡 Sedang (refactoring besar, tapi meningkatkan testability)
+**Prioritas:** 🟡 Sedang (future improvement)
 
 ---
 
-### 2.2 Inkonsistensi Inisialisasi Model
+### 2.2 Inkonsistensi Inisialisasi Model ✅ SELESAI
 
-**Pattern 1 - Model di Constructor:**
-```php
-// Controllers/Admin/Users.php
-protected UserModel $users;
+**Status:** ✅ Diimplementasikan pada 2025-12-08
 
-public function __construct()
-{
-    $this->users = model(UserModel::class);
-}
-```
+**Lokasi Awal:**
+- `Controllers/Admin/Services.php` → menggunakan `(new ServiceModel())`
+- `Controllers/Admin/Galleries.php` → menggunakan `(new GalleryModel())`
+- `Controllers/Admin/Documents.php` → menggunakan `new DocumentModel()`
 
-**Pattern 2 - Model Inline/Fresh Instance:**
-```php
-// Controllers/Admin/Services.php
-public function index(): string
-{
-    $items = (new ServiceModel())->orderBy(...)->findAll();
-}
+**Solusi yang Diimplementasikan:**
 
-public function store()
-{
-    // ...
-    (new ServiceModel())->insert($data);
-}
-```
+1. **Services.php**
+   - Menambahkan property `protected ServiceModel $serviceModel;`
+   - Menambahkan constructor dengan `model(ServiceModel::class)`
+   - Mengganti semua inline instantiation dengan `$this->serviceModel`
 
-**Masalah:**
-- Pattern 2 menciptakan banyak instance model yang tidak perlu
-- Inkonsisten dengan pattern yang sudah ada
+2. **Galleries.php**
+   - Menambahkan property `protected GalleryModel $galleryModel;`
+   - Menambahkan constructor dengan `model(GalleryModel::class)`
+   - Mengganti semua inline instantiation dengan `$this->galleryModel`
 
-**Rekomendasi:**
-Standardisasi ke Pattern 1 (DI via constructor):
-```php
-class Services extends BaseController
-{
-    protected ServiceModel $serviceModel;
-    
-    public function __construct()
-    {
-        $this->serviceModel = model(ServiceModel::class);
-    }
-}
-```
+3. **Documents.php**
+   - Menambahkan property `protected DocumentModel $documentModel;`
+   - Menambahkan constructor dengan `model(DocumentModel::class)`
+   - Mengganti semua inline instantiation dengan `$this->documentModel`
 
-**Prioritas:** 🟡 Sedang
+**Hasil:**
+- ✅ Pattern konsisten dengan Users.php, AppLinks.php, ActivityLogs.php
+- ✅ Tidak ada lagi multiple model instantiation dalam satu request
+- ✅ Lebih mudah untuk mocking dalam unit tests
+- ✅ Code lebih clean dan maintainable
 
 ---
 
