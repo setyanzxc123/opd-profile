@@ -620,4 +620,72 @@ class Pages extends BaseController
             'footerProfile' => $profile,
         ]);
     }
+
+    /**
+     * PPID Index Page
+     */
+    public function ppid(): string
+    {
+        $ppidModel = model('App\Models\PpidModel');
+        $ppid = $ppidModel->getPpid() ?? [];
+        $profile = $this->contentService->latestProfile();
+
+        return view('public/ppid', [
+            'title'         => 'PPID',
+            'ppid'          => $ppid,
+            'profile'       => $profile,
+            'footerProfile' => $profile,
+        ]);
+    }
+
+    /**
+     * PPID About Page
+     */
+    public function ppidAbout(): string
+    {
+        $ppidModel = model('App\Models\PpidModel');
+        $ppid = $ppidModel->getPpid() ?? [];
+        $profile = $this->contentService->latestProfile();
+
+        return view('public/ppid_about', [
+            'title'         => 'Tentang PPID',
+            'ppid'          => $ppid,
+            'profile'       => $profile,
+            'footerProfile' => $profile,
+        ]);
+    }
+
+    /**
+     * PPID Visi Misi Page
+     */
+    public function ppidVisiMisi(): string
+    {
+        $ppidModel = model('App\Models\PpidModel');
+        $ppid = $ppidModel->getPpid() ?? [];
+        $profile = $this->contentService->latestProfile();
+
+        return view('public/ppid_visi_misi', [
+            'title'         => 'Visi & Misi PPID',
+            'ppid'          => $ppid,
+            'profile'       => $profile,
+            'footerProfile' => $profile,
+        ]);
+    }
+
+    /**
+     * PPID Tugas Fungsi Page
+     */
+    public function ppidTugasFungsi(): string
+    {
+        $ppidModel = model('App\Models\PpidModel');
+        $ppid = $ppidModel->getPpid() ?? [];
+        $profile = $this->contentService->latestProfile();
+
+        return view('public/ppid_tasks_functions', [
+            'title'         => 'Tugas & Fungsi PPID',
+            'ppid'          => $ppid,
+            'profile'       => $profile,
+            'footerProfile' => $profile,
+        ]);
+    }
 }

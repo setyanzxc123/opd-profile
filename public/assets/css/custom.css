@@ -469,3 +469,45 @@ body.login-page {
 .avatar-dropdown-indicator.is-open i {
   transform: rotate(180deg);
 }
+
+/* ============================================================
+   Sidebar Scrollbar - Thicker & More Visible
+   Override Sneat's .menu .ps selectors from core.css
+   ============================================================ */
+
+/* Prevent scroll from propagating to page content */
+#layout-menu .menu-inner {
+  overscroll-behavior: contain;
+}
+
+/* Make scrollbar thumb wider (override .menu .ps .ps__thumb-y) */
+.menu.ps .ps__thumb-y,
+.menu .ps .ps__thumb-y {
+  inline-size: 0.375rem !important;
+  opacity: 0.75 !important;
+}
+
+/* Make scrollbar and rail wider on hover */
+.menu.ps .ps__rail-y:hover,
+.menu.ps .ps__rail-y:focus,
+.menu.ps .ps__rail-y.ps--clicking,
+.menu .ps .ps__rail-y:hover,
+.menu .ps .ps__rail-y:focus,
+.menu .ps .ps__rail-y.ps--clicking {
+  inline-size: 0.5rem !important;
+}
+
+.menu.ps .ps__rail-y:hover>.ps__thumb-y,
+.menu.ps .ps__rail-y:focus>.ps__thumb-y,
+.menu.ps .ps__rail-y.ps--clicking>.ps__thumb-y,
+.menu .ps .ps__rail-y:hover>.ps__thumb-y,
+.menu .ps .ps__rail-y:focus>.ps__thumb-y,
+.menu .ps .ps__rail-y.ps--clicking>.ps__thumb-y {
+  inline-size: 0.5rem !important;
+  opacity: 0.8 !important;
+}
+
+/* Hide active menu indicator bar (blue bar on right side) */
+.layout-wrapper:not(.layout-horizontal) .menu-vertical .menu-inner>.menu-item.active::before {
+  display: none !important;
+}

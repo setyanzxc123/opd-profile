@@ -24,6 +24,12 @@ $routes->get('kontak', 'Pages::kontak');
 $routes->post('kontak', 'ContactController::submit');
 $routes->get('struktur-organisasi', 'PublicOrganization::index');
 
+// PPID Routes
+$routes->get('ppid', 'Pages::ppid');
+$routes->get('ppid/tentang', 'Pages::ppidAbout');
+$routes->get('ppid/visi-misi', 'Pages::ppidVisiMisi');
+$routes->get('ppid/tugas-fungsi', 'Pages::ppidTugasFungsi');
+
 $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::attempt');
 $routes->get('logout', 'Auth::logout');
@@ -100,4 +106,7 @@ $routes->group('admin', [
     $routes->post('app-links/toggle/(:num)', 'AppLinks::toggleActive/$1');
     $routes->post('app-links/sort-order', 'AppLinks::updateSortOrder');
     $routes->post('app-links/toggle-section', 'AppLinks::toggleSection');
+    // PPID CMS
+    $routes->get('ppid', 'Ppid::index');
+    $routes->post('ppid', 'Ppid::update');
 });

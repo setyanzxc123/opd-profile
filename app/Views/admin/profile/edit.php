@@ -859,6 +859,66 @@
           urlInput.addEventListener('input', checkAndToggle);
         }
       });
+
+      // Auto-select tab based on URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabParam = urlParams.get('tab');
+      const tabMapping = {
+        'umum': 'tab-umum-tab',
+        'visimisi': 'tab-visimisi-tab',
+        'sambutan': 'tab-sambutan-tab',
+        'tugas': 'tab-tugas-tab',
+        'kontak': 'tab-kontak-tab',
+        'social': 'tab-social-tab',
+        'org': 'tab-org-tab',
+        'theme': 'tab-theme-tab'
+      };
+
+      if (tabParam && tabMapping[tabParam]) {
+        const tabButton = document.getElementById(tabMapping[tabParam]);
+        if (tabButton) {
+          // Remove active from current tab
+          document.querySelectorAll('#profileTabs .nav-link').forEach(function(link) {
+            link.classList.remove('active');
+            link.setAttribute('aria-selected', 'false');
+          });
+          document.querySelectorAll('.tab-content .tab-pane').forEach(function(pane) {
+            pane.classList.remove('show', 'active');
+          });
+          
+          // Activate target tab
+          tabButton.classList.add('active');
+          tabButton.setAttribute('aria-selected', 'true');
+          const targetPane = document.querySelector(tabButton.getAttribute('data-bs-target'));
+          if (targetPane) {
+            targetPane.classList.add('show', 'active');
+          }
+        }
+      }
+
+      // Update URL when tab changes (without page reload)
+      document.querySelectorAll('#profileTabs .nav-link').forEach(function(tabBtn) {
+        tabBtn.addEventListener('shown.bs.tab', function(e) {
+          const tabId = e.target.id;
+          const reverseMapping = {
+            'tab-umum-tab': 'umum',
+            'tab-visimisi-tab': 'visimisi',
+            'tab-sambutan-tab': 'sambutan',
+            'tab-tugas-tab': 'tugas',
+            'tab-kontak-tab': 'kontak',
+            'tab-social-tab': 'social',
+            'tab-org-tab': 'org',
+            'tab-theme-tab': 'theme'
+          };
+          
+          const tabSlug = reverseMapping[tabId];
+          if (tabSlug) {
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tabSlug);
+            window.history.replaceState({}, '', url);
+          }
+        });
+      });
     });
 
     // TinyMCE for Greeting/Sambutan

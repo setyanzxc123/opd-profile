@@ -26,6 +26,17 @@ document.addEventListener('DOMContentLoaded', function () {
     // Change parameter to true if you want scroll animation
     window.Helpers.scrollToActive((animate = false));
     window.Helpers.mainMenu = menu;
+
+    // Fix wheel propagation: reinstall PerfectScrollbar with wheelPropagation disabled
+    var menuInner = element.querySelector('.menu-inner');
+    if (menuInner && window.PerfectScrollbar && menu._scrollbar) {
+      menu._scrollbar.destroy();
+      menu._scrollbar = new window.PerfectScrollbar(menuInner, {
+        suppressScrollX: true,
+        wheelPropagation: false
+      });
+      window.Helpers.menuPsScroll = menu._scrollbar;
+    }
   });
 
   // Initialize menu togglers and bind click on each

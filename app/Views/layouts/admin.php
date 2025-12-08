@@ -94,11 +94,19 @@
           </li>
           <?php endif; ?>
 
-          <?php $hasContentAccess = $canAccess('news') || $canAccess('services') || $canAccess('galleries') || $canAccess('documents') || $canAccess('contacts') || $canAccess('hero-sliders') || $canAccess('app-links'); ?>
+          <?php $hasContentAccess = $canAccess('news') || $canAccess('services') || $canAccess('galleries') || $canAccess('documents') || $canAccess('contacts') || $canAccess('hero-sliders') || $canAccess('app-links') || $canAccess('profile'); ?>
           <?php if ($hasContentAccess): ?>
           <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Konten</span>
           </li>
+          <?php if ($canAccess('profile')): ?>
+          <li class="menu-item<?= $section === 'ppid' ? ' active' : '' ?>">
+            <a href="<?= site_url('admin/ppid') ?>" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-info-circle"></i>
+              <div class="text-truncate">PPID</div>
+            </a>
+          </li>
+          <?php endif; ?>
           <?php if ($canAccess('news')): ?>
           <li class="menu-item<?= $section === 'news' ? ' active' : '' ?>">
             <a href="<?= site_url('admin/news') ?>" class="menu-link">
@@ -197,6 +205,7 @@
               $labelsMap = [
                 'admin'     => 'Dasbor',
                 'profile'   => 'Profil',
+                'ppid'      => 'PPID',
                 'news'      => 'Berita',
                 'galleries' => 'Galeri',
                 'documents' => 'Dokumen',

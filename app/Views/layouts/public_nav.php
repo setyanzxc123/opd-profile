@@ -48,6 +48,16 @@
         ['label' => 'Struktur Organisasi', 'href' => site_url('struktur-organisasi')],
       ]
     ],
+    [
+      'label' => 'PPID', 
+      'href' => site_url('ppid'), 
+      'active' => strpos($path, 'ppid') === 0,
+      'dropdown' => [
+        ['label' => 'Tentang PPID', 'href' => site_url('ppid/tentang')],
+        ['label' => 'Visi & Misi PPID', 'href' => site_url('ppid/visi-misi')],
+        ['label' => 'Tugas & Fungsi PPID', 'href' => site_url('ppid/tugas-fungsi')],
+      ]
+    ],
     ['label' => 'Layanan', 'href' => site_url('layanan'), 'active' => strpos($path, 'layanan') === 0],
     ['label' => 'Berita', 'href' => site_url('berita'), 'active' => strpos($path, 'berita') === 0],
     ['label' => 'Galeri', 'href' => site_url('galeri'), 'active' => strpos($path, 'galeri') === 0],
