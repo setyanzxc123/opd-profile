@@ -4,45 +4,13 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Libraries\FileUploadManager;
+use App\Libraries\ImageOptimizer;
 use App\Models\ServiceModel;
+use Config\AllowedMimes;
 
 class Services extends BaseController
 {
     private const UPLOAD_DIR = 'uploads/services';
-    private const ALLOWED_IMAGE_MIMES = [
-        'image/jpeg',
-        'image/jpg',
-        'image/pjpeg',
-        'image/png',
-        'image/webp',
-        'image/gif',
-    ];
-
-    private function moveImageWithOptimization(\CodeIgniter\HTTP\Files\UploadedFile $file, ?string $originalPath = null): ?string
-    {
-        $newPath = FileUploadManager::moveFile($file, self::UPLOAD_DIR, $originalPath);
-        if (! $newPath) {
-            return null;
-        }
-
-        $fullPath = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
-                  . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $newPath);
-
-        try {
-            $image = \Config\Services::image();
-            $image->withFile($fullPath)
-                ->resize(1280, 720, true, 'width')
-                ->save($fullPath, 80);
-            
-            // Generate variants for responsive images
-            helper('image');
-            generate_image_variants($fullPath);
-        } catch (\Throwable $throwable) {
-            log_message('debug', 'Thumbnail optimization skipped: {error}', ['error' => $throwable->getMessage()]);
-        }
-
-        return $newPath;
-    }
 
     private function clearServiceCaches(): void
     {
@@ -157,11 +125,11 @@ class Services extends BaseController
 
         $file = $this->request->getFile('thumbnail');
         if ($file && $file->isValid()) {
-            if (! FileUploadManager::hasAllowedMime($file, self::ALLOWED_IMAGE_MIMES)) {
+            if (! FileUploadManager::hasAllowedMime($file, AllowedMimes::IMAGES)) {
                 return redirect()->back()->withInput()->with('error', 'Jenis file thumbnail tidak diizinkan.');
             }
 
-            $newPath = $this->moveImageWithOptimization($file);
+            $newPath = ImageOptimizer::moveWithPreset($file, self::UPLOAD_DIR, 'service');
             if (! $newPath) {
                 return redirect()->back()->withInput()->with('error', 'Gagal menyimpan thumbnail.');
             }
@@ -246,18 +214,14 @@ class Services extends BaseController
 
         $file = $this->request->getFile('thumbnail');
         if ($file && $file->isValid()) {
-            if (! FileUploadManager::hasAllowedMime($file, self::ALLOWED_IMAGE_MIMES)) {
+            if (! FileUploadManager::hasAllowedMime($file, AllowedMimes::IMAGES)) {
                 return redirect()->back()->withInput()->with('error', 'Jenis file thumbnail tidak diizinkan.');
             }
             
-            // Delete old variants if updating image
-            if (!empty($item['thumbnail'])) {
-                helper('image');
-                $oldFullPath = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $item['thumbnail']);
-                delete_image_variants($oldFullPath);
-            }
+            // Delete old image with variants before uploading new one
+            ImageOptimizer::deleteWithVariants($item['thumbnail'] ?? null);
 
-            $newPath = $this->moveImageWithOptimization($file, $item['thumbnail'] ?? null);
+            $newPath = ImageOptimizer::moveWithPreset($file, self::UPLOAD_DIR, 'service');
             if (! $newPath) {
                 return redirect()->back()->withInput()->with('error', 'Gagal menyimpan thumbnail.');
             }
@@ -281,13 +245,9 @@ class Services extends BaseController
         $model = new ServiceModel();
         $item  = $model->find($id);
         if ($item) {
-            if (!empty($item['thumbnail'])) {
-                 helper('image');
-                 $fullPath = rtrim(FCPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $item['thumbnail']);
-                 delete_image_variants($fullPath);
-            }
+            // Delete thumbnail with all responsive variants
+            ImageOptimizer::deleteWithVariants($item['thumbnail'] ?? null);
             
-            FileUploadManager::deleteFile($item['thumbnail'] ?? null);
             $model->delete($id);
             $this->clearServiceCaches();
             log_activity('service.delete', 'Menghapus layanan: ' . ($item['title'] ?? ''));

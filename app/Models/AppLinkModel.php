@@ -123,12 +123,9 @@ class AppLinkModel extends Model
             return false;
         }
 
-        // Delete logo file if exists
+        // Delete logo file if exists (using FileUploadManager for security)
         if (!empty($link['logo_path'])) {
-            $fullPath = FCPATH . ltrim($link['logo_path'], '/');
-            if (is_file($fullPath)) {
-                @unlink($fullPath);
-            }
+            \App\Libraries\FileUploadManager::deleteFile($link['logo_path']);
         }
 
         return $this->delete($id);

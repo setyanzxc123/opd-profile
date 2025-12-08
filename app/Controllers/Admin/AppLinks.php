@@ -3,10 +3,12 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\FileUploadManager;
 use App\Models\AppLinkModel;
 use App\Models\OpdProfileModel;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\Exceptions\PageNotFoundException;
+use Config\AllowedMimes;
 
 /**
  * App Links Controller
@@ -85,30 +87,20 @@ class AppLinks extends BaseController
             'sort_order'  => $this->model->getNextSortOrder(),
         ];
 
-        // Handle logo upload with MIME validation
+        // Handle logo upload
         $logoFile = $this->request->getFile('logo');
         if ($logoFile && $logoFile->isValid() && !$logoFile->hasMoved()) {
-            $allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
-            $mime = strtolower($logoFile->getMimeType());
-            
-            if (!in_array($mime, $allowedMimes, true)) {
+            if (!FileUploadManager::hasAllowedMime($logoFile, AllowedMimes::IMAGES_WITH_SVG)) {
                 return redirect()
                     ->back()
                     ->withInput()
                     ->with('error', 'Jenis file logo tidak diizinkan.');
             }
 
-            $newName = $logoFile->getRandomName();
-            $uploadPath = 'uploads/app_links';
-            
-            // Create directory if not exists
-            $fullPath = FCPATH . $uploadPath;
-            if (!is_dir($fullPath)) {
-                mkdir($fullPath, 0755, true);
+            $logoPath = FileUploadManager::moveFile($logoFile, 'uploads/app_links');
+            if ($logoPath) {
+                $data['logo_path'] = $logoPath;
             }
-
-            $logoFile->move($fullPath, $newName);
-            $data['logo_path'] = $uploadPath . '/' . $newName;
         }
 
         if ($this->model->insert($data)) {
@@ -178,53 +170,26 @@ class AppLinks extends BaseController
             'is_active'   => $this->request->getPost('is_active') ? 1 : 0,
         ];
 
-        // Handle logo upload with MIME validation
+        // Handle logo upload
         $logoFile = $this->request->getFile('logo');
         if ($logoFile && $logoFile->isValid() && !$logoFile->hasMoved()) {
-            $allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
-            $mime = strtolower($logoFile->getMimeType());
-            
-            if (!in_array($mime, $allowedMimes, true)) {
+            if (!FileUploadManager::hasAllowedMime($logoFile, AllowedMimes::IMAGES_WITH_SVG)) {
                 return redirect()
                     ->back()
                     ->withInput()
                     ->with('error', 'Jenis file logo tidak diizinkan.');
             }
 
-            // Delete old logo safely
-            if (!empty($link['logo_path'])) {
-                $oldPath = FCPATH . ltrim($link['logo_path'], '/');
-                $uploadsRoot = realpath(FCPATH . 'uploads');
-                $realOldPath = realpath($oldPath);
-                
-                // Security: only delete if within uploads directory
-                if ($uploadsRoot && $realOldPath && strpos($realOldPath, $uploadsRoot) === 0 && is_file($realOldPath)) {
-                    @unlink($realOldPath);
-                }
+            // moveFile() handles: directory creation, old file deletion (if path provided), and move
+            $logoPath = FileUploadManager::moveFile($logoFile, 'uploads/app_links', $link['logo_path'] ?? null);
+            if ($logoPath) {
+                $data['logo_path'] = $logoPath;
             }
-
-            $newName = $logoFile->getRandomName();
-            $uploadPath = 'uploads/app_links';
-            
-            $fullPath = FCPATH . $uploadPath;
-            if (!is_dir($fullPath)) {
-                mkdir($fullPath, 0755, true);
-            }
-
-            $logoFile->move($fullPath, $newName);
-            $data['logo_path'] = $uploadPath . '/' . $newName;
         }
 
-        // Handle logo removal with path traversal protection
+        // Handle logo removal request
         if ($this->request->getPost('remove_logo') && !empty($link['logo_path'])) {
-            $oldPath = FCPATH . ltrim($link['logo_path'], '/');
-            $uploadsRoot = realpath(FCPATH . 'uploads');
-            $realOldPath = realpath($oldPath);
-            
-            // Security: only delete if within uploads directory
-            if ($uploadsRoot && $realOldPath && strpos($realOldPath, $uploadsRoot) === 0 && is_file($realOldPath)) {
-                @unlink($realOldPath);
-            }
+            FileUploadManager::deleteFile($link['logo_path']);
             $data['logo_path'] = null;
         }
 

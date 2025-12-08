@@ -4,21 +4,11 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Libraries\FileUploadManager;
 use App\Models\DocumentModel;
+use Config\AllowedMimes;
 
 class Documents extends BaseController
 {
     private const UPLOAD_DIR = 'uploads/documents';
-    private const ALLOWED_DOC_MIMES = [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.ms-powerpoint',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'application/zip',
-        'application/x-zip-compressed',
-    ];
 
     public function index()
     {
@@ -61,7 +51,7 @@ class Documents extends BaseController
         }
 
         $file = $this->request->getFile('file');
-        if (! $file || ! $file->isValid() || ! FileUploadManager::hasAllowedMime($file, self::ALLOWED_DOC_MIMES)) {
+        if (! $file || ! $file->isValid() || ! FileUploadManager::hasAllowedMime($file, AllowedMimes::DOCUMENTS)) {
             return redirect()->back()->withInput()->with('error', 'Jenis file dokumen tidak diizinkan.');
         }
 
@@ -132,7 +122,7 @@ class Documents extends BaseController
 
         $file = $this->request->getFile('file');
         if ($file && $file->isValid()) {
-            if (! FileUploadManager::hasAllowedMime($file, self::ALLOWED_DOC_MIMES)) {
+            if (! FileUploadManager::hasAllowedMime($file, AllowedMimes::DOCUMENTS)) {
                 return redirect()->back()->withInput()->with('error', 'Jenis file dokumen tidak diizinkan.');
             }
 
