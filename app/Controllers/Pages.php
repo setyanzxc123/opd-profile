@@ -108,6 +108,60 @@ class Pages extends BaseController
         ]);
     }
 
+    public function layananDetail(string $slug): string
+    {
+        $service = $this->contentService->serviceBySlug($slug);
+
+        if (! $service) {
+            throw PageNotFoundException::forPageNotFound('Layanan tidak ditemukan.');
+        }
+
+        $profile = $this->contentService->latestProfile();
+
+        $breadcrumbs = [
+            [
+                'label' => 'Beranda',
+                'url'   => site_url('/'),
+            ],
+            [
+                'label' => 'Layanan',
+                'url'   => site_url('layanan'),
+            ],
+            [
+                'label'  => (string) ($service['title'] ?? 'Layanan'),
+                'url'    => '',
+                'active' => true,
+            ],
+        ];
+
+        // Meta description from description or content
+        $description = trim((string) ($service['description'] ?? ''));
+        if ($description === '') {
+            $description = trim(strip_tags((string) ($service['content'] ?? '')));
+            $description = $this->limitPlainText($description, 160);
+        }
+
+        $meta = [
+            'title'       => ($service['title'] ?? 'Layanan') . ' - Layanan Publik',
+            'description' => $description,
+            'url'         => (string) $this->request->getUri(),
+            'type'        => 'article',
+        ];
+
+        if (! empty($service['thumbnail'])) {
+            $meta['image'] = base_url($service['thumbnail']);
+        }
+
+        return view('public/services/show', [
+            'title'         => $service['title'] ?? 'Layanan',
+            'meta'          => $meta,
+            'service'       => $service,
+            'breadcrumbs'   => $breadcrumbs,
+            'footerProfile' => $profile,
+            'profile'       => $profile,
+        ]);
+    }
+
     private function renderBeritaArchive(?string $categorySlug = null, ?string $tagSlug = null): string
     {
         helper(['url', 'news']);
@@ -355,7 +409,7 @@ class Pages extends BaseController
                 'icon'  => 'bx-briefcase',
                 'label' => 'Layanan',
                 'title' => $service['title'] ?? '',
-                'url'   => site_url('layanan') . '#' . rawurlencode($service['slug'] ?? ''),
+                'url'   => site_url('layanan/' . ($service['slug'] ?? '')),
                 'snippet' => $snippet,
             ];
         }
@@ -506,8 +560,8 @@ class Pages extends BaseController
                 'slug'      => $slug,
                 'summary'   => $summary,
                 'body'      => $body,
-                'thumbnail' => $thumbnailPath !== '' ? base_url($thumbnailPath) : null,
-                'url'       => $slug !== '' ? site_url('layanan') . '#' . rawurlencode($slug) : site_url('layanan'),
+                'thumbnail' => $thumbnailPath,
+                'url'       => $slug !== '' ? site_url('layanan/' . rawurlencode($slug)) : site_url('layanan'),
             ];
         }
 

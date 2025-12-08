@@ -79,6 +79,24 @@ class PublicContentService
         });
     }
 
+    public function serviceBySlug(string $slug): ?array
+    {
+        if ($slug === '') {
+            return null;
+        }
+
+        try {
+            return model(ServiceModel::class)
+                ->where('slug', $slug)
+                ->where('is_active', 1)
+                ->first() ?: null;
+        } catch (Throwable $throwable) {
+            log_message('warning', 'Failed to fetch service by slug: {error}', ['error' => $throwable->getMessage()]);
+
+            return null;
+        }
+    }
+
     public function recentNews(int $limit = 4): array
     {
         $limit = max(1, $limit);

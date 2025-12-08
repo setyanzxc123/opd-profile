@@ -14,11 +14,7 @@ class ServiceModel extends Model
         'slug',
         'description',
         'content',
-        'requirements',
-        'fees',
-        'processing_time',
         'thumbnail',
         'is_active',
-        'sort_order',
     ];
 }

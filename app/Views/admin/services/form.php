@@ -27,59 +27,34 @@
             <div class="col-lg-8">
               <div class="mb-4">
                 <label class="form-label fw-semibold" for="serviceTitle">Judul <span class="text-danger">*</span></label>
-                <input type="text" id="serviceTitle" name="title" class="form-control" required maxlength="150" value="<?= esc(old('title', $item['title'])) ?>">
+                <input type="text" id="serviceTitle" name="title" class="form-control form-control-lg" required maxlength="150" value="<?= esc(old('title', $item['title'])) ?>" placeholder="Masukkan judul layanan">
+                <div class="form-text">Slug URL akan dibuat otomatis dari judul.</div>
                 <?php if (isset($validation) && $validation->hasError('title')): ?>
                   <div class="form-text text-danger"><?= esc($validation->getError('title')) ?></div>
                 <?php endif; ?>
               </div>
 
               <div class="mb-4">
-                <label class="form-label fw-semibold" for="serviceSlug">Slug URL</label>
-                <input type="text" id="serviceSlug" name="slug" class="form-control" maxlength="180" placeholder="Contoh: layanan-informasi" value="<?= esc(old('slug', $item['slug'])) ?>">
-                <div class="form-text">Slug digunakan sebagai bagian dari URL layanan di halaman publik.</div>
-                <?php if (isset($validation) && $validation->hasError('slug')): ?>
-                  <div class="form-text text-danger"><?= esc($validation->getError('slug')) ?></div>
-                <?php endif; ?>
-              </div>
-
-              <div class="mb-4">
                 <label class="form-label fw-semibold" for="serviceSummary">Ringkasan Singkat</label>
-                <textarea id="serviceSummary" name="description" class="form-control" rows="3" placeholder="Tuliskan kalimat pembuka"><?= esc(old('description', $item['description'])) ?></textarea>
+                <textarea id="serviceSummary" name="description" class="form-control" rows="3" placeholder="Tuliskan deskripsi singkat yang akan tampil di kartu layanan"><?= esc(old('description', $item['description'])) ?></textarea>
                 <?php if (isset($validation) && $validation->hasError('description')): ?>
                   <div class="form-text text-danger"><?= esc($validation->getError('description')) ?></div>
                 <?php endif; ?>
               </div>
 
               <div class="mb-4">
-                <label class="form-label fw-semibold" for="serviceContent">Isi Detail</label>
-                <textarea id="serviceContent" name="content" class="form-control" rows="8" placeholder="Deskripsi lengkap pelayanan"><?= esc(old('content', $item['content'])) ?></textarea>
+                <label class="form-label fw-semibold" for="serviceContent">Isi Detail <span class="text-danger">*</span></label>
+                <textarea id="serviceContent" name="content" class="form-control" rows="12" placeholder="Deskripsi lengkap layanan"><?= old('content', $item['content']) ?></textarea>
+                <div class="form-text">Gunakan toolbar untuk memformat teks, menambahkan list, tabel, atau tautan.</div>
                 <?php if (isset($validation) && $validation->hasError('content')): ?>
                   <div class="form-text text-danger"><?= esc($validation->getError('content')) ?></div>
                 <?php endif; ?>
-              </div>
-
-              <div class="mb-4">
-                <label class="form-label fw-semibold" for="serviceRequirements">Persyaratan (opsional)</label>
-                <textarea id="serviceRequirements" name="requirements" class="form-control" rows="3" placeholder="Pisahkan baris untuk setiap persyaratan"><?= esc(old('requirements', $item['requirements'])) ?></textarea>
-                <?php if (isset($validation) && $validation->hasError('requirements')): ?>
-                  <div class="form-text text-danger"><?= esc($validation->getError('requirements')) ?></div>
-                <?php endif; ?>
-              </div>
-
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold" for="serviceFees">Biaya</label>
-                  <input type="text" id="serviceFees" name="fees" class="form-control" maxlength="120" placeholder="Contoh: Gratis" value="<?= esc(old('fees', $item['fees'])) ?>">
-                  <?php if (isset($validation) && $validation->hasError('fees')): ?>
-                    <div class="form-text text-danger"><?= esc($validation->getError('fees')) ?></div>
-                  <?php endif; ?>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold" for="serviceProcessingTime">Waktu Proses</label>
-                  <input type="text" id="serviceProcessingTime" name="processing_time" class="form-control" maxlength="120" placeholder="Contoh: 3 hari kerja" value="<?= esc(old('processing_time', $item['processing_time'])) ?>">
-                  <?php if (isset($validation) && $validation->hasError('processing_time')): ?>
-                    <div class="form-text text-danger"><?= esc($validation->getError('processing_time')) ?></div>
-                  <?php endif; ?>
+                
+                <!-- Content Stats -->
+                <div class="d-flex flex-wrap gap-4 mt-3 text-muted small">
+                  <div><span class="fw-semibold">Kata:</span> <span id="wordCount">0</span></div>
+                  <div><span class="fw-semibold">Karakter:</span> <span id="characterCount">0</span></div>
+                  <div><span class="fw-semibold">Est. Baca:</span> <span id="readingTime">--</span></div>
                 </div>
               </div>
             </div>
@@ -88,14 +63,6 @@
               <div class="card border rounded-4 shadow-sm bg-light">
                 <div class="card-body">
                   <h6 class="fw-semibold mb-3">Pengaturan</h6>
-                  <div class="mb-3">
-                    <label class="form-label fw-semibold" for="serviceOrder">Urutan Tampil</label>
-                    <input type="number" min="0" step="1" id="serviceOrder" name="sort_order" class="form-control" value="<?= esc((string) old('sort_order', $item['sort_order'])) ?>">
-                    <div class="form-text">Angka lebih kecil akan tampil lebih dulu.</div>
-                    <?php if (isset($validation) && $validation->hasError('sort_order')): ?>
-                      <div class="form-text text-danger"><?= esc($validation->getError('sort_order')) ?></div>
-                    <?php endif; ?>
-                  </div>
 
                   <div class="mb-3">
                     <label class="form-label fw-semibold d-block" for="serviceThumbnail">Thumbnail</label>
@@ -135,37 +102,79 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('pageScripts') ?>
+<script src="<?= base_url('assets/vendor/tinymce/js/tinymce/tinymce.min.js') ?>"></script>
 <script>
-  (function() {
-    const titleInput = document.getElementById('serviceTitle');
-    const slugInput = document.getElementById('serviceSlug');
-    if (!titleInput || !slugInput) {
-      return;
-    }
+  document.addEventListener('DOMContentLoaded', function() {
+    const wordCountEl = document.getElementById('wordCount');
+    const characterCountEl = document.getElementById('characterCount');
+    const readingTimeEl = document.getElementById('readingTime');
 
-    let slugTouched = slugInput.value.trim() !== '';
+    // Content stats update
+    const updateContentStats = () => {
+      const editor = tinymce.get('serviceContent');
+      if (!editor) return;
+      const text = editor.getContent({ format: 'text' }).trim();
+      const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+      const characters = text.replace(/\s/g, '').length;
+      const minutes = words ? Math.max(1, Math.round(words / 200)) : 0;
 
-    const slugify = (value) => {
-      return value
-        .toString()
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-        .substring(0, 180);
+      if (wordCountEl) wordCountEl.textContent = `${words} kata`;
+      if (characterCountEl) characterCountEl.textContent = characters.toLocaleString('id-ID');
+      if (readingTimeEl) {
+        readingTimeEl.textContent = minutes ? `${minutes} menit` : '--';
+      }
     };
 
-    slugInput.addEventListener('input', () => {
-      slugTouched = slugInput.value.trim() !== '';
+    // Initialize TinyMCE
+    tinymce.init({
+      selector: '#serviceContent',
+      branding: false,
+      promotion: false,
+      height: 450,
+      menubar: 'file edit view insert format tools table help',
+      toolbar_sticky: true,
+      toolbar: 'undo redo | blocks fontsize | bold italic underline strikethrough forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | table link | removeformat | fullscreen preview code',
+      plugins: 'preview searchreplace autolink autosave save code visualblocks visualchars fullscreen link table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount help',
+      autosave_interval: '30s',
+      autosave_restore_when_empty: true,
+      autosave_retention: '2m',
+      content_style: 'body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif; font-size: 16px; line-height: 1.7; }',
+      table_default_attributes: { class: 'table table-striped table-sm' },
+      language: 'id',
+      language_url: '<?= base_url('assets/vendor/tinymce/langs/id.js') ?>',
+      setup: function(editor) {
+        editor.on('init', function() {
+          updateContentStats();
+        });
+        editor.on('change keyup setcontent', updateContentStats);
+      }
     });
 
-    titleInput.addEventListener('input', () => {
-      if (slugTouched) {
-        return;
-      }
-      slugInput.value = slugify(titleInput.value);
-    });
-  })();
+    // Form submission handler
+    const serviceForm = document.querySelector('form[action*="services"]');
+    const submitBtn = serviceForm ? serviceForm.querySelector('button[type="submit"]') : null;
+
+    if (serviceForm) {
+      serviceForm.addEventListener('submit', function(e) {
+        // Save TinyMCE content to textarea
+        const editor = tinymce.get('serviceContent');
+        if (editor) {
+          try {
+            editor.save();
+          } catch (err) {
+            console.error('[Service Form] Error saving editor content:', err);
+          }
+        }
+
+        // Update button to show loading state
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Menyimpan...';
+        }
+
+        return true;
+      });
+    }
+  });
 </script>
 <?= $this->endSection() ?>

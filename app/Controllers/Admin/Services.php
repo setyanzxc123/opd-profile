@@ -52,7 +52,6 @@ class Services extends BaseController
     public function index(): string
     {
         $items = $this->serviceModel
-            ->orderBy('sort_order', 'ASC')
             ->orderBy('title', 'ASC')
             ->findAll();
 
@@ -68,17 +67,13 @@ class Services extends BaseController
             'title'      => 'Tambah Layanan',
             'mode'       => 'create',
             'item'       => [
-                'id'              => 0,
-                'title'           => '',
-                'slug'            => '',
-                'description'     => '',
-                'content'         => '',
-                'requirements'    => '',
-                'fees'            => '',
-                'processing_time' => '',
-                'thumbnail'       => '',
-                'is_active'       => 1,
-                'sort_order'      => 0,
+                'id'          => 0,
+                'title'       => '',
+                'slug'        => '',
+                'description' => '',
+                'content'     => '',
+                'thumbnail'   => '',
+                'is_active'   => 1,
             ],
             'validation' => \Config\Services::validation(),
         ]);
@@ -86,47 +81,31 @@ class Services extends BaseController
 
     public function store()
     {
-        helper(['activity', 'content', 'text']);
+        helper(['activity', 'content', 'text', 'slug']);
 
         $rules = [
-            'title'           => 'required|min_length[3]|max_length[150]',
-            'slug'            => 'permit_empty|max_length[180]',
-            'description'     => 'permit_empty',
-            'content'         => 'permit_empty',
-            'requirements'    => 'permit_empty',
-            'fees'            => 'permit_empty|max_length[120]',
-            'processing_time' => 'permit_empty|max_length[120]',
-            'sort_order'      => 'permit_empty|integer',
-            'thumbnail'       => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]|mime_in[thumbnail,image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,image/gif]',
+            'title'       => 'required|min_length[3]|max_length[150]',
+            'description' => 'permit_empty',
+            'content'     => 'required|min_length[10]',
+            'thumbnail'   => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]|mime_in[thumbnail,image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,image/gif]',
         ];
 
         if (! $this->validate($rules)) {
             return redirect()->back()->withInput()->with('error', 'Periksa kembali isian Anda.');
         }
 
-        helper('slug');
-
         $titleInput       = sanitize_plain_text($this->request->getPost('title'));
-        $slugInput        = sanitize_plain_text($this->request->getPost('slug'));
-        $slug             = unique_slug($titleInput, $this->serviceModel, 'slug', $slugInput ?: null, null, 'layanan');
+        $slug             = unique_slug($titleInput, $this->serviceModel, 'slug', null, null, 'layanan');
         $descriptionInput = sanitize_plain_text($this->request->getPost('description'));
         $contentInput     = sanitize_rich_text($this->request->getPost('content'));
-        $requirements     = sanitize_plain_text($this->request->getPost('requirements'));
-        $fees             = sanitize_plain_text($this->request->getPost('fees'));
-        $processingTime   = sanitize_plain_text($this->request->getPost('processing_time'));
-        $sortOrder        = (int) ($this->request->getPost('sort_order') ?: 0);
         $isActive         = $this->request->getPost('is_active') ? 1 : 0;
 
         $data = [
-            'title'           => $titleInput,
-            'slug'            => $slug,
-            'description'     => $descriptionInput,
-            'content'         => $contentInput,
-            'requirements'    => $requirements,
-            'fees'            => $fees,
-            'processing_time' => $processingTime,
-            'is_active'       => $isActive,
-            'sort_order'      => $sortOrder,
+            'title'       => $titleInput,
+            'slug'        => $slug,
+            'description' => $descriptionInput,
+            'content'     => $contentInput,
+            'is_active'   => $isActive,
         ];
 
         $file = $this->request->getFile('thumbnail');
@@ -169,52 +148,38 @@ class Services extends BaseController
 
     public function update(int $id)
     {
-        helper(['activity', 'content', 'text']);
+        helper(['activity', 'content', 'text', 'slug']);
 
-        $item  = $this->serviceModel->find($id);
+        $item = $this->serviceModel->find($id);
         if (! $item) {
             return redirect()->to(site_url('admin/services'))->with('error', 'Data tidak ditemukan.');
         }
 
         $rules = [
-            'title'           => 'required|min_length[3]|max_length[150]',
-            'slug'            => 'permit_empty|max_length[180]',
-            'description'     => 'permit_empty',
-            'content'         => 'permit_empty',
-            'requirements'    => 'permit_empty',
-            'fees'            => 'permit_empty|max_length[120]',
-            'processing_time' => 'permit_empty|max_length[120]',
-            'sort_order'      => 'permit_empty|integer',
-            'thumbnail'       => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]|mime_in[thumbnail,image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,image/gif]',
+            'title'       => 'required|min_length[3]|max_length[150]',
+            'description' => 'permit_empty',
+            'content'     => 'required|min_length[10]',
+            'thumbnail'   => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]|mime_in[thumbnail,image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,image/gif]',
         ];
 
         if (! $this->validate($rules)) {
             return redirect()->back()->withInput()->with('error', 'Periksa kembali isian Anda.');
         }
 
-        helper('slug');
-
         $titleInput       = sanitize_plain_text($this->request->getPost('title'));
-        $slugInput        = sanitize_plain_text($this->request->getPost('slug'));
-        $slug             = unique_slug($titleInput, $this->serviceModel, 'slug', $slugInput ?: null, $id, 'layanan');
         $descriptionInput = sanitize_plain_text($this->request->getPost('description'));
         $contentInput     = sanitize_rich_text($this->request->getPost('content'));
-        $requirements     = sanitize_plain_text($this->request->getPost('requirements'));
-        $fees             = sanitize_plain_text($this->request->getPost('fees'));
-        $processingTime   = sanitize_plain_text($this->request->getPost('processing_time'));
-        $sortOrder        = (int) ($this->request->getPost('sort_order') ?: 0);
         $isActive         = $this->request->getPost('is_active') ? 1 : 0;
 
+        // Re-generate slug from title (always auto, like news)
+        $slug = unique_slug($titleInput, $this->serviceModel, 'slug', null, $id, 'layanan');
+
         $data = [
-            'title'           => $titleInput,
-            'slug'            => $slug,
-            'description'     => $descriptionInput,
-            'content'         => $contentInput,
-            'requirements'    => $requirements,
-            'fees'            => $fees,
-            'processing_time' => $processingTime,
-            'is_active'       => $isActive,
-            'sort_order'      => $sortOrder,
+            'title'       => $titleInput,
+            'slug'        => $slug,
+            'description' => $descriptionInput,
+            'content'     => $contentInput,
+            'is_active'   => $isActive,
         ];
 
         $file = $this->request->getFile('thumbnail');
@@ -247,7 +212,7 @@ class Services extends BaseController
     {
         helper('activity');
 
-        $item  = $this->serviceModel->find($id);
+        $item = $this->serviceModel->find($id);
         if ($item) {
             // Delete thumbnail with all responsive variants
             ImageOptimizer::deleteWithVariants($item['thumbnail'] ?? null);

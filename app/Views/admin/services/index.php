@@ -32,9 +32,7 @@
             <tr>
               <th style="width:60px">#</th>
               <th>Judul</th>
-              <th>Slug</th>
               <th>Status</th>
-              <th>Urutan</th>
               <th>Thumbnail</th>
               <th class="text-end" style="width:160px">Aksi</th>
             </tr>
@@ -43,8 +41,10 @@
           <?php foreach ($items as $i => $service): ?>
             <tr>
               <td><?= $i + 1 ?></td>
-              <td class="fw-semibold"><?= esc($service['title']) ?></td>
-              <td><small class="text-muted"><?= esc($service['slug']) ?></small></td>
+              <td>
+                <div class="fw-semibold"><?= esc($service['title']) ?></div>
+                <small class="text-muted"><?= esc($service['slug']) ?></small>
+              </td>
               <td>
                 <?php if (! empty($service['is_active'])): ?>
                   <span class="badge bg-success">Aktif</span>
@@ -52,7 +52,6 @@
                   <span class="badge bg-secondary">Arsip</span>
                 <?php endif; ?>
               </td>
-              <td><?= esc((string) ($service['sort_order'] ?? 0)) ?></td>
               <td>
                 <?php if (! empty($service['thumbnail'])): ?>
                   <img src="<?= esc(base_url($service['thumbnail']), 'attr') ?>" alt="Thumbnail layanan" style="width:60px;height:60px;object-fit:cover;border-radius:0.35rem;">
@@ -119,13 +118,11 @@
       autoWidth: false,
       language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json' },
       columnDefs: [
-        { targets: 0, responsivePriority: 6 },
+        { targets: 0, responsivePriority: 5 },
         { targets: 1, responsivePriority: 1 },
-        { targets: 2, responsivePriority: 5 },
-        { targets: 3, responsivePriority: 3 },
-        { targets: 4, responsivePriority: 4 },
-        { targets: 5, orderable: false, responsivePriority: 2 },
-        { targets: -1, orderable: false, searchable: false, responsivePriority: 1 }
+        { targets: 2, responsivePriority: 3 },
+        { targets: 3, orderable: false, responsivePriority: 4 },
+        { targets: -1, orderable: false, searchable: false, responsivePriority: 2 }
       ]
     });
   });

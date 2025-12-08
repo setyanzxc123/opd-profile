@@ -76,3 +76,32 @@
     font-size: 3.5rem;
     color: var(--public-neutral-400, #94a3b8);
 }
+
+/* Service Card Link Wrapper */
+.service-card-link {
+    display: block;
+    height: 100%;
+    color: inherit;
+}
+
+.service-card-link:hover .service-card__title {
+    color: var(--public-primary, #0d6efd);
+}
+
+.service-card-link:hover .btn-outline-primary {
+    background: var(--public-primary, #0d6efd);
+    color: #fff;
+    border-color: var(--public-primary, #0d6efd);
+}
+
+/* Service Card Footer */
+.service-card__footer {
+    border-top: 1px solid var(--color-border-light, rgba(0, 0, 0, 0.06));
+    padding-top: 1rem;
+    margin-top: auto;
+}
+
+.service-card__footer .btn {
+    width: 100%;
+    transition: all 0.2s ease;
+}

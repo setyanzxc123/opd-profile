@@ -11,6 +11,7 @@ $routes->get('profil/sambutan', 'Pages::profilSambutan');
 $routes->get('profil/visi-misi', 'Pages::profilVisiMisi');
 $routes->get('profil/tugas-fungsi', 'Pages::profilTugasFungsi');
 $routes->get('layanan', 'Pages::layanan');
+$routes->get('layanan/(:segment)', 'Pages::layananDetail/$1');
 $routes->get('berita', 'Pages::berita');
 $routes->get('berita/kategori/(:segment)', 'Pages::beritaKategori/$1');
 $routes->get('berita/tag/(:segment)', 'Pages::beritaTag/$1');
