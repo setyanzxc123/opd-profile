@@ -20,12 +20,12 @@ class News extends BaseController
     private function normalizePublishedAt(?string $value): ?string
     {
         if ($value === null) {
-            return null;
+            return date('Y-m-d H:i:s');
         }
 
         $value = sanitize_plain_text($value);
         if ($value === '') {
-            return null;
+            return date('Y-m-d H:i:s');
         }
 
         $value = str_replace('T', ' ', $value);
