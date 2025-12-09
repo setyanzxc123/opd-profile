@@ -266,8 +266,8 @@
           <?php endif; ?>
         </div>
       </div>
-      <div class="section-cta">
-        <a class="hero-link" href="<?= site_url('berita') ?>">Lihat arsip berita</a>
+      <div class="section-cta mt-4">
+        <a class="btn btn-public-primary" href="<?= site_url('berita') ?>">Lihat Semua Berita</a>
       </div>
     </div>
   </section>
