@@ -64,7 +64,7 @@
 
 <link rel="stylesheet" href="<?= base_url('assets/css/admin/profile-edit.css') ?>">
 
-<div class="row g-4">
+<div class="row g-4 settings-grid">
   <div class="col-12">
     <div class="card shadow-sm">
       <div class="card-header border-0 bg-transparent pb-0">
@@ -226,11 +226,11 @@
               <div class="row g-3">
                 <div class="col-12 col-lg-10">
                   <label class="form-label">Visi</label>
-                  <textarea name="vision" rows="3" class="form-control" placeholder="Masukkan rumusan visi instansi."><?= esc(old('vision', $profile['vision'])) ?></textarea>
+                  <textarea id="vision" name="vision" rows="3" class="form-control" placeholder="Masukkan rumusan visi instansi."><?= esc(old('vision', $profile['vision'])) ?></textarea>
                 </div>
                 <div class="col-12 col-lg-10">
                   <label class="form-label">Misi</label>
-                  <textarea name="mission" rows="4" class="form-control" placeholder="Jabarkan poin-poin misi instansi."><?= esc(old('mission', $profile['mission'])) ?></textarea>
+                  <textarea id="mission" name="mission" rows="4" class="form-control" placeholder="Jabarkan poin-poin misi instansi."><?= esc(old('mission', $profile['mission'])) ?></textarea>
                 </div>
               </div>
             </div>
@@ -256,7 +256,7 @@
               <div class="row g-3">
                 <div class="col-12 col-lg-10">
                   <label class="form-label">Tugas dan Fungsi</label>
-                  <textarea name="tasks_functions" rows="10" class="form-control" placeholder="Jabarkan tugas pokok dan fungsi instansi secara lengkap."><?= esc(old('tasks_functions', $profile['tasks_functions'] ?? '')) ?></textarea>
+                  <textarea id="tasks_functions" name="tasks_functions" rows="10" class="form-control" placeholder="Jabarkan tugas pokok dan fungsi instansi secara lengkap."><?= esc(old('tasks_functions', $profile['tasks_functions'] ?? '')) ?></textarea>
                   <div class="form-text text-muted">Tugas dan fungsi ini akan ditampilkan sebagai halaman terpisah di bagian Profil publik.</div>
                 </div>
               </div>
@@ -807,6 +807,57 @@
           }
         });
       });
+
+      // --- TinyMCE Initialization ---
+      const tinymceConfig = {
+        branding: false,
+        promotion: false,
+        height: 400,
+        menubar: 'file edit view insert format tools table help',
+        toolbar_sticky: true,
+        toolbar: 'undo redo | blocks fontsize | bold italic underline strikethrough forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | table link | removeformat | fullscreen preview code',
+        plugins: 'preview searchreplace autolink autosave save code visualblocks visualchars fullscreen link table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount help',
+        autosave_interval: '30s',
+        autosave_restore_when_empty: true,
+        autosave_retention: '2m',
+        content_style: 'body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif; font-size: 16px; line-height: 1.7; }',
+        table_default_attributes: { class: 'table table-striped table-sm' },
+        language: 'id',
+        language_url: '<?= base_url('assets/vendor/tinymce/langs/id.js') ?>',
+      };
+
+      // Initialize editors
+      tinymce.init({
+        ...tinymceConfig,
+        selector: '#greetingContent, #tasks_functions, #vision, #mission'
+      });
+
+      // Handle Tab Switching for TinyMCE
+      const tabEls = document.querySelectorAll('button[data-bs-toggle="pill"]');
+      tabEls.forEach(tabBtn => {
+        tabBtn.addEventListener('shown.bs.tab', function (event) {
+          const targetId = event.target.getAttribute('data-bs-target');
+          const targetPane = document.querySelector(targetId);
+          if(targetPane) {
+              const textareas = targetPane.querySelectorAll('textarea');
+              textareas.forEach(ta => {
+                  const editor = tinymce.get(ta.id);
+                  if(editor) {
+                      editor.show();
+                      editor.nodeChanged();
+                  }
+              });
+          }
+        });
+      });
+
+      // Form Submit Handler
+      const profileForm = document.querySelector('form[action*="admin/profile"]');
+      if (profileForm) {
+        profileForm.addEventListener('submit', function() {
+           tinymce.triggerSave();
+        });
+      }
 
       var active = document.querySelector('[data-theme-mode-input]:checked');
       if (active) {
