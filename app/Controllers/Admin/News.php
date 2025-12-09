@@ -362,6 +362,18 @@ class News extends BaseController
         $model->syncCategories($id, $categoryIds);
         $model->syncTags($id, $allTagIds);
 
+        // Sync with Hero Sliders
+        $heroSliderModel = new \App\Models\HeroSliderModel();
+        
+        // Prepare data for sync (merge existing item data with updates)
+        $syncData = array_merge($item, $data);
+        // Ensure thumbnail is set correctly for sync
+        if (isset($data['thumbnail'])) {
+            $syncData['thumbnail'] = $data['thumbnail'];
+        }
+        
+        $heroSliderModel->syncWithNews($id, $syncData);
+
         log_activity('news.update', 'Mengubah berita: ' . $titleInput);
 
         return redirect()->to(site_url('admin/news'))->with('message', 'Berita berhasil diperbarui.');

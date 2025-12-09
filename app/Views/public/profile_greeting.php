@@ -38,12 +38,6 @@
             ?>
           </div>
         </article>
-
-        <?php if (!empty($profile['name'])): ?>
-          <div class="mt-4 text-muted">
-            <p class="mb-1"><strong><?= esc($profile['name']) ?></strong></p>
-          </div>
-        <?php endif; ?>
       </div>
     </div>
   </div>

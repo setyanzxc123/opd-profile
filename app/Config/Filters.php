@@ -72,7 +72,7 @@ class Filters extends BaseFilters
      */
     public array $globals = [
         'before' => [
-            'csrf',
+            'csrf' => ['except' => ['admin/tinymce/upload']],
         ],
         'after' => [
             'secureheaders', // Security headers (CSP, X-Frame-Options, etc.)

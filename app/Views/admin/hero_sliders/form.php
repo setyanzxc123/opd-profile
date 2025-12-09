@@ -80,7 +80,7 @@
                   <div class="row">
                     <div class="col-md-8 mb-3">
                       <label for="image_file" class="form-label">
-                        Upload Gambar <?= empty($slider['id']) ? '<span class="text-danger">*</span>' : '' ?>
+                        Upload Gambar <span class="text-danger" id="image_required_mark" style="<?= empty($slider['id']) ? '' : 'display:none' ?>">*</span>
                       </label>
                       <input type="file" 
                              class="form-control" 
@@ -88,20 +88,32 @@
                              name="image_file"
                              accept="image/jpeg,image/jpg,image/png,image/webp"
                              <?= empty($slider['id']) ? 'required' : '' ?>>
-                      <div class="form-text">
+                      <div class="form-text" id="image_help_text">
                         Format: JPG, PNG, WebP • Max: <?= ($config->maxImageSize / 1000000) ?>MB • 
                         Min: <?= $config->minImageWidth ?>x<?= $config->minImageHeight ?>px
                       </div>
+                      <div class="alert alert-info py-2 px-3 mt-2 mb-0" id="internal_source_info" style="display: none;">
+                        <i class="bx bx-info-circle me-1"></i> Gambar akan diambil otomatis dari berita yang dipilih.
+                      </div>
                     </div>
 
-                    <?php if (!empty($slider['image_path'])): ?>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-4 mb-3" id="main_preview_container" style="<?= !empty($slider['image_path']) ? '' : 'display:none' ?>">
                       <label class="form-label d-block">Preview</label>
-                      <img src="<?= base_url($slider['image_path']) ?>" 
+                      <?php
+                        $imageSrc = '';
+                        if (!empty($slider['image_path'])) {
+                            $imageSrc = $slider['image_path'];
+                            if (!preg_match('/^https?:\/\//', $imageSrc)) {
+                                $imageSrc = base_url($imageSrc);
+                            }
+                        }
+                      ?>
+                      <img src="<?= $imageSrc ?>" 
+                           id="main_preview_img"
+                           data-original-src="<?= $imageSrc ?>"
                            alt="Preview" 
                            style="width:100%;max-height:150px;object-fit:cover;border-radius:0.35rem;border:1px solid #dee2e6">
                     </div>
-                  <?php endif; ?>
                   </div>
                 </div>
               </div>
@@ -133,23 +145,14 @@
                     <select class="form-select" id="prefill_news" disabled size="6" style="height: auto; max-height: 180px; overflow-y: auto;">
                       <option value="">-- Pilih Berita --</option>
                       <?php foreach ($newsItems as $news): ?>
-                        <option value="<?= $news['id'] ?>"><?= esc($news['title']) ?></option>
+                        <option value="<?= $news['id'] ?>" <?= (isset($slider['source_ref_id']) && $slider['source_ref_id'] == $news['id']) ? 'selected' : '' ?>><?= esc($news['title']) ?></option>
                       <?php endforeach; ?>
                     </select>
                     <div class="form-text"><span id="news_count"><?= count($newsItems) ?></span> berita ditemukan</div>
-                    
-                    <!-- News Image Preview -->
-                    <div id="news_image_preview" class="mt-3" style="display: none;">
-                      <label class="form-label small text-muted">Preview Gambar Berita</label>
-                      <img id="news_thumbnail" src="" alt="Preview" 
-                           style="width:100%;max-height:150px;object-fit:cover;border-radius:0.35rem;border:1px solid #dee2e6">
-                      <div class="form-text text-success mt-1">
-                        <i class="bx bx-check-circle"></i> Gambar ini dapat digunakan untuk slider
-                      </div>
-                    </div>
                   </div>
                   
                   <input type="hidden" name="source_type" id="source_type_input" value="<?= old('source_type', $slider['source_type'] ?? 'manual') ?>">
+                  <input type="hidden" name="source_ref_id" id="source_ref_id_input" value="<?= old('source_ref_id', $slider['source_ref_id'] ?? '') ?>">
                 </div>
               </div>
               <?php endif; ?>
@@ -210,28 +213,48 @@ document.addEventListener('DOMContentLoaded', () => {
     const newsSearch = document.getElementById('news_search');
     const newsCount = document.getElementById('news_count');
     const sourceTypeInput = document.getElementById('source_type_input');
+    const sourceRefIdInput = document.getElementById('source_ref_id_input');
     const titleInput = document.getElementById('title');
     const buttonLinkInput = document.getElementById('button_link');
-    const newsImagePreview = document.getElementById('news_image_preview');
-    const newsThumbnail = document.getElementById('news_thumbnail');
-    const baseUrl = '<?= base_url() ?>';
+    
+    // UI Elements
+    const imageFileInput = document.getElementById('image_file');
+    const imageHelpText = document.getElementById('image_help_text');
+    const internalSourceInfo = document.getElementById('internal_source_info');
+    const imageRequiredMark = document.getElementById('image_required_mark');
+    
+    const mainPreviewContainer = document.getElementById('main_preview_container');
+    const mainPreviewImg = document.getElementById('main_preview_img');
 
-    function showImagePreview(thumbnailPath) {
-        if (!newsImagePreview || !newsThumbnail) return;
+    // Ensure base url ends with slash
+    let baseUrl = '<?= base_url() ?>';
+    if (!baseUrl.endsWith('/')) {
+        baseUrl += '/';
+    }
+
+    function showMainPreview(thumbnailPath) {
+        if (!mainPreviewImg || !mainPreviewContainer) return;
         
         if (thumbnailPath) {
-            const imageUrl = thumbnailPath.startsWith('http') ? thumbnailPath : baseUrl + thumbnailPath;
-            newsThumbnail.src = imageUrl;
-            newsImagePreview.style.display = 'block';
+            let imageUrl;
+            if (thumbnailPath.match(/^https?:\/\//)) {
+                imageUrl = thumbnailPath;
+            } else {
+                const cleanPath = thumbnailPath.startsWith('/') ? thumbnailPath.substring(1) : thumbnailPath;
+                imageUrl = baseUrl + cleanPath;
+            }
+            mainPreviewImg.src = imageUrl;
+            mainPreviewContainer.style.display = 'block';
         } else {
-            hideImagePreview();
+            // If no path provided, check if we have original src to revert to
+            const originalSrc = mainPreviewImg.dataset.originalSrc;
+            if (originalSrc && !useInternalCheckbox.checked) {
+                mainPreviewImg.src = originalSrc;
+                mainPreviewContainer.style.display = 'block';
+            } else {
+                mainPreviewContainer.style.display = 'none';
+            }
         }
-    }
-    
-    function hideImagePreview() {
-        if (!newsImagePreview) return;
-        newsImagePreview.style.display = 'none';
-        if (newsThumbnail) newsThumbnail.src = '';
     }
 
     function filterNews(query) {
@@ -264,6 +287,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         prefillSelect.disabled = !isChecked;
         if (newsSearch) newsSearch.disabled = !isChecked;
+        
+        // Handle File Input State
+        if (imageFileInput) {
+            imageFileInput.disabled = isChecked;
+            if (isChecked) {
+                imageFileInput.removeAttribute('required');
+                if (imageRequiredMark) imageRequiredMark.style.display = 'none';
+                if (imageHelpText) imageHelpText.style.display = 'none';
+                if (internalSourceInfo) internalSourceInfo.style.display = 'block';
+            } else {
+                // Only make required if it's a new entry (no ID) logic handled by PHP typically, 
+                // but JS can also check. Let's rely on PHP logic for 'required' attribute initial state
+                // or just restore if it was originally required.
+                // For simplicity: if it's create mode (no original src), make required.
+                const originalSrc = mainPreviewImg ? mainPreviewImg.dataset.originalSrc : null;
+                if (!originalSrc) {
+                     imageFileInput.setAttribute('required', 'required');
+                     if (imageRequiredMark) imageRequiredMark.style.display = 'inline';
+                }
+                
+                if (imageHelpText) imageHelpText.style.display = 'block';
+                if (internalSourceInfo) internalSourceInfo.style.display = 'none';
+            }
+        }
 
         if (sourceTypeInput) {
             sourceTypeInput.value = isChecked ? 'internal' : 'manual';
@@ -271,9 +318,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!isChecked) {
             prefillSelect.value = '';
+            if (sourceRefIdInput) sourceRefIdInput.value = '';
             if (newsSearch) newsSearch.value = '';
             filterNews('');
-            hideImagePreview();
+            
+            // Revert preview to original image if available
+            showMainPreview(null);
+        } else {
+             if (sourceRefIdInput && sourceRefIdInput.value) {
+                 prefillSelect.value = sourceRefIdInput.value;
+                 // Trigger change to update preview
+                 prefillSelect.dispatchEvent(new Event('change'));
+             }
         }
     }
 
@@ -298,41 +354,64 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!useInternalCheckbox?.checked) return;
             
             const selectedId = parseInt(this.value, 10);
+            updateFormFromNews(selectedId, true);
+        });
+    }
 
-            if (!this.value) {
-                hideImagePreview();
-                return;
+    function updateFormFromNews(selectedId, updateFields = true) {
+        if (sourceRefIdInput) {
+            sourceRefIdInput.value = selectedId || '';
+        }
+
+        if (!selectedId) {
+            if (mainPreviewImg && mainPreviewContainer) {
+                 const originalSrc = mainPreviewImg.dataset.originalSrc;
+                 if (originalSrc && !useInternalCheckbox.checked) {
+                     mainPreviewImg.src = originalSrc;
+                     mainPreviewContainer.style.display = 'block';
+                 } else {
+                     mainPreviewContainer.style.display = 'none';
+                 }
             }
-            
-            const item = newsItems.find(n => parseInt(n.id, 10) === selectedId);
-            
-            if (item) {
-                const filledFields = [];
-                
+            return;
+        }
+        
+        const item = newsItems.find(n => parseInt(n.id, 10) === selectedId);
+        
+        if (item) {
+            // Update fields only if requested (e.g. user manually changed selection)
+            if (updateFields) {
                 if (titleInput) {
                     titleInput.value = item.title || '';
-                    filledFields.push(titleInput);
+                    highlightField(titleInput);
                 }
                 
                 if (buttonLinkInput) {
                     const slug = item.slug || '';
                     buttonLinkInput.value = slug ? '<?= site_url('berita/') ?>' + slug : '';
-                    filledFields.push(buttonLinkInput);
+                    highlightField(buttonLinkInput);
                 }
-
-                if (item.thumbnail) {
-                    showImagePreview(item.thumbnail);
-                } else {
-                    hideImagePreview();
-                }
-
-                filledFields.forEach(field => {
-                    field.classList.add('is-valid');
-                    setTimeout(() => field.classList.remove('is-valid'), 2000);
-                });
-                hideImagePreview();
             }
-        });
+
+            // Always update preview to show latest news thumbnail
+            if (item.thumbnail) {
+                showMainPreview(item.thumbnail);
+            } else {
+                if (mainPreviewImg) mainPreviewImg.src = ''; 
+                if (mainPreviewContainer) mainPreviewContainer.style.display = 'none';
+            }
+        }
+    }
+
+    function highlightField(field) {
+        field.classList.add('is-valid');
+        setTimeout(() => field.classList.remove('is-valid'), 2000);
+    }
+    
+    // Initial Sync for Edit Mode
+    if (useInternalCheckbox && useInternalCheckbox.checked && prefillSelect.value) {
+        // Update ONLY preview, keep saved title/link
+        updateFormFromNews(parseInt(prefillSelect.value, 10), false);
     }
 });
 </script>

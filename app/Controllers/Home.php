@@ -222,6 +222,10 @@ class Home extends BaseController
             return null;
         }
 
+        if (strpos($trimmed, 'http://') === 0 || strpos($trimmed, 'https://') === 0) {
+            return $trimmed;
+        }
+
         return base_url($trimmed);
     }
     

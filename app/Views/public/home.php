@@ -118,37 +118,6 @@
     </div>
   </section>
 
-  <!-- Sambutan Pimpinan -->
-  <?php 
-    $hasGreeting = !empty($profile['greeting']);
-    $greetingText = $hasGreeting ? $profile['greeting'] : null;
-    $leaderName = $profile['name'] ?? 'Kepala Dinas';
-  ?>
-  <?php if ($hasGreeting): ?>
-  <section class="public-section section-neutral" aria-labelledby="welcome-heading">
-    <div class="container public-container">
-      <header class="section-head text-center">
-        <h2 class="section-title" id="welcome-heading">Sambutan</h2>
-      </header>
-      <div class="welcome-section">
-        <div class="welcome-photo welcome-photo--placeholder">
-          <i class="bx bx-user"></i>
-        </div>
-        <div class="welcome-content">
-          <p class="welcome-greeting">
-            <?= esc(mb_strimwidth(strip_tags($greetingText), 0, 300, '...', 'UTF-8')) ?>
-          </p>
-          <div class="welcome-author">
-            <span class="welcome-author__name"><?= esc($leaderName) ?></span>
-            <span class="welcome-author__title">Kepala Dinas</span>
-          </div>
-          <a href="<?= site_url('profil/sambutan') ?>" class="btn btn-public-ghost btn-sm mt-2">Baca selengkapnya</a>
-        </div>
-      </div>
-    </div>
-  </section>
-  <?php endif; ?>
-
   <!-- Layanan Unggulan -->
   <section class="public-section section-cool" id="layanan" aria-labelledby="layanan-heading">
     <div class="container public-container">

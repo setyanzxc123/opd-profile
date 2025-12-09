@@ -54,6 +54,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <!-- CSS Bundle: tokens + layout + components + pages + navbar-dropdown + global-search + hero-slider + hide-icons -->
   <link href="<?= base_url('assets/css/public/bundle.css') ?>" rel="stylesheet" />
+  <link href="<?= base_url('assets/css/public/prose.css') ?>" rel="stylesheet" />
   <?php if ($publicThemeVariables !== []): ?>
     <?= theme_render_style($publicThemeVariables) ?>
   <?php endif; ?>

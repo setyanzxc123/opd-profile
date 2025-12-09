@@ -109,4 +109,6 @@ $routes->group('admin', [
     // PPID CMS
     $routes->get('ppid', 'Ppid::index');
     $routes->post('ppid', 'Ppid::update');
+    // TinyMCE Image Upload
+    $routes->post('tinymce/upload', 'TinyMCEUpload::upload');
 });

@@ -487,8 +487,11 @@
         promotion: false,
         height: 520,
         menubar: 'file edit view insert format tools table help',
+        menu: {
+          insert: { title: 'Masukkan', items: 'insertimage link media inserttable | charmap emoticons hr | pagebreak nonbreaking anchor toc | insertdatetime' }
+        },
         toolbar_sticky: true,
-        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist checklist outdent indent | table image media link | removeformat | fullscreen preview print code',
+        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist checklist outdent indent | table insertimage media link | removeformat | fullscreen preview print code',
         plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount help quickbars emoticons',
         quickbars_selection_toolbar: 'bold italic underline | quicklink blockquote quicktable',
         quickbars_insert_toolbar: 'image media codesample | hr',
@@ -496,11 +499,49 @@
         autosave_restore_when_empty: true,
         autosave_retention: '2m',
         image_caption: true,
+        image_advtab: true,
+        object_resizing: true,
         content_style: 'body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif; font-size: 16px; line-height: 1.7; }',
         table_default_attributes: { class: 'table table-striped table-sm' },
-        file_picker_types: 'image media',
+        // Image upload configuration
+        images_upload_url: '<?= site_url('admin/tinymce/upload') ?>',
+        automatic_uploads: true,
+        file_picker_types: 'image',
         language: currentEditorLanguage,
         setup: function (editor) {
+          // Custom image insert function
+          const insertImageDirect = function() {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+            input.onchange = function() {
+              const file = this.files[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = function() {
+                const id = 'blobid' + (new Date()).getTime();
+                const blobCache = editor.editorUpload.blobCache;
+                const base64 = reader.result.split(',')[1];
+                const blobInfo = blobCache.create(id, file, base64);
+                blobCache.add(blobInfo);
+                editor.insertContent('<img src="' + blobInfo.blobUri() + '" alt="' + file.name + '" style="width: 300px; height: auto;" />');
+              };
+              reader.readAsDataURL(file);
+            };
+            input.click();
+          };
+          // Toolbar button
+          editor.ui.registry.addButton('insertimage', {
+            icon: 'image',
+            tooltip: 'Sisipkan Gambar',
+            onAction: insertImageDirect
+          });
+          // Menu item
+          editor.ui.registry.addMenuItem('insertimage', {
+            icon: 'image',
+            text: 'Gambar',
+            onAction: insertImageDirect
+          });
           editor.on('init', function () {
             updateContentStats();
           });

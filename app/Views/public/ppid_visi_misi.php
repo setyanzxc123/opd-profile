@@ -43,18 +43,9 @@
             <i class="bx bx-target-lock text-primary me-2"></i>Misi
           </h2>
           <?php if (!empty($ppid['mission'])): ?>
-            <?php
-              $missions = array_filter(array_map('trim', preg_split('/\r\n|\n|\r/', (string) $ppid['mission'])));
-            ?>
-            <?php if ($missions): ?>
-              <ul class="prose mb-0">
-                <?php foreach ($missions as $mission): ?>
-                  <li class="mb-2"><?= esc($mission) ?></li>
-                <?php endforeach; ?>
-              </ul>
-            <?php else: ?>
-              <div class="prose"><?= nl2br(esc($ppid['mission'])) ?></div>
-            <?php endif; ?>
+            <div class="prose">
+              <?= nl2br(esc($ppid['mission'])) ?>
+            </div>
           <?php else: ?>
             <p class="mb-0 text-muted">Misi PPID belum tersedia.</p>
           <?php endif; ?>

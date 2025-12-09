@@ -180,9 +180,75 @@ class HeroSliderModel extends Model
      */
     public function getActiveSlides(int $limit = 10): array
     {
-        return $this->orderBy('sort_order', 'ASC')
-                    ->orderBy('created_at', 'DESC')
-                    ->findAll($limit) ?: [];
+        $builder = $this->builder();
+        $builder->select('hero_sliders.*, news.thumbnail as news_thumbnail, news.title as news_title, news.slug as news_slug');
+        $builder->join('news', 'news.id = hero_sliders.source_ref_id', 'left');
+        $builder->where('hero_sliders.is_active', 1);
+        $builder->orderBy('hero_sliders.sort_order', 'ASC');
+        $builder->orderBy('hero_sliders.created_at', 'DESC');
+        
+        $results = $builder->get($limit)->getResultArray();
+
+        // Process results to use news data if available and internal source
+        foreach ($results as &$row) {
+            // Only override if source type is internal AND we successfully joined the news data
+            if ($row['source_type'] === 'internal' && !empty($row['news_slug'])) {
+                
+                // Always favor the news thumbnail if it exists
+                if (!empty($row['news_thumbnail'])) {
+                    $row['image_path'] = $row['news_thumbnail'];
+                }
+                
+                // Sync title if user hasn't explicitly unlinked (logic assumption: internal = sync)
+                if (!empty($row['news_title'])) {
+                    $row['title'] = $row['news_title'];
+                }
+
+                // Ensure link points to the correct news slug
+                $row['button_link'] = base_url('berita/' . $row['news_slug']);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Sync slider data with latest news data
+     * Called when a news item is updated
+     */
+    public function syncWithNews(int $newsId, array $newsData): void
+    {
+        // Find all sliders linked to this news ID
+        $sliders = $this->where('source_type', 'internal')
+                        ->where('source_ref_id', $newsId)
+                        ->findAll();
+        
+        if (empty($sliders)) {
+            return;
+        }
+
+        foreach ($sliders as $slider) {
+            $updateData = [];
+
+            // Update image path if news thumbnail provided
+            if (!empty($newsData['thumbnail'])) {
+                $updateData['image_path'] = $newsData['thumbnail'];
+            }
+
+            // Update title if news title provided
+            if (!empty($newsData['title'])) {
+                $updateData['title'] = $newsData['title'];
+            }
+            
+            // Build link if slug is available
+            if (!empty($newsData['slug'])) {
+                $updateData['button_link'] = base_url('berita/' . $newsData['slug']);
+            }
+
+            if (!empty($updateData)) {
+                $this->update($slider['id'], $updateData);
+            }
+        }
     }
 
     /**
