@@ -29,7 +29,13 @@ if (! function_exists('admin_theme_context')) {
 
         $profile = is_array($profile) ? $profile : [];
         $variables = $profile !== [] ? theme_admin_variables($profile) : [];
+        
         $siteName = trim((string) ($profile['name'] ?? ''));
+        $nameLine2 = trim((string) ($profile['name_line2'] ?? ''));
+        if ($nameLine2 !== '') {
+            $siteName .= ' ' . $nameLine2;
+        }
+
         $logoPath = trim((string) ($profile['logo_admin_path'] ?? ($profile['logo_public_path'] ?? '')));
         $logoUrl = $logoPath !== '' ? base_url($logoPath) : null;
         $faviconUrl = $logoUrl ?? base_url('favicon.ico');

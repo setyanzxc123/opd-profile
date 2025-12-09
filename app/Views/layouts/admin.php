@@ -20,7 +20,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title><?= esc($title ?? 'Admin OPD') ?></title>
+  <title><?= isset($title) ? esc($title) . ' | ' : '' ?><?= esc($profileSiteName !== '' ? $profileSiteName : 'Admin Panel') ?></title>
   <link rel="icon" type="image/x-icon" href="<?= esc($faviconUrl) ?>" />
 
 
@@ -306,7 +306,7 @@
 
           <footer class="content-footer footer bg-footer-theme">
             <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
-              <div class="mb-2 mb-md-0">&copy; <?= date('Y') ?> Dinas</div>
+              <div class="mb-2 mb-md-0">&copy; <?= date('Y') ?> <strong><?= esc($profileSiteName !== '' ? $profileSiteName : 'OPD') ?></strong></div>
             </div>
           </footer>
 
