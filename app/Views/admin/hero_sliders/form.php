@@ -60,46 +60,15 @@
                   </div>
 
                   <div class="mb-3">
-                    <label for="subtitle" class="form-label">Subjudul</label>
-                    <input type="text" 
+                    <input type="hidden" name="button_text" value="Selengkapnya">
+                    <label for="button_link" class="form-label">Link Tombol</label>
+                    <input type="url" 
                            class="form-control" 
-                           id="subtitle" 
-                           name="subtitle"
-                           value="<?= old('subtitle', $slider['subtitle'] ?? '') ?>"
-                           maxlength="255"
-                           placeholder="Subjudul (opsional)">
-                  </div>
-
-                  <div class="mb-3">
-                    <label for="description" class="form-label">Deskripsi</label>
-                    <textarea class="form-control" 
-                              id="description" 
-                              name="description"
-                              rows="3"
-                              maxlength="1000"
-                              placeholder="Deskripsi lengkap (opsional)"><?= old('description', $slider['description'] ?? '') ?></textarea>
-                    <div class="form-text">Maksimal 1000 karakter</div>
-                  </div>
-
-                  <div class="row">
-                    <div class="col-md-6 mb-3">
-                      <label for="button_text" class="form-label">Teks Tombol</label>
-                      <input type="text" 
-                             class="form-control" 
-                             id="button_text" 
-                             name="button_text"
-                             value="<?= old('button_text', $slider['button_text'] ?? 'Selengka pnya') ?>"
-                             maxlength="50">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                      <label for="button_link" class="form-label">Link Tombol</label>
-                      <input type="url" 
-                             class="form-control" 
-                             id="button_link" 
-                             name="button_link"
-                             value="<?= old('button_link', $slider['button_link'] ?? '') ?>"
-                             placeholder="https://example.com">
-                    </div>
+                           id="button_link" 
+                           name="button_link"
+                           value="<?= old('button_link', $slider['button_link'] ?? '') ?>"
+                           placeholder="https://example.com">
+                    <div class="form-text">URL tujuan saat tombol "Selengkapnya" diklik</div>
                   </div>
                 </div>
               </div>
@@ -132,19 +101,7 @@
                            alt="Preview" 
                            style="width:100%;max-height:150px;object-fit:cover;border-radius:0.35rem;border:1px solid #dee2e6">
                     </div>
-                    <?php endif; ?>
-                  </div>
-
-                  <div class="mb-0">
-                    <label for="image_alt" class="form-label">Alt Text</label>
-                    <input type="text" 
-                           class="form-control" 
-                           id="image_alt" 
-                           name="image_alt"
-                           value="<?= old('image_alt', $slider['image_alt'] ?? '') ?>"
-                           maxlength="255"
-                           placeholder="Deskripsi gambar untuk SEO">
-                    <div class="form-text">Untuk aksesibilitas dan SEO</div>
+                  <?php endif; ?>
                   </div>
                 </div>
               </div>
@@ -152,18 +109,47 @@
 
             <!-- Sidebar -->
             <div class="col-lg-4">
-              <?php if (empty($slider['id']) && !empty($newsItems)): ?>
+              <?php if (!empty($newsItems)): ?>
               <div class="card shadow-sm mb-4">
                 <div class="card-body p-4">
-                  <h5 class="fw-semibold mb-3">Isi Cepat</h5>
-                  <label for="prefill_news" class="form-label">Pilih dari Berita</label>
-                  <select class="form-select" id="prefill_news">
-                    <option value="">-- Pilih Berita --</option>
-                    <?php foreach ($newsItems as $news): ?>
-                      <option value="<?= $news['id'] ?>"><?= esc($news['title']) ?></option>
-                    <?php endforeach; ?>
-                  </select>
-                  <div class="form-text">Auto-fill judul dan link dari berita</div>
+                  <h5 class="fw-semibold mb-3">Sumber Konten</h5>
+                  
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="use_internal_source" 
+                           <?= old('source_type', $slider['source_type'] ?? 'manual') === 'internal' ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="use_internal_source">
+                      Gunakan sumber dari Berita
+                    </label>
+                  </div>
+                  
+                  <div id="news_source_wrapper">
+                    <label for="news_search" class="form-label">Cari Berita</label>
+                    <input type="text" 
+                           class="form-control mb-2" 
+                           id="news_search" 
+                           placeholder="Ketik untuk mencari berita..." 
+                           disabled>
+                    
+                    <select class="form-select" id="prefill_news" disabled size="6" style="height: auto; max-height: 180px; overflow-y: auto;">
+                      <option value="">-- Pilih Berita --</option>
+                      <?php foreach ($newsItems as $news): ?>
+                        <option value="<?= $news['id'] ?>"><?= esc($news['title']) ?></option>
+                      <?php endforeach; ?>
+                    </select>
+                    <div class="form-text"><span id="news_count"><?= count($newsItems) ?></span> berita ditemukan</div>
+                    
+                    <!-- News Image Preview -->
+                    <div id="news_image_preview" class="mt-3" style="display: none;">
+                      <label class="form-label small text-muted">Preview Gambar Berita</label>
+                      <img id="news_thumbnail" src="" alt="Preview" 
+                           style="width:100%;max-height:150px;object-fit:cover;border-radius:0.35rem;border:1px solid #dee2e6">
+                      <div class="form-text text-success mt-1">
+                        <i class="bx bx-check-circle"></i> Gambar ini dapat digunakan untuk slider
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <input type="hidden" name="source_type" id="source_type_input" value="<?= old('source_type', $slider['source_type'] ?? 'manual') ?>">
                 </div>
               </div>
               <?php endif; ?>
@@ -172,7 +158,6 @@
                 <div class="card-body p-4">
                   <h5 class="fw-semibold mb-3">Aksi</h5>
 
-                  <input type="hidden" name="source_type" value="manual">
                   <input type="hidden" name="is_active" value="1">
 
                   <div class="d-grid gap-2">
@@ -219,19 +204,133 @@
 <?= $this->section('pageScripts') ?>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const newsItems = <?= json_encode($newsItems ?? []) ?>;
+    const newsItems = <?= json_encode($newsItems ?? [], JSON_NUMERIC_CHECK) ?>;
+    const useInternalCheckbox = document.getElementById('use_internal_source');
     const prefillSelect = document.getElementById('prefill_news');
+    const newsSearch = document.getElementById('news_search');
+    const newsCount = document.getElementById('news_count');
+    const sourceTypeInput = document.getElementById('source_type_input');
     const titleInput = document.getElementById('title');
     const buttonLinkInput = document.getElementById('button_link');
+    const newsImagePreview = document.getElementById('news_image_preview');
+    const newsThumbnail = document.getElementById('news_thumbnail');
+    const baseUrl = '<?= base_url() ?>';
 
-    if (prefillSelect) {
+    function showImagePreview(thumbnailPath) {
+        if (!newsImagePreview || !newsThumbnail) return;
+        
+        if (thumbnailPath) {
+            const imageUrl = thumbnailPath.startsWith('http') ? thumbnailPath : baseUrl + thumbnailPath;
+            newsThumbnail.src = imageUrl;
+            newsImagePreview.style.display = 'block';
+        } else {
+            hideImagePreview();
+        }
+    }
+    
+    function hideImagePreview() {
+        if (!newsImagePreview) return;
+        newsImagePreview.style.display = 'none';
+        if (newsThumbnail) newsThumbnail.src = '';
+    }
+
+    function filterNews(query) {
+        if (!prefillSelect) return;
+        
+        const lowerQuery = query.toLowerCase().trim();
+        let visibleCount = 0;
+
+        prefillSelect.innerHTML = '<option value="">-- Pilih Berita --</option>';
+        
+        newsItems.forEach(news => {
+            if (!lowerQuery || news.title.toLowerCase().includes(lowerQuery)) {
+                const option = document.createElement('option');
+                option.value = news.id;
+                option.textContent = news.title;
+                prefillSelect.appendChild(option);
+                visibleCount++;
+            }
+        });
+        
+        if (newsCount) {
+            newsCount.textContent = visibleCount;
+        }
+    }
+
+    function toggleNewsDropdown() {
+        if (!useInternalCheckbox || !prefillSelect) return;
+        
+        const isChecked = useInternalCheckbox.checked;
+
+        prefillSelect.disabled = !isChecked;
+        if (newsSearch) newsSearch.disabled = !isChecked;
+
+        if (sourceTypeInput) {
+            sourceTypeInput.value = isChecked ? 'internal' : 'manual';
+        }
+
+        if (!isChecked) {
+            prefillSelect.value = '';
+            if (newsSearch) newsSearch.value = '';
+            filterNews('');
+            hideImagePreview();
+        }
+    }
+
+    let searchTimeout;
+    if (newsSearch) {
+        newsSearch.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterNews(this.value);
+            }, 200);
+        });
+    }
+
+    toggleNewsDropdown();
+
+    if (useInternalCheckbox) {
+        useInternalCheckbox.addEventListener('change', toggleNewsDropdown);
+    }
+
+    if (prefillSelect && newsItems.length > 0) {
         prefillSelect.addEventListener('change', function() {
-            const item = newsItems.find(n => n.id == this.value);
+            if (!useInternalCheckbox?.checked) return;
+            
+            const selectedId = parseInt(this.value, 10);
+
+            if (!this.value) {
+                hideImagePreview();
+                return;
+            }
+            
+            const item = newsItems.find(n => parseInt(n.id, 10) === selectedId);
+            
             if (item) {
-                if (titleInput) titleInput.value = item.title || '';
-                if (buttonLinkInput) buttonLinkInput.value = item.slug ? 
-                    '<?= site_url('berita/') ?>' + item.slug : '';
-                this.value = '';
+                const filledFields = [];
+                
+                if (titleInput) {
+                    titleInput.value = item.title || '';
+                    filledFields.push(titleInput);
+                }
+                
+                if (buttonLinkInput) {
+                    const slug = item.slug || '';
+                    buttonLinkInput.value = slug ? '<?= site_url('berita/') ?>' + slug : '';
+                    filledFields.push(buttonLinkInput);
+                }
+
+                if (item.thumbnail) {
+                    showImagePreview(item.thumbnail);
+                } else {
+                    hideImagePreview();
+                }
+
+                filledFields.forEach(field => {
+                    field.classList.add('is-valid');
+                    setTimeout(() => field.classList.remove('is-valid'), 2000);
+                });
+                hideImagePreview();
             }
         });
     }

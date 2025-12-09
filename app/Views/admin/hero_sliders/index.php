@@ -2,68 +2,51 @@
 
 <?= $this->section('pageStyles') ?>
 <style>
-/* Wrapper for alignment */
-.slider-number-wrapper,
-.slide-item-wrapper {
-    margin-bottom: 0.75rem;
-    min-height: 60px;
-    display: flex;
-    align-items: stretch;
-}
-
-/* Number styling - matches wrapper height */
-.slider-number {
-    width: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Slider item styling - with border and better UX */
-.slide-item {
+/* Table row styling */
+.slide-row {
     cursor: grab;
-    transition: all 0.2s ease;
-    padding: 0.75rem;
-    background: white;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    width: 100%;
+    transition: background-color 0.2s ease;
 }
 
-.slide-item:hover {
+.slide-row:hover {
     background-color: #f8f9fa;
-    border-color: #c7d2fe;
-    box-shadow: 0 2px 8px rgba(103, 126, 234, 0.15);
 }
 
-.slide-item:active {
+.slide-row:active {
     cursor: grabbing;
-    box-shadow: 0 4px 12px rgba(103, 126, 234, 0.25);
 }
 
+/* Drag handle */
 .drag-handle {
-    color: #6c757d;
+    color: #9ca3af;
+    cursor: grab;
     padding: 0.5rem;
-    display: flex;
+    display: inline-flex;
     align-items: center;
+}
+
+.drag-handle:hover {
+    color: #6b7280;
 }
 
 .drag-handle i {
     font-size: 1.25rem;
 }
 
+/* Sortable states */
 .sortable-ghost {
-    opacity: 0.5;
-}
-
-.sortable-ghost .slide-item {
+    opacity: 0.4;
     background-color: #eff6ff !important;
-    border: 2px dashed #667eea !important;
 }
 
-.sortable-chosen .slide-item {
+.sortable-chosen {
     background-color: #faf9ff !important;
-    border-color: #667eea !important;
+    box-shadow: 0 2px 8px rgba(103, 126, 234, 0.2);
+}
+
+/* Row being dragged */
+.slide-row:active .drag-handle {
+    cursor: grabbing;
 }
 </style>
 <?= $this->endSection() ?>
@@ -76,24 +59,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const sortForm = document.getElementById('sort-order-form');
     const sortInput = document.getElementById('sort-order-data');
     
-    if (slidesList && sortForm) {
+    function updateRowNumbers() {
+        const rows = slidesList.querySelectorAll('.slide-row');
+        rows.forEach((row, idx) => {
+            const numberSpan = row.querySelector('.row-number');
+            if (numberSpan) {
+                numberSpan.textContent = idx + 1;
+            }
+        });
+    }
+    
+    if (slidesList && sortForm && sortInput) {
         new Sortable(slidesList, {
             animation: 200,
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
-            // Drag only slide-item-wrapper (NOT numbers!)
+            draggable: 'tr.slide-row',
+            
             onEnd: function(evt) {
-                // Get new order from slide-items
-                const items = Array.from(slidesList.querySelectorAll('.slide-item[data-id]'));
+                updateRowNumbers();
+
+                const rows = Array.from(slidesList.querySelectorAll('tr.slide-row'));
                 const order = {};
-                items.forEach((el, idx) => {
-                    order[idx] = el.dataset.id;
+                
+                rows.forEach((row, idx) => {
+                    if (row.dataset.id) {
+                        order[idx] = parseInt(row.dataset.id, 10);
+                    }
                 });
 
-                // Set to hidden input
+                if (Object.keys(order).length === 0) {
+                    return;
+                }
+
                 sortInput.value = JSON.stringify(order);
-                
-                // Submit form
                 sortForm.submit();
             }
         });
@@ -144,71 +143,71 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="alert alert-info alert-dismissible" role="alert">
             <small>
               <i class="bx bx-info-circle"></i>
-              <strong>Tips:</strong> Drag icon <i class="bx bx-menu"></i> untuk mengurutkan slider.
+              <strong>Tips:</strong> Tarik baris untuk mengurutkan slider.
             </small>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
           </div>
         <?php endif; ?>
 
         <?php if (!empty($sliders)): ?>
-          <div class="row">
-            <!-- Left column: Static numbers (NOT draggable) -->
-            <div class="col-auto pe-2">
-              <div id="numbers-list">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 50px;" class="text-center">#</th>
+                  <th style="width: 50px;"></th>
+                  <th>Judul</th>
+                  <th style="width: 120px;" class="text-center">Views</th>
+                  <th style="width: 180px;" class="text-end">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="slides-list">
                 <?php foreach ($sliders as $index => $slider): ?>
-                  <div class="slider-number-wrapper">
-                    <div class="slider-number text-muted fw-bold">
-                      #<?= $index + 1 ?>
+                <tr class="slide-row" data-id="<?= $slider['id'] ?>">
+                  <td class="text-center">
+                    <span class="row-number text-muted fw-bold"><?= $index + 1 ?></span>
+                  </td>
+                  <td>
+                    <span class="drag-handle">
+                      <i class="bx bx-menu"></i>
+                    </span>
+                  </td>
+                  <td>
+                    <div class="fw-semibold"><?= esc($slider['title']) ?></div>
+                    <?php if (!empty($slider['button_link'])): ?>
+                      <small class="text-muted text-truncate d-block" style="max-width: 300px;">
+                        <i class="bx bx-link-alt"></i> <?= esc($slider['button_link']) ?>
+                      </small>
+                    <?php endif; ?>
+                  </td>
+                  <td class="text-center">
+                    <?php if (($slider['view_count'] ?? 0) > 0): ?>
+                      <span class="badge bg-light text-dark">
+                        <i class="bx bx-show"></i> <?= number_format($slider['view_count']) ?>
+                      </span>
+                    <?php else: ?>
+                      <span class="text-muted">-</span>
+                    <?php endif; ?>
+                  </td>
+                  <td class="text-end">
+                    <div class="d-inline-flex gap-1">
+                      <a href="<?= site_url('admin/hero-sliders/edit/' . $slider['id']) ?>" 
+                         class="btn btn-sm btn-outline-secondary">
+                        <i class="bx bx-edit"></i>
+                      </a>
+                      <form method="post" action="<?= site_url('admin/hero-sliders/delete/' . $slider['id']) ?>" 
+                            onsubmit="return confirm('Hapus slider ini?')" class="m-0">
+                        <?= csrf_field() ?>
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                          <i class="bx bx-trash"></i>
+                        </button>
+                      </form>
                     </div>
-                  </div>
+                  </td>
+                </tr>
                 <?php endforeach; ?>
-              </div>
-            </div>
-
-            <!-- Right column: Draggable sliders ONLY -->
-            <div class="col">
-              <div id="slides-list">
-                <?php foreach ($sliders as $index => $slider): ?>
-                  <div class="slide-item-wrapper">
-                    <div class="slide-item" data-id="<?= $slider['id'] ?>">
-                      <div class="row align-items-center">
-                        <div class="col-auto">
-                          <span class="drag-handle">
-                            <i class="bx bx-menu"></i>
-                          </span>
-                        </div>
-                        <div class="col">
-                          <div class="fw-semibold"><?= esc($slider['title']) ?></div>
-                          <small class="text-muted">
-                            <?php if (!empty($slider['subtitle'])): ?>
-                              <?= esc($slider['subtitle']) ?> •
-                            <?php endif; ?>
-                            <?php if (($slider['view_count'] ?? 0) > 0): ?>
-                              <i class="bx bx-show"></i> <?= number_format($slider['view_count']) ?> views
-                            <?php endif; ?>
-                          </small>
-                        </div>
-                        <div class="col-auto">
-                          <div class="d-inline-flex gap-1">
-                            <a href="<?= site_url('admin/hero-sliders/edit/' . $slider['id']) ?>" 
-                               class="btn btn-sm btn-outline-secondary">
-                              <i class="bx bx-edit"></i> Ubah
-                            </a>
-                            <form method="post" action="<?= site_url('admin/hero-sliders/delete/' . $slider['id']) ?>" 
-                                  onsubmit="return confirm('Hapus slider ini?')" class="m-0">
-                              <?= csrf_field() ?>
-                              <button type="submit" class="btn btn-sm btn-outline-danger">
-                                <i class="bx bx-trash"></i> Hapus
-                              </button>
-                            </form>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                <?php endforeach; ?>
-              </div>
-            </div>
+              </tbody>
+            </table>
           </div>
         <?php else: ?>
           <div class="text-center py-5">

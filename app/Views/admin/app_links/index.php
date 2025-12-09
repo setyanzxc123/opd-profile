@@ -2,46 +2,29 @@
 
 <?= $this->section('pageStyles') ?>
 <style>
-.link-item-wrapper {
-    margin-bottom: 0.75rem;
-    min-height: 60px;
-    display: flex;
-    align-items: stretch;
-}
-
-.link-number {
-    width: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.link-item {
+.link-row {
     cursor: grab;
-    transition: all 0.2s ease;
-    padding: 0.75rem;
-    background: white;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    width: 100%;
+    transition: background-color 0.2s ease;
 }
 
-.link-item:hover {
+.link-row:hover {
     background-color: #f8f9fa;
-    border-color: #c7d2fe;
-    box-shadow: 0 2px 8px rgba(103, 126, 234, 0.15);
 }
 
-.link-item:active {
+.link-row:active {
     cursor: grabbing;
-    box-shadow: 0 4px 12px rgba(103, 126, 234, 0.25);
 }
 
 .drag-handle {
-    color: #6c757d;
+    color: #9ca3af;
+    cursor: grab;
     padding: 0.5rem;
-    display: flex;
+    display: inline-flex;
     align-items: center;
+}
+
+.drag-handle:hover {
+    color: #6b7280;
 }
 
 .drag-handle i {
@@ -49,22 +32,22 @@
 }
 
 .sortable-ghost {
-    opacity: 0.5;
-}
-
-.sortable-ghost .link-item {
+    opacity: 0.4;
     background-color: #eff6ff !important;
-    border: 2px dashed #667eea !important;
 }
 
-.sortable-chosen .link-item {
+.sortable-chosen {
     background-color: #faf9ff !important;
-    border-color: #667eea !important;
+    box-shadow: 0 2px 8px rgba(103, 126, 234, 0.2);
+}
+
+.link-row:active .drag-handle {
+    cursor: grabbing;
 }
 
 .link-logo {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     object-fit: contain;
     border-radius: 8px;
     background: #f8f9fa;
@@ -72,8 +55,8 @@
 }
 
 .link-logo-placeholder {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -97,17 +80,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const sortForm = document.getElementById('sort-order-form');
     const sortInput = document.getElementById('sort-order-data');
     
-    if (linksList && sortForm) {
+    function updateRowNumbers() {
+        const rows = linksList.querySelectorAll('.link-row');
+        rows.forEach((row, idx) => {
+            const numberSpan = row.querySelector('.row-number');
+            if (numberSpan) {
+                numberSpan.textContent = idx + 1;
+            }
+        });
+    }
+    
+    if (linksList && sortForm && sortInput) {
         new Sortable(linksList, {
             animation: 200,
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
+            draggable: 'tr.link-row',
+            
             onEnd: function(evt) {
-                const items = Array.from(linksList.querySelectorAll('.link-item[data-id]'));
+                updateRowNumbers();
+                
+                const rows = Array.from(linksList.querySelectorAll('tr.link-row'));
                 const order = {};
-                items.forEach((el, idx) => {
-                    order[el.dataset.id] = idx + 1;
+                
+                rows.forEach((row, idx) => {
+                    if (row.dataset.id) {
+                        order[row.dataset.id] = idx + 1;
+                    }
                 });
+
+                if (Object.keys(order).length === 0) {
+                    return;
+                }
 
                 sortInput.value = JSON.stringify(order);
                 sortForm.submit();
@@ -179,88 +183,85 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="alert alert-info alert-dismissible" role="alert">
           <small>
             <i class="bx bx-info-circle"></i>
-            <strong>Tips:</strong> Drag icon <i class="bx bx-menu"></i> untuk mengurutkan tautan. Logo yang ditampilkan akan muncul di slider halaman utama.
+            <strong>Tips:</strong> Tarik baris untuk mengurutkan tautan. Logo akan muncul di slider halaman utama.
           </small>
           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
 
         <?php if (!empty($links)): ?>
-          <div class="row">
-            <!-- Left column: Static numbers -->
-            <div class="col-auto pe-2">
-              <div id="numbers-list">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 50px;" class="text-center">#</th>
+                  <th style="width: 50px;"></th>
+                  <th style="width: 60px;">Logo</th>
+                  <th>Nama & URL</th>
+                  <th style="width: 80px;" class="text-center">Status</th>
+                  <th style="width: 180px;" class="text-end">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="links-list">
                 <?php foreach ($links as $index => $link): ?>
-                  <div class="link-item-wrapper">
-                    <div class="link-number text-muted fw-bold">
-                      #<?= $index + 1 ?>
-                    </div>
-                  </div>
-                <?php endforeach; ?>
-              </div>
-            </div>
-
-            <!-- Right column: Draggable links -->
-            <div class="col">
-              <div id="links-list">
-                <?php foreach ($links as $link): ?>
-                  <div class="link-item-wrapper">
-                    <div class="link-item" data-id="<?= $link['id'] ?>">
-                      <div class="row align-items-center">
-                        <div class="col-auto">
-                          <span class="drag-handle">
-                            <i class="bx bx-menu"></i>
-                          </span>
-                        </div>
-                        <div class="col-auto">
-                          <?php if (!empty($link['logo_path'])): ?>
-                            <img src="<?= base_url($link['logo_path']) ?>" alt="<?= esc($link['name']) ?>" class="link-logo">
-                          <?php else: ?>
-                            <div class="link-logo-placeholder">
-                              <i class="bx bx-image"></i>
-                            </div>
-                          <?php endif; ?>
-                        </div>
-                        <div class="col">
-                          <div class="fw-semibold">
-                            <?= esc($link['name']) ?>
-                            <?php if (!$link['is_active']): ?>
-                              <span class="badge badge-inactive ms-2">Nonaktif</span>
-                            <?php endif; ?>
-                          </div>
-                          <small class="text-muted">
-                            <a href="<?= esc($link['url']) ?>" target="_blank" rel="noopener" class="text-decoration-none">
-                              <?= esc(substr($link['url'], 0, 50)) ?><?= strlen($link['url']) > 50 ? '...' : '' ?>
-                              <i class="bx bx-link-external"></i>
-                            </a>
-                          </small>
-                        </div>
-                        <div class="col-auto">
-                          <div class="d-inline-flex gap-1">
-                            <form method="post" action="<?= site_url('admin/app-links/toggle/' . $link['id']) ?>" class="m-0">
-                              <?= csrf_field() ?>
-                              <button type="submit" class="btn btn-sm btn-outline-<?= $link['is_active'] ? 'warning' : 'success' ?>" title="<?= $link['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>">
-                                <i class="bx bx-<?= $link['is_active'] ? 'hide' : 'show' ?>"></i>
-                              </button>
-                            </form>
-                            <a href="<?= site_url('admin/app-links/edit/' . $link['id']) ?>" 
-                               class="btn btn-sm btn-outline-secondary">
-                              <i class="bx bx-edit"></i> Ubah
-                            </a>
-                            <form method="post" action="<?= site_url('admin/app-links/delete/' . $link['id']) ?>" 
-                                  onsubmit="return confirm('Hapus tautan ini?')" class="m-0">
-                              <?= csrf_field() ?>
-                              <button type="submit" class="btn btn-sm btn-outline-danger">
-                                <i class="bx bx-trash"></i> Hapus
-                              </button>
-                            </form>
-                          </div>
-                        </div>
+                <tr class="link-row" data-id="<?= $link['id'] ?>">
+                  <td class="text-center">
+                    <span class="row-number text-muted fw-bold"><?= $index + 1 ?></span>
+                  </td>
+                  <td>
+                    <span class="drag-handle">
+                      <i class="bx bx-menu"></i>
+                    </span>
+                  </td>
+                  <td>
+                    <?php if (!empty($link['logo_path'])): ?>
+                      <img src="<?= base_url($link['logo_path']) ?>" alt="<?= esc($link['name']) ?>" class="link-logo">
+                    <?php else: ?>
+                      <div class="link-logo-placeholder">
+                        <i class="bx bx-image"></i>
                       </div>
+                    <?php endif; ?>
+                  </td>
+                  <td>
+                    <div class="fw-semibold"><?= esc($link['name']) ?></div>
+                    <small class="text-muted text-truncate d-block" style="max-width: 250px;">
+                      <a href="<?= esc($link['url']) ?>" target="_blank" rel="noopener" class="text-decoration-none">
+                        <?= esc(substr($link['url'], 0, 40)) ?><?= strlen($link['url']) > 40 ? '...' : '' ?>
+                        <i class="bx bx-link-external"></i>
+                      </a>
+                    </small>
+                  </td>
+                  <td class="text-center">
+                    <?php if ($link['is_active']): ?>
+                      <span class="badge bg-success">Aktif</span>
+                    <?php else: ?>
+                      <span class="badge badge-inactive">Nonaktif</span>
+                    <?php endif; ?>
+                  </td>
+                  <td class="text-end">
+                    <div class="d-inline-flex gap-1">
+                      <form method="post" action="<?= site_url('admin/app-links/toggle/' . $link['id']) ?>" class="m-0">
+                        <?= csrf_field() ?>
+                        <button type="submit" class="btn btn-sm btn-outline-<?= $link['is_active'] ? 'warning' : 'success' ?>" title="<?= $link['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>">
+                          <i class="bx bx-<?= $link['is_active'] ? 'hide' : 'show' ?>"></i>
+                        </button>
+                      </form>
+                      <a href="<?= site_url('admin/app-links/edit/' . $link['id']) ?>" 
+                         class="btn btn-sm btn-outline-secondary">
+                        <i class="bx bx-edit"></i>
+                      </a>
+                      <form method="post" action="<?= site_url('admin/app-links/delete/' . $link['id']) ?>" 
+                            onsubmit="return confirm('Hapus tautan ini?')" class="m-0">
+                        <?= csrf_field() ?>
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                          <i class="bx bx-trash"></i>
+                        </button>
+                      </form>
                     </div>
-                  </div>
+                  </td>
+                </tr>
                 <?php endforeach; ?>
-              </div>
-            </div>
+              </tbody>
+            </table>
           </div>
         <?php else: ?>
           <div class="text-center py-5">

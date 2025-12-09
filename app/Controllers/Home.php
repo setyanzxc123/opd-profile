@@ -61,29 +61,17 @@ class Home extends BaseController
 
     private function buildHeroView(?array $profile, array $newsItems): array
     {
-        $limitSlots = 10;
-        $minSlides  = 5;
-
-        $manual = $this->sliderModel->getActiveSlides($limitSlots);
+        $manual = $this->sliderModel->getActiveSlides();
         $slides = [];
+        
         foreach ($manual as $index => $item) {
             $slides[] = [
-                'title'     => (string) ($item['title'] ?? ''),
-                'excerpt'   => $this->limitText($item['description'] ?? '', 200),
-                'thumbnail' => $this->resolveMediaUrl($item['image_path'] ?? ''),
-                'link'      => (string) ($item['button_link'] ?? '#'),
-                'isActive'  => $index === 0,
-                'published' => null,
-                'category'      => $item['subtitle'] ?? null,
-                'category_slug' => null,
-                'button_text'   => $item['button_text'] ?? 'Selengkapnya',
+                'title'       => (string) ($item['title'] ?? ''),
+                'thumbnail'   => $this->resolveMediaUrl($item['image_path'] ?? ''),
+                'link'        => (string) ($item['button_link'] ?? '#'),
+                'isActive'    => $index === 0,
+                'button_text' => $item['button_text'] ?? 'Selengkapnya',
             ];
-        }
-
-        if (count($slides) < $minSlides) {
-            $needed = $minSlides - count($slides);
-            $fallback = $this->buildNewsFallback($newsItems, $needed, count($slides));
-            $slides = array_merge($slides, $fallback);
         }
 
         $profileName  = trim((string) ($profile['name'] ?? 'Dinas ....'));
@@ -91,7 +79,7 @@ class Home extends BaseController
 
         return [
             'hasSlider' => $slides !== [],
-            'slides'    => array_slice($slides, 0, $limitSlots),
+            'slides'    => $slides,
             'fallback'  => [
                 'title'       => $profileName,
                 'description' => $profileIntro,
@@ -99,29 +87,6 @@ class Home extends BaseController
                 'ctaContact'  => site_url('kontak'),
             ],
         ];
-    }
-
-    private function buildNewsFallback(array $newsItems, int $limit, int $offsetCount = 0): array
-    {
-        $fallback = [];
-        $newsItems = array_slice($newsItems, 0, $limit);
-
-        foreach ($newsItems as $index => $item) {
-            $primaryCategory = $item['primary_category'] ?? null;
-            $fallback[] = [
-                'title'     => (string) ($item['title'] ?? ''),
-                'excerpt'   => $this->limitText($item['content'] ?? '', 200),
-                'thumbnail' => $this->resolveMediaUrl($item['thumbnail'] ?? ''),
-                'link'      => site_url('berita/' . (string) ($item['slug'] ?? '')),
-                'isActive'  => ($index + $offsetCount) === 0,
-                'published' => $this->formatDate($item['published_at'] ?? null),
-                'category'      => $primaryCategory['name'] ?? null,
-                'category_slug' => $primaryCategory['slug'] ?? null,
-                'button_text'   => 'Baca Selengkapnya',
-            ];
-        }
-
-        return $fallback;
     }
 
     private function buildProfileSummary(?array $profile): array

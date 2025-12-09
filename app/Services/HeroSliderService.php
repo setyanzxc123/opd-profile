@@ -420,14 +420,18 @@ class HeroSliderService
 
     /**
      * Get news options for internal linking
+     * 
+     * @param int $limit Limit results (0 = no limit)
+     * @return array
      */
-    public function getNewsOptions(int $limit = 10): array
+    public function getNewsOptions(int $limit = 0): array
     {
         try {
-            return model(NewsModel::class)
+            $query = model(NewsModel::class)
                 ->select('id, title, slug, thumbnail, published_at')
-                ->orderBy('published_at', 'DESC')
-                ->findAll($limit);
+                ->orderBy('published_at', 'DESC');
+            
+            return $limit > 0 ? $query->findAll($limit) : $query->findAll();
         } catch (\Throwable $e) {
             log_message('error', 'Failed to fetch news options: {error}', [
                 'error' => $e->getMessage(),
@@ -464,7 +468,7 @@ class HeroSliderService
             ];
         }
 
-        // Get latest news
+        // Get latest news (limited to defaultSlots)
         $latestNews = $this->getNewsOptions($this->config->defaultSlots);
 
         if (empty($latestNews)) {
@@ -650,9 +654,19 @@ class HeroSliderService
             }
         }
 
-        // Ensure required fields have defaults
+        // Defaults
         $data['source_type'] = $data['source_type'] ?? 'manual';
         $data['is_active'] = isset($data['is_active']) ? (int)$data['is_active'] : 1;
+        $data['subtitle'] = $data['subtitle'] ?? '';
+        $data['description'] = $data['description'] ?? '';
+        
+        if (empty($data['image_alt']) && !empty($data['title'])) {
+            $data['image_alt'] = $data['title'];
+        }
+        
+        if (empty($data['button_text'])) {
+            $data['button_text'] = 'Selengkapnya';
+        }
 
         return $data;
     }

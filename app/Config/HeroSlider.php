@@ -14,9 +14,9 @@ class HeroSlider extends BaseConfig
 {
     /**
      * Jumlah maksimal slot slider yang bisa dibuat
-     * Untuk OPD: 5-10 sudah cukup
+     * Best practice untuk OPD: 3-7 sudah cukup (user jarang scroll lebih)
      */
-    public int $maxSlots = 10;
+    public int $maxSlots = 7;
 
     /**
      * Jumlah default slider yang dibuat otomatis (jika diperlukan)

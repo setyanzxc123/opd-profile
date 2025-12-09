@@ -49,16 +49,6 @@
                 </figure>
                 <div class="hero-cover-overlay">
                   <div class="hero-cover-copy">
-                    <?php if (! empty($slide['category'])): ?>
-                      <?php if (! empty($slide['category_slug'])): ?>
-                        <a class="hero-eyebrow hero-eyebrow-light d-inline-block" href="<?= site_url('berita/kategori/' . esc($slide['category_slug'], 'url')) ?>">Kategori <?= esc($slide['category']) ?></a>
-                      <?php else: ?>
-                        <span class="hero-eyebrow hero-eyebrow-light d-inline-block"><?= esc($slide['category']) ?></span>
-                      <?php endif; ?>
-                    <?php endif; ?>
-                    <?php if ($slide['published']): ?>
-                      <span class="hero-eyebrow hero-eyebrow-light d-inline-block">Terbit <?= esc($slide['published']) ?></span>
-                    <?php endif; ?>
                     <h2 class="hero-cover-title"><?= esc($slide['title']) ?></h2>
                     <div class="hero-cover-actions">
                       <a class="btn btn-public-primary" href="<?= esc($slide['link']) ?>"><?= esc($slide['button_text'] ?? 'Baca selengkapnya') ?></a>
