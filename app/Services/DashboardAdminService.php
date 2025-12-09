@@ -62,7 +62,7 @@ class DashboardAdminService
                 'label'   => 'Pesan Terbuka',
                 'value'   => $openContacts,
                 'url'     => site_url('admin/contacts'),
-                'icon'    => 'bx-message-rounded-dots',
+                'icon'    => 'bx-envelope',
                 'variant' => 'warning',
                 'section' => 'contacts',
             ],
