@@ -554,6 +554,7 @@ class Pages extends BaseController
             $summary       = $this->limitPlainText($summarySource, 220);
             $body          = $plainContent !== '' ? $this->limitPlainText($plainContent, 360) : '';
             $thumbnailPath = trim((string) ($service['thumbnail'] ?? ''));
+            $iconPath      = trim((string) ($service['icon'] ?? ''));
 
             $items[] = [
                 'title'     => $title,
@@ -561,6 +562,7 @@ class Pages extends BaseController
                 'summary'   => $summary,
                 'body'      => $body,
                 'thumbnail' => $thumbnailPath,
+                'icon'      => $iconPath,
                 'url'       => $slug !== '' ? site_url('layanan/' . rawurlencode($slug)) : site_url('layanan'),
             ];
         }

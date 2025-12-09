@@ -23,19 +23,11 @@
             <a href="<?= site_url('layanan/' . esc($service['slug'], 'url')) ?>" class="service-card-link text-decoration-none">
               <article class="service-card surface-card h-100" <?php if (! empty($service['slug'])): ?>id="<?= esc($service['slug'], 'attr') ?>"<?php endif; ?>>
                 <div class="service-card__icon">
-                  <?php if (! empty($service['thumbnail'])): ?>
-                    <?php $serviceSrcset = responsive_srcset($service['thumbnail'], [400], '72px'); ?>
-                    <img 
-                      src="<?= esc(base_url($service['thumbnail']), 'attr') ?>" 
-                      srcset="<?= esc($serviceSrcset['srcset']) ?>"
-                      sizes="<?= esc($serviceSrcset['sizes']) ?>"
-                      alt="<?= esc($service['title']) ?>" 
-                      width="72" 
-                      height="72" 
-                      loading="lazy" 
-                      decoding="async">
+                  <?php if (! empty($service['icon'])): ?>
+                    <img src="<?= esc(base_url($service['icon']), 'attr') ?>" alt="Icon" width="72" height="72" style="object-fit: contain; padding: 0.5rem;">
                   <?php else: ?>
-                    <i class="bx bx-briefcase"></i>
+                    <?php $initial = mb_strtoupper(mb_substr($service['title'] ?? 'L', 0, 1, 'UTF-8'), 'UTF-8'); ?>
+                    <span class="fs-2 fw-bold text-primary"><?= esc($initial) ?></span>
                   <?php endif; ?>
                 </div>
                 <div class="service-card__body">

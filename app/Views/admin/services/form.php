@@ -65,6 +65,25 @@
                   <h6 class="fw-semibold mb-3">Pengaturan</h6>
 
                   <div class="mb-3">
+                    <label class="form-label fw-semibold d-block" for="serviceIcon">Icon Layanan</label>
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="flex-shrink-0">
+                          <?php if (! empty($item['icon'])): ?>
+                              <img src="<?= base_url($item['icon']) ?>" alt="Icon" class="rounded p-1 border" style="width: 48px; height: 48px; object-fit: contain; background: #f8f9fa;">
+                          <?php else: ?>
+                              <div class="rounded p-1 border d-flex align-items-center justify-content-center bg-light text-muted" style="width: 48px; height: 48px;">
+                                  <i class="bx bx-image-alt fs-4"></i>
+                              </div>
+                          <?php endif; ?>
+                      </div>
+                      <div class="flex-grow-1">
+                          <input type="file" id="serviceIcon" name="icon" class="form-control" accept=".jpg,.jpeg,.png,.webp,.svg">
+                          <div class="form-text">Format: PNG, JPG, SVG. Maks 2MB. Disarankan persegi transparan.</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
                     <label class="form-label fw-semibold d-block" for="serviceThumbnail">Thumbnail</label>
                     <input type="file" id="serviceThumbnail" name="thumbnail" class="form-control" accept=".jpg,.jpeg,.png,.webp,.gif">
                     <div class="form-text">Disarankan rasio 16:9 (maks. 4 MB).</div>

@@ -73,6 +73,7 @@ class Services extends BaseController
                 'description' => '',
                 'content'     => '',
                 'thumbnail'   => '',
+                'icon'        => '',
                 'is_active'   => 1,
             ],
             'validation' => \Config\Services::validation(),
@@ -87,6 +88,7 @@ class Services extends BaseController
             'title'       => 'required|min_length[3]|max_length[150]',
             'description' => 'permit_empty',
             'content'     => 'required|min_length[10]',
+            'icon'        => 'permit_empty|max_size[icon,2048]|is_image[icon]|ext_in[icon,jpg,jpeg,png,webp,svg]',
             'thumbnail'   => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]|mime_in[thumbnail,image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,image/gif]',
         ];
 
@@ -107,6 +109,15 @@ class Services extends BaseController
             'content'     => $contentInput,
             'is_active'   => $isActive,
         ];
+
+        // Handle Icon Upload
+        $iconFile = $this->request->getFile('icon');
+        if ($iconFile && $iconFile->isValid() && ! $iconFile->hasMoved()) {
+            $newIconPath = ImageOptimizer::moveWithPreset($iconFile, self::UPLOAD_DIR, 'service');
+            if ($newIconPath) {
+                $data['icon'] = $newIconPath;
+            }
+        }
 
         $file = $this->request->getFile('thumbnail');
         if ($file && $file->isValid()) {
@@ -159,6 +170,7 @@ class Services extends BaseController
             'title'       => 'required|min_length[3]|max_length[150]',
             'description' => 'permit_empty',
             'content'     => 'required|min_length[10]',
+            'icon'        => 'permit_empty|max_size[icon,2048]|is_image[icon]|ext_in[icon,jpg,jpeg,png,webp,svg]',
             'thumbnail'   => 'permit_empty|max_size[thumbnail,4096]|is_image[thumbnail]|ext_in[thumbnail,jpg,jpeg,png,webp,gif]|mime_in[thumbnail,image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,image/gif]',
         ];
 
@@ -181,6 +193,20 @@ class Services extends BaseController
             'content'     => $contentInput,
             'is_active'   => $isActive,
         ];
+
+        // Handle Icon Upload
+        $iconFile = $this->request->getFile('icon');
+        if ($iconFile && $iconFile->isValid() && ! $iconFile->hasMoved()) {
+             // Delete old icon
+             if (!empty($item['icon'])) {
+                 ImageOptimizer::deleteWithVariants($item['icon']);
+             }
+             
+            $newIconPath = ImageOptimizer::moveWithPreset($iconFile, self::UPLOAD_DIR, 'service');
+            if ($newIconPath) {
+                $data['icon'] = $newIconPath;
+            }
+        }
 
         $file = $this->request->getFile('thumbnail');
         if ($file && $file->isValid()) {

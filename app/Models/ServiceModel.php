@@ -15,6 +15,7 @@ class ServiceModel extends Model
         'description',
         'content',
         'thumbnail',
+        'icon',
         'is_active',
     ];
 }
