@@ -109,7 +109,7 @@ class Home extends BaseController
                 'title'       => $title,
                 'initial'     => mb_strtoupper(mb_substr($title, 0, 1, 'UTF-8'), 'UTF-8'),
                 'summary'     => $this->limitText($service['description'] ?? '', 160),
-                'target'      => site_url('layanan') . '#' . rawurlencode((string) ($service['slug'] ?? '')),
+                'target'      => site_url('layanan/' . rawurlencode((string) ($service['slug'] ?? ''))),
                 'icon'        => $service['icon'] ?? null,
             ];
         }
