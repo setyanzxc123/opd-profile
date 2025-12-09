@@ -27,6 +27,7 @@ class OpdProfileModel extends Model
         'email',
         'logo_public_path',
         'logo_admin_path',
+        'icon_path',
         'theme_settings',
         'org_structure_image',
         'org_structure_alt_text',

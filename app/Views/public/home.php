@@ -169,13 +169,32 @@
       <?php if ($services): ?>
         <div class="minimal-grid minimal-grid-4" role="list">
           <?php foreach ($services as $service): ?>
-            <article class="surface-card service-minimal" role="listitem">
-              <span class="mono-badge" aria-hidden="true"><?= esc($service['initial']) ?></span>
-              <h3><a class="surface-link" href="<?= esc($service['target']) ?>"><?= esc($service['title']) ?></a></h3>
-              <?php if ($service['summary']): ?>
-                <p class="text-muted"><?= esc($service['summary']) ?></p>
+            <a href="<?= esc($service['target']) ?>" class="surface-card service-minimal text-decoration-none d-block h-100" role="listitem">
+              <?php 
+                $iconPath = $service['icon'] ?? '';
+                $hasIcon = false;
+                if (!empty($iconPath)) {
+                    // Check if file exists relative to FCPATH (public folder)
+                    $localPath = FCPATH . ltrim($iconPath, '/\\');
+                    if (is_file($localPath)) {
+                        $hasIcon = true;
+                    }
+                }
+              ?>
+              <?php if ($hasIcon): ?>
+                <div class="d-flex justify-content-center mb-3">
+                  <img src="<?= esc(base_url($iconPath), 'attr') ?>" alt="" width="48" height="48" style="object-fit: contain;" loading="lazy">
+                </div>
+              <?php else: ?>
+                <div class="d-flex justify-content-center mb-3">
+                  <span class="mono-badge" aria-hidden="true"><?= esc($service['initial']) ?></span>
+                </div>
               <?php endif; ?>
-            </article>
+              <h3 class="h5 mb-2 mt-2 text-center text-dark"><?= esc($service['title']) ?></h3>
+              <?php if ($service['summary']): ?>
+                <p class="text-muted text-center small mb-0"><?= esc($service['summary']) ?></p>
+              <?php endif; ?>
+            </a>
           <?php endforeach; ?>
         </div>
         <div class="section-cta mt-4">

@@ -41,7 +41,7 @@ class PublicContentService
     public function featuredServices(int $limit = 4): array
     {
         $limit = max(1, $limit);
-        $cacheKey = sprintf('public_services_featured_%d', $limit);
+        $cacheKey = sprintf('public_services_featured_v2_%d', $limit);
 
         return $this->cache->remember($cacheKey, $this->ttl, function () use ($limit) {
             try {

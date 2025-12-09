@@ -16,6 +16,7 @@
   $loginThemeVariables = $loginThemeProfile !== [] ? theme_admin_variables($loginThemeProfile) : [];
   $profileData = $loginThemeProfile;
   $siteName = trim((string) ($profileData['name'] ?? ''));
+  $siteNameLine2 = trim((string) ($profileData['name_line2'] ?? ''));
   $adminLogoPath = trim((string) ($profileData['logo_admin_path'] ?? ''));
   $publicLogoPath = trim((string) ($profileData['logo_public_path'] ?? ''));
   $logoUrl = $adminLogoPath !== '' ? base_url($adminLogoPath) : ($publicLogoPath !== '' ? base_url($publicLogoPath) : null);
@@ -26,12 +27,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Panel Admin</title>
+  <title>Masuk &ndash; <?= esc($displaySiteName) . ($siteNameLine2 ? ' ' . esc($siteNameLine2) : '') ?></title>
   <link href="<?= base_url('assets/vendor/css/core.css') ?>" rel="stylesheet">
   <link href="<?= base_url('assets/vendor/css/pages/page-auth.css') ?>" rel="stylesheet">
   <!-- Icons: Using boxicons (loaded via core.css) -->
   <link href="<?= base_url('assets/css/demo.css') ?>" rel="stylesheet">
   <link href="<?= base_url('assets/css/custom.css') ?>" rel="stylesheet">
+  
+  <?php 
+    $faviconUrl = base_url('favicon.ico');
+    if (!empty($profileData['icon_path'])) {
+        $faviconUrl = base_url($profileData['icon_path']);
+    } elseif (!empty($profileData['logo_public_path'])) {
+        $faviconUrl = base_url($profileData['logo_public_path']);
+    } elseif (!empty($profileData['logo_admin_path'])) {
+        $faviconUrl = base_url($profileData['logo_admin_path']);
+    }
+  ?>
+  <link rel="icon" href="<?= $faviconUrl ?>">
+
   <?php if ($loginThemeVariables !== []): ?>
     <?= theme_render_style($loginThemeVariables, ':root[data-template="vertical-menu-template-free"]') ?>
   <?php endif; ?>
@@ -44,10 +58,17 @@
           <div class="card-body p-4 p-lg-5">
             <div class="text-center mb-4">
               <?php if ($logoUrl !== null): ?>
-                <img src="<?= $logoUrl ?>" alt="Logo <?= esc($displaySiteName) ?>" class="login-logo mb-3">
+                <img src="<?= $logoUrl ?>" alt="Logo <?= esc($displaySiteName) ?>" class="login-logo mb-3" width="72" height="72" style="object-fit: contain;">
+              <?php else: ?>
+                 <div class="login-logo-placeholder mb-3 mx-auto d-flex align-items-center justify-content-center bg-primary text-white rounded-3" style="width: 64px; height: 64px;">
+                    <i class="bx bx-building-house fs-2"></i>
+                 </div>
               <?php endif; ?>
-              <h4 class="mb-1 text-uppercase">Panel Admin</h4>
-              <p class="text-muted mb-0">Silahkan masuk ke panel admin.</p>
+              <h4 class="mb-1 fw-bold text-dark"><?= esc($displaySiteName) ?></h4>
+              <?php if (!empty($siteNameLine2)): ?>
+                <h5 class="mb-2 fw-bold text-secondary text-uppercase fs-6"><?= esc($siteNameLine2) ?></h5>
+              <?php endif; ?>
+              <p class="text-muted mb-0 mt-3">Selamat datang kembali! Silakan masuk ke akun Anda.</p>
             </div>
             <?php if (session()->getFlashdata('error')): ?>
               <div class="alert alert-danger alert-dismissible fade show" role="alert" aria-live="assertive">

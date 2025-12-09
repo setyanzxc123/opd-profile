@@ -217,6 +217,56 @@
                         <div class="text-muted" style="font-size: 0.85rem;">Aktifkan jika logo sudah include text nama OPD</div>
                       </label>
                     </div>
+
+                    <div class="mt-4 border-top pt-3">
+                      <label class="form-label d-block">Icon / Favicon</label>
+                      <?php 
+                        $iconPath = $profile['icon_path'] ?? null;
+                        $iconUrl  = $iconPath ? base_url($iconPath) : null;
+                        $removeIconOld = old('remove_icon');
+                      ?>
+                      <div class="profile-logo-preview-wrapper mb-2<?= $iconUrl ? ' has-image' : '' ?>" data-logo-preview-wrapper="icon" style="height: 100px; width: 100px;">
+                        <img
+                          src="<?= esc($iconUrl ?? '') ?>"
+                          alt="Pratinjau Icon"
+                          class="profile-logo-preview img-thumbnail<?= $iconUrl ? '' : ' d-none' ?>"
+                          data-logo-preview-target="icon"
+                          data-default-src="<?= esc($iconUrl ?? '') ?>"
+                          <?= $iconUrl ? '' : 'hidden' ?>
+                          style="max-height: 80px;">
+                        <div class="profile-logo-empty<?= $iconUrl ? ' d-none' : '' ?>" data-logo-preview-empty="icon"<?= $iconUrl ? ' hidden' : '' ?>>
+                          <i class="bx bx-star text-muted fs-3"></i>
+                        </div>
+                      </div>
+                      <input type="file"
+                             name="icon"
+                             class="form-control"
+                             accept=".jpg,.jpeg,.png,.webp,.gif,.ico"
+                             data-logo-input
+                             data-crop-key="icon"
+                             data-crop-label="Icon"
+                             data-crop-max="192"
+                             data-crop-aspect="1"
+                             data-meta-target="icon_meta"
+                             data-preview-target="icon">
+                      <input type="hidden" name="icon_meta" id="icon_meta" data-logo-meta value="<?= esc(old('icon_meta', '')) ?>">
+                      <?php if ($validation && $validation->hasError('icon')): ?>
+                        <div class="form-text text-danger"><?= esc($validation->getError('icon')) ?></div>
+                      <?php else: ?>
+                        <div class="form-text text-muted">Gambar kecil (persegi) untuk icon tab browser (favicon). Disarankan rasio 1:1, minimal 32x32 piksel.</div>
+                      <?php endif; ?>
+                      <div class="form-check mt-2">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="remove-icon"
+                               name="remove_icon"
+                               value="1"
+                               data-logo-remove
+                               data-preview-target="icon"
+                               <?= ($removeIconOld === '1' || $removeIconOld === 'on') ? 'checked' : '' ?>>
+                        <label class="form-check-label small text-muted" for="remove-icon">Hapus icon saat ini</label>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -404,3 +404,31 @@
     font-size: 0.85rem;
     opacity: 0.85;
 }
+
+/* Service Minimal Enhanced Hover for Home */
+.service-minimal {
+    display: block;
+    transition: all 0.25s ease;
+    color: inherit;
+    border: 1px solid transparent;
+}
+
+.service-minimal:hover {
+    border-color: var(--public-primary);
+    background: linear-gradient(135deg,
+            rgba(var(--public-primary-rgb), 0.08) 0%,
+            rgba(var(--public-primary-rgb), 0.02) 100%);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(var(--public-primary-rgb), 0.15);
+    color: inherit;
+}
+
+.service-minimal:hover h3 {
+    color: var(--public-primary) !important;
+}
+
+.service-minimal:hover .mono-badge {
+    background-color: var(--public-primary);
+    color: #ffffff;
+    border-color: var(--public-primary);
+}

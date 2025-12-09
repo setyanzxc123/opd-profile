@@ -107,6 +107,7 @@ class Profile extends BaseController
             'map_zoom'    => 'permit_empty|integer|greater_than_equal_to[1]|less_than_equal_to[20]',
             'map_display' => 'permit_empty|in_list[0,1]',
             'logo_public' => 'permit_empty|max_size[logo_public,3072]|is_image[logo_public]|ext_in[logo_public,jpg,jpeg,png,webp,gif]|mime_in[logo_public,image/jpeg,image/jpg,image/png,image/webp,image/gif]',
+            'icon'        => 'permit_empty|max_size[icon,1024]|is_image[icon]|ext_in[icon,jpg,jpeg,png,webp,ico,gif]',
             'org_structure_image' => 'permit_empty|max_size[org_structure_image,5120]|is_image[org_structure_image]|ext_in[org_structure_image,jpg,jpeg,png,webp]|mime_in[org_structure_image,image/jpeg,image/jpg,image/png,image/webp]',
             'org_structure_alt_text' => 'permit_empty|max_length[5000]',
             'theme_mode'   => 'required|in_list[' . $modeOptionsRule . ']',
@@ -233,6 +234,33 @@ class Profile extends BaseController
         $data['logo_public_path'] = $publicPathAfter;
         $data['logo_admin_path']  = $publicPathAfter;
 
+        // Handle Icon Upload
+        $iconPathBefore = $currentProfile['icon_path'] ?? null;
+        $iconPathAfter = $iconPathBefore;
+
+        $iconFile = $this->request->getFile('icon');
+        if ($iconFile && $iconFile->isValid() && ! $iconFile->hasMoved()) {
+            $uploadPath = 'assets/uploads/icons/';
+            
+            if (! is_dir(FCPATH . $uploadPath)) {
+                mkdir(FCPATH . $uploadPath, 0755, true);
+            }
+            
+            $newName = $iconFile->getRandomName();
+            try {
+                $iconFile->move(FCPATH . $uploadPath, $newName);
+                $iconPathAfter = $uploadPath . $newName;
+            } catch (\Throwable $e) {
+                // Squelch or log error
+            }
+        }
+
+        $removeIcon = $this->profileService->shouldRemove($this->request->getPost('remove_icon'));
+        if ($removeIcon) {
+            $iconPathAfter = null;
+        }
+        $data['icon_path'] = $iconPathAfter;
+
         // Handle organization structure image upload
         $orgStructurePathBefore = $currentProfile['org_structure_image'] ?? null;
         $orgStructurePathAfter = $orgStructurePathBefore;
@@ -298,6 +326,14 @@ class Profile extends BaseController
             $oldOrgImageFile = FCPATH . $orgStructurePathBefore;
             if (is_file($oldOrgImageFile)) {
                 @unlink($oldOrgImageFile);
+            }
+        }
+
+        // Clean up old icon
+        if ($iconPathBefore && $iconPathBefore !== $iconPathAfter) {
+            $oldIconFile = FCPATH . $iconPathBefore;
+            if (is_file($oldIconFile)) {
+                @unlink($oldIconFile);
             }
         }
 
