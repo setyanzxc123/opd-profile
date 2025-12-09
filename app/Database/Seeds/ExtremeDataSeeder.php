@@ -190,10 +190,14 @@ class ExtremeDataSeeder extends Seeder
                 'title'       => $galTitle,
                 'description' => "Dokumentasi foto kegiatan $galTitle yang dihadiri oleh staf dan pimpinan.",
                 'image_path'  => $dummyImage,
-                'category'    => 'Kegiatan',
+                // 'category'    => 'Kegiatan', // Column 'category' does not exist in Model?
                 'created_at'  => $faker->dateTimeBetween('-6 months', 'now')->format('Y-m-d H:i:s'),
             ];
-            try { $db->table('galleries')->insert($data); } catch (\Exception $e) {}
+            try { 
+                $db->table('galleries')->insert($data); 
+            } catch (\Exception $e) {
+                echo "Error inserting gallery $i: " . $e->getMessage() . "\n";
+            }
         }
 
         // 4. PESAN KONTAK (10 Data)
