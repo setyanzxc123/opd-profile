@@ -56,6 +56,7 @@ class ExtremeDataSeeder extends Seeder
         $db->table('news')->truncate();
         $db->table('services')->truncate();
         $db->table('galleries')->truncate();
+        $db->table('news_category_map')->truncate(); // Truncate relation
         // ... Truncate code above ...
         $db->table('news_categories')->truncate(); // Truncate categories too
         $this->db->enableForeignKeyChecks();
@@ -83,6 +84,9 @@ class ExtremeDataSeeder extends Seeder
         echo "Seeding 100 News items...\n";
         $newsData = [];
         
+        // Reset Auto Increment agar ID konsisten
+        // Note: DB specific, but truncate usually resets.
+        
         for ($i = 0; $i < 100; $i++) {
             // Kombinasi judul kontekstual + kata tambahan biar variatif
             $baseTitle = $faker->randomElement($newsTitles);
@@ -107,26 +111,28 @@ class ExtremeDataSeeder extends Seeder
                 <p>Acara ditutup dengan doa bersama dan ramah tamah. Diharapkan kegiatan serupa dapat rutin dilaksanakan setiap tahunnya.</p>
             ";
             
-            $newsData[] = [
+            $newsData[$i] = [
                 'title'               => $title,
                 'slug'                => $slug, 
                 'content'             => $content,
                 'excerpt'             => "Liputan kegiatan $title yang berlangsung di " . $faker->city . ". Simak selengkapnya.",
-                // 'status'       => 'published', // REMOVED: No such column
                 'author_id'           => 1,
-                'primary_category_id' => $randCatId, // FIXED: Use ID
+                'primary_category_id' => $randCatId,
                 'thumbnail'           => $dummyImage,
                 'published_at'        => $publishedAt,
-                // 'created_at' and 'updated_at' removed, model uses useTimestamps = false or auto? 
-                // Model says useTimestamps=false but let's check migration. Assuming safely ignore or manual
-                // Best practice manual for seeder:
-                // 'created_at'   => $publishedAt, 
-                // 'updated_at'   => $publishedAt,
                 'is_featured'         => ($i < 5) ? 1 : 0,
             ];
             
             try {
                 $db->table('news')->insert($newsData[$i]);
+                $newNewsId = $db->insertID();
+
+                // Insert Mapping Relasi Category
+                $db->table('news_category_map')->insert([
+                    'news_id'     => $newNewsId,
+                    'category_id' => $randCatId
+                ]);
+
             } catch (\Exception $e) {
                 echo "Error inserting news $i: " . $e->getMessage() . "\n";
             }

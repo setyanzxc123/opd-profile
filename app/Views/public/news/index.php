@@ -134,8 +134,9 @@
           </div>
           <div class="col-lg-5">
             <div class="featured-news-hero__content">
+
               <span class="featured-news-hero__badge">
-                <i class='bx bx-star'></i> FEATURED
+                 FEATURED
               </span>
               <h2 class="featured-news-hero__title">
                 <a href="<?= site_url('berita/' . esc($featured['slug'], 'url')) ?>">

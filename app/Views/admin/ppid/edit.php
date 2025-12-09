@@ -7,7 +7,7 @@
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
 
-<div class="row g-4">
+<div class="row g-4 settings-grid">
   <div class="col-12">
     <div class="card shadow-sm">
       <div class="card-header border-0 bg-transparent pb-0">
@@ -167,8 +167,73 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('pageScripts') ?>
+<script src="<?= base_url('assets/vendor/tinymce/js/tinymce/tinymce.min.js') ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // --- TinyMCE Initialization for Full-Text Editors ---
+  const tinymceConfig = {
+    branding: false,
+    promotion: false,
+    height: 400,
+    menubar: 'file edit view insert format tools table help',
+    toolbar_sticky: true,
+    toolbar: 'undo redo | blocks fontsize | bold italic underline strikethrough forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | table link | removeformat | fullscreen preview code',
+    plugins: 'preview searchreplace autolink autosave save code visualblocks visualchars fullscreen link table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount help',
+    autosave_interval: '30s',
+    autosave_restore_when_empty: true,
+    autosave_retention: '2m',
+    content_style: 'body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif; font-size: 16px; line-height: 1.7; }',
+    table_default_attributes: { class: 'table table-striped table-sm' },
+    language: 'id',
+    language_url: '<?= base_url('assets/vendor/tinymce/langs/id.js') ?>',
+  };
+
+  // Initialize for all relevant textareas
+  tinymce.init({
+    ...tinymceConfig,
+    selector: '#about, #vision, #mission, #tasks_functions'
+  });
+
+  // Handle Tab Switching & Editor Visibility
+  // Bootstrap tabs hide content with display:none, which can cause TinyMCE 
+  // to render with 0 width/height if initialized while hidden.
+  // We force a refresh when a tab is shown.
+  const tabEls = document.querySelectorAll('button[data-bs-toggle="pill"]');
+  tabEls.forEach(tabBtn => {
+    tabBtn.addEventListener('shown.bs.tab', function (event) {
+      // Find textareas inside the target pane
+      const targetId = event.target.getAttribute('data-bs-target');
+      const targetPane = document.querySelector(targetId);
+      if(targetPane) {
+          const textareas = targetPane.querySelectorAll('textarea');
+          textareas.forEach(ta => {
+              const editor = tinymce.get(ta.id);
+              if(editor) {
+                  editor.show(); // Ensure visible
+                  editor.nodeChanged(); // Refresh UI
+              }
+          });
+      }
+    });
+  });
+
+  // Form Submission Handler
+  const ppidForm = document.querySelector('form[action*="admin/ppid"]');
+  const submitBtn = ppidForm ? ppidForm.querySelector('button[type="submit"]') : null;
+
+  if (ppidForm) {
+      ppidForm.addEventListener('submit', function(e) {
+          // Trigger save for all editors
+          tinymce.triggerSave();
+          
+          if (submitBtn) {
+              submitBtn.disabled = true;
+              submitBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Menyimpan...';
+          }
+      });
+  }
+
+  // --- Existing Tab Logic ---
   // Auto-select tab based on URL parameter
   const urlParams = new URLSearchParams(window.location.search);
   const tabParam = urlParams.get('tab');
