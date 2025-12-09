@@ -2,6 +2,7 @@
 
 <?= $this->section('pageStyles') ?>
 <link rel="stylesheet" href="<?= base_url('assets/vendor/swiper/swiper-bundle.min.css') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/public/hero-slider.css') ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/public/home-enhancements.css') ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/public/home-news.css') ?>">
 <link rel="stylesheet" href="<?= base_url('assets/css/public/home-app-links.css') ?>">

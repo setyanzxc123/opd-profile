@@ -13,10 +13,8 @@
       <div class="card-header border-0 bg-transparent pb-0">
         <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
           <div>
-            <h4 class="fw-bold mb-1">
-              <i class="bx bx-info-circle me-2 text-primary"></i>Kelola PPID
-            </h4>
-            <p class="text-muted mb-0">Kelola informasi Pejabat Pengelola Informasi dan Dokumentasi (PPID)</p>
+            <h4 class="fw-bold mb-1">Kelola PPID</h4>
+            <p class="text-muted mb-0">Perbarui informasi Pejabat Pengelola Informasi dan Dokumentasi (PPID).</p>
           </div>
           <a href="<?= site_url('admin') ?>" class="btn btn-outline-secondary btn-sm">
             <i class="bx bx-arrow-back me-1"></i> Kembali ke Dashboard
@@ -32,7 +30,7 @@
           </div>
         <?php endif; ?>
         <?php if (session()->getFlashdata('error')): ?>
-          <div class="alert alert-danger alert-dismissible fade show" role="alert" aria-live="polite">
+          <div class="alert alert-danger alert-dismissible fade show" role="alert" aria-live="assertive">
             <i class="bx bx-error-circle me-2"></i><?= esc(session('error')) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
           </div>
@@ -69,116 +67,94 @@
               <div class="tab-content">
                 <!-- Tab Tentang PPID -->
                 <div class="tab-pane fade show active" id="tab-about" role="tabpanel" aria-labelledby="tab-about-tab">
-                  <div class="card border shadow-none">
-                    <div class="card-header bg-light">
-                      <h5 class="mb-0"><i class="bx bx-info-circle me-2"></i>Tentang PPID</h5>
-                    </div>
-                    <div class="card-body">
-                      <p class="text-muted small mb-3">
-                        Informasi umum tentang PPID (Pejabat Pengelola Informasi dan Dokumentasi), termasuk sejarah, latar belakang, dan deskripsi singkat.
-                      </p>
-                      <div class="mb-0">
-                        <label class="form-label" for="about">Deskripsi Tentang PPID</label>
-                        <textarea 
-                          class="form-control <?= $validation && $validation->hasError('about') ? 'is-invalid' : '' ?>" 
-                          id="about" 
-                          name="about" 
-                          rows="12"
-                          placeholder="Tuliskan informasi tentang PPID..."
-                        ><?= old('about', $ppid['about'] ?? '') ?></textarea>
-                        <?php if ($validation && $validation->hasError('about')): ?>
-                          <div class="invalid-feedback"><?= esc($validation->getError('about')) ?></div>
-                        <?php endif; ?>
-                        <div class="form-text">Anda dapat menggunakan format HTML untuk konten ini.</div>
-                      </div>
+                  <div class="row g-3">
+                    <div class="col-12 col-lg-10">
+                      <label class="form-label" for="about">Deskripsi Tentang PPID</label>
+                      <textarea 
+                        class="form-control <?= $validation && $validation->hasError('about') ? 'is-invalid' : '' ?>" 
+                        id="about" 
+                        name="about" 
+                        rows="12"
+                        placeholder="Tuliskan informasi tentang PPID..."
+                      ><?= old('about', $ppid['about'] ?? '') ?></textarea>
+                      <?php if ($validation && $validation->hasError('about')): ?>
+                        <div class="invalid-feedback"><?= esc($validation->getError('about')) ?></div>
+                      <?php else: ?>
+                        <div class="form-text text-muted">Informasi umum tentang PPID termasuk sejarah, latar belakang, dan deskripsi singkat. Anda dapat menggunakan format HTML.</div>
+                      <?php endif; ?>
                     </div>
                   </div>
                 </div>
 
                 <!-- Tab Visi & Misi -->
                 <div class="tab-pane fade" id="tab-visimisi" role="tabpanel" aria-labelledby="tab-visimisi-tab">
-                  <div class="card border shadow-none">
-                    <div class="card-header bg-light">
-                      <h5 class="mb-0"><i class="bx bx-bullseye me-2"></i>Visi & Misi PPID</h5>
+                  <div class="row g-3">
+                    <div class="col-12 col-lg-10">
+                      <label class="form-label" for="vision">Visi PPID</label>
+                      <textarea 
+                        class="form-control <?= $validation && $validation->hasError('vision') ? 'is-invalid' : '' ?>" 
+                        id="vision" 
+                        name="vision" 
+                        rows="5"
+                        placeholder="Tuliskan visi PPID..."
+                      ><?= old('vision', $ppid['vision'] ?? '') ?></textarea>
+                      <?php if ($validation && $validation->hasError('vision')): ?>
+                        <div class="invalid-feedback"><?= esc($validation->getError('vision')) ?></div>
+                      <?php else: ?>
+                        <div class="form-text text-muted">Visi merupakan gambaran masa depan yang ingin dicapai PPID.</div>
+                      <?php endif; ?>
                     </div>
-                    <div class="card-body">
-                      <div class="row g-4">
-                        <div class="col-12">
-                          <label class="form-label" for="vision">Visi PPID</label>
-                          <textarea 
-                            class="form-control <?= $validation && $validation->hasError('vision') ? 'is-invalid' : '' ?>" 
-                            id="vision" 
-                            name="vision" 
-                            rows="5"
-                            placeholder="Tuliskan visi PPID..."
-                          ><?= old('vision', $ppid['vision'] ?? '') ?></textarea>
-                          <?php if ($validation && $validation->hasError('vision')): ?>
-                            <div class="invalid-feedback"><?= esc($validation->getError('vision')) ?></div>
-                          <?php endif; ?>
-                          <div class="form-text">Visi merupakan gambaran masa depan yang ingin dicapai PPID.</div>
-                        </div>
-                        <div class="col-12">
-                          <label class="form-label" for="mission">Misi PPID</label>
-                          <textarea 
-                            class="form-control <?= $validation && $validation->hasError('mission') ? 'is-invalid' : '' ?>" 
-                            id="mission" 
-                            name="mission" 
-                            rows="8"
-                            placeholder="Tuliskan misi PPID..."
-                          ><?= old('mission', $ppid['mission'] ?? '') ?></textarea>
-                          <?php if ($validation && $validation->hasError('mission')): ?>
-                            <div class="invalid-feedback"><?= esc($validation->getError('mission')) ?></div>
-                          <?php endif; ?>
-                          <div class="form-text">
-                            Misi merupakan langkah-langkah strategis untuk mencapai visi. 
-                            Anda dapat menggunakan format HTML untuk membuat daftar.
-                          </div>
-                        </div>
-                      </div>
+                    <div class="col-12 col-lg-10">
+                      <label class="form-label" for="mission">Misi PPID</label>
+                      <textarea 
+                        class="form-control <?= $validation && $validation->hasError('mission') ? 'is-invalid' : '' ?>" 
+                        id="mission" 
+                        name="mission" 
+                        rows="8"
+                        placeholder="Tuliskan misi PPID..."
+                      ><?= old('mission', $ppid['mission'] ?? '') ?></textarea>
+                      <?php if ($validation && $validation->hasError('mission')): ?>
+                        <div class="invalid-feedback"><?= esc($validation->getError('mission')) ?></div>
+                      <?php else: ?>
+                        <div class="form-text text-muted">Misi merupakan langkah-langkah strategis untuk mencapai visi. Anda dapat menggunakan format HTML untuk membuat daftar.</div>
+                      <?php endif; ?>
                     </div>
                   </div>
                 </div>
 
                 <!-- Tab Tugas & Fungsi -->
                 <div class="tab-pane fade" id="tab-tugasfungsi" role="tabpanel" aria-labelledby="tab-tugasfungsi-tab">
-                  <div class="card border shadow-none">
-                    <div class="card-header bg-light">
-                      <h5 class="mb-0"><i class="bx bx-list-check me-2"></i>Tugas & Fungsi PPID</h5>
-                    </div>
-                    <div class="card-body">
-                      <p class="text-muted small mb-3">
-                        Tugas pokok dan fungsi PPID berdasarkan peraturan yang berlaku.
-                      </p>
-                      <div class="mb-0">
-                        <label class="form-label" for="tasks_functions">Tugas dan Fungsi PPID</label>
-                        <textarea 
-                          class="form-control <?= $validation && $validation->hasError('tasks_functions') ? 'is-invalid' : '' ?>" 
-                          id="tasks_functions" 
-                          name="tasks_functions" 
-                          rows="12"
-                          placeholder="Tuliskan tugas dan fungsi PPID..."
-                        ><?= old('tasks_functions', $ppid['tasks_functions'] ?? '') ?></textarea>
-                        <?php if ($validation && $validation->hasError('tasks_functions')): ?>
-                          <div class="invalid-feedback"><?= esc($validation->getError('tasks_functions')) ?></div>
-                        <?php endif; ?>
-                        <div class="form-text">
-                          Anda dapat menggunakan format HTML untuk konten ini. 
-                          Gunakan &lt;h3&gt; untuk judul bagian dan &lt;ul&gt;/&lt;ol&gt; untuk daftar.
-                        </div>
-                      </div>
+                  <div class="row g-3">
+                    <div class="col-12 col-lg-10">
+                      <label class="form-label" for="tasks_functions">Tugas dan Fungsi PPID</label>
+                      <textarea 
+                        class="form-control <?= $validation && $validation->hasError('tasks_functions') ? 'is-invalid' : '' ?>" 
+                        id="tasks_functions" 
+                        name="tasks_functions" 
+                        rows="12"
+                        placeholder="Tuliskan tugas dan fungsi PPID..."
+                      ><?= old('tasks_functions', $ppid['tasks_functions'] ?? '') ?></textarea>
+                      <?php if ($validation && $validation->hasError('tasks_functions')): ?>
+                        <div class="invalid-feedback"><?= esc($validation->getError('tasks_functions')) ?></div>
+                      <?php else: ?>
+                        <div class="form-text text-muted">Tugas pokok dan fungsi PPID berdasarkan peraturan yang berlaku. Gunakan &lt;h3&gt; untuk judul bagian dan &lt;ul&gt;/&lt;ol&gt; untuk daftar.</div>
+                      <?php endif; ?>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Submit Button -->
-              <div class="mt-4 d-flex gap-2">
-                <button type="submit" class="btn btn-primary">
-                  <i class="bx bx-save me-1"></i> Simpan Perubahan
-                </button>
-                <a href="<?= site_url('ppid') ?>" class="btn btn-outline-secondary" target="_blank">
-                  <i class="bx bx-external-link me-1"></i> Lihat Halaman PPID
-                </a>
+              <!-- Submit Button - Matching Profile style -->
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4">
+                <p class="text-muted small mb-0">
+                  <a href="<?= site_url('ppid') ?>" target="_blank" class="text-decoration-none">
+                    <i class="bx bx-external-link me-1"></i>Lihat Halaman PPID
+                  </a>
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                  <button type="reset" class="btn btn-outline-secondary"><i class="bx bx-reset me-1"></i> Atur Ulang</button>
+                  <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i> Simpan</button>
+                </div>
               </div>
             </div>
           </div>

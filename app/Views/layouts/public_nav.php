@@ -110,16 +110,16 @@
   <div class="public-navbar-bottom">
     <div class="container">
       <div class="public-navbar-bottom-inner d-flex align-items-center">
-        <a class="public-navbar-brand public-navbar-brand--compact text-decoration-none me-3" href="<?= base_url('/') ?>">
+        <button class="navbar-toggler d-lg-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#publicNavbar" aria-controls="publicNavbar" aria-expanded="false" aria-label="Tampilkan navigasi">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <a class="public-navbar-brand public-navbar-brand--compact text-decoration-none me-auto me-lg-3" href="<?= base_url('/') ?>">
           <?php if ($logoPublicUrl): ?>
             <img src="<?= esc($logoPublicUrl) ?>" alt="<?= esc($profileName !== '' ? $profileName : 'Logo OPD') ?>" class="navbar-brand-logo flex-shrink-0">
           <?php else: ?>
             <span class="me-3 rounded-circle d-inline-flex align-items-center justify-content-center brand-circle text-white fs-6 flex-shrink-0" aria-hidden="true"></span>
           <?php endif; ?>
         </a>
-        <button class="navbar-toggler d-lg-none ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#publicNavbar" aria-controls="publicNavbar" aria-expanded="false" aria-label="Tampilkan navigasi">
-          <span class="navbar-toggler-icon"></span>
-        </button>
         <div class="collapse navbar-collapse" id="publicNavbar">
           <ul class="public-navbar-links navbar-nav flex-column flex-lg-row align-items-start align-items-lg-center mb-0">
             <?php foreach ($navItems as $item): ?>
