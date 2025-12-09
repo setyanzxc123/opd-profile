@@ -37,8 +37,15 @@ class Home extends BaseController
         helper('statistics');
         $statistics = $this->buildStatistics();
 
+        // Prepare professional title from profile
+        $pageTitle = trim((string) ($profile['name'] ?? 'Website Resmi'));
+        $nameLine2 = trim((string) ($profile['name_line2'] ?? ''));
+        if ($nameLine2 !== '') {
+            $pageTitle .= ' ' . $nameLine2;
+        }
+
         return view('public/home', [
-            'title'            => 'Beranda OPD',
+            'title'            => $pageTitle,
             'hero'             => $hero,
             'profileSummary'   => $this->buildProfileSummary($profile),
             'services'         => $serviceCards,

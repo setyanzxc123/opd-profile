@@ -17,6 +17,9 @@
   $metaUrl         = trim((string) ($metaData['url'] ?? current_url()));
   $metaImage       = trim((string) ($metaData['image'] ?? ''));
 
+  // Favicon dynamic logic (same as admin)
+  $faviconPath = trim((string) ($headerProfileData['logo_public_path'] ?? ''));
+  $faviconUrl  = $faviconPath !== '' ? base_url($faviconPath) : base_url('favicon.ico');
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -24,6 +27,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title><?= esc($pageTitle) ?></title>
+  <link rel="icon" href="<?= esc($faviconUrl) ?>" />
   <?php if ($metaDescription !== ''): ?>
     <meta name="description" content="<?= esc($metaDescription, 'attr') ?>" />
   <?php endif; ?>
